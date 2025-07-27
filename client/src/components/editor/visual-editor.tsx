@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -106,7 +106,7 @@ function DroppableComponent({
         ...attributes,
         style: styles,
         className: cn(
-          attributes.class,
+          attributes.className || attributes.class,
           "min-h-[20px] relative group transition-all duration-200",
           isSelected && "ring-2 ring-primary ring-offset-2",
           isOver && "ring-2 ring-secondary ring-offset-2",
@@ -401,11 +401,18 @@ export default function VisualEditor({
 </body>
 </html>`;
 
-    setPreviewHtml(html);
+    return html;
   }, [pageStructure, currentPage]);
 
+  // Generate HTML preview when showCode changes or pageStructure updates
+  useEffect(() => {
+    if (showCode) {
+      const html = generateHtmlPreview();
+      setPreviewHtml(html);
+    }
+  }, [showCode, generateHtmlPreview]);
+
   if (showCode) {
-    generateHtmlPreview();
     return (
       <div className="h-full">
         <div className="bg-gray-900 text-gray-100 p-4 h-full overflow-auto">
