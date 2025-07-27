@@ -3,6 +3,8 @@ import { useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
 import ComponentPalette from "@/components/editor/component-palette";
@@ -222,35 +224,37 @@ export default function Editor() {
         }
       />
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Component Palette */}
-        <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
-          <ComponentPalette />
-        </div>
+      <DndProvider backend={HTML5Backend}>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Component Palette */}
+          <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+            <ComponentPalette />
+          </div>
 
-        {/* Main Editor Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-auto bg-gray-100 p-4">
-            <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
-              <VisualEditor
-                project={project}
-                selectedComponent={selectedComponent}
-                onComponentSelect={setSelectedComponent}
-                onComponentUpdate={handleComponentUpdate}
-                showCode={showCode}
-              />
+          {/* Main Editor Area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-auto bg-gray-100 p-4">
+              <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
+                <VisualEditor
+                  project={project}
+                  selectedComponent={selectedComponent}
+                  onComponentSelect={setSelectedComponent}
+                  onComponentUpdate={handleComponentUpdate}
+                  showCode={showCode}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Properties Panel */}
-        <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-          <PropertiesPanel
-            component={selectedComponent}
-            onComponentUpdate={handleComponentUpdate}
-          />
+          {/* Properties Panel */}
+          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+            <PropertiesPanel
+              component={selectedComponent}
+              onComponentUpdate={handleComponentUpdate}
+            />
+          </div>
         </div>
-      </div>
+      </DndProvider>
     </>
   );
 }

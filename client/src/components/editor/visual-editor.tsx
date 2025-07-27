@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { useDrag, useDrop } from "react-dnd";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -419,36 +418,34 @@ export default function VisualEditor({
   }
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div 
-        ref={containerRef}
-        className={cn(
-          "min-h-screen p-4 bg-white",
-          isOver && "bg-blue-50 ring-2 ring-blue-300 ring-inset"
-        )}
-        onClick={() => onComponentSelect(null)}
-      >
-        {pageStructure.length === 0 ? (
-          <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
-            <div className="text-center">
-              <div className="text-4xl text-gray-400 mb-4">+</div>
-              <p className="text-gray-500">Glissez des composants ici pour commencer</p>
-            </div>
+    <div 
+      ref={containerRef}
+      className={cn(
+        "min-h-screen p-4 bg-white",
+        isOver && "bg-blue-50 ring-2 ring-blue-300 ring-inset"
+      )}
+      onClick={() => onComponentSelect(null)}
+    >
+      {pageStructure.length === 0 ? (
+        <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
+          <div className="text-center">
+            <div className="text-4xl text-gray-400 mb-4">+</div>
+            <p className="text-gray-500">Glissez des composants ici pour commencer</p>
           </div>
-        ) : (
-          pageStructure.map((component) => (
-            <DroppableComponent
-              key={component.id}
-              component={component}
-              isSelected={selectedComponent?.id === component.id}
-              onSelect={onComponentSelect}
-              onUpdate={handleComponentUpdate}
-              onDelete={handleComponentDelete}
-              depth={0}
-            />
-          ))
-        )}
-      </div>
-    </DndProvider>
+        </div>
+      ) : (
+        pageStructure.map((component) => (
+          <DroppableComponent
+            key={component.id}
+            component={component}
+            isSelected={selectedComponent?.id === component.id}
+            onSelect={onComponentSelect}
+            onUpdate={handleComponentUpdate}
+            onDelete={handleComponentDelete}
+            depth={0}
+          />
+        ))
+      )}
+    </div>
   );
 }
