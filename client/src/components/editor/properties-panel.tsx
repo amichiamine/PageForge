@@ -297,20 +297,177 @@ export default function PropertiesPanel({
                           placeholder="Description de l'image"
                         />
                       </div>
+                      <div>
+                        <Label htmlFor="width">Largeur</Label>
+                        <Input
+                          id="width"
+                          value={getPropertyValue('attributes.width')}
+                          onChange={(e) => updateProperty('attributes.width', e.target.value)}
+                          placeholder="400"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="height">Hauteur</Label>
+                        <Input
+                          id="height"
+                          value={getPropertyValue('attributes.height')}
+                          onChange={(e) => updateProperty('attributes.height', e.target.value)}
+                          placeholder="300"
+                        />
+                      </div>
                     </>
                   )}
 
                   {/* Link specific properties */}
                   {localComponent.type === "link" && (
+                    <>
+                      <div>
+                        <Label htmlFor="href">URL du lien</Label>
+                        <Input
+                          id="href"
+                          value={getPropertyValue('attributes.href')}
+                          onChange={(e) => updateProperty('attributes.href', e.target.value)}
+                          placeholder="https://example.com"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="target">Cible</Label>
+                        <Select
+                          value={getPropertyValue('attributes.target')}
+                          onValueChange={(value) => updateProperty('attributes.target', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choisir..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="_self">Même fenêtre</SelectItem>
+                            <SelectItem value="_blank">Nouvelle fenêtre</SelectItem>
+                            <SelectItem value="_parent">Fenêtre parent</SelectItem>
+                            <SelectItem value="_top">Fenêtre principale</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Button specific properties */}
+                  {localComponent.type === "button" && (
                     <div>
-                      <Label htmlFor="href">URL du lien</Label>
-                      <Input
-                        id="href"
-                        value={getPropertyValue('attributes.href')}
-                        onChange={(e) => updateProperty('attributes.href', e.target.value)}
-                        placeholder="https://example.com"
-                      />
+                      <Label htmlFor="buttonType">Type de bouton</Label>
+                      <Select
+                        value={getPropertyValue('attributes.type')}
+                        onValueChange={(value) => updateProperty('attributes.type', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="button">Bouton</SelectItem>
+                          <SelectItem value="submit">Envoyer</SelectItem>
+                          <SelectItem value="reset">Réinitialiser</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+                  )}
+
+                  {/* Form input specific properties */}
+                  {localComponent.type === "input" && (
+                    <>
+                      <div>
+                        <Label htmlFor="inputType">Type d'input</Label>
+                        <Select
+                          value={getPropertyValue('attributes.type')}
+                          onValueChange={(value) => updateProperty('attributes.type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="text">Texte</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="password">Mot de passe</SelectItem>
+                            <SelectItem value="number">Nombre</SelectItem>
+                            <SelectItem value="tel">Téléphone</SelectItem>
+                            <SelectItem value="url">URL</SelectItem>
+                            <SelectItem value="date">Date</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="placeholder">Placeholder</Label>
+                        <Input
+                          id="placeholder"
+                          value={getPropertyValue('attributes.placeholder')}
+                          onChange={(e) => updateProperty('attributes.placeholder', e.target.value)}
+                          placeholder="Texte d'aide"
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="required"
+                          checked={getPropertyValue('attributes.required') || false}
+                          onChange={(e) => updateProperty('attributes.required', e.target.checked)}
+                        />
+                        <Label htmlFor="required">Obligatoire</Label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Carousel specific properties */}
+                  {localComponent.type === "carousel" && (
+                    <>
+                      <div>
+                        <Label>Gestion des slides</Label>
+                        <div className="space-y-2 mt-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              // Add new slide functionality
+                              const newSlide = {
+                                id: `slide-${Date.now()}`,
+                                type: "carousel-item",
+                                tag: "div",
+                                content: `Nouveau slide ${(localComponent.children?.length || 0) + 1}`,
+                                styles: {
+                                  display: "none",
+                                  textAlign: "center",
+                                  padding: "60px 20px"
+                                },
+                                attributes: { className: "carousel-item" },
+                                children: []
+                              };
+                              
+                              const updatedComponent = {
+                                ...localComponent,
+                                children: [...(localComponent.children || []), newSlide]
+                              };
+                              
+                              setLocalComponent(updatedComponent);
+                              onComponentUpdate(updatedComponent);
+                            }}
+                          >
+                            Ajouter un slide
+                          </Button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="autoPlay">Lecture automatique</Label>
+                        <Select
+                          value={getPropertyValue('attributes.data-autoplay') || "false"}
+                          onValueChange={(value) => updateProperty('attributes.data-autoplay', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="false">Non</SelectItem>
+                            <SelectItem value="true">Oui</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>

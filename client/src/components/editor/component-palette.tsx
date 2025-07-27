@@ -2,6 +2,7 @@ import { useDrag } from "react-dnd";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 import { 
   Type, 
   Square, 
@@ -17,7 +18,11 @@ import {
   Table,
   Video,
   Map,
-  Calendar
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 interface ComponentItem {
@@ -242,7 +247,15 @@ const components: ComponentItem[] = [
     description: "Carte interactive"
   },
   
-
+  // Carousel Component
+  {
+    id: "carousel",
+    name: "Carrousel",
+    type: "carousel", 
+    icon: ChevronRight,
+    category: "Media",
+    description: "Carrousel d'images avec navigation"
+  },
   
   // Calendar Component  
   {
@@ -266,6 +279,16 @@ const categories = [
 ];
 
 export default function ComponentPalette() {
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-gray-900">
       <div className="p-4 border-b border-gray-700">
@@ -275,27 +298,38 @@ export default function ComponentPalette() {
         </p>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="p-4">
         {categories.map((category) => {
           const categoryComponents = components.filter(c => c.category === category);
+          const isExpanded = expandedCategories.includes(category);
           
           if (categoryComponents.length === 0) return null;
-
+          
           return (
-            <div key={category}>
-              <h3 className="text-sm font-semibold text-gray-300 mb-3">
-                {category}
-              </h3>
-              <div className="space-y-2">
-                {categoryComponents.map((component) => (
-                  <DraggableComponent 
-                    key={component.id} 
-                    component={component} 
-                  />
-                ))}
-              </div>
-              {category !== categories[categories.length - 1] && (
-                <Separator className="mt-4 bg-gray-700" />
+            <div key={category} className="mb-2">
+              <button
+                onClick={() => toggleCategory(category)}
+                className="w-full flex items-center justify-between py-2 px-3 text-left hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  {category} ({categoryComponents.length})
+                </h3>
+                {isExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-gray-400" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                )}
+              </button>
+              
+              {isExpanded && (
+                <div className="mt-2 space-y-2 pl-2">
+                  {categoryComponents.map((component) => (
+                    <DraggableComponent 
+                      key={component.id} 
+                      component={component} 
+                    />
+                  ))}
+                </div>
               )}
             </div>
           );

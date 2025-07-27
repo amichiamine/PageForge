@@ -16,18 +16,20 @@ import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
 import { useLocation } from "wouter";
 import CodePreview from "@/components/editor/code-preview";
+import { useSidebarContext } from "@/App";
 
 export default function Editor() {
   const { projectId } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+  const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
   
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [hideLeftPanel, setHideLeftPanel] = useState(false);
+  const [hideComponentPanel, setHideComponentPanel] = useState(false);
   const [hideRightPanel, setHideRightPanel] = useState(false);
   
   // Local state for editor changes before saving
@@ -268,10 +270,19 @@ export default function Editor() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setHideLeftPanel(!hideLeftPanel)}
+              onClick={() => setHideMainSidebar(!hideMainSidebar)}
+              title="Masquer/Afficher la navigation principale"
+            >
+              {hideMainSidebar ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setHideComponentPanel(!hideComponentPanel)}
               title="Masquer/Afficher le menu des composants"
             >
-              {hideLeftPanel ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              {hideComponentPanel ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </Button>
 
             <Button
@@ -330,7 +341,7 @@ export default function Editor() {
       <DndProvider backend={HTML5Backend}>
         <div className="flex-1 flex overflow-hidden">
           {/* Component Palette */}
-          {!hideLeftPanel && (
+          {!hideComponentPanel && (
             <div className="w-64 bg-gray-900 border-r border-gray-700 overflow-y-auto">
               <ComponentPalette />
             </div>
