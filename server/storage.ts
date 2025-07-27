@@ -61,7 +61,7 @@ export class MemStorage implements IStorage {
               id: "hero-section",
               type: "section",
               tag: "section",
-              attributes: { class: "hero-section" },
+              attributes: { className: "hero-section" },
               styles: { 
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 minHeight: "100vh",
@@ -76,7 +76,7 @@ export class MemStorage implements IStorage {
                   id: "hero-container",
                   type: "container",
                   tag: "div",
-                  attributes: { class: "container" },
+                  attributes: { className: "container" },
                   styles: { maxWidth: "1200px", padding: "0 2rem" },
                   children: [
                     {
@@ -138,7 +138,7 @@ export class MemStorage implements IStorage {
               id: "header",
               type: "header",
               tag: "header",
-              attributes: { class: "site-header" },
+              attributes: { className: "site-header" },
               styles: { 
                 backgroundColor: "#ffffff",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
@@ -151,7 +151,7 @@ export class MemStorage implements IStorage {
                   id: "nav",
                   type: "navigation",
                   tag: "nav",
-                  attributes: { class: "main-nav" },
+                  attributes: { className: "main-nav" },
                   styles: { 
                     display: "flex",
                     justifyContent: "space-between",
@@ -187,14 +187,14 @@ export class MemStorage implements IStorage {
               id: "products-section",
               type: "section",
               tag: "section",
-              attributes: { class: "products" },
+              attributes: { className: "products" },
               styles: { padding: "3rem 2rem" },
               children: [
                 {
                   id: "products-grid",
                   type: "grid",
                   tag: "div",
-                  attributes: { class: "products-grid" },
+                  attributes: { className: "products-grid" },
                   styles: { 
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
@@ -207,7 +207,7 @@ export class MemStorage implements IStorage {
                       id: "product-card",
                       type: "card",
                       tag: "div",
-                      attributes: { class: "product-card" },
+                      attributes: { className: "product-card" },
                       styles: { 
                         backgroundColor: "white",
                         borderRadius: "0.5rem",
@@ -282,7 +282,7 @@ export class MemStorage implements IStorage {
               id: "portfolio-header",
               type: "header",
               tag: "header",
-              attributes: { class: "portfolio-header" },
+              attributes: { className: "portfolio-header" },
               styles: { 
                 backgroundColor: "#1a1a1a",
                 color: "white",
@@ -327,7 +327,7 @@ export class MemStorage implements IStorage {
               id: "portfolio-grid",
               type: "section",
               tag: "section",
-              attributes: { class: "portfolio-grid" },
+              attributes: { className: "portfolio-grid" },
               styles: { padding: "4rem 2rem" },
               children: [
                 {
@@ -487,6 +487,8 @@ export class MemStorage implements IStorage {
     const project: Project = {
       ...insertProject,
       id,
+      description: insertProject.description || null,
+      template: insertProject.template || null,
       content,
       settings: {
         responsive: {
@@ -564,6 +566,9 @@ export class MemStorage implements IStorage {
     const template: Template = {
       ...insertTemplate,
       id,
+      description: insertTemplate.description || null,
+      thumbnail: insertTemplate.thumbnail || null,
+      tags: insertTemplate.tags || null,
       createdAt: new Date(),
       isBuiltIn: false,
     };

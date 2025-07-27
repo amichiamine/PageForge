@@ -16,7 +16,10 @@ import {
   List,
   Table,
   Video,
-  Map
+  Map,
+  ChevronLeft,
+  ChevronRight,
+  Calendar
 } from "lucide-react";
 
 interface ComponentItem {
@@ -240,6 +243,26 @@ const components: ComponentItem[] = [
     category: "Advanced",
     description: "Carte interactive"
   },
+  
+  // Carousel Component
+  {
+    id: "carousel",
+    name: "Carrousel",
+    type: "carousel",
+    icon: ChevronRight,
+    category: "Media",
+    description: "Carrousel d'images ou contenu"
+  },
+  
+  // Calendar Component  
+  {
+    id: "calendar",
+    name: "Calendrier",
+    type: "calendar",
+    icon: Calendar,
+    category: "Interactive",
+    description: "Sélecteur de date"
+  }
 ];
 
 const categories = [

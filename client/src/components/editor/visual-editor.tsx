@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Trash2, Move, Copy } from "lucide-react";
 import type { Project, ComponentDefinition } from "@shared/schema";
+import { createComponent, addComponentToTree, updateComponentInTree, removeComponentFromTree } from "@/lib/editor-utils";
 
 interface VisualEditorProps {
   project: Project;
@@ -52,17 +53,9 @@ function DroppableComponent({
     drop: (item: DragItem, monitor) => {
       if (monitor.didDrop()) return;
       
-      if (item.fromPalette) {
+      if (item.fromPalette && item.type) {
         // Add new component from palette
-        const newComponent: ComponentDefinition = {
-          id: `component-${Date.now()}`,
-          type: item.type,
-          tag: getDefaultTag(item.type),
-          content: getDefaultContent(item.type),
-          attributes: getDefaultAttributes(item.type),
-          styles: getDefaultStyles(item.type),
-          children: []
-        };
+        const newComponent = createComponent(item.type);
         
         const updatedComponent = {
           ...component,
@@ -106,7 +99,7 @@ function DroppableComponent({
         ...attributes,
         style: styles,
         className: cn(
-          attributes.className || attributes.class,
+          attributes.className,
           "min-h-[20px] relative group transition-all duration-200",
           isSelected && "ring-2 ring-primary ring-offset-2",
           isOver && "ring-2 ring-secondary ring-offset-2",
@@ -195,21 +188,21 @@ function getDefaultAttributes(type: string): Record<string, any> {
       return { 
         src: "https://via.placeholder.com/300x200", 
         alt: "Image placeholder",
-        class: "max-w-full h-auto" 
+        className: "max-w-full h-auto" 
       };
     case "input":
       return { 
         type: "text", 
         placeholder: "Saisir du texte...",
-        class: "w-full p-2 border border-gray-300 rounded" 
+        className: "w-full p-2 border border-gray-300 rounded" 
       };
     case "button":
       return { 
         type: "button",
-        class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" 
+        className: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" 
       };
     default:
-      return { class: "" };
+      return { className: "" };
   }
 }
 
@@ -260,6 +253,31 @@ export default function VisualEditor({
     accept: ["palette-item"],
     drop: (item: DragItem, monitor) => {
       if (monitor.didDrop()) return;
+
+      if (item.fromPalette && item.type) {
+        // Add new component from palette to root
+        const newComponent = createComponent(item.type);
+        
+        const updatedStructure = [...pageStructure, newComponent];
+        
+        const updatedProject = {
+          ...project,
+          content: {
+            ...project.content,
+            pages: project.content?.pages?.map((page, index) => 
+              index === 0 ? {
+                ...page,
+                content: {
+                  ...page.content,
+                  structure: updatedStructure
+                }
+              } : page
+            ) || []
+          }
+        };
+        
+        onComponentUpdate(updatedProject);
+      }
       
       // Add component to root level
       const newComponent: ComponentDefinition = {

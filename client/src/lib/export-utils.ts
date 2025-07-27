@@ -1,412 +1,312 @@
 import type { Project, ComponentDefinition } from "@shared/schema";
 
 export interface ExportOptions {
-  includeCSS: boolean;
-  includeJS: boolean;
-  minify: boolean;
-  inlineCSS: boolean;
-  responsive: boolean;
-  seoOptimized: boolean;
+  includeCSS?: boolean;
+  includeJS?: boolean;
+  minify?: boolean;
+  inlineCSS?: boolean;
+  responsive?: boolean;
+  seoOptimized?: boolean;
 }
 
-export interface ExportedFile {
+export interface ExportFile {
   path: string;
   content: string;
-  type: "html" | "css" | "js" | "json";
+  type: string;
 }
 
-export const defaultExportOptions: ExportOptions = {
-  includeCSS: true,
-  includeJS: true,
-  minify: false,
-  inlineCSS: false,
-  responsive: true,
-  seoOptimized: true,
-};
-
-export function exportProject(project: Project, options = defaultExportOptions): ExportedFile[] {
-  const files: ExportedFile[] = [];
-
-  // Generate HTML files for each page
-  if (project.content.pages) {
-    project.content.pages.forEach(page => {
-      const htmlContent = generateHTML(page, project, options);
-      const fileName = page.path === "/" ? "index.html" : `${page.name}.html`;
-      
-      files.push({
-        path: fileName,
-        content: htmlContent,
-        type: "html"
-      });
-    });
+export function exportProject(project: Project, options: ExportOptions = {}): ExportFile[] {
+  const files: ExportFile[] = [];
+  const currentPage = project.content?.pages?.[0];
+  
+  if (!currentPage) {
+    return [{
+      path: "index.html",
+      content: "<!DOCTYPE html><html><head><title>Empty Project</title></head><body><p>No content to export</p></body></html>",
+      type: "html"
+    }];
   }
 
-  // Generate CSS file
+  // Generate HTML
+  const htmlContent = generateHTML(project, currentPage, options);
+  files.push({
+    path: "index.html",
+    content: htmlContent,
+    type: "html"
+  });
+
+  // Generate CSS if requested
   if (options.includeCSS && !options.inlineCSS) {
-    const cssContent = generateCSS(project, options);
-    if (cssContent.trim()) {
-      files.push({
-        path: "styles.css",
-        content: cssContent,
-        type: "css"
-      });
-    }
-  }
-
-  // Generate JavaScript file
-  if (options.includeJS) {
-    const jsContent = generateJS(project, options);
-    if (jsContent.trim()) {
-      files.push({
-        path: "script.js",
-        content: jsContent,
-        type: "js"
-      });
-    }
-  }
-
-  // Generate package.json for standalone projects
-  if (project.type === "standalone") {
-    const packageJson = generatePackageJson(project);
+    const cssContent = generateCSS(project, currentPage, options);
     files.push({
-      path: "package.json",
-      content: packageJson,
-      type: "json"
+      path: "styles.css",
+      content: cssContent,
+      type: "css"
     });
   }
+
+  // Generate JavaScript if requested
+  if (options.includeJS) {
+    const jsContent = generateJS(project, currentPage, options);
+    files.push({
+      path: "script.js",
+      content: jsContent,
+      type: "js"
+    });
+  }
+
+  // Add package.json for project metadata
+  files.push({
+    path: "package.json",
+    content: JSON.stringify({
+      name: project.name.toLowerCase().replace(/\s+/g, '-'),
+      version: "1.0.0",
+      description: project.description || "Exported from SiteJet clone",
+      main: "index.html",
+      scripts: {
+        start: "serve .",
+        build: "echo 'Already built'"
+      },
+      keywords: ["website", "exported", "sitejet"],
+      author: "SiteJet Clone",
+      license: "MIT"
+    }, null, 2),
+    type: "json"
+  });
 
   return files;
 }
 
-function generateHTML(page: any, project: Project, options: ExportOptions): string {
-  const title = page.meta?.title || project.settings.seo?.title || project.name;
-  const description = page.meta?.description || project.settings.seo?.description || "";
-  const keywords = page.meta?.keywords?.join(", ") || project.settings.seo?.keywords?.join(", ") || "";
+function generateHTML(project: Project, page: any, options: ExportOptions): string {
+  const renderComponent = (component: ComponentDefinition): string => {
+    const Tag = component.tag || 'div';
+    const styleString = component.styles ? 
+      Object.entries(component.styles)
+        .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
+        .join('; ') : '';
+    
+    const attributes = component.attributes || {};
+    const attrString = Object.entries(attributes)
+      .filter(([key]) => key !== 'className')
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(' ');
+      
+    const className = attributes.className || '';
+    
+    const children = component.children?.map(renderComponent).join('') || '';
+    const content = component.content || '';
+    
+    const inlineStyle = options.inlineCSS ? ` style="${styleString}"` : '';
+    
+    return `<${Tag} ${attrString} class="${className}"${inlineStyle}>${content}${children}</${Tag}>`;
+  };
   
-  const viewport = options.responsive 
-    ? '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
-    : '';
+  const bodyContent = page.content.structure?.map(renderComponent).join('') || '';
+  
+  const cssLink = options.includeCSS && !options.inlineCSS ? 
+    '<link rel="stylesheet" href="styles.css">' : '';
+  
+  const jsScript = options.includeJS ? 
+    '<script src="script.js"></script>' : '';
+
+  const inlineCSSStyles = options.inlineCSS ? '' : `
+    <style>
+      ${generateInlineCSS(project, page, options)}
+    </style>
+  `;
+
+  const responsiveMeta = options.responsive ? 
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' : '';
 
   const seoMeta = options.seoOptimized ? `
-    <meta name="description" content="${description}">
-    <meta name="keywords" content="${keywords}">
-    <meta name="author" content="${page.meta?.author || 'SiteJet Clone'}">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
+    <meta name="description" content="${page.content.meta?.description || project.description || 'Generated with SiteJet Clone'}">
+    <meta property="og:title" content="${page.content.meta?.title || project.name}">
+    <meta property="og:description" content="${page.content.meta?.description || project.description || ''}">
     <meta property="og:type" content="website">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
   ` : '';
-
-  const cssLink = options.includeCSS && !options.inlineCSS 
-    ? '<link rel="stylesheet" href="styles.css">' 
-    : '';
-
-  const inlineCSS = options.includeCSS && options.inlineCSS 
-    ? `<style>\n${generateCSS(project, options)}\n</style>` 
-    : '';
-
-  const jsScript = options.includeJS 
-    ? '<script src="script.js"></script>' 
-    : '';
-
-  const bodyContent = renderComponents(page.content?.structure || []);
-
-  const html = `<!DOCTYPE html>
+  
+  return `<!DOCTYPE html>
 <html lang="fr">
-<head>
+  <head>
     <meta charset="UTF-8">
-    ${viewport}
-    <title>${title}</title>
+    ${responsiveMeta}
+    <title>${page.content.meta?.title || project.name}</title>
     ${seoMeta}
     ${cssLink}
-    ${inlineCSS}
-</head>
-<body>
+    ${inlineCSSStyles}
+  </head>
+  <body>
     ${bodyContent}
     ${jsScript}
-</body>
+  </body>
 </html>`;
-
-  return options.minify ? minifyHTML(html) : html;
 }
 
-function renderComponents(components: ComponentDefinition[]): string {
-  return components.map(component => {
-    const tag = component.tag || 'div';
-    const attributes = component.attributes || {};
-    const styles = component.styles || {};
-    
-    // Build attributes string
-    const attributesArray = Object.entries(attributes)
-      .filter(([key, value]) => key !== 'style' && value !== undefined)
-      .map(([key, value]) => `${key}="${escapeHtml(String(value))}"`);
-
-    // Build inline styles
-    if (Object.keys(styles).length > 0) {
-      const styleString = Object.entries(styles)
-        .map(([key, value]) => `${camelToKebab(key)}:${value}`)
-        .join(';');
-      attributesArray.push(`style="${styleString}"`);
-    }
-
-    const attributesString = attributesArray.join(' ');
-    const children = component.children ? renderComponents(component.children) : '';
-    const content = escapeHtml(component.content || '');
-
-    // Self-closing tags
-    if (['img', 'input', 'br', 'hr', 'meta', 'link'].includes(tag)) {
-      return `<${tag} ${attributesString} />`;
-    }
-
-    return `<${tag} ${attributesString}>${content}${children}</${tag}>`;
-  }).join('\n');
-}
-
-function generateCSS(project: Project, options: ExportOptions): string {
-  let css = "";
-
-  // Add base styles for responsive design
-  if (options.responsive) {
-    css += `
-/* Base responsive styles */
+function generateCSS(project: Project, page: any, options: ExportOptions): string {
+  let css = `
+/* Global Styles */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
   color: #333;
 }
 
-img {
-  max-width: 100%;
-  height: auto;
-}
+/* Component Styles */
+`;
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
+  // Add global styles from project
+  if (project.content?.styles?.global) {
+    css += project.content.styles.global + '\n';
+  }
 
-/* Responsive utilities */
+  // Add page-specific styles
+  if (page.content.styles) {
+    css += page.content.styles + '\n';
+  }
+
+  // Add responsive styles if requested
+  if (options.responsive) {
+    css += `
+/* Responsive Styles */
 @media (max-width: 768px) {
   .container {
-    padding: 0 0.5rem;
+    padding: 1rem;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.5rem;
   }
 }
 
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.25rem;
+  }
+}
 `;
   }
 
-  // Add global styles from project
-  if (project.content.styles?.global) {
-    css += project.content.styles.global + "\n\n";
-  }
-
-  // Add component-specific styles
-  if (project.content.styles?.components) {
-    Object.entries(project.content.styles.components).forEach(([selector, styles]) => {
-      css += `${selector} {\n${styles}\n}\n\n`;
-    });
-  }
-
-  // Generate styles from page components
-  if (project.content.pages) {
-    project.content.pages.forEach(page => {
-      if (page.content?.structure) {
-        css += generateComponentStyles(page.content.structure);
-      }
-    });
-  }
-
-  return options.minify ? minifyCSS(css) : css;
+  return options.minify ? css.replace(/\s+/g, ' ').trim() : css;
 }
 
-function generateComponentStyles(components: ComponentDefinition[]): string {
-  let css = "";
+function generateInlineCSS(project: Project, page: any, options: ExportOptions): string {
+  let css = `
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; line-height: 1.6; color: #333; }
+  `;
 
-  components.forEach(component => {
-    if (component.styles && Object.keys(component.styles).length > 0) {
-      const selector = `#${component.id}`;
-      const styleEntries = Object.entries(component.styles)
-        .map(([property, value]) => `  ${camelToKebab(property)}: ${value};`)
-        .join('\n');
-      
-      css += `${selector} {\n${styleEntries}\n}\n\n`;
-    }
+  if (project.content?.styles?.global) {
+    css += project.content.styles.global;
+  }
 
-    if (component.children) {
-      css += generateComponentStyles(component.children);
-    }
-  });
+  if (page.content.styles) {
+    css += page.content.styles;
+  }
 
   return css;
 }
 
-function generateJS(project: Project, options: ExportOptions): string {
+function generateJS(project: Project, page: any, options: ExportOptions): string {
   let js = `
-// Generated by SiteJet Clone
+// Generated JavaScript for ${project.name}
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded successfully');
-    
-    // Add basic interactivity
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            if (!this.getAttribute('onclick')) {
-                console.log('Button clicked:', this.textContent);
-            }
-        });
-    });
-    
-    // Form handling
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('Form submitted');
-        });
-    });
-    
-    // Responsive image loading
-    const images = document.querySelectorAll('img[data-src]');
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-        
-        images.forEach(img => imageObserver.observe(img));
-    }
+  console.log('Page loaded successfully');
+  
+  // Initialize interactive components
+  initializeCarousels();
+  initializeCalendars();
+  initializeForms();
 });
 
-// Utility functions
-function toggleElement(id) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.style.display = element.style.display === 'none' ? '' : 'none';
+function initializeCarousels() {
+  const carousels = document.querySelectorAll('.carousel');
+  carousels.forEach(carousel => {
+    const items = carousel.querySelectorAll('.carousel-item');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    let currentIndex = 0;
+    
+    function showSlide(index) {
+      items.forEach((item, i) => {
+        item.style.display = i === index ? 'block' : 'none';
+      });
+      dots.forEach((dot, i) => {
+        dot.className = i === index ? 'carousel-dot active' : 'carousel-dot';
+      });
     }
+    
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        currentIndex = i;
+        showSlide(currentIndex);
+      });
+    });
+    
+    // Auto-advance carousel every 5 seconds
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % items.length;
+      showSlide(currentIndex);
+    }, 5000);
+  });
 }
 
-function showModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.style.display = 'block';
+function initializeCalendars() {
+  const calendars = document.querySelectorAll('.calendar');
+  calendars.forEach(calendar => {
+    const prevBtn = calendar.querySelector('.calendar-nav:first-child');
+    const nextBtn = calendar.querySelector('.calendar-nav:last-child');
+    const title = calendar.querySelector('.calendar-title');
+    
+    if (prevBtn && nextBtn && title) {
+      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      let currentMonth = 0;
+      let currentYear = 2024;
+      
+      function updateCalendar() {
+        title.textContent = \`\${months[currentMonth]} \${currentYear}\`;
+      }
+      
+      prevBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        updateCalendar();
+      });
+      
+      nextBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        updateCalendar();
+      });
     }
+  });
 }
 
-function hideModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.style.display = 'none';
-    }
+function initializeForms() {
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Formulaire soumis avec succès!');
+    });
+  });
 }
 `;
 
-  return options.minify ? minifyJS(js) : js;
-}
-
-function generatePackageJson(project: Project): string {
-  const packageJson = {
-    name: project.name.toLowerCase().replace(/\s+/g, '-'),
-    version: "1.0.0",
-    description: project.description || `Website generated by SiteJet Clone`,
-    main: "index.html",
-    scripts: {
-      start: "python -m http.server 8000",
-      "start:php": "php -S localhost:8000",
-      "start:node": "npx http-server -p 8000"
-    },
-    keywords: [
-      "website",
-      "sitejet-clone",
-      "static-site"
-    ],
-    author: "SiteJet Clone",
-    license: "MIT",
-    devDependencies: {
-      "http-server": "^14.1.1"
-    }
-  };
-
-  return JSON.stringify(packageJson, null, 2);
-}
-
-// Utility functions
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function camelToKebab(str: string): string {
-  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
-}
-
-function minifyHTML(html: string): string {
-  return html
-    .replace(/\s+/g, ' ')
-    .replace(/>\s+</g, '><')
-    .trim();
-}
-
-function minifyCSS(css: string): string {
-  return css
-    .replace(/\s+/g, ' ')
-    .replace(/;\s*}/g, '}')
-    .replace(/{\s*/g, '{')
-    .replace(/;\s*/g, ';')
-    .trim();
-}
-
-function minifyJS(js: string): string {
-  // Basic JS minification - for production, use a proper minifier
-  return js
-    .replace(/\s+/g, ' ')
-    .replace(/;\s*}/g, ';}')
-    .replace(/{\s*/g, '{')
-    .replace(/;\s*/g, ';')
-    .trim();
-}
-
-export function downloadFiles(files: ExportedFile[], projectName: string): void {
-  if (files.length === 1) {
-    // Download single file
-    const file = files[0];
-    downloadFile(file.content, file.path);
-  } else {
-    // Create and download ZIP (basic implementation)
-    // In a real implementation, you'd use a library like JSZip
-    files.forEach(file => {
-      setTimeout(() => downloadFile(file.content, file.path), 100);
-    });
-  }
-}
-
-function downloadFile(content: string, filename: string): void {
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  return options.minify ? js.replace(/\s+/g, ' ').trim() : js;
 }

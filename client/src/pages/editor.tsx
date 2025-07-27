@@ -13,15 +13,20 @@ import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor } from "lucide-r
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
+import { useLocation } from "wouter";
+import CodePreview from "@/components/editor/code-preview";
 
 export default function Editor() {
   const { projectId } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [hidePanels, setHidePanels] = useState(false);
 
   const { data: project, isLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
@@ -83,10 +88,17 @@ export default function Editor() {
     },
   });
 
-  const handleComponentUpdate = (component: ComponentDefinition) => {
+  const handleComponentUpdate = (updatedProjectOrComponent: Project | ComponentDefinition) => {
     if (!project) return;
-    
-    // Update the component in the project structure
+
+    // If it's a Project, use it directly
+    if ('content' in updatedProjectOrComponent) {
+      saveProjectMutation.mutate({ content: updatedProjectOrComponent.content });
+      return;
+    }
+
+    // If it's a ComponentDefinition, update in structure
+    const component = updatedProjectOrComponent;
     const updateComponent = (components: ComponentDefinition[]): ComponentDefinition[] => {
       return components.map(comp => {
         if (comp.id === component.id) {
@@ -130,6 +142,54 @@ export default function Editor() {
     }
   };
 
+  // Generate HTML preview
+  const generatePreviewHTML = (project: Project) => {
+    const currentPage = project.content?.pages?.[0];
+    if (!currentPage) return "<p>Aucun contenu à prévisualiser</p>";
+    
+    const renderComponent = (component: ComponentDefinition): string => {
+      const Tag = component.tag || 'div';
+      const styleString = component.styles ? 
+        Object.entries(component.styles)
+          .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
+          .join('; ') : '';
+      
+      const attributes = component.attributes || {};
+      const attrString = Object.entries(attributes)
+        .filter(([key]) => key !== 'className')
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(' ');
+        
+      const className = attributes.className || '';
+      
+      const children = component.children?.map(renderComponent).join('') || '';
+      const content = component.content || '';
+      
+      return `<${Tag} ${attrString} class="${className}" style="${styleString}">${content}${children}</${Tag}>`;
+    };
+    
+    const bodyContent = currentPage.content.structure?.map(renderComponent).join('') || '';
+    
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Aperçu - ${project.name}</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+            ${currentPage.content.styles || ''}
+          </style>
+        </head>
+        <body>
+          ${bodyContent}
+        </body>
+      </html>
+    `;
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -146,7 +206,10 @@ export default function Editor() {
       <div className="flex-1 flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">Projet non trouvé</h2>
-          <p className="text-gray-600">Le projet demandé n'existe pas ou a été supprimé.</p>
+          <p className="text-gray-600 mb-4">Le projet demandé n'existe pas ou a été supprimé.</p>
+          <Button onClick={() => setLocation("/projects")}>
+            Retour aux projets
+          </Button>
         </Card>
       </div>
     );
@@ -190,7 +253,26 @@ export default function Editor() {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setHidePanels(!hidePanels)}
+              title="Masquer/Afficher les volets"
+            >
+              {hidePanels ? "Afficher" : "Masquer"}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              title="Aperçu"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setShowCode(!showCode)}
+              title="Code source"
             >
               <Code className="w-4 h-4 mr-2" />
               Code
@@ -216,10 +298,7 @@ export default function Editor() {
               Exporter
             </Button>
 
-            <Button size="sm">
-              <Eye className="w-4 h-4 mr-2" />
-              Aperçu
-            </Button>
+
           </div>
         }
       />
@@ -227,32 +306,52 @@ export default function Editor() {
       <DndProvider backend={HTML5Backend}>
         <div className="flex-1 flex overflow-hidden">
           {/* Component Palette */}
-          <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
-            <ComponentPalette />
-          </div>
+          {!hidePanels && (
+            <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+              <ComponentPalette />
+            </div>
+          )}
 
           {/* Main Editor Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-auto bg-gray-100 p-4">
-              <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
-                <VisualEditor
-                  project={project}
-                  selectedComponent={selectedComponent}
-                  onComponentSelect={setSelectedComponent}
-                  onComponentUpdate={handleComponentUpdate}
-                  showCode={showCode}
-                />
+            {showPreview ? (
+              <div className="flex-1 overflow-auto bg-gray-100 p-4">
+                <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
+                  <iframe
+                    title="Preview"
+                    className="w-full h-full border-0"
+                    srcDoc={generatePreviewHTML(project)}
+                  />
+                </div>
               </div>
-            </div>
+            ) : showCode ? (
+              <div className="flex-1 overflow-auto bg-gray-900 text-white p-4">
+                <CodePreview project={project} />
+              </div>
+            ) : (
+              <div className="flex-1 overflow-auto bg-gray-100 p-4">
+                <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
+                  <VisualEditor
+                    project={project}
+                    selectedComponent={selectedComponent}
+                    onComponentSelect={setSelectedComponent}
+                    onComponentUpdate={handleComponentUpdate}
+                    showCode={showCode}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Properties Panel */}
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-            <PropertiesPanel
-              component={selectedComponent}
-              onComponentUpdate={handleComponentUpdate}
-            />
-          </div>
+          {!hidePanels && (
+            <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+              <PropertiesPanel
+                component={selectedComponent}
+                onComponentUpdate={handleComponentUpdate}
+              />
+            </div>
+          )}
         </div>
       </DndProvider>
     </>
