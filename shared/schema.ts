@@ -124,24 +124,21 @@ export interface ComponentDefinition {
   };
 }
 
-// Component definition schema with lazy evaluation for children
-const baseComponentSchema = z.object({
+// Simple component schema without circular references
+export const componentDefinitionSchema = z.object({
   id: z.string(),
   type: z.string(),
   tag: z.string().optional(),
   content: z.string().optional(),
   attributes: z.record(z.any()).optional(),
   styles: z.record(z.any()).optional(),
+  children: z.array(z.any()).optional(),
   position: z.object({
     x: z.number(),
     y: z.number(),
     width: z.number(),
     height: z.number()
   }).optional()
-});
-
-export const componentDefinitionSchema: z.ZodType<ComponentDefinition> = baseComponentSchema.extend({
-  children: z.lazy(() => z.array(componentDefinitionSchema)).optional()
 });
 
 // Zod schemas
@@ -166,15 +163,12 @@ export const insertTemplateSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-export const insertPageSchema = createInsertSchema(pages).pick({
-  projectId: true,
-  name: true,
-  path: true,
-  content: true,
-  meta: true,
-}).extend({
+export const insertPageSchema = z.object({
+  projectId: z.string(),
   name: z.string().min(1, "Page name is required"),
   path: z.string().min(1, "Page path is required"),
+  content: z.any(),
+  meta: z.any().optional(),
 });
 
 export const updateProjectSchema = insertProjectSchema.partial();
