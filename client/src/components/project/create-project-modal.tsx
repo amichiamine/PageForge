@@ -57,10 +57,10 @@ export default function CreateProjectModal({ open, onOpenChange }: CreateProject
       // Navigate to editor
       setLocation(`/editor/${project.id}`);
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Erreur",
-        description: "Impossible de créer le projet.",
+        description: error.message || "Impossible de créer le projet.",
         variant: "destructive",
       });
     },

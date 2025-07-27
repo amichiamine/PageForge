@@ -187,7 +187,10 @@ export default function Editor() {
 
   const handleSave = () => {
     if (localProject) {
+      console.log("Saving project:", localProject.name, "with content:", localProject.content);
       saveProjectMutation.mutate({ content: localProject.content });
+    } else {
+      console.error("No local project to save");
     }
   };
 
@@ -313,7 +316,10 @@ export default function Editor() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setHideMainSidebar(!hideMainSidebar)}
+              onClick={() => {
+                console.log("Toggling main sidebar, current:", hideMainSidebar);
+                setHideMainSidebar(!hideMainSidebar);
+              }}
               title="Masquer/Afficher la navigation principale"
             >
               {hideMainSidebar ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}

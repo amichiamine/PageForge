@@ -455,6 +455,15 @@ export class MemStorage implements IStorage {
   }
 
   async createProject(insertProject: InsertProject): Promise<Project> {
+    // Check if project name already exists
+    const existingProject = Array.from(this.projects.values()).find(
+      project => project.isActive && project.name.toLowerCase() === insertProject.name.toLowerCase()
+    );
+    
+    if (existingProject) {
+      throw new Error(`Un projet avec le nom "${insertProject.name}" existe déjà`);
+    }
+    
     const id = randomUUID();
     const now = new Date();
     
@@ -585,6 +594,7 @@ export class MemStorage implements IStorage {
     const template: Template = {
       ...insertTemplate,
       id,
+      content: insertTemplate.content,
       description: insertTemplate.description || null,
       thumbnail: insertTemplate.thumbnail || null,
       tags: insertTemplate.tags || null,

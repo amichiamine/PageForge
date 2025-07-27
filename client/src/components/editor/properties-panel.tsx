@@ -37,7 +37,7 @@ const commonStyles: StyleProperty[] = [
   { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
   { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
   { name: "textAlign", label: "Alignement du texte", type: "select", options: ["left", "center", "right", "justify"] },
-  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "middle", "bottom", "baseline"] },
+  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "middle", "bottom", "baseline", "text-top", "text-bottom", "super", "sub"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
@@ -172,8 +172,8 @@ export default function PropertiesPanel({
       {/* Component List */}
       <div className="p-4 border-b border-gray-200">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Composants ({allComponents.length})</h3>
-        <div className="space-y-1 max-h-32 overflow-y-auto">
-          {allComponents.map((comp) => (
+        <div className="space-y-1 max-h-64 overflow-y-auto">
+          {allComponents.map((comp, index) => (
             <div
               key={comp.id}
               className={`p-2 rounded cursor-pointer text-xs flex items-center justify-between hover:bg-gray-100 ${
@@ -181,10 +181,82 @@ export default function PropertiesPanel({
               }`}
               onClick={() => onComponentSelect?.(comp)}
             >
-              <span className="truncate">
-                <Badge variant="outline" className="mr-2 text-xs">{comp.type}</Badge>
-                {comp.content?.slice(0, 20) || `${comp.type} component`}
-              </span>
+              <div className="flex items-center flex-1 min-w-0">
+                <div className="flex flex-col mr-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0"
+                    disabled={index === 0}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Move component up
+                      if (project?.content?.pages?.[0]?.content?.structure && index > 0) {
+                        const structure = [...project.content.pages[0].content.structure];
+                        [structure[index], structure[index - 1]] = [structure[index - 1], structure[index]];
+                        
+                        const updatedProject = {
+                          ...project,
+                          content: {
+                            ...project.content,
+                            pages: project.content.pages.map((page, pageIndex) => 
+                              pageIndex === 0 ? {
+                                ...page,
+                                content: {
+                                  ...page.content,
+                                  structure
+                                }
+                              } : page
+                            )
+                          }
+                        };
+                        
+                        onComponentUpdate(updatedProject as any);
+                      }
+                    }}
+                  >
+                    ↑
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0"
+                    disabled={index === allComponents.length - 1}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Move component down
+                      if (project?.content?.pages?.[0]?.content?.structure && index < allComponents.length - 1) {
+                        const structure = [...project.content.pages[0].content.structure];
+                        [structure[index], structure[index + 1]] = [structure[index + 1], structure[index]];
+                        
+                        const updatedProject = {
+                          ...project,
+                          content: {
+                            ...project.content,
+                            pages: project.content.pages.map((page, pageIndex) => 
+                              pageIndex === 0 ? {
+                                ...page,
+                                content: {
+                                  ...page.content,
+                                  structure
+                                }
+                              } : page
+                            )
+                          }
+                        };
+                        
+                        onComponentUpdate(updatedProject as any);
+                      }
+                    }}
+                  >
+                    ↓
+                  </Button>
+                </div>
+                <span className="truncate">
+                  <Badge variant="outline" className="mr-2 text-xs">{comp.type}</Badge>
+                  {comp.content?.slice(0, 15) || `${comp.type} component`}
+                </span>
+              </div>
               {comp.id === component?.id && (
                 <Button
                   variant="ghost"
