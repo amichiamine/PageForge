@@ -187,8 +187,27 @@ export default function Editor() {
 
   const handleSave = () => {
     if (localProject) {
-      console.log("Saving project:", localProject.name, "with content:", localProject.content);
-      saveProjectMutation.mutate({ content: localProject.content });
+      console.log("Saving project:", localProject.name);
+      console.log("Project content:", localProject.content);
+      console.log("Has pages:", localProject.content?.pages?.length || 0);
+      
+      // Ensure content structure is valid
+      const contentToSave = {
+        ...localProject.content,
+        pages: localProject.content?.pages || [{
+          id: "main-page",
+          name: "index",
+          path: "/",
+          content: {
+            structure: localProject.content?.pages?.[0]?.content?.structure || [],
+            styles: localProject.content?.pages?.[0]?.content?.styles || "",
+            scripts: localProject.content?.pages?.[0]?.content?.scripts || ""
+          }
+        }]
+      };
+      
+      console.log("Saving content:", contentToSave);
+      saveProjectMutation.mutate({ content: contentToSave });
     } else {
       console.error("No local project to save");
     }
@@ -318,9 +337,11 @@ export default function Editor() {
               size="sm"
               onClick={() => {
                 console.log("Toggling main sidebar, current:", hideMainSidebar);
-                setHideMainSidebar(!hideMainSidebar);
+                const newValue = !hideMainSidebar;
+                setHideMainSidebar(newValue);
+                console.log("Set to:", newValue);
               }}
-              title="Masquer/Afficher la navigation principale"
+              title={hideMainSidebar ? "Afficher la navigation principale" : "Masquer la navigation principale"}
             >
               {hideMainSidebar ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </Button>

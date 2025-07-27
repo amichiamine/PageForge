@@ -692,6 +692,66 @@ export class MemStorage implements IStorage {
       });
     }
 
+    // Add package.json
+    files.push({
+      path: "package.json",
+      content: JSON.stringify({
+        name: project.name.toLowerCase().replace(/\s+/g, '-'),
+        version: "1.0.0",
+        description: project.description || "Exported from SiteJet Clone",
+        main: "index.html",
+        scripts: {
+          start: "npx serve .",
+          build: "echo 'Already built'",
+          dev: "npx serve . -l 3000"
+        },
+        keywords: ["website", "exported", "sitejet"],
+        author: "SiteJet Clone",
+        license: "MIT",
+        devDependencies: {
+          "serve": "^14.0.0"
+        }
+      }, null, 2)
+    });
+
+    // Add README.md
+    files.push({
+      path: "README.md",
+      content: `# ${project.name}
+
+${project.description || "Projet exporté depuis SiteJet Clone"}
+
+## Installation
+
+\`\`\`bash
+npm install
+\`\`\`
+
+## Développement local
+
+\`\`\`bash
+npm start
+\`\`\`
+
+## Déploiement
+
+Ce projet est prêt pour le déploiement sur n'importe quel serveur web statique.
+
+### Options de déploiement :
+- **Netlify**: Glissez-déposez le dossier dans Netlify
+- **Vercel**: Connectez votre repository GitHub
+- **GitHub Pages**: Activez Pages dans les paramètres du repository
+- **Serveur traditionnel**: Uploadez les fichiers via FTP/cPanel
+
+### Structure des fichiers :
+- \`index.html\` - Page principale
+- \`styles.css\` - Feuilles de style (si séparées)
+- \`script.js\` - Scripts JavaScript (si inclus)
+
+Généré avec SiteJet Clone - ${new Date().toLocaleDateString()}
+`
+    });
+
     return { files };
   }
 
