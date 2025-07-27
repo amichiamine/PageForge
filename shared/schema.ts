@@ -39,7 +39,7 @@ export const pages = pgTable("pages", {
   projectId: varchar("project_id").references(() => projects.id).notNull(),
   name: text("name").notNull(),
   path: text("path").notNull(),
-  content: json("content").$type<PageContent>().notNull().default({}),
+  content: json("content").$type<PageContent>().notNull().default({structure: []}),
   meta: json("meta").$type<PageMeta>().notNull().default({}),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -150,26 +150,20 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-export const insertProjectSchema = createInsertSchema(projects).pick({
-  name: true,
-  description: true,
-  type: true,
-  template: true,
-}).extend({
+export const insertProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
+  description: z.string().optional(),
   type: z.enum(["standalone", "vscode-integration", "existing-project"]),
+  template: z.string().optional(),
 });
 
-export const insertTemplateSchema = createInsertSchema(templates).pick({
-  name: true,
-  description: true,
-  category: true,
-  thumbnail: true,
-  content: true,
-  tags: true,
-}).extend({
+export const insertTemplateSchema = z.object({
   name: z.string().min(1, "Template name is required"),
+  description: z.string().optional(),
   category: z.string().min(1, "Category is required"),
+  thumbnail: z.string().optional(),
+  content: z.any(),
+  tags: z.array(z.string()).optional(),
 });
 
 export const insertPageSchema = createInsertSchema(pages).pick({
