@@ -50,17 +50,17 @@ function DraggableComponent({ component }: DraggableComponentProps) {
     <div
       ref={drag}
       className={cn(
-        "p-3 border border-gray-200 rounded-lg cursor-grab hover:border-primary hover:shadow-sm transition-all duration-200",
+        "p-3 border border-gray-600 rounded-lg cursor-grab hover:border-blue-400 hover:bg-gray-800 transition-all duration-200",
         isDragging && "opacity-50 cursor-grabbing"
       )}
     >
       <div className="flex items-center space-x-2">
-        <Icon className="w-4 h-4 text-gray-600" />
+        <Icon className="w-4 h-4 text-gray-300" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-medium text-white truncate">
             {component.name}
           </p>
-          <p className="text-xs text-gray-500 truncate">
+          <p className="text-xs text-gray-400 truncate">
             {component.description}
           </p>
         </div>
@@ -277,10 +277,10 @@ const categories = [
 
 export default function ComponentPalette() {
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Composants</h2>
-        <p className="text-sm text-gray-600 mt-1">
+    <div className="h-full overflow-y-auto bg-gray-900">
+      <div className="p-4 border-b border-gray-700">
+        <h2 className="text-lg font-semibold text-white">Composants</h2>
+        <p className="text-sm text-gray-300 mt-1">
           Glissez et déposez pour ajouter
         </p>
       </div>
@@ -293,7 +293,7 @@ export default function ComponentPalette() {
 
           return (
             <div key={category}>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              <h3 className="text-sm font-semibold text-gray-300 mb-3">
                 {category}
               </h3>
               <div className="space-y-2">
@@ -305,7 +305,7 @@ export default function ComponentPalette() {
                 ))}
               </div>
               {category !== categories[categories.length - 1] && (
-                <Separator className="mt-4" />
+                <Separator className="mt-4 bg-gray-700" />
               )}
             </div>
           );
@@ -313,11 +313,11 @@ export default function ComponentPalette() {
       </div>
 
       {/* Quick Tips */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <h4 className="text-sm font-medium text-gray-900 mb-2">
+      <div className="p-4 border-t border-gray-700 bg-gray-800">
+        <h4 className="text-sm font-medium text-white mb-2">
           💡 Conseils rapides
         </h4>
-        <ul className="text-xs text-gray-600 space-y-1">
+        <ul className="text-xs text-gray-300 space-y-1">
           <li>• Glissez les composants dans l'éditeur</li>
           <li>• Cliquez pour sélectionner et modifier</li>
           <li>• Utilisez les conteneurs pour structurer</li>

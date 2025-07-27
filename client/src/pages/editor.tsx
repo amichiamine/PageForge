@@ -3,13 +3,14 @@ import { useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
 import ComponentPalette from "@/components/editor/component-palette";
 import PropertiesPanel from "@/components/editor/properties-panel";
-import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor } from "lucide-react";
+import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
@@ -26,12 +27,23 @@ export default function Editor() {
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [hidePanels, setHidePanels] = useState(false);
+  const [hideLeftPanel, setHideLeftPanel] = useState(false);
+  const [hideRightPanel, setHideRightPanel] = useState(false);
+  
+  // Local state for editor changes before saving
+  const [localProject, setLocalProject] = useState<Project | null>(null);
 
   const { data: project, isLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
     enabled: !!projectId,
   });
+
+  // Sync local project with server project when it loads
+  React.useEffect(() => {
+    if (project && !localProject) {
+      setLocalProject(project);
+    }
+  }, [project, localProject]);
 
   const saveProjectMutation = useMutation({
     mutationFn: async (updates: { content: any }) => {
@@ -89,16 +101,16 @@ export default function Editor() {
   });
 
   const handleComponentUpdate = (updatedProjectOrComponent: Project | ComponentDefinition) => {
-    if (!project) return;
+    if (!localProject) return;
 
-    // If it's a Project, use it directly
-    if ('content' in updatedProjectOrComponent) {
-      saveProjectMutation.mutate({ content: updatedProjectOrComponent.content });
+    // If it's a Project, update local state only
+    if ('content' in updatedProjectOrComponent && 'name' in updatedProjectOrComponent) {
+      setLocalProject(updatedProjectOrComponent as Project);
       return;
     }
 
     // If it's a ComponentDefinition, update in structure
-    const component = updatedProjectOrComponent;
+    const component = updatedProjectOrComponent as ComponentDefinition;
     const updateComponent = (components: ComponentDefinition[]): ComponentDefinition[] => {
       return components.map(comp => {
         if (comp.id === component.id) {
@@ -112,8 +124,8 @@ export default function Editor() {
     };
 
     const updatedContent = {
-      ...project.content,
-      pages: project.content.pages?.map(page => ({
+      ...localProject.content,
+      pages: localProject.content.pages?.map(page => ({
         ...page,
         content: {
           ...page.content,
@@ -122,12 +134,15 @@ export default function Editor() {
       }))
     };
 
-    saveProjectMutation.mutate({ content: updatedContent });
+    setLocalProject({
+      ...localProject,
+      content: updatedContent
+    });
   };
 
   const handleSave = () => {
-    if (project) {
-      saveProjectMutation.mutate({ content: project.content });
+    if (localProject) {
+      saveProjectMutation.mutate({ content: localProject.content });
     }
   };
 
@@ -142,9 +157,9 @@ export default function Editor() {
     }
   };
 
-  // Generate HTML preview
-  const generatePreviewHTML = (project: Project) => {
-    const currentPage = project.content?.pages?.[0];
+  // Generate HTML preview - use localProject for current state
+  const generatePreviewHTML = (projectToPreview: Project) => {
+    const currentPage = projectToPreview.content?.pages?.[0];
     if (!currentPage) return "<p>Aucun contenu à prévisualiser</p>";
     
     const renderComponent = (component: ComponentDefinition): string => {
@@ -176,7 +191,7 @@ export default function Editor() {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Aperçu - ${project.name}</title>
+          <title>Aperçu - ${projectToPreview.name}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
@@ -201,7 +216,7 @@ export default function Editor() {
     );
   }
 
-  if (!project) {
+  if (!localProject) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <Card className="p-8 text-center">
@@ -218,8 +233,8 @@ export default function Editor() {
   return (
     <>
       <Header 
-        title={`Éditeur - ${project.name}`}
-        subtitle={project.description || "Éditeur visuel"}
+        title={`Éditeur - ${localProject.name}`}
+        subtitle={localProject.description || "Éditeur visuel"}
         actions={
           <div className="flex items-center space-x-2">
             {/* Viewport toggles */}
@@ -253,10 +268,19 @@ export default function Editor() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setHidePanels(!hidePanels)}
-              title="Masquer/Afficher les volets"
+              onClick={() => setHideLeftPanel(!hideLeftPanel)}
+              title="Masquer/Afficher le menu des composants"
             >
-              {hidePanels ? "Afficher" : "Masquer"}
+              {hideLeftPanel ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setHideRightPanel(!hideRightPanel)}
+              title="Masquer/Afficher les propriétés"
+            >
+              {hideRightPanel ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
             </Button>
 
             <Button
@@ -306,8 +330,8 @@ export default function Editor() {
       <DndProvider backend={HTML5Backend}>
         <div className="flex-1 flex overflow-hidden">
           {/* Component Palette */}
-          {!hidePanels && (
-            <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+          {!hideLeftPanel && (
+            <div className="w-64 bg-gray-900 border-r border-gray-700 overflow-y-auto">
               <ComponentPalette />
             </div>
           )}
@@ -320,19 +344,19 @@ export default function Editor() {
                   <iframe
                     title="Preview"
                     className="w-full h-full border-0"
-                    srcDoc={generatePreviewHTML(project)}
+                    srcDoc={generatePreviewHTML(localProject)}
                   />
                 </div>
               </div>
             ) : showCode ? (
               <div className="flex-1 overflow-auto bg-gray-900 text-white p-4">
-                <CodePreview project={project} />
+                <CodePreview project={localProject} />
               </div>
             ) : (
               <div className="flex-1 overflow-auto bg-gray-100 p-4">
                 <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
                   <VisualEditor
-                    project={project}
+                    project={localProject}
                     selectedComponent={selectedComponent}
                     onComponentSelect={setSelectedComponent}
                     onComponentUpdate={handleComponentUpdate}
@@ -344,7 +368,7 @@ export default function Editor() {
           </div>
 
           {/* Properties Panel */}
-          {!hidePanels && (
+          {!hideRightPanel && (
             <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
               <PropertiesPanel
                 component={selectedComponent}
