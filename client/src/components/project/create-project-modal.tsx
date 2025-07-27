@@ -42,7 +42,19 @@ export default function CreateProjectModal({ open, onOpenChange }: CreateProject
 
   const createProjectMutation = useMutation({
     mutationFn: async (data: InsertProject) => {
-      const response = await apiRequest("POST", "/api/projects", data);
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create project");
+      }
+      
       return response.json();
     },
     onSuccess: (project) => {

@@ -365,11 +365,14 @@ export default function Editor() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleSave}
+              onClick={() => {
+                console.log("Save button clicked, localProject:", localProject?.name);
+                handleSave();
+              }}
               disabled={saveProjectMutation.isPending}
             >
               <Save className="w-4 h-4 mr-2" />
-              Sauvegarder
+              {saveProjectMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
             </Button>
 
             <Button

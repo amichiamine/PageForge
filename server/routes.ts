@@ -32,11 +32,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(validatedData);
       res.status(201).json(project);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Validation error", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create project" });
+      console.error("Error creating project:", error);
+      res.status(500).json({ message: error.message || "Failed to create project" });
     }
   });
 
