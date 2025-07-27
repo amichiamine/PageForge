@@ -36,7 +36,8 @@ const commonStyles: StyleProperty[] = [
   { name: "color", label: "Couleur du texte", type: "color" },
   { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
   { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
-  { name: "textAlign", label: "Alignement", type: "select", options: ["left", "center", "right", "justify"] },
+  { name: "textAlign", label: "Alignement du texte", type: "select", options: ["left", "center", "right", "justify"] },
+  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "middle", "bottom", "baseline"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
@@ -281,12 +282,38 @@ export default function PropertiesPanel({
                     <>
                       <div>
                         <Label htmlFor="src">URL de l'image</Label>
-                        <Input
-                          id="src"
-                          value={getPropertyValue('attributes.src')}
-                          onChange={(e) => updateProperty('attributes.src', e.target.value)}
-                          placeholder="https://example.com/image.jpg"
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            id="src"
+                            value={getPropertyValue('attributes.src')}
+                            onChange={(e) => updateProperty('attributes.src', e.target.value)}
+                            placeholder="https://example.com/image.jpg"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (e) => {
+                                    const result = e.target?.result as string;
+                                    updateProperty('attributes.src', result);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              };
+                              input.click();
+                            }}
+                          >
+                            Parcourir
+                          </Button>
+                        </div>
                       </div>
                       <div>
                         <Label htmlFor="alt">Texte alternatif</Label>
@@ -449,6 +476,58 @@ export default function PropertiesPanel({
                             }}
                           >
                             Ajouter un slide
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.multiple = true;
+                              input.onchange = (e) => {
+                                const files = (e.target as HTMLInputElement).files;
+                                if (files) {
+                                  Array.from(files).forEach((file, index) => {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => {
+                                      const result = e.target?.result as string;
+                                      const newSlide = {
+                                        id: `slide-${Date.now()}-${index}`,
+                                        type: "carousel-item",
+                                        tag: "div",
+                                        content: "",
+                                        styles: {
+                                          display: index === 0 ? "block" : "none",
+                                          textAlign: "center",
+                                          padding: "0",
+                                          backgroundImage: `url(${result})`,
+                                          backgroundSize: "cover",
+                                          backgroundPosition: "center",
+                                          minHeight: "300px"
+                                        },
+                                        attributes: { 
+                                          className: index === 0 ? "carousel-item active" : "carousel-item"
+                                        },
+                                        children: []
+                                      };
+                                      
+                                      const updatedComponent = {
+                                        ...localComponent,
+                                        children: [...(localComponent.children || []), newSlide]
+                                      };
+                                      
+                                      setLocalComponent(updatedComponent);
+                                      onComponentUpdate(updatedComponent);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  });
+                                }
+                              };
+                              input.click();
+                            }}
+                          >
+                            Ajouter images
                           </Button>
                         </div>
                       </div>

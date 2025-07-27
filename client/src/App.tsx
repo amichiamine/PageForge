@@ -30,8 +30,8 @@ function Router() {
   const [hideMainSidebar, setHideMainSidebar] = useState(false);
   const [location] = useLocation();
   
-  // Only show main sidebar for non-editor pages or when not hidden
-  const showMainSidebar = !location.startsWith('/editor') || !hideMainSidebar;
+  // Show main sidebar unless explicitly hidden in editor
+  const showMainSidebar = !hideMainSidebar;
 
   return (
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>

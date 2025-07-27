@@ -70,13 +70,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/projects/:id/export", async (req, res) => {
     try {
-      const project = await storage.getProject(req.params.id);
-      if (!project) {
+      const exportResult = await storage.exportProject(req.params.id);
+      if (!exportResult) {
         return res.status(404).json({ message: "Project not found" });
       }
-      res.status(204).send();
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="project-export.json"');
+      res.json(exportResult);
     } catch (error) {
-      res.status(500).json({ message: "Failed to delete project" });
+      console.error("Export error:", error);
+      res.status(500).json({ message: "Failed to export project" });
     }
   });
 

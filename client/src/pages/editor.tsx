@@ -71,29 +71,60 @@ export default function Editor() {
   const exportProjectMutation = useMutation({
     mutationFn: async () => {
       if (!projectId) throw new Error("No project ID");
-      const response = await apiRequest("POST", `/api/projects/${projectId}/export`);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      // Download the exported files
-      data.files.forEach((file: { path: string; content: string }) => {
-        const blob = new Blob([file.content], { type: "text/plain" });
+      
+      const response = await fetch(`/api/projects/${projectId}/export`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+      
+      const exportData = await response.json();
+      
+      // Download each file individually
+      if (exportData.files && Array.isArray(exportData.files)) {
+        exportData.files.forEach((file: { path: string; content: string }) => {
+          const blob = new Blob([file.content], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = file.path;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      } else {
+        // Fallback: download as single JSON file
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+          type: 'application/json'
+        });
+        
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = url;
-        a.download = file.path;
+        a.download = `${localProject?.name || 'project'}-export.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      });
+      }
       
+      return exportData;
+    },
+    onSuccess: (data) => {
+      const fileCount = data.files?.length || 1;
       toast({
         title: "Export réussi",
-        description: `${data.files.length} fichiers exportés avec succès.`,
+        description: `${fileCount} fichier(s) téléchargé(s) avec succès.`,
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Export error:", error);
       toast({
         title: "Erreur d'export",
         description: "Impossible d'exporter le projet.",
