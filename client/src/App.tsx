@@ -8,6 +8,9 @@ import Projects from "@/pages/projects";
 import Editor from "@/pages/editor";
 import Templates from "@/pages/templates";
 import Documentation from "@/pages/documentation";
+import VSCode from "@/pages/vscode";
+import Deployment from "@/pages/deployment";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import Sidebar from "@/components/layout/sidebar";
 
@@ -22,7 +25,10 @@ function Router() {
           <Route path="/projects" component={Projects} />
           <Route path="/editor/:projectId?" component={Editor} />
           <Route path="/templates" component={Templates} />
+          <Route path="/vscode" component={VSCode} />
+          <Route path="/deployment" component={Deployment} />
           <Route path="/documentation" component={Documentation} />
+          <Route path="/settings" component={Settings} />
           <Route component={NotFound} />
         </Switch>
       </div>

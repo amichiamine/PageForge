@@ -373,6 +373,44 @@ export default function Editor() {
               <PropertiesPanel
                 component={selectedComponent}
                 onComponentUpdate={handleComponentUpdate}
+                project={localProject}
+                onComponentSelect={setSelectedComponent}
+                onComponentDelete={(componentId) => {
+                  if (!localProject) return;
+                  
+                  const removeFromStructure = (components: ComponentDefinition[]): ComponentDefinition[] => {
+                    return components.filter(comp => comp.id !== componentId)
+                      .map(comp => ({
+                        ...comp,
+                        children: comp.children ? removeFromStructure(comp.children) : []
+                      }));
+                  };
+
+                  const updatedStructure = removeFromStructure(localProject.content?.pages?.[0]?.content?.structure || []);
+                  
+                  const updatedProject = {
+                    ...localProject,
+                    content: {
+                      ...localProject.content,
+                      pages: localProject.content?.pages?.map((page, index) => 
+                        index === 0 ? {
+                          ...page,
+                          content: {
+                            ...page.content,
+                            structure: updatedStructure
+                          }
+                        } : page
+                      ) || []
+                    }
+                  };
+                  
+                  setLocalProject(updatedProject);
+                  
+                  // Clear selection if deleted component was selected
+                  if (selectedComponent?.id === componentId) {
+                    setSelectedComponent(null);
+                  }
+                }}
               />
             </div>
           )}

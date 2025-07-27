@@ -17,8 +17,6 @@ import {
   Table,
   Video,
   Map,
-  ChevronLeft,
-  ChevronRight,
   Calendar
 } from "lucide-react";
 
@@ -244,15 +242,7 @@ const components: ComponentItem[] = [
     description: "Carte interactive"
   },
   
-  // Carousel Component
-  {
-    id: "carousel",
-    name: "Carrousel",
-    type: "carousel",
-    icon: ChevronRight,
-    category: "Media",
-    description: "Carrousel d'images ou contenu"
-  },
+
   
   // Calendar Component  
   {
