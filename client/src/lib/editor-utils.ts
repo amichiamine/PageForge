@@ -120,26 +120,36 @@ export function createComponent(type: string, content?: string): ComponentDefini
         {
           id: nanoid(),
           type: "carousel-item",
-          tag: "div",
-          attributes: { className: "carousel-item active" },
+          tag: "img",
+          attributes: { 
+            className: "carousel-item active",
+            src: "https://via.placeholder.com/600x300/007bff/ffffff?text=Image+1",
+            alt: "Image 1"
+          },
           styles: {
             display: "block",
-            textAlign: "center",
-            padding: "60px 20px"
+            width: "100%",
+            height: "300px",
+            objectFit: "cover"
           },
-          content: "Image 1"
+          content: ""
         },
         {
           id: nanoid(),
           type: "carousel-item",
-          tag: "div",
-          attributes: { className: "carousel-item" },
+          tag: "img",
+          attributes: { 
+            className: "carousel-item",
+            src: "https://via.placeholder.com/600x300/28a745/ffffff?text=Image+2",
+            alt: "Image 2"
+          },
           styles: {
             display: "none",
-            textAlign: "center",
-            padding: "60px 20px"
+            width: "100%",
+            height: "300px",
+            objectFit: "cover"
           },
-          content: "Image 2"
+          content: ""
         },
         {
           id: nanoid(),

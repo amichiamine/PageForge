@@ -50,7 +50,19 @@ export default function Editor() {
   const saveProjectMutation = useMutation({
     mutationFn: async (updates: { content: any }) => {
       if (!projectId) throw new Error("No project ID");
-      return apiRequest("PATCH", `/api/projects/${projectId}`, updates);
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updates)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });

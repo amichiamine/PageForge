@@ -41,7 +41,7 @@ const commonStyles: StyleProperty[] = [
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
-  { name: "border", label: "Bordure", type: "text" },
+  { name: "border", label: "Bordure", type: "select", options: ["none", "1px solid #000", "2px solid #000", "1px dashed #000", "2px dashed #000", "1px dotted #000", "2px dotted #000"] },
   { name: "boxShadow", label: "Ombre", type: "text" },
 ];
 
@@ -97,7 +97,7 @@ export default function PropertiesPanel({
   };
 
   const handleDuplicate = () => {
-    if (!localComponent) return;
+    if (!localComponent || !project?.content?.pages?.[0]?.content?.structure) return;
     
     const duplicatedComponent: ComponentDefinition = {
       ...localComponent,
@@ -108,7 +108,28 @@ export default function PropertiesPanel({
       })) || []
     };
     
-    onComponentUpdate(duplicatedComponent);
+    // Add the duplicated component to the structure
+    const currentStructure = project.content.pages[0].content.structure;
+    const updatedStructure = [...currentStructure, duplicatedComponent];
+    
+    const updatedProject = {
+      ...project,
+      content: {
+        ...project.content,
+        pages: project.content.pages.map((page, index) => 
+          index === 0 ? {
+            ...page,
+            content: {
+              ...page.content,
+              structure: updatedStructure
+            }
+          } : page
+        )
+      }
+    };
+    
+    // Cast to any to avoid type error, the component will handle the project update correctly
+    onComponentUpdate(updatedProject as any);
   };
 
   const handleDelete = () => {
@@ -304,6 +325,19 @@ export default function PropertiesPanel({
                                   reader.onload = (e) => {
                                     const result = e.target?.result as string;
                                     updateProperty('attributes.src', result);
+                                    
+                                    // Force component re-render
+                                    if (localComponent) {
+                                      const updatedComponent = {
+                                        ...localComponent,
+                                        attributes: {
+                                          ...localComponent.attributes,
+                                          src: result
+                                        }
+                                      };
+                                      setLocalComponent(updatedComponent);
+                                      onComponentUpdate(updatedComponent);
+                                    }
                                   };
                                   reader.readAsDataURL(file);
                                 }
@@ -529,6 +563,61 @@ export default function PropertiesPanel({
                           >
                             Ajouter images
                           </Button>
+                          
+                          {/* Add individual image browser for existing slides */}
+                          {localComponent.children?.filter(child => child.type === "carousel-item").map((slide, index) => (
+                            <div key={slide.id} className="flex items-center gap-2 mt-2">
+                              <span className="text-xs">Slide {index + 1}:</span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = 'image/*';
+                                  input.onchange = (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onload = (e) => {
+                                        const result = e.target?.result as string;
+                                        
+                                        const updatedChildren = localComponent.children?.map(child => 
+                                          child.id === slide.id ? {
+                                            ...child,
+                                            tag: "img",
+                                            attributes: {
+                                              ...child.attributes,
+                                              src: result,
+                                              alt: `Slide ${index + 1}`
+                                            },
+                                            styles: {
+                                              ...child.styles,
+                                              width: "100%",
+                                              height: "300px",
+                                              objectFit: "cover"
+                                            }
+                                          } : child
+                                        ) || [];
+                                        
+                                        const updatedComponent = {
+                                          ...localComponent,
+                                          children: updatedChildren
+                                        };
+                                        
+                                        setLocalComponent(updatedComponent);
+                                        onComponentUpdate(updatedComponent);
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                              >
+                                Parcourir
+                              </Button>
+                            </div>
+                          ))}
                         </div>
                       </div>
                       <div>
