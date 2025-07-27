@@ -482,6 +482,25 @@ export class MemStorage implements IStorage {
           }
         };
       }
+    } else {
+      // Always initialize with at least one page
+      content = {
+        pages: [{
+          id: randomUUID(),
+          name: "index",
+          path: "/",
+          content: {
+            structure: [],
+            styles: "",
+            scripts: ""
+          }
+        }],
+        assets: [],
+        styles: {
+          global: "",
+          components: {}
+        }
+      };
     }
 
     const project: Project = {

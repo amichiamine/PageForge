@@ -1,17 +1,17 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Trash2, Move, Copy } from "lucide-react";
 import type { Project, ComponentDefinition } from "@shared/schema";
-import { createComponent, addComponentToTree, updateComponentInTree, removeComponentFromTree } from "@/lib/editor-utils";
+import { createComponent } from "@/lib/editor-utils";
 
 interface VisualEditorProps {
   project: Project;
   selectedComponent: ComponentDefinition | null;
   onComponentSelect: (component: ComponentDefinition | null) => void;
-  onComponentUpdate: (component: ComponentDefinition) => void;
+  onComponentUpdate: (project: Project) => void;
   showCode: boolean;
 }
 
@@ -78,162 +78,81 @@ function DroppableComponent({
 
   drag(drop(ref));
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect(component);
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete(component.id);
-  };
-
   const renderComponent = () => {
-    const Tag = component.tag || 'div';
-    const styles = component.styles || {};
+    const Tag = component.tag as keyof JSX.IntrinsicElements || 'div';
+    const style: React.CSSProperties = {
+      ...component.styles,
+      opacity: isDragging ? 0.5 : 1,
+      position: 'relative',
+      border: isSelected ? '2px solid #007bff' : isOver ? '2px dashed #007bff' : '1px solid transparent',
+      borderRadius: '4px',
+      padding: component.styles?.padding || '8px',
+      margin: '4px 0'
+    };
+
     const attributes = component.attributes || {};
-    
-    return React.createElement(
-      Tag,
-      {
-        ...attributes,
-        style: styles,
-        className: cn(
-          attributes.className,
-          "min-h-[20px] relative group transition-all duration-200",
-          isSelected && "ring-2 ring-primary ring-offset-2",
-          isOver && "ring-2 ring-secondary ring-offset-2",
-          isDragging && "opacity-50"
-        ),
-        onClick: handleClick
-      },
-      <>
-        {component.content}
-        {component.children?.map((child) => (
-          <DroppableComponent
-            key={child.id}
-            component={child}
-            isSelected={false}
-            onSelect={onSelect}
-            onUpdate={(updatedChild) => {
-              const updatedChildren = component.children?.map(c => 
-                c.id === updatedChild.id ? updatedChild : c
-              ) || [];
-              onUpdate({ ...component, children: updatedChildren });
-            }}
-            onDelete={(childId) => {
-              const updatedChildren = component.children?.filter(c => c.id !== childId) || [];
-              onUpdate({ ...component, children: updatedChildren });
-            }}
-            depth={depth + 1}
-          />
-        ))}
+    const { className, ...otherAttributes } = attributes;
+
+    return (
+      <div
+        ref={ref}
+        style={style}
+        className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer", className)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(component);
+        }}
+        {...otherAttributes}
+      >
+        {/* Component controls */}
         {isSelected && (
-          <div className="absolute -top-8 left-0 flex space-x-1 z-10">
+          <div className="absolute -top-8 left-0 flex gap-1 bg-blue-500 text-white text-xs rounded px-2 py-1 z-10">
+            <span>{component.type}</span>
             <Button
               size="sm"
-              variant="secondary"
-              className="h-6 px-2 text-xs"
-              onClick={handleDelete}
+              variant="ghost"
+              className="h-4 w-4 p-0 text-white hover:text-red-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(component.id);
+              }}
             >
-              <Trash2 className="w-3 h-3" />
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-6 px-2 text-xs cursor-move"
-              ref={ref as any}
-            >
-              <Move className="w-3 h-3" />
+              <Trash2 className="h-3 w-3" />
             </Button>
           </div>
         )}
-      </>
+
+        {/* Render content */}
+        {component.content && (
+          <span dangerouslySetInnerHTML={{ __html: component.content }} />
+        )}
+
+        {/* Render children */}
+        {component.children && component.children.length > 0 && (
+          <div className="pl-4 space-y-2">
+            {component.children.map((child) => (
+              <DroppableComponent
+                key={child.id}
+                component={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                depth={depth + 1}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Drop indicator */}
+        {isOver && (
+          <div className="absolute inset-0 bg-blue-100 bg-opacity-50 border-2 border-dashed border-blue-400 rounded" />
+        )}
+      </div>
     );
   };
 
   return renderComponent();
-}
-
-function getDefaultTag(type: string): string {
-  switch (type) {
-    case "heading": return "h1";
-    case "text": return "p";
-    case "button": return "button";
-    case "image": return "img";
-    case "container": return "div";
-    case "section": return "section";
-    case "navigation": return "nav";
-    case "header": return "header";
-    case "footer": return "footer";
-    case "form": return "form";
-    case "input": return "input";
-    default: return "div";
-  }
-}
-
-function getDefaultContent(type: string): string {
-  switch (type) {
-    case "heading": return "Nouveau titre";
-    case "text": return "Nouveau paragraphe de texte";
-    case "button": return "Bouton";
-    case "image": return "";
-    default: return "";
-  }
-}
-
-function getDefaultAttributes(type: string): Record<string, any> {
-  switch (type) {
-    case "image":
-      return { 
-        src: "https://via.placeholder.com/300x200", 
-        alt: "Image placeholder",
-        className: "max-w-full h-auto" 
-      };
-    case "input":
-      return { 
-        type: "text", 
-        placeholder: "Saisir du texte...",
-        className: "w-full p-2 border border-gray-300 rounded" 
-      };
-    case "button":
-      return { 
-        type: "button",
-        className: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" 
-      };
-    default:
-      return { className: "" };
-  }
-}
-
-function getDefaultStyles(type: string): Record<string, any> {
-  switch (type) {
-    case "container":
-      return { 
-        padding: "1rem",
-        margin: "0",
-        minHeight: "50px"
-      };
-    case "section":
-      return { 
-        padding: "2rem 1rem",
-        minHeight: "100px"
-      };
-    case "heading":
-      return { 
-        fontSize: "1.5rem",
-        fontWeight: "bold",
-        margin: "0 0 1rem 0"
-      };
-    case "text":
-      return { 
-        fontSize: "1rem",
-        lineHeight: "1.5",
-        margin: "0 0 1rem 0"
-      };
-    default:
-      return {};
-  }
 }
 
 export default function VisualEditor({ 
@@ -243,7 +162,6 @@ export default function VisualEditor({
   onComponentUpdate,
   showCode 
 }: VisualEditorProps) {
-  const [previewHtml, setPreviewHtml] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const currentPage = project.content?.pages?.[0];
@@ -255,72 +173,71 @@ export default function VisualEditor({
       if (monitor.didDrop()) return;
 
       if (item.fromPalette && item.type) {
-        // Add new component from palette to root
-        const newComponent = createComponent(item.type);
+        console.log("Dropping component on canvas:", item.type);
         
+        // Create new component
+        const newComponent = createComponent(item.type);
+        console.log("Created component:", newComponent);
+        
+        // Add to page structure
         const updatedStructure = [...pageStructure, newComponent];
+        console.log("Updated structure:", updatedStructure);
+        
+        // Ensure we have a page to work with
+        const pages = project.content?.pages || [];
+        let updatedPages;
+        
+        if (pages.length === 0) {
+          // Create a new page if none exists
+          updatedPages = [{
+            id: 'default-page',
+            name: 'index',
+            path: '/',
+            content: {
+              structure: updatedStructure,
+              styles: '',
+              scripts: '',
+              meta: {
+                title: project.name,
+                description: project.description || ''
+              }
+            }
+          }];
+        } else {
+          // Update existing page
+          updatedPages = pages.map((page, index) => 
+            index === 0 ? {
+              ...page,
+              content: {
+                ...page.content,
+                structure: updatedStructure
+              }
+            } : page
+          );
+        }
         
         const updatedProject = {
           ...project,
           content: {
             ...project.content,
-            pages: project.content?.pages?.map((page, index) => 
-              index === 0 ? {
-                ...page,
-                content: {
-                  ...page.content,
-                  structure: updatedStructure
-                }
-              } : page
-            ) || []
+            pages: updatedPages
           }
         };
         
+        console.log("Calling onComponentUpdate with updated project:", updatedProject);
         onComponentUpdate(updatedProject);
       }
-      
-      // Add component to root level
-      const newComponent: ComponentDefinition = {
-        id: `component-${Date.now()}`,
-        type: item.type,
-        tag: getDefaultTag(item.type),
-        content: getDefaultContent(item.type),
-        attributes: getDefaultAttributes(item.type),
-        styles: getDefaultStyles(item.type),
-        children: []
-      };
-      
-      // Update the project structure
-      const updatedStructure = [...pageStructure, newComponent];
-      const updatedProject = {
-        ...project,
-        content: {
-          ...project.content,
-          pages: project.content.pages?.map(page => 
-            page.id === currentPage?.id 
-              ? {
-                  ...page,
-                  content: {
-                    ...page.content,
-                    structure: updatedStructure
-                  }
-                }
-              : page
-          ) || []
-        }
-      };
-      
-      // This would typically trigger a save
-      console.log("Updated project structure:", updatedProject);
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver(),
+      isOver: monitor.isOver({ shallow: true }),
     }),
   });
 
   drop(containerRef);
 
   const handleComponentUpdate = useCallback((updatedComponent: ComponentDefinition) => {
+    console.log("Updating component:", updatedComponent);
+    
     const updateInStructure = (components: ComponentDefinition[]): ComponentDefinition[] => {
       return components.map(comp => {
         if (comp.id === updatedComponent.id) {
@@ -335,141 +252,103 @@ export default function VisualEditor({
 
     const updatedStructure = updateInStructure(pageStructure);
     
-    // Update the project
     const updatedProject = {
       ...project,
       content: {
         ...project.content,
-        pages: project.content.pages?.map(page => 
-          page.id === currentPage?.id 
-            ? {
-                ...page,
-                content: {
-                  ...page.content,
-                  structure: updatedStructure
-                }
-              }
-            : page
+        pages: project.content?.pages?.map((page, index) => 
+          index === 0 ? {
+            ...page,
+            content: {
+              ...page.content,
+              structure: updatedStructure
+            }
+          } : page
         ) || []
       }
     };
 
-    onComponentUpdate(updatedComponent);
-  }, [project, currentPage, pageStructure, onComponentUpdate]);
+    onComponentUpdate(updatedProject);
+  }, [project, pageStructure, onComponentUpdate]);
 
   const handleComponentDelete = useCallback((componentId: string) => {
+    console.log("Deleting component:", componentId);
+    
     const removeFromStructure = (components: ComponentDefinition[]): ComponentDefinition[] => {
       return components.filter(comp => comp.id !== componentId)
         .map(comp => ({
           ...comp,
-          children: comp.children ? removeFromStructure(comp.children) : undefined
+          children: comp.children ? removeFromStructure(comp.children) : []
         }));
     };
 
     const updatedStructure = removeFromStructure(pageStructure);
+    
+    const updatedProject = {
+      ...project,
+      content: {
+        ...project.content,
+        pages: project.content?.pages?.map((page, index) => 
+          index === 0 ? {
+            ...page,
+            content: {
+              ...page.content,
+              structure: updatedStructure
+            }
+          } : page
+        ) || []
+      }
+    };
     
     // Clear selection if deleted component was selected
     if (selectedComponent?.id === componentId) {
       onComponentSelect(null);
     }
 
-    console.log("Deleted component:", componentId);
-  }, [pageStructure, selectedComponent, onComponentSelect]);
-
-  const generateHtmlPreview = useCallback(() => {
-    const renderComponentsToHtml = (components: ComponentDefinition[]): string => {
-      return components.map(component => {
-        const tag = component.tag || 'div';
-        const attributes = component.attributes || {};
-        const styles = component.styles || {};
-        
-        const attributesString = Object.entries(attributes)
-          .filter(([key]) => key !== 'class')
-          .map(([key, value]) => `${key}="${value}"`)
-          .join(' ');
-        
-        const styleString = Object.entries(styles)
-          .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}:${value}`)
-          .join(';');
-        
-        const className = attributes.class || '';
-        const classAttr = className ? `class="${className}"` : '';
-        const styleAttr = styleString ? `style="${styleString}"` : '';
-        
-        const children = component.children ? renderComponentsToHtml(component.children) : '';
-        const content = component.content || '';
-        
-        return `<${tag} ${classAttr} ${styleAttr} ${attributesString}>${content}${children}</${tag}>`;
-      }).join('\n');
-    };
-
-    const html = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${currentPage?.name || 'Preview'}</title>
-    <style>
-        body { font-family: Inter, sans-serif; margin: 0; padding: 0; }
-        ${currentPage?.content?.styles || ''}
-    </style>
-</head>
-<body>
-    ${renderComponentsToHtml(pageStructure)}
-</body>
-</html>`;
-
-    return html;
-  }, [pageStructure, currentPage]);
-
-  // Generate HTML preview when showCode changes or pageStructure updates
-  useEffect(() => {
-    if (showCode) {
-      const html = generateHtmlPreview();
-      setPreviewHtml(html);
-    }
-  }, [showCode, generateHtmlPreview]);
-
-  if (showCode) {
-    return (
-      <div className="h-full">
-        <div className="bg-gray-900 text-gray-100 p-4 h-full overflow-auto">
-          <pre className="text-sm">
-            <code>{previewHtml}</code>
-          </pre>
-        </div>
-      </div>
-    );
-  }
+    onComponentUpdate(updatedProject);
+  }, [project, pageStructure, selectedComponent, onComponentSelect, onComponentUpdate]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={cn(
-        "min-h-screen p-4 bg-white",
-        isOver && "bg-blue-50 ring-2 ring-blue-300 ring-inset"
+        "w-full min-h-96 bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 transition-colors",
+        isOver && "border-primary bg-primary/5"
       )}
-      onClick={() => onComponentSelect(null)}
     >
       {pageStructure.length === 0 ? (
-        <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
+        <div className="flex items-center justify-center h-64 text-gray-500">
           <div className="text-center">
-            <div className="text-4xl text-gray-400 mb-4">+</div>
-            <p className="text-gray-500">Glissez des composants ici pour commencer</p>
+            <p className="text-lg mb-2">Zone d'édition vide</p>
+            <p className="text-sm">Glissez des composants depuis la palette pour commencer</p>
+            <p className="text-xs mt-2">Projet: {project.name}</p>
           </div>
         </div>
       ) : (
-        pageStructure.map((component) => (
-          <DroppableComponent
-            key={component.id}
-            component={component}
-            isSelected={selectedComponent?.id === component.id}
-            onSelect={onComponentSelect}
-            onUpdate={handleComponentUpdate}
-            onDelete={handleComponentDelete}
-            depth={0}
-          />
-        ))
+        <div className="space-y-4">
+          {pageStructure.map((component) => (
+            <DroppableComponent
+              key={component.id}
+              component={component}
+              isSelected={selectedComponent?.id === component.id}
+              onSelect={onComponentSelect}
+              onUpdate={handleComponentUpdate}
+              onDelete={handleComponentDelete}
+              depth={0}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Debug info */}
+      {showCode && (
+        <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
+          <strong>Debug:</strong> {pageStructure.length} composants chargés
+          <br />
+          Page: {currentPage?.name || 'Aucune page'}
+          <br />
+          Projet: {project.name}
+        </div>
       )}
     </div>
   );
