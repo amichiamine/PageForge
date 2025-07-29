@@ -23,21 +23,21 @@ export default function VSCode() {
                   Installation
                 </CardTitle>
                 <CardDescription>
-                  Intégrez SiteJet Clone dans votre environnement VS Code
+                  Intégrez PageForge dans votre environnement VS Code
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-gray-100 p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">1. Cloner le projet</h4>
                   <code className="text-sm bg-black text-green-400 p-2 rounded block">
-                    git clone https://github.com/votre-repo/sitejet-clone.git
+                    git clone https://github.com/votre-repo/pageforge.git
                   </code>
                 </div>
                 
                 <div className="bg-gray-100 p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">2. Installer les dépendances</h4>
                   <code className="text-sm bg-black text-green-400 p-2 rounded block">
-                    cd sitejet-clone<br/>
+                    cd pageforge<br/>
                     npm install
                   </code>
                 </div>
@@ -59,7 +59,7 @@ export default function VSCode() {
                   Configuration
                 </CardTitle>
                 <CardDescription>
-                  Configurez SiteJet Clone pour votre projet
+                  Configurez PageForge pour votre projet
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -79,7 +79,7 @@ export default function VSCode() {
                   <h4 className="font-semibold mb-2">Structure recommandée</h4>
                   <div className="bg-gray-100 p-3 rounded text-sm font-mono">
                     <div>mon-projet/</div>
-                    <div>├── sitejet-clone/          # Ce dossier</div>
+                    <div>├── pageforge/          # Ce dossier</div>
                     <div>├── src/                   # Votre code source</div>
                     <div>├── public/               # Assets statiques</div>
                     <div>└── pages/                # Pages générées</div>

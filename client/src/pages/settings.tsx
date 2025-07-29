@@ -34,14 +34,14 @@ export default function Settings() {
                   Paramètres généraux
                 </CardTitle>
                 <CardDescription>
-                  Configuration de base de SiteJet Clone
+                  Configuration de base de PageForge
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="appName">Nom de l'application</Label>
-                    <Input id="appName" defaultValue="SiteJet Clone" />
+                    <Input id="appName" defaultValue="PageForge" />
                   </div>
                   <div>
                     <Label htmlFor="language">Langue</Label>

@@ -1,7 +1,7 @@
-# SiteJet Clone - Visual Website Builder
+# PageForge - Visual Website Builder
 
 ## Overview
-This is a full-stack visual website builder application similar to SiteJet, built with React, Express.js, and PostgreSQL. It provides a drag-and-drop interface for creating websites with templates, visual editing capabilities, and export functionality. The application supports both standalone projects and VS Code integration.
+This is a full-stack visual website builder application called PageForge, built with React, Express.js, and PostgreSQL. It provides a drag-and-drop interface for creating websites with templates, visual editing capabilities, and export functionality. The application supports both standalone projects and VS Code integration.
 
 **Status:** Production-ready ✅ (Last tested: July 27, 2025)
 - All core functionalities operational

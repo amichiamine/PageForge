@@ -61,15 +61,15 @@ export function exportProject(project: Project, options: ExportOptions = {}): Ex
     content: JSON.stringify({
       name: project.name.toLowerCase().replace(/\s+/g, '-'),
       version: "1.0.0",
-      description: project.description || "Exported from SiteJet clone",
+      description: project.description || "Exported from PageForge",
       main: "index.html",
       scripts: {
         start: "npx serve .",
         build: "echo 'Already built'",
         dev: "npx serve . -l 3000"
       },
-      keywords: ["website", "exported", "sitejet"],
-      author: "SiteJet Clone",
+      keywords: ["website", "exported", "pageforge"],
+      author: "PageForge",
       license: "MIT",
       devDependencies: {
         "serve": "^14.0.0"
@@ -83,7 +83,7 @@ export function exportProject(project: Project, options: ExportOptions = {}): Ex
     path: "README.md",
     content: `# ${project.name}
 
-${project.description || "Projet exporté depuis SiteJet Clone"}
+${project.description || "Projet exporté depuis PageForge"}
 
 ## Installation
 
@@ -112,7 +112,7 @@ Ce projet est prêt pour le déploiement sur n'importe quel serveur web statique
 - \`styles.css\` - Feuilles de style (si séparées)
 - \`script.js\` - Scripts JavaScript (si inclus)
 
-Généré avec SiteJet Clone - ${new Date().toLocaleDateString()}
+Généré avec PageForge - ${new Date().toLocaleDateString()}
 `,
     type: "md"
   });

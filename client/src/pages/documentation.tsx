@@ -51,7 +51,7 @@ export default function Documentation() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Download className="w-5 h-5 mr-2" />
-                    Installation de SiteJet Clone
+                    Installation de PageForge
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -71,11 +71,11 @@ export default function Documentation() {
                     <h3 className="font-semibold mb-3">Installation globale</h3>
                     <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
                       <div className="flex items-center justify-between">
-                        <span>npm install -g sitejet-clone</span>
+                        <span>npm install -g pageforge</span>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyToClipboard("npm install -g sitejet-clone")}
+                          onClick={() => copyToClipboard("npm install -g pageforge")}
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -87,21 +87,21 @@ export default function Documentation() {
                     <h3 className="font-semibold mb-3">Installation dans un projet</h3>
                     <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm space-y-2">
                       <div className="flex items-center justify-between">
-                        <span>npm install sitejet-clone</span>
+                        <span>npm install pageforge</span>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyToClipboard("npm install sitejet-clone")}
+                          onClick={() => copyToClipboard("npm install pageforge")}
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span>npx sitejet-clone init</span>
+                        <span>npx pageforge init</span>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyToClipboard("npx sitejet-clone init")}
+                          onClick={() => copyToClipboard("npx pageforge init")}
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -113,11 +113,11 @@ export default function Documentation() {
                     <h3 className="font-semibold mb-3">Vérification de l'installation</h3>
                     <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
                       <div className="flex items-center justify-between">
-                        <span>sitejet-clone --version</span>
+                        <span>pageforge --version</span>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyToClipboard("sitejet-clone --version")}
+                          onClick={() => copyToClipboard("pageforge --version")}
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -208,7 +208,7 @@ export default function Documentation() {
                     <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
                       <li>Ouvrez VS Code</li>
                       <li>Allez dans Extensions (Ctrl+Shift+X)</li>
-                      <li>Recherchez "SiteJet Clone"</li>
+                      <li>Recherchez "PageForge"</li>
                       <li>Cliquez sur "Install"</li>
                     </ol>
                   </div>
@@ -218,12 +218,12 @@ export default function Documentation() {
                     <div className="space-y-3">
                       <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
                         <div className="text-gray-400 mb-1"># Ouvrir l'éditeur visuel</div>
-                        <div>Ctrl+Shift+P → "SiteJet: Edit Page"</div>
+                        <div>Ctrl+Shift+P → "PageForge: Edit Page"</div>
                       </div>
                       
                       <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
                         <div className="text-gray-400 mb-1"># Ou via clic droit sur un fichier HTML</div>
-                        <div>Right-click → "Edit with SiteJet"</div>
+                        <div>Right-click → "Edit with PageForge"</div>
                       </div>
                     </div>
                   </div>
@@ -232,10 +232,10 @@ export default function Documentation() {
                     <h3 className="font-semibold mb-3">Configuration</h3>
                     <div className="bg-gray-100 p-4 rounded-lg">
                       <pre className="text-sm"><code>{`{
-  "sitejet.autoSave": true,
-  "sitejet.theme": "auto",
-  "sitejet.port": 5000,
-  "sitejet.openInExternalBrowser": false
+  "pageforge.autoSave": true,
+  "pageforge.theme": "auto",
+  "pageforge.port": 5000,
+  "pageforge.openInExternalBrowser": false
 }`}</code></pre>
                     </div>
                   </div>
@@ -309,7 +309,7 @@ export default function Documentation() {
                       <div>
                         <p className="text-sm text-gray-700 mb-2">1. Exportez votre projet</p>
                         <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                          sitejet-clone export --project-id=123
+                          pageforge export --project-id=123
                         </div>
                       </div>
                       
@@ -389,11 +389,11 @@ export default function Documentation() {
                     <div className="space-y-2">
                       <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
                         <div className="text-gray-400 mb-1"># Vérifier les mises à jour</div>
-                        <div>sitejet-clone --check-updates</div>
+                        <div>pageforge --check-updates</div>
                       </div>
                       <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
                         <div className="text-gray-400 mb-1"># Mettre à jour</div>
-                        <div>npm update -g sitejet-clone</div>
+                        <div>npm update -g pageforge</div>
                       </div>
                     </div>
                   </div>
@@ -402,7 +402,7 @@ export default function Documentation() {
                     <h3 className="font-semibold mb-3">Configuration avancée</h3>
                     <div className="bg-gray-100 p-4 rounded-lg">
                       <pre className="text-sm"><code>{`{
-  "name": "sitejet-clone",
+  "name": "pageforge",
   "version": "1.0.0",
   "portable": {
     "platform": "all",

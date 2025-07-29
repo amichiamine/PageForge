@@ -730,22 +730,42 @@ export default function PropertiesPanel({
                         <Select
                           value={getPropertyValue(`styles.${style.name}`)}
                           onValueChange={(value) => {
-                            // Handle vertical alignment specifically for text components
-                            if (style.name === "verticalAlign" && (component?.type === "text" || component?.type === "heading")) {
-                              // For text components, use CSS flexbox alignment
-                              if (value === "center" || value === "middle") {
-                                updateProperty(`styles.display`, "flex");
-                                updateProperty(`styles.alignItems`, "center");
+                            // Handle vertical alignment for all components
+                            if (style.name === "verticalAlign") {
+                              const currentDisplay = getPropertyValue('styles.display') || 'block';
+                              
+                              // For flex containers, use alignItems
+                              if (currentDisplay === "flex") {
+                                if (value === "center" || value === "middle") {
+                                  updateProperty(`styles.alignItems`, "center");
+                                } else if (value === "top") {
+                                  updateProperty(`styles.alignItems`, "flex-start");
+                                } else if (value === "bottom") {
+                                  updateProperty(`styles.alignItems`, "flex-end");
+                                }
                                 updateProperty(`styles.${style.name}`, value);
-                              } else if (value === "top") {
-                                updateProperty(`styles.display`, "flex");
-                                updateProperty(`styles.alignItems`, "flex-start");
+                              }
+                              // For grid containers, use align-items as well
+                              else if (currentDisplay === "grid") {
+                                if (value === "center" || value === "middle") {
+                                  updateProperty(`styles.alignItems`, "center");
+                                } else if (value === "top") {
+                                  updateProperty(`styles.alignItems`, "start");
+                                } else if (value === "bottom") {
+                                  updateProperty(`styles.alignItems`, "end");
+                                }
                                 updateProperty(`styles.${style.name}`, value);
-                              } else if (value === "bottom") {
-                                updateProperty(`styles.display`, "flex");
-                                updateProperty(`styles.alignItems`, "flex-end");
-                                updateProperty(`styles.${style.name}`, value);
-                              } else {
+                              }
+                              // For other display types, apply directly and add line-height for text
+                              else {
+                                if ((component?.type === "text" || component?.type === "heading") && 
+                                    (value === "center" || value === "middle")) {
+                                  // For text elements, use line-height to center vertically
+                                  const currentHeight = getPropertyValue('styles.height');
+                                  if (currentHeight) {
+                                    updateProperty(`styles.lineHeight`, currentHeight);
+                                  }
+                                }
                                 updateProperty(`styles.${style.name}`, value);
                               }
                             } else {
