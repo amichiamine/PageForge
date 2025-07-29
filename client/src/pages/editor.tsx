@@ -335,24 +335,7 @@ export default function Editor() {
               </Button>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                console.log("Editor button clicked - current hideMainSidebar:", hideMainSidebar);
-                const newValue = !hideMainSidebar;
-                console.log("Editor button - setting hideMainSidebar to:", newValue);
-                setHideMainSidebar(newValue);
-                
-                // Force re-render by adding a small delay to verify the state change
-                setTimeout(() => {
-                  console.log("Editor button - after timeout, hideMainSidebar should be:", newValue);
-                }, 100);
-              }}
-              title={hideMainSidebar ? "Afficher la navigation principale" : "Masquer la navigation principale"}
-            >
-              {hideMainSidebar ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-            </Button>
+            {/* Le bouton de navigation principale a été supprimé et remplacé par un panneau rétractable */}
 
             <Button
               variant="outline"

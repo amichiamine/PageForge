@@ -808,6 +808,17 @@ Généré avec PageForge - ${new Date().toLocaleDateString()}
 
   private styleObjectToString(styles: Record<string, any>): string {
     return Object.entries(styles)
+      .filter(([key, value]) => {
+        // Filter out problematic line-height values that are height dimensions
+        if (key === 'lineHeight' && typeof value === 'string' && value.match(/^\d+px$/)) {
+          const heightValue = parseInt(value);
+          if (heightValue > 50) { // If line-height is greater than 50px, it's probably a height dimension
+            return false;
+          }
+        }
+        // Filter out empty values
+        return value !== '' && value !== null && value !== undefined;
+      })
       .map(([key, value]) => `${this.camelToKebab(key)}:${value}`)
       .join(';');
   }

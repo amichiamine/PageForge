@@ -138,6 +138,17 @@ function generateHTML(project: Project, page: any, options: ExportOptions): stri
     // Only add inline styles if explicitly requested, otherwise rely on CSS classes
     const styleString = component.styles && options.inlineCSS ? 
       Object.entries(component.styles)
+        .filter(([key, value]) => {
+          // Filter out problematic line-height values that are height dimensions
+          if (key === 'lineHeight' && typeof value === 'string' && value.match(/^\d+px$/)) {
+            const heightValue = parseInt(value);
+            if (heightValue > 50) { // If line-height is greater than 50px, it's probably a height dimension
+              return false;
+            }
+          }
+          // Filter out empty values
+          return value !== '' && value !== null && value !== undefined;
+        })
         .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
         .join('; ') : '';
     const inlineStyle = styleString ? ` style="${styleString}"` : '';

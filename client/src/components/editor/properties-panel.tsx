@@ -730,11 +730,11 @@ export default function PropertiesPanel({
                         <Select
                           value={getPropertyValue(`styles.${style.name}`)}
                           onValueChange={(value) => {
-                            // Handle vertical alignment for all components
+                            // Handle vertical alignment properly
                             if (style.name === "verticalAlign") {
                               const currentDisplay = getPropertyValue('styles.display') || 'block';
                               
-                              // For flex containers, use alignItems
+                              // For flex containers, use alignItems instead of verticalAlign
                               if (currentDisplay === "flex") {
                                 if (value === "center" || value === "middle") {
                                   updateProperty(`styles.alignItems`, "center");
@@ -743,9 +743,10 @@ export default function PropertiesPanel({
                                 } else if (value === "bottom") {
                                   updateProperty(`styles.alignItems`, "flex-end");
                                 }
-                                updateProperty(`styles.${style.name}`, value);
+                                // Don't set verticalAlign for flex items
+                                return;
                               }
-                              // For grid containers, use align-items as well
+                              // For grid containers, use align-items
                               else if (currentDisplay === "grid") {
                                 if (value === "center" || value === "middle") {
                                   updateProperty(`styles.alignItems`, "center");
@@ -754,19 +755,14 @@ export default function PropertiesPanel({
                                 } else if (value === "bottom") {
                                   updateProperty(`styles.alignItems`, "end");
                                 }
-                                updateProperty(`styles.${style.name}`, value);
+                                // Don't set verticalAlign for grid items
+                                return;
                               }
-                              // For other display types, apply directly and add line-height for text
+                              // For inline/table-cell elements, use standard vertical-align
                               else {
-                                if ((component?.type === "text" || component?.type === "heading") && 
-                                    (value === "center" || value === "middle")) {
-                                  // For text elements, use line-height to center vertically
-                                  const currentHeight = getPropertyValue('styles.height');
-                                  if (currentHeight) {
-                                    updateProperty(`styles.lineHeight`, currentHeight);
-                                  }
-                                }
                                 updateProperty(`styles.${style.name}`, value);
+                                // Remove any problematic line-height that was set
+                                updateProperty(`styles.lineHeight`, "");
                               }
                             } else {
                               updateProperty(`styles.${style.name}`, value);

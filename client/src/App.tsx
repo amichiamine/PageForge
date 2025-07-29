@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState, createContext, useContext, useEffect } from "react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
 import Editor from "@/pages/editor";
@@ -43,7 +44,32 @@ function Router() {
   return (
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
-        {showMainSidebar && <Sidebar />}
+        {/* Left sidebar for navigation with collapsible functionality */}
+        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-64' : 'w-12'} bg-gray-900 border-r border-gray-700 flex flex-col`}>
+          {/* Toggle button for main navigation */}
+          <div className="p-2 border-b border-gray-700">
+            <button
+              onClick={() => {
+                console.log("Sidebar toggle clicked - current hideMainSidebar:", hideMainSidebar);
+                const newValue = !hideMainSidebar;
+                console.log("Sidebar toggle - setting hideMainSidebar to:", newValue);
+                setHideMainSidebar(newValue);
+              }}
+              className="w-full h-10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              title={showMainSidebar ? "Masquer la navigation" : "Afficher la navigation"}
+            >
+              {showMainSidebar ? (
+                <PanelLeftClose className="w-5 h-5" />
+              ) : (
+                <PanelLeftOpen className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+          
+          {/* Sidebar content */}
+          {showMainSidebar && <Sidebar />}
+        </div>
+        
         <div className="flex-1 flex flex-col overflow-hidden">
           <Switch>
             <Route path="/" component={Dashboard} />
