@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertTemplateSchema, insertPageSchema, updateProjectSchema, updatePageSchema } from "@shared/schema";
+import { insertProjectSchema, insertTemplateSchema, insertPageSchema, updateProjectSchema, updatePageSchema, updateProjectContentSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -43,7 +43,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/projects/:id", async (req, res) => {
     try {
-      const validatedData = updateProjectSchema.parse(req.body);
+      // Use flexible validation for content updates
+      const validatedData = req.body.content ? 
+        updateProjectContentSchema.parse(req.body) : 
+        updateProjectSchema.parse(req.body);
       const project = await storage.updateProject(req.params.id, validatedData);
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
@@ -53,6 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Validation error", errors: error.errors });
       }
+      console.error("Error updating project:", error);
       res.status(500).json({ message: "Failed to update project" });
     }
   });

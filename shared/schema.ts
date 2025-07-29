@@ -154,6 +154,13 @@ export const insertProjectSchema = z.object({
   template: z.string().optional(),
 });
 
+// Specific schema for updating project content
+export const updateProjectContentSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  content: z.any().optional(),
+});
+
 export const insertTemplateSchema = z.object({
   name: z.string().min(1, "Template name is required"),
   description: z.string().optional(),

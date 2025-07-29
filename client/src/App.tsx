@@ -33,7 +33,7 @@ function Router() {
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;
   
-  console.log("App.tsx - hideMainSidebar:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
+  console.log("App.tsx - location:", location, "hideMainSidebar:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
 
   return (
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>

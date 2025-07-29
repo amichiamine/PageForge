@@ -539,15 +539,29 @@ export class MemStorage implements IStorage {
     return project;
   }
 
-  async updateProject(id: string, updates: UpdateProject): Promise<Project | undefined> {
+  async updateProject(id: string, updates: any): Promise<Project | undefined> {
     const project = this.projects.get(id);
     if (!project || !project.isActive) {
       return undefined;
     }
 
+    // Properly merge content if provided
+    const updatedContent = updates.content ? {
+      ...project.content,
+      ...updates.content,
+      pages: updates.content.pages || project.content.pages,
+      assets: updates.content.assets || project.content.assets,
+      styles: {
+        ...project.content.styles,
+        ...(updates.content.styles || {})
+      }
+    } : project.content;
+
     const updatedProject: Project = {
       ...project,
-      ...updates,
+      name: updates.name || project.name,
+      description: updates.description !== undefined ? updates.description : project.description,
+      content: updatedContent,
       updatedAt: new Date(),
     };
     
