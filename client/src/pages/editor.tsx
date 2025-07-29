@@ -42,10 +42,13 @@ export default function Editor() {
 
   // Sync local project with server project when it loads
   React.useEffect(() => {
-    if (project && !localProject) {
+    if (project) {
+      // Always sync server project to local state, ensuring fresh data
+      console.log("Syncing server project to local state:", project.name);
+      console.log("Project content from server:", project.content);
       setLocalProject(project);
     }
-  }, [project, localProject]);
+  }, [project]);
 
   const saveProjectMutation = useMutation({
     mutationFn: async (updates: { content: any }) => {
@@ -336,10 +339,10 @@ export default function Editor() {
               variant="outline"
               size="sm"
               onClick={() => {
-                console.log("Toggling main sidebar, current:", hideMainSidebar);
+                console.log("Toggling main sidebar, current hideMainSidebar:", hideMainSidebar);
                 const newValue = !hideMainSidebar;
                 setHideMainSidebar(newValue);
-                console.log("Set to:", newValue);
+                console.log("Setting hideMainSidebar to:", newValue);
               }}
               title={hideMainSidebar ? "Afficher la navigation principale" : "Masquer la navigation principale"}
             >

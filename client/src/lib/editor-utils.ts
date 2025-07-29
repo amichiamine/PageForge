@@ -30,7 +30,8 @@ export function createComponent(type: string, content?: string): ComponentDefini
         fontSize: "2rem",
         fontWeight: "bold",
         marginBottom: "1rem"
-      }
+      },
+      attributes: { className: "heading" }
     },
     text: {
       tag: "p",
@@ -39,7 +40,8 @@ export function createComponent(type: string, content?: string): ComponentDefini
         fontSize: "1rem",
         lineHeight: "1.5",
         marginBottom: "1rem"
-      }
+      },
+      attributes: { className: "text-paragraph" }
     },
     button: {
       tag: "button",
@@ -53,13 +55,14 @@ export function createComponent(type: string, content?: string): ComponentDefini
         cursor: "pointer",
         fontSize: "1rem"
       },
-      attributes: { type: "button" }
+      attributes: { type: "button", className: "btn btn-primary" }
     },
     image: {
       tag: "img",
       attributes: {
         src: "https://via.placeholder.com/400x200",
-        alt: "Image de démonstration"
+        alt: "Image de démonstration",
+        className: "responsive-image"
       },
       styles: {
         maxWidth: "100%",
@@ -72,7 +75,8 @@ export function createComponent(type: string, content?: string): ComponentDefini
       content: content || "Lien",
       attributes: {
         href: "#",
-        target: "_blank"
+        target: "_blank",
+        className: "link"
       },
       styles: {
         color: "#007bff",
@@ -81,24 +85,28 @@ export function createComponent(type: string, content?: string): ComponentDefini
     },
     list: {
       tag: "ul",
+      attributes: { className: "list" },
       children: [
         {
           id: nanoid(),
           type: "listitem",
           tag: "li",
-          content: "Élément 1"
+          content: "Élément 1",
+          attributes: { className: "list-item" }
         },
         {
           id: nanoid(),
           type: "listitem",
           tag: "li",
-          content: "Élément 2"
+          content: "Élément 2",
+          attributes: { className: "list-item" }
         },
         {
           id: nanoid(),
           type: "listitem",
           tag: "li",
-          content: "Élément 3"
+          content: "Élément 3",
+          attributes: { className: "list-item" }
         }
       ],
       styles: {
@@ -270,6 +278,7 @@ export function createComponent(type: string, content?: string): ComponentDefini
     },
     form: {
       tag: "form",
+      attributes: { className: "form" },
       styles: {
         padding: "20px",
         border: "1px solid #dee2e6",
@@ -282,7 +291,8 @@ export function createComponent(type: string, content?: string): ComponentDefini
       tag: "input",
       attributes: {
         type: "text",
-        placeholder: "Saisissez votre texte"
+        placeholder: "Saisissez votre texte",
+        className: "form-input"
       },
       styles: {
         width: "100%",
@@ -296,7 +306,8 @@ export function createComponent(type: string, content?: string): ComponentDefini
       tag: "textarea",
       attributes: {
         placeholder: "Saisissez votre message",
-        rows: "4"
+        rows: "4",
+        className: "form-textarea"
       },
       styles: {
         width: "100%",

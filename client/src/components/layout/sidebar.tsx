@@ -43,7 +43,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Code className="w-4 h-4 text-white" />
           </div>
-          <span className="text-white font-semibold text-lg">SiteJet Clone</span>
+          <span className="text-white font-semibold text-lg">PageForge</span>
         </div>
       </div>
 
