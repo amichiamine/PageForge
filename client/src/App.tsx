@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
 import Editor from "@/pages/editor";
@@ -33,7 +33,12 @@ function Router() {
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;
   
-  console.log("App.tsx - location:", location, "hideMainSidebar:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
+  // Add logging for state changes
+  useEffect(() => {
+    console.log("App.tsx - hideMainSidebar state changed to:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
+  }, [hideMainSidebar, showMainSidebar]);
+  
+  console.log("App.tsx - render - location:", location, "hideMainSidebar:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
 
   return (
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>

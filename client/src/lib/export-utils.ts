@@ -123,10 +123,6 @@ Généré avec SiteJet Clone - ${new Date().toLocaleDateString()}
 function generateHTML(project: Project, page: any, options: ExportOptions): string {
   const renderComponent = (component: ComponentDefinition): string => {
     const Tag = component.tag || 'div';
-    const styleString = component.styles ? 
-      Object.entries(component.styles)
-        .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
-        .join('; ') : '';
     
     const attributes = component.attributes || {};
     const attrString = Object.entries(attributes)
@@ -139,7 +135,12 @@ function generateHTML(project: Project, page: any, options: ExportOptions): stri
     const children = component.children?.map(renderComponent).join('') || '';
     const content = component.content || '';
     
-    const inlineStyle = options.inlineCSS ? ` style="${styleString}"` : '';
+    // Only add inline styles if explicitly requested, otherwise rely on CSS classes
+    const styleString = component.styles && options.inlineCSS ? 
+      Object.entries(component.styles)
+        .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
+        .join('; ') : '';
+    const inlineStyle = styleString ? ` style="${styleString}"` : '';
     
     return `<${Tag} ${attrString} class="${className}"${inlineStyle}>${content}${children}</${Tag}>`;
   };
@@ -213,6 +214,12 @@ body {
     css += page.content.styles + '\n';
   }
 
+  // Extract styles from individual components
+  const componentStyles = extractComponentStyles(page.content.structure || []);
+  if (componentStyles) {
+    css += componentStyles + '\n';
+  }
+
   // Add responsive styles if requested
   if (options.responsive) {
     css += `
@@ -240,6 +247,35 @@ body {
   }
 
   return options.minify ? css.replace(/\s+/g, ' ').trim() : css;
+}
+
+// Helper function to extract styles from components recursively
+function extractComponentStyles(components: ComponentDefinition[]): string {
+  let css = '';
+  
+  components.forEach(component => {
+    if (component.styles && Object.keys(component.styles).length > 0) {
+      // Convert component styles to CSS class
+      const className = component.attributes?.className || `component-${component.id}`;
+      const styleRules = Object.entries(component.styles)
+        .map(([property, value]) => `  ${camelToKebabCase(property)}: ${value};`)
+        .join('\n');
+      
+      css += `.${className} {\n${styleRules}\n}\n\n`;
+    }
+    
+    // Recursively process children
+    if (component.children && component.children.length > 0) {
+      css += extractComponentStyles(component.children);
+    }
+  });
+  
+  return css;
+}
+
+// Helper function to convert camelCase to kebab-case
+function camelToKebabCase(str: string): string {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
 function generateInlineCSS(project: Project, page: any, options: ExportOptions): string {

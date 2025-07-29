@@ -37,7 +37,7 @@ const commonStyles: StyleProperty[] = [
   { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
   { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
   { name: "textAlign", label: "Alignement du texte", type: "select", options: ["left", "center", "right", "justify"] },
-  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "middle", "bottom", "baseline", "text-top", "text-bottom", "super", "sub"] },
+  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "center", "middle", "bottom", "baseline", "text-top", "text-bottom", "super", "sub"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
@@ -729,7 +729,29 @@ export default function PropertiesPanel({
                       {style.type === "select" ? (
                         <Select
                           value={getPropertyValue(`styles.${style.name}`)}
-                          onValueChange={(value) => updateProperty(`styles.${style.name}`, value)}
+                          onValueChange={(value) => {
+                            // Handle vertical alignment specifically for text components
+                            if (style.name === "verticalAlign" && (component?.type === "text" || component?.type === "heading")) {
+                              // For text components, use CSS flexbox alignment
+                              if (value === "center" || value === "middle") {
+                                updateProperty(`styles.display`, "flex");
+                                updateProperty(`styles.alignItems`, "center");
+                                updateProperty(`styles.${style.name}`, value);
+                              } else if (value === "top") {
+                                updateProperty(`styles.display`, "flex");
+                                updateProperty(`styles.alignItems`, "flex-start");
+                                updateProperty(`styles.${style.name}`, value);
+                              } else if (value === "bottom") {
+                                updateProperty(`styles.display`, "flex");
+                                updateProperty(`styles.alignItems`, "flex-end");
+                                updateProperty(`styles.${style.name}`, value);
+                              } else {
+                                updateProperty(`styles.${style.name}`, value);
+                              }
+                            } else {
+                              updateProperty(`styles.${style.name}`, value);
+                            }
+                          }}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Sélectionner..." />

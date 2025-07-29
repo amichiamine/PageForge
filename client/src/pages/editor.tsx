@@ -339,10 +339,15 @@ export default function Editor() {
               variant="outline"
               size="sm"
               onClick={() => {
-                console.log("Toggling main sidebar, current hideMainSidebar:", hideMainSidebar);
+                console.log("Editor button clicked - current hideMainSidebar:", hideMainSidebar);
                 const newValue = !hideMainSidebar;
+                console.log("Editor button - setting hideMainSidebar to:", newValue);
                 setHideMainSidebar(newValue);
-                console.log("Setting hideMainSidebar to:", newValue);
+                
+                // Force re-render by adding a small delay to verify the state change
+                setTimeout(() => {
+                  console.log("Editor button - after timeout, hideMainSidebar should be:", newValue);
+                }, 100);
               }}
               title={hideMainSidebar ? "Afficher la navigation principale" : "Masquer la navigation principale"}
             >
