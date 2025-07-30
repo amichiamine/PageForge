@@ -39,7 +39,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
 
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept: ['COMPONENT', 'EXISTING_COMPONENT'],
+    accept: ['component', 'COMPONENT', 'EXISTING_COMPONENT'],
     drop: (item: DragItem, monitor) => {
       if (!project) return;
 
@@ -54,9 +54,9 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
       if (item.isExisting && item.id) {
         // Moving existing component
         handleComponentMove(item.id, x, y);
-      } else if (item.componentType) {
+      } else if (item.componentType || item.type) {
         // Adding new component
-        handleComponentAdd(item.componentType, x, y);
+        handleComponentAdd(item.componentType || item.type, x, y);
       }
     },
     collect: (monitor) => ({

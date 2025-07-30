@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,8 @@ import { useState, useEffect, useCallback } from "react";
 import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from 'react-dnd-touch-backend';
+import { MultiBackend, MultiBackendOptions } from 'react-dnd-multi-backend';
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
 import ComponentPalette from "@/components/editor/component-palette";
@@ -27,35 +28,35 @@ import { Separator } from "@/components/ui/separator";
 function generatePreviewHTML(project: Project): string {
   const currentPage = project.content?.pages?.[0];
   const pageStructure = currentPage?.content?.structure || [];
-  
+
   const renderComponent = (component: ComponentDefinition): string => {
     const styles = component.styles || {};
     const attributes = component.attributes || {};
     const { className, ...otherAttributes } = attributes;
-    
+
     const styleString = Object.entries(styles)
       .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
       .join('; ');
-    
+
     const attributeString = Object.entries(otherAttributes)
       .map(([key, value]) => `${key}="${value}"`)
       .join(' ');
-    
+
     const tag = component.tag || 'div';
     const classAttr = className ? `class="${className}"` : '';
-    
+
     if (component.type === 'image') {
       return `<${tag} ${classAttr} ${attributeString} style="${styleString}">
         ${attributes.src ? `<img src="${attributes.src}" alt="${attributes.alt || ''}" style="width: 100%; height: 100%; object-fit: cover;" />` : 'Image'}
       </${tag}>`;
     }
-    
+
     return `<${tag} ${classAttr} ${attributeString} style="${styleString}">
       ${component.content || ''}
       ${component.children?.map(renderComponent).join('') || ''}
     </${tag}>`;
   };
-  
+
   return `
     <!DOCTYPE html>
     <html lang="fr">
@@ -85,7 +86,7 @@ export default function Editor() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
-  
+
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
@@ -98,7 +99,7 @@ export default function Editor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [undoStack, setUndoStack] = useState<Project[]>([]);
   const [redoStack, setRedoStack] = useState<Project[]>([]);
-  
+
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
 
@@ -133,7 +134,7 @@ export default function Editor() {
         title: "Projet sauvegardé",
         description: "Vos modifications ont été enregistrées avec succès.",
       });
-      
+
       // Refresh queries after successful save
       setTimeout(() => {
         console.log("Manual save complete - refreshing queries");
@@ -153,7 +154,7 @@ export default function Editor() {
 
   const handleSave = useCallback(async () => {
     if (!localProject) return;
-    
+
     console.log("Save button clicked, localProject:", localProject.name);
     await saveMutation.mutateAsync(localProject);
   }, [localProject, saveMutation]);
@@ -172,20 +173,20 @@ export default function Editor() {
 
   const handleComponentUpdate = useCallback((updatedProject: Project) => {
     console.log("handleComponentUpdate called with:", updatedProject.name);
-    
+
     // Add current state to undo stack
     if (localProject) {
       setUndoStack(prev => [...prev.slice(-19), localProject]); // Keep last 20 states
       setRedoStack([]); // Clear redo stack on new change
     }
-    
+
     setLocalProject(updatedProject);
     setHasUnsavedChanges(true);
   }, [localProject]);
 
   const handleUndo = useCallback(() => {
     if (undoStack.length === 0 || !localProject) return;
-    
+
     const previousState = undoStack[undoStack.length - 1];
     setRedoStack(prev => [...prev, localProject]);
     setUndoStack(prev => prev.slice(0, -1));
@@ -195,7 +196,7 @@ export default function Editor() {
 
   const handleRedo = useCallback(() => {
     if (redoStack.length === 0) return;
-    
+
     const nextState = redoStack[redoStack.length - 1];
     if (localProject) {
       setUndoStack(prev => [...prev, localProject]);
@@ -238,8 +239,41 @@ export default function Editor() {
     );
   }
 
+  // Configuration du multi-backend pour le drag and drop
+  const backendOptions: MultiBackendOptions = {
+    backends: [
+      {
+        id: 'html5',
+        backend: HTML5Backend,
+        transition: { 
+          type: 'pointer',
+          options: {
+            pointerTypes: ['mouse']
+          }
+        }
+      },
+      {
+        id: 'touch',
+        backend: TouchBackend,
+        options: {
+          enableMouseEvents: true,
+          delayTouchStart: 200,
+          delayMouseStart: 0,
+          touchSlop: 16,
+        },
+        preview: true,
+        transition: {
+          type: 'pointer',
+          options: {
+            pointerTypes: ['touch', 'pen']
+          }
+        }
+      }
+    ]
+  };
+
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={MultiBackend} options={backendOptions}>
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         {errorMessage && (
           <ErrorNotification 
@@ -453,7 +487,7 @@ export default function Editor() {
                         onComponentUpdate={handleComponentUpdate}
                         showCode={showCode}
                       />
-                      
+
                       {/* Alignment guides overlay */}
                       <AlignmentGuides
                         showGuides={showAlignmentGuides}

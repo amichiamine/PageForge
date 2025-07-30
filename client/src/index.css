@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -137,13 +136,13 @@
     min-width: 44px;
     min-height: 44px;
   }
-  
+
   .component-wrapper .resize-handle {
     width: 20px;
     height: 20px;
     border-radius: 50%;
   }
-  
+
   .component-palette .draggable-component {
     min-height: 60px;
     padding: 12px;
@@ -202,11 +201,11 @@
   .editor-container {
     @apply flex-col;
   }
-  
+
   .component-palette {
     @apply w-full h-48 overflow-x-auto;
   }
-  
+
   .properties-panel {
     @apply w-full;
   }
@@ -216,7 +215,7 @@
   .editor-header {
     @apply flex-col space-y-2;
   }
-  
+
   .editor-actions {
     @apply flex-wrap gap-2;
   }
@@ -369,4 +368,97 @@
 
 .shadow-modern-lg {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Styles pour l'éditeur */
+.visual-editor-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: white;
+  overflow: hidden;
+  touch-action: pan-x pan-y;
+}
+
+.component-wrapper {
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+.component-wrapper:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.component-wrapper.selected {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px #ef4444 !important;
+}
+
+/* Styles pour le drag and drop */
+.editor-drop-zone {
+  background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.editor-drop-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.05);
+  border: 2px dashed #93c5fd;
+  border-radius: 8px;
+}
+
+/* Amélioration du drag and drop pour mobile */
+@media (hover: none) and (pointer: coarse) {
+  .component-wrapper:hover {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .component-wrapper:active,
+  .component-wrapper[data-touch-dragging="true"] {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+    transform: scale(0.98);
+  }
+
+  /* Améliorer la taille des poignées de redimensionnement sur mobile */
+  .component-wrapper .resize-handle {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* Responsive design pour les panneaux */
+@media (max-width: 1024px) {
+  .editor-panels {
+    flex-direction: column;
+  }
+
+  .component-palette,
+  .properties-panel {
+    width: 100% !important;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+}
+
+/* Optimisations tactiles */
+@media (pointer: coarse) {
+  button, .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .resize-handle {
+    width: 20px !important;
+    height: 20px !important;
+    touch-action: none;
+  }
 }

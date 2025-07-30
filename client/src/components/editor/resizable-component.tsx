@@ -1,4 +1,5 @@
 
+<old_str>
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { ComponentDefinition } from '@shared/schema';
 
@@ -368,3 +369,5 @@ export default function ResizableComponent({
     </div>
   );
 }
+
+</new_str>

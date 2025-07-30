@@ -1,5 +1,7 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
+import { useEffect } from 'react';
 import { 
   Type, 
   Square, 
@@ -34,38 +36,59 @@ interface DraggableComponentProps {
 }
 
 function DraggableComponent({ type, label, icon, color, description }: DraggableComponentProps) {
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     type: 'component',
-    item: { type },
+    item: { type, componentType: type },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
+  // Supprimer l'image de prévisualisation par défaut pour le tactile
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, [preview]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    // Marquer l'élément comme étant en cours de drag tactile
+    const element = e.currentTarget as HTMLElement;
+    element.style.opacity = '0.7';
+    element.setAttribute('data-touch-dragging', 'true');
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const element = e.currentTarget as HTMLElement;
+    element.style.opacity = '1';
+    element.removeAttribute('data-touch-dragging');
+  };
+
   return (
     <div
       ref={drag}
-      className={`group relative p-4 rounded-xl border-2 border-dashed transition-all duration-200 cursor-grab hover:cursor-grabbing ${
+      className={`group relative p-3 sm:p-4 rounded-xl border-2 border-dashed transition-all duration-200 cursor-grab hover:cursor-grabbing ${
         isDragging ? 'opacity-50 scale-95' : 'opacity-100 hover:scale-105'
       } hover:border-solid hover:shadow-lg bg-white touch-manipulation select-none`}
       style={{ 
         borderColor: color,
         transform: isDragging ? 'scale(0.95)' : 'scale(1)',
-        touchAction: 'none'
+        touchAction: 'manipulation'
       }}
       title={description}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      <div className="flex flex-col items-center space-y-2">
+      <div className="flex flex-col items-center space-y-1 sm:space-y-2">
         <div 
-          className="p-3 rounded-lg transition-colors"
+          className="p-2 sm:p-3 rounded-lg transition-colors"
           style={{ 
             backgroundColor: `${color}15`,
             color: color
           }}
         >
-          {React.cloneElement(icon, { size: 24 })}
+          {React.cloneElement(icon, { size: window.innerWidth < 640 ? 20 : 24 })}
         </div>
-        <span className="text-sm font-medium text-gray-700 text-center leading-tight">
+        <span className="text-xs sm:text-sm font-medium text-gray-700 text-center leading-tight">
           {label}
         </span>
       </div>
@@ -170,7 +193,7 @@ export default function ComponentPalette() {
             <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide border-b border-gray-200 pb-2">
               {category.name}
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3">
               {category.components.map((component) => (
                 <DraggableComponent
                   key={component.type}
