@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;

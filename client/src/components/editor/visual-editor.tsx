@@ -265,11 +265,32 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         drop(node);
       }}
       className={`
-        relative w-full h-full min-h-[600px] bg-white overflow-hidden touch-none
+        visual-editor-container relative w-full h-full min-h-[600px] bg-white overflow-hidden
         ${isOver && canDrop ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''}
         ${!structure.length ? 'editor-drop-zone' : ''}
       `}
-      style={{ position: 'relative' }}
+      style={{ 
+        position: 'relative',
+        touchAction: 'none',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        msUserSelect: 'none'
+      }}
+      onTouchStart={(e) => {
+        // Permettre le défilement vertical si nécessaire
+        const touch = e.touches[0];
+        const element = e.currentTarget;
+        const rect = element.getBoundingClientRect();
+        
+        // Si le touch est près des bords, permettre le scroll
+        const edgeThreshold = 50;
+        if (touch.clientY < rect.top + edgeThreshold || 
+            touch.clientY > rect.bottom - edgeThreshold) {
+          element.style.touchAction = 'pan-y';
+        } else {
+          element.style.touchAction = 'none';
+        }
+      }}
     >
       {/* Alignment Guides */}
       {showAlignmentGuides && (

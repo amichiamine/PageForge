@@ -270,11 +270,17 @@ export default function Editor() {
         backend: TouchBackend,
         options: {
           enableMouseEvents: true,
-          delayTouchStart: isMobileOrTablet ? 150 : 200,
+          delayTouchStart: isMobileOrTablet ? 100 : 150,
           delayMouseStart: 0,
-          touchSlop: isMobileOrTablet ? 20 : 16,
+          touchSlop: isMobileOrTablet ? 15 : 20,
           enableTouchEvents: true,
           enableKeyboardEvents: false,
+          scrollAngleRanges: [
+            { start: 30, end: 150 },
+            { start: 210, end: 330 }
+          ],
+          ignoreContextMenu: true,
+          enableHoverOutsideTarget: false
         },
         preview: true,
         transition: {

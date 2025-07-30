@@ -57,7 +57,7 @@ export default function ResizableComponent({
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
-      e.preventDefault();
+      // Pas de preventDefault pour permettre le scroll si nécessaire
       e.stopPropagation();
       
       onSelect();
@@ -67,11 +67,16 @@ export default function ResizableComponent({
       const touch = e.touches[0];
       const rect = elementRef.current?.getBoundingClientRect();
       if (rect && touch) {
-        setIsDragging(true);
-        setDragStart({
-          x: touch.clientX - rect.left,
-          y: touch.clientY - rect.top
-        });
+        // Délai court pour distinguer tap et drag
+        setTimeout(() => {
+          if (e.touches.length === 1) {
+            setIsDragging(true);
+            setDragStart({
+              x: touch.clientX - rect.left,
+              y: touch.clientY - rect.top
+            });
+          }
+        }, 100);
       }
     }
   }, [isSelected, onSelect]);
@@ -260,6 +265,10 @@ export default function ResizableComponent({
       style={componentStyle}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onTouchEnd={() => {
+        setIsDragging(false);
+        setIsResizing(false);
+      }}
     >
       {/* Contenu du composant */}
       <div className="component-content h-full w-full">
@@ -304,52 +313,108 @@ export default function ResizableComponent({
         <>
           {/* Coins */}
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-nw-resize hover:bg-blue-600 shadow-sm"
-            style={{ top: '-6px', left: '-6px' }}
+            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-nw-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              top: '-6px', 
+              left: '-6px',
+              minWidth: '20px',
+              minHeight: '20px',
+              marginTop: '-7px',
+              marginLeft: '-7px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'top-left')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'top-left')}
           />
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-ne-resize hover:bg-blue-600 shadow-sm"
-            style={{ top: '-6px', right: '-6px' }}
+            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-ne-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              top: '-6px', 
+              right: '-6px',
+              minWidth: '20px',
+              minHeight: '20px',
+              marginTop: '-7px',
+              marginRight: '-7px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'top-right')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'top-right')}
           />
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-sw-resize hover:bg-blue-600 shadow-sm"
-            style={{ bottom: '-6px', left: '-6px' }}
+            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-sw-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              bottom: '-6px', 
+              left: '-6px',
+              minWidth: '20px',
+              minHeight: '20px',
+              marginBottom: '-7px',
+              marginLeft: '-7px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'bottom-left')}
           />
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-se-resize hover:bg-blue-600 shadow-sm"
-            style={{ bottom: '-6px', right: '-6px' }}
+            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-se-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              bottom: '-6px', 
+              right: '-6px',
+              minWidth: '20px',
+              minHeight: '20px',
+              marginBottom: '-7px',
+              marginRight: '-7px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'bottom-right')}
           />
 
           {/* Côtés */}
           <div
-            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-n-resize hover:bg-blue-600 shadow-sm"
-            style={{ top: '-8px', left: '50%', transform: 'translateX(-50%)' }}
+            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-n-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              top: '-8px', 
+              left: '50%', 
+              transform: 'translateX(-50%)',
+              minWidth: '24px',
+              minHeight: '24px',
+              marginTop: '-4px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'top')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'top')}
           />
           <div
-            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-s-resize hover:bg-blue-600 shadow-sm"
-            style={{ bottom: '-8px', left: '50%', transform: 'translateX(-50%)' }}
+            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-s-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              bottom: '-8px', 
+              left: '50%', 
+              transform: 'translateX(-50%)',
+              minWidth: '24px',
+              minHeight: '24px',
+              marginBottom: '-4px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'bottom')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'bottom')}
           />
           <div
-            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-w-resize hover:bg-blue-600 shadow-sm"
-            style={{ left: '-8px', top: '50%', transform: 'translateY(-50%)' }}
+            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-w-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              left: '-8px', 
+              top: '50%', 
+              transform: 'translateY(-50%)',
+              minWidth: '24px',
+              minHeight: '24px',
+              marginLeft: '-4px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'left')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'left')}
           />
           <div
-            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-e-resize hover:bg-blue-600 shadow-sm"
-            style={{ right: '-8px', top: '50%', transform: 'translateY(-50%)' }}
+            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-e-resize hover:bg-blue-600 shadow-sm touch-manipulation"
+            style={{ 
+              right: '-8px', 
+              top: '50%', 
+              transform: 'translateY(-50%)',
+              minWidth: '24px',
+              minHeight: '24px',
+              marginRight: '-4px'
+            }}
             onMouseDown={(e) => handleResizeStart(e, 'right')}
             onTouchStart={(e) => handleTouchResizeStart(e, 'right')}
           />
@@ -359,12 +424,41 @@ export default function ResizableComponent({
       <style jsx>{`
         .component-wrapper {
           transition: none;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
         }
         .component-wrapper.selected {
           z-index: 1001;
         }
         .component-wrapper:hover {
           outline: 1px dashed #60a5fa;
+        }
+        
+        /* Amélioration pour les écrans tactiles */
+        @media (hover: none) and (pointer: coarse) {
+          .component-wrapper {
+            min-width: 44px;
+            min-height: 44px;
+          }
+          
+          .component-wrapper:active {
+            transform: scale(1.02);
+            transition: transform 0.1s ease;
+          }
+        }
+        
+        /* Poignées de redimensionnement plus grandes sur tactile */
+        @media (hover: none) and (pointer: coarse) {
+          .component-wrapper .resize-handle {
+            width: 20px !important;
+            height: 20px !important;
+            border-width: 2px !important;
+          }
         }
       `}</style>
     </div>

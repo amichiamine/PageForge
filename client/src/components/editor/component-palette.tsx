@@ -50,16 +50,54 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
   }, [preview]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
-    // Marquer l'élément comme étant en cours de drag tactile
+    // Délai pour détecter un vrai drag vs un tap
     const element = e.currentTarget as HTMLElement;
-    element.style.opacity = '0.7';
-    element.setAttribute('data-touch-dragging', 'true');
+    const touch = e.touches[0];
+    const startTime = Date.now();
+    const startX = touch.clientX;
+    const startY = touch.clientY;
+    
+    const dragTimer = setTimeout(() => {
+      e.preventDefault();
+      element.style.opacity = '0.7';
+      element.style.transform = 'scale(1.05)';
+      element.setAttribute('data-touch-dragging', 'true');
+      
+      // Ajouter un feedback visuel
+      element.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)';
+      element.style.zIndex = '9999';
+    }, 150);
+    
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      const currentTouch = moveEvent.touches[0];
+      const deltaX = Math.abs(currentTouch.clientX - startX);
+      const deltaY = Math.abs(currentTouch.clientY - startY);
+      
+      // Si mouvement significatif, démarrer le drag
+      if (deltaX > 10 || deltaY > 10) {
+        clearTimeout(dragTimer);
+        element.style.opacity = '0.7';
+        element.style.transform = 'scale(1.05)';
+        element.setAttribute('data-touch-dragging', 'true');
+      }
+    };
+    
+    const handleTouchEndLocal = () => {
+      clearTimeout(dragTimer);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEndLocal);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEndLocal);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const element = e.currentTarget as HTMLElement;
     element.style.opacity = '1';
+    element.style.transform = 'scale(1)';
+    element.style.boxShadow = '';
+    element.style.zIndex = '';
     element.removeAttribute('data-touch-dragging');
   };
 
