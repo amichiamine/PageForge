@@ -28,29 +28,24 @@ interface StyleProperty {
 }
 
 const commonStyles: StyleProperty[] = [
+  { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
+  { name: "left", label: "Position X (gauche)", type: "text", unit: "px, %, auto" },
+  { name: "top", label: "Position Y (haut)", type: "text", unit: "px, %, auto" },
   { name: "width", label: "Largeur", type: "text", unit: "px, %, auto" },
   { name: "height", label: "Hauteur", type: "text", unit: "px, %, auto" },
-  { name: "margin", label: "Marge", type: "text", unit: "px, rem" },
-  { name: "padding", label: "Espacement", type: "text", unit: "px, rem" },
+  { name: "zIndex", label: "Ordre d'affichage (Z)", type: "number" },
+  { name: "margin", label: "Marge externe", type: "text", unit: "px, rem" },
+  { name: "padding", label: "Espacement interne", type: "text", unit: "px, rem" },
   { name: "backgroundColor", label: "Couleur de fond", type: "color" },
   { name: "color", label: "Couleur du texte", type: "color" },
   { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
   { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
   { name: "lineHeight", label: "Hauteur de ligne", type: "text", unit: "px, rem, em, number" },
-  { name: "textAlign", label: "Alignement horizontal", type: "select", options: ["left", "center", "right", "justify"] },
-  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "middle", "bottom", "baseline", "text-top", "text-bottom", "super", "sub"] },
-  { name: "alignItems", label: "Alignement vertical (flex)", type: "select", options: ["stretch", "flex-start", "flex-end", "center", "baseline"] },
-  { name: "justifyContent", label: "Alignement horizontal (flex)", type: "select", options: ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"] },
+  { name: "textAlign", label: "Alignement du texte", type: "select", options: ["left", "center", "right", "justify"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
-  { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
-  { name: "top", label: "Position haut", type: "text", unit: "px, %, auto" },
-  { name: "right", label: "Position droite", type: "text", unit: "px, %, auto" },
-  { name: "bottom", label: "Position bas", type: "text", unit: "px, %, auto" },
-  { name: "left", label: "Position gauche", type: "text", unit: "px, %, auto" },
-  { name: "zIndex", label: "Index Z", type: "number" },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
   { name: "border", label: "Bordure", type: "text" },
-  { name: "boxShadow", label: "Ombre", type: "text" },
+  { name: "boxShadow", label: "Ombre portée", type: "text" },
 ];
 
 export default function PropertiesPanel({ 
@@ -580,10 +575,65 @@ export default function PropertiesPanel({
             <TabsContent value="style" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Styles CSS</CardTitle>
+                  <CardTitle className="text-sm">Position & Taille</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {commonStyles.map((style) => (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="left">Position X</Label>
+                      <Input
+                        id="left"
+                        value={getPropertyValue('styles.left') || '0px'}
+                        onChange={(e) => updateProperty('styles.left', e.target.value)}
+                        placeholder="0px"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="top">Position Y</Label>
+                      <Input
+                        id="top"
+                        value={getPropertyValue('styles.top') || '0px'}
+                        onChange={(e) => updateProperty('styles.top', e.target.value)}
+                        placeholder="0px"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="width">Largeur</Label>
+                      <Input
+                        id="width"
+                        value={getPropertyValue('styles.width') || 'auto'}
+                        onChange={(e) => updateProperty('styles.width', e.target.value)}
+                        placeholder="auto"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="height">Hauteur</Label>
+                      <Input
+                        id="height"
+                        value={getPropertyValue('styles.height') || 'auto'}
+                        onChange={(e) => updateProperty('styles.height', e.target.value)}
+                        placeholder="auto"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="zIndex">Ordre d'affichage (Z-Index)</Label>
+                    <Input
+                      id="zIndex"
+                      type="number"
+                      value={getPropertyValue('styles.zIndex') || '1'}
+                      onChange={(e) => updateProperty('styles.zIndex', e.target.value)}
+                      placeholder="1"
+                    />
+                  </div>
+
+                  <Separator />
+                  
+                  {commonStyles.slice(6).map((style) => (
                     <div key={style.name}>
                       <Label htmlFor={style.name}>
                         {style.label}
