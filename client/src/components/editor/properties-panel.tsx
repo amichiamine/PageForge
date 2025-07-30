@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Copy, Eye, EyeOff, Lock, Unlock } from 'lucide-react';
+import { Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import type { ComponentDefinition, Project } from '@shared/schema';
 
 interface PropertiesPanelProps {
@@ -16,6 +16,8 @@ interface PropertiesPanelProps {
   project: Project;
   onComponentSelect: (component: ComponentDefinition | null) => void;
   onComponentDelete: (componentId: string) => void;
+  hideMainSidebar?: boolean;
+  setHideMainSidebar?: (hide: boolean) => void;
 }
 
 export default function PropertiesPanel({
@@ -23,7 +25,9 @@ export default function PropertiesPanel({
   onComponentUpdate,
   project,
   onComponentSelect,
-  onComponentDelete
+  onComponentDelete,
+  hideMainSidebar,
+  setHideMainSidebar
 }: PropertiesPanelProps) {
   const [localComponent, setLocalComponent] = useState<ComponentDefinition | null>(null);
 
@@ -247,6 +251,17 @@ export default function PropertiesPanel({
               <span className="text-sm text-gray-600">#{localComponent.id.slice(-8)}</span>
             </div>
             <div className="flex items-center space-x-1">
+              {setHideMainSidebar && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setHideMainSidebar(!hideMainSidebar)}
+                  className="h-8 w-8 p-0"
+                  title={hideMainSidebar ? "Afficher la navigation" : "Masquer la navigation"}
+                >
+                  {hideMainSidebar ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -318,7 +333,7 @@ export default function PropertiesPanel({
                 <SelectItem value="a">a</SelectItem>
                 <SelectItem value="section">section</SelectItem>
                 <SelectItem value="article">article</SelectItem>
-                <SelectItem value="header">header</header>
+                <SelectItem value="header">header</SelectItem>
                 <SelectItem value="footer">footer</SelectItem>
                 <SelectItem value="nav">nav</SelectItem>
                 <SelectItem value="main">main</SelectItem>
