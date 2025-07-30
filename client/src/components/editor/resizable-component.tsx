@@ -46,8 +46,8 @@ export default function ResizableComponent({
     
     let newWidth = resizeStart.width;
     let newHeight = resizeStart.height;
-    let newLeft = parseInt(component.styles?.left || '0');
-    let newTop = parseInt(component.styles?.top || '0');
+    let newLeft = parseInt(component.styles?.left?.replace('px', '') || '0');
+    let newTop = parseInt(component.styles?.top?.replace('px', '') || '0');
 
     // Handle different resize directions
     if (resizeDirection.includes('right')) {
@@ -97,15 +97,15 @@ export default function ResizableComponent({
   }, [isResizing, handleResizeMove, handleResizeEnd]);
 
   if (!isSelected) {
-    return <>{children}</>;
+    return <div ref={elementRef}>{children}</div>;
   }
 
   return (
     <div
       ref={elementRef}
       className={cn(
-        "relative group",
-        isSelected && "ring-2 ring-blue-500 ring-offset-2",
+        "relative",
+        isSelected && "ring-2 ring-blue-500 ring-offset-1 rounded-lg",
         isResizing && "z-50"
       )}
       style={{
@@ -114,59 +114,65 @@ export default function ResizableComponent({
     >
       {children}
       
-      {/* Resize Handles */}
+      {/* Resize Handles - Positionnés correctement */}
       {isSelected && (
-        <>
+        <div className="absolute inset-0 pointer-events-none">
           {/* Corner handles */}
           <div
-            className="absolute -top-1 -left-1 w-3 h-3 bg-blue-500 border border-white cursor-nw-resize opacity-80 hover:opacity-100"
+            className="absolute -top-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nw-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'top-left')}
             title="Redimensionner (haut-gauche)"
           />
           <div
-            className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 border border-white cursor-ne-resize opacity-80 hover:opacity-100"
+            className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-ne-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'top-right')}
             title="Redimensionner (haut-droite)"
           />
           <div
-            className="absolute -bottom-1 -left-1 w-3 h-3 bg-blue-500 border border-white cursor-sw-resize opacity-80 hover:opacity-100"
+            className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-sw-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
             title="Redimensionner (bas-gauche)"
           />
           <div
-            className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 border border-white cursor-se-resize opacity-80 hover:opacity-100"
+            className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-se-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
             title="Redimensionner (bas-droite)"
           />
 
           {/* Edge handles */}
           <div
-            className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-blue-500 border border-white cursor-n-resize opacity-80 hover:opacity-100"
+            className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-n-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'top')}
             title="Redimensionner (haut)"
           />
           <div
-            className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-blue-500 border border-white cursor-s-resize opacity-80 hover:opacity-100"
+            className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-s-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'bottom')}
             title="Redimensionner (bas)"
           />
           <div
-            className="absolute -left-1 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-blue-500 border border-white cursor-w-resize opacity-80 hover:opacity-100"
+            className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-w-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'left')}
             title="Redimensionner (gauche)"
           />
           <div
-            className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-blue-500 border border-white cursor-e-resize opacity-80 hover:opacity-100"
+            className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-e-resize opacity-90 hover:opacity-100 pointer-events-auto shadow-md"
             onMouseDown={(e) => handleResizeStart(e, 'right')}
             title="Redimensionner (droite)"
           />
 
-          {/* Position/Size Info Tooltip */}
-          <div className="absolute -top-16 left-0 bg-black text-white text-xs px-2 py-1 rounded opacity-90 pointer-events-none whitespace-nowrap z-50">
-            <div>Position: {component.styles?.left || '0'}, {component.styles?.top || '0'}</div>
-            <div>Taille: {component.styles?.width || 'auto'} × {component.styles?.height || 'auto'}</div>
+          {/* Position/Size Info Tooltip avec style amélioré */}
+          <div className="absolute -top-20 left-0 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg opacity-95 pointer-events-none whitespace-nowrap z-50 border border-gray-700">
+            <div className="flex items-center gap-2">
+              <span className="text-blue-300">Position:</span>
+              <span>{component.styles?.left || '0'}, {component.styles?.top || '0'}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-green-300">Taille:</span>
+              <span>{component.styles?.width || 'auto'} × {component.styles?.height || 'auto'}</span>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
