@@ -24,7 +24,8 @@ import {
   Search,
   Menu,
   User,
-  Lock
+  Lock,
+  Trash2
 } from 'lucide-react';
 
 interface DraggableComponentProps {
@@ -33,9 +34,11 @@ interface DraggableComponentProps {
   icon: React.ReactElement;
   color: string;
   description?: string;
+  onDelete?: () => void;
+  showDelete?: boolean;
 }
 
-function DraggableComponent({ type, label, icon, color, description }: DraggableComponentProps) {
+function DraggableComponent({ type, label, icon, color, description, onDelete, showDelete = false }: DraggableComponentProps) {
   const [{ isDragging }, drag, preview] = useDrag({
     type: 'component',
     item: { type, componentType: type },
@@ -54,10 +57,10 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
     const touch = e.touches[0];
     let dragTimer: NodeJS.Timeout;
     let hasMoved = false;
-    
+
     const startX = touch.clientX;
     const startY = touch.clientY;
-    
+
     // Délai plus court pour le feedback tactile
     dragTimer = setTimeout(() => {
       if (!hasMoved) {
@@ -65,41 +68,41 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
         element.style.transform = 'scale(1.02)';
         element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
         element.setAttribute('data-touch-ready', 'true');
-        
+
         // Feedback haptique
         if ('vibrate' in navigator) {
           navigator.vibrate(30);
         }
       }
     }, 80);
-    
+
     const handleTouchMove = (moveEvent: TouchEvent) => {
       const currentTouch = moveEvent.touches[0];
       const deltaX = Math.abs(currentTouch.clientX - startX);
       const deltaY = Math.abs(currentTouch.clientY - startY);
-      
+
       if (deltaX > 5 || deltaY > 5) {
         hasMoved = true;
         clearTimeout(dragTimer);
-        
+
         // Feedback visuel de drag actif
         element.style.opacity = '0.9';
         element.style.transform = 'scale(1.05) rotate(2deg)';
         element.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
         element.style.zIndex = '9999';
         element.setAttribute('data-touch-dragging', 'true');
-        
+
         moveEvent.preventDefault();
       }
     };
-    
+
     const handleTouchEndLocal = () => {
       clearTimeout(dragTimer);
       hasMoved = false;
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEndLocal);
     };
-    
+
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEndLocal);
   };
@@ -150,6 +153,18 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
         className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-10 transition-opacity"
         style={{ backgroundColor: color }}
       />
+      {showDelete && onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="absolute top-1 right-1 p-1 bg-red-100 rounded-full text-red-500 hover:bg-red-200 hover:text-red-700 transition-colors opacity-0 group-hover:opacity-100"
+          title="Supprimer ce composant"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 }

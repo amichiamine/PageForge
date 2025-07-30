@@ -196,6 +196,8 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     }
   }, [project, selectedComponent, onComponentUpdate, onComponentSelect]);
 
+  const structure = project?.content?.pages?.[0]?.content?.structure || [];
+
   const renderComponent = useCallback((component: ComponentDefinition): React.ReactNode => {
     return (
       <ResizableComponent
@@ -203,7 +205,8 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
               component={component}
               isSelected={selectedComponent?.id === component.id}
               onUpdate={(updatedComponent) => {
-                const updatedStructure = structure.map(c => 
+                const currentStructure = project?.content?.pages?.[0]?.content?.structure || [];
+                const updatedStructure = currentStructure.map(c => 
                   c.id === updatedComponent.id ? updatedComponent : c
                 );
                 const updatedProject = {
@@ -243,9 +246,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
               </div>
             </ResizableComponent>
     );
-  }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides, project, onComponentUpdate, structure]);
-
-  const structure = project?.content?.pages?.[0]?.content?.structure || [];
+  }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides, project, onComponentUpdate]);
 
   // Component renderer for different component types
   const ComponentRenderer = ({ component }: { component: ComponentDefinition }) => {
