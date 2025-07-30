@@ -123,11 +123,11 @@ export default function PropertiesPanel({
                     onClick={() => onComponentSelect(comp)}
                     className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors group"
                   >
-                    <div className="flex items-center space-x-3">
-                      <Badge variant="outline" className="text-xs">
+                    <div className="flex items-center space-x-3 flex-1 min-w-0">
+                      <Badge variant="outline" className="text-xs flex-shrink-0">
                         {comp.type}
                       </Badge>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {comp.content || comp.type}
                         </p>
@@ -136,7 +136,19 @@ export default function PropertiesPanel({
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onComponentSelect(comp);
+                        }}
+                        className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700"
+                        title="Sélectionner"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -195,15 +207,31 @@ export default function PropertiesPanel({
             {project?.content?.pages?.[0]?.content?.structure?.map((comp) => (
               <div
                 key={comp.id}
-                className={`p-2 rounded text-xs cursor-pointer border transition-colors ${
+                className={`p-2 rounded text-xs cursor-pointer border transition-colors group ${
                   component?.id === comp.id 
                     ? 'bg-blue-50 border-blue-200 text-blue-700' 
                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                 }`}
                 onClick={() => onComponentSelect(comp)}
               >
-                <div className="font-medium">{comp.type}</div>
-                <div className="text-gray-500 truncate">{comp.id.slice(-8)}</div>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{comp.type}</div>
+                    <div className="text-gray-500 truncate">{comp.content || comp.id.slice(-8)}</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onComponentDelete(comp.id);
+                    }}
+                    className="h-6 w-6 p-0 text-red-600 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             )) || []}
           </div>

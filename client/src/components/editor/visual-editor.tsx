@@ -199,18 +199,51 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
   const renderComponent = useCallback((component: ComponentDefinition): React.ReactNode => {
     return (
       <ResizableComponent
-        key={component.id}
-        component={component}
-        isSelected={selectedComponent?.id === component.id}
-        onSelect={() => onComponentSelect(component)}
-        onUpdate={handleComponentUpdate}
-        onDelete={() => handleComponentDelete(component.id)}
-        showGuides={showAlignmentGuides}
-      >
-        <ComponentRenderer component={component} />
-      </ResizableComponent>
+              key={component.id}
+              component={component}
+              isSelected={selectedComponent?.id === component.id}
+              onUpdate={(updatedComponent) => {
+                const updatedStructure = structure.map(c => 
+                  c.id === updatedComponent.id ? updatedComponent : c
+                );
+                const updatedProject = {
+                  ...project,
+                  content: {
+                    ...project.content,
+                    pages: [{
+                      ...project.content.pages[0],
+                      content: {
+                        ...project.content.pages[0].content,
+                        structure: updatedStructure
+                      }
+                    }]
+                  }
+                };
+                onComponentUpdate(updatedProject);
+              }}
+              onSelect={() => onComponentSelect(component)}
+              showGuides={true}
+            >
+              <div style={{ 
+                width: '100%', 
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
+                               component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start',
+                padding: '4px',
+                boxSizing: 'border-box',
+                fontSize: component.styles?.fontSize || '16px',
+                fontFamily: component.styles?.fontFamily || 'Arial, sans-serif',
+                fontWeight: component.styles?.fontWeight || 'normal',
+                color: component.styles?.color || '#000000',
+                textAlign: component.styles?.textAlign as any || 'left'
+              }}>
+                {component.content || (component.type === 'button' ? 'Bouton' : component.type === 'heading' ? 'Titre' : 'Contenu')}
+              </div>
+            </ResizableComponent>
     );
-  }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides]);
+  }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides, project, onComponentUpdate, structure]);
 
   const structure = project?.content?.pages?.[0]?.content?.structure || [];
 

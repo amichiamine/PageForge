@@ -360,13 +360,26 @@ export default function ResizableComponent({
         width: '100%', 
         height: '100%', 
         position: 'relative',
-        overflow: 'hidden',
+        overflow: 'visible',
         display: 'flex',
         alignItems: component.styles?.textAlign === 'center' ? 'center' : 'flex-start',
         justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
-                       component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start'
+                       component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start',
+        pointerEvents: 'none' // Permet au contenu d'être interactif
       }}>
-        {children}
+        <div style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
+                         component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start',
+          pointerEvents: 'auto',
+          wordWrap: 'break-word',
+          overflow: 'visible'
+        }}>
+          {component.content || children}
+        </div>
       </div>
 
       {/* Guides d'alignement si activés */}
