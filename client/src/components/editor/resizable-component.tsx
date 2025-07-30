@@ -314,16 +314,18 @@ export default function ResizableComponent({
 
   // Initialiser et synchroniser les valeurs d'état avec les styles du composant
   useEffect(() => {
-    const left = parseValue(component.styles?.left, 0);
-    const top = parseValue(component.styles?.top, 0);
-    const width = parseValue(component.styles?.width, 200);
-    const height = parseValue(component.styles?.height, 100);
+    if (!isDragging && !isResizing) {
+      const left = parseValue(component.styles?.left, 0);
+      const top = parseValue(component.styles?.top, 0);
+      const width = parseValue(component.styles?.width, 200);
+      const height = parseValue(component.styles?.height, 100);
 
-    setCurrentLeft(left);
-    setCurrentTop(top);
-    setCurrentWidth(width);
-    setCurrentHeight(height);
-  }, [component.styles?.left, component.styles?.top, component.styles?.width, component.styles?.height]);
+      setCurrentLeft(left);
+      setCurrentTop(top);
+      setCurrentWidth(width);
+      setCurrentHeight(height);
+    }
+  }, [component.styles?.left, component.styles?.top, component.styles?.width, component.styles?.height, isDragging, isResizing]);
 
   const componentStyle: React.CSSProperties = {
     position: 'absolute',
@@ -350,7 +352,7 @@ export default function ResizableComponent({
     margin: '0', // Forcer margin à 0 pour éviter les décalages
     border: component.styles?.border,
     borderRadius: component.styles?.borderRadius,
-    textAlign: component.styles?.textAlign,
+    textAlign: component.styles?.textAlign as any,
     display: component.styles?.display || 'block',
     overflow: 'visible'
   };
@@ -484,7 +486,7 @@ export default function ResizableComponent({
         </>
       )}
 
-      <style jsx>{`
+      <style>{`
         .component-wrapper {
           transition: none;
           -webkit-tap-highlight-color: transparent;
