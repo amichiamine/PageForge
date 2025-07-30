@@ -322,12 +322,41 @@ export function createComponent(type: string, content?: string): ComponentDefini
 
   const baseComponent = componentMap[type] || {};
   
+  const baseStyles = baseComponent.styles || {};
+  
   return {
     id,
     type,
     tag: baseComponent.tag || "div",
     content: baseComponent.content || content || "",
-    styles: baseComponent.styles || {},
+    styles: {
+      // Start with type-specific styles
+      ...baseStyles,
+      // Add all CSS positioning properties with defaults
+      position: baseStyles.position || 'relative',
+      top: 'auto',
+      right: 'auto', 
+      bottom: 'auto',
+      left: 'auto',
+      zIndex: 'auto',
+      margin: baseStyles.margin || '0',
+      padding: baseStyles.padding || '8px',
+      width: baseStyles.width || 'auto',
+      height: baseStyles.height || 'auto',
+      backgroundColor: baseStyles.backgroundColor || 'transparent',
+      color: baseStyles.color || 'inherit',
+      fontSize: baseStyles.fontSize || '1rem',
+      fontWeight: baseStyles.fontWeight || 'normal',
+      lineHeight: baseStyles.lineHeight || 'normal',
+      textAlign: baseStyles.textAlign || 'left',
+      verticalAlign: 'baseline',
+      alignItems: 'stretch',
+      justifyContent: 'flex-start',
+      display: baseStyles.display || 'block',
+      borderRadius: baseStyles.borderRadius || '0',
+      border: baseStyles.border || 'none',
+      boxShadow: 'none'
+    },
     attributes: baseComponent.attributes || {},
     children: baseComponent.children || []
   };

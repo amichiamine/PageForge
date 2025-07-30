@@ -38,7 +38,7 @@ function DroppableComponent({
   onUpdate, 
   onDelete,
   depth 
-}: DroppableComponentProps) {
+}: DroppableComponentProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
@@ -241,14 +241,8 @@ function DroppableComponent({
       }
     };
 
-    return (
-      <div
-        ref={ref}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelect(component);
-        }}
-      >
+    const componentContent = (
+      <div>
         {/* Component controls */}
         {isSelected && (
           <div className="absolute -top-8 left-0 flex gap-1 bg-blue-500 text-white text-xs rounded px-2 py-1 z-10">
@@ -291,6 +285,35 @@ function DroppableComponent({
         {isOver && (
           <div className="absolute inset-0 bg-blue-100 bg-opacity-50 border-2 border-dashed border-blue-400 rounded" />
         )}
+      </div>
+    );
+
+    // Wrap in ResizableComponent if selected
+    if (isSelected) {
+      return (
+        <div ref={ref}>
+          <ResizableComponent
+            component={component}
+            isSelected={isSelected}
+            onUpdate={onUpdate}
+          >
+            <div onClick={(e) => { e.stopPropagation(); onSelect(component); }}>
+              {componentContent}
+            </div>
+          </ResizableComponent>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(component);
+        }}
+      >
+        {componentContent}
       </div>
     );
   };

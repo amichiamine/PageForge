@@ -10,7 +10,7 @@ import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
 import ComponentPalette from "@/components/editor/component-palette";
 import PropertiesPanel from "@/components/editor/properties-panel";
-import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Grid } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
@@ -18,6 +18,7 @@ import { useLocation } from "wouter";
 import CodePreview from "@/components/editor/code-preview";
 import { useSidebarContext } from "@/App";
 import ErrorNotification from "@/components/ui/error-notification";
+import AlignmentGuides from "@/components/editor/alignment-guides";
 
 export default function Editor() {
   const { projectId } = useParams();
@@ -33,6 +34,7 @@ export default function Editor() {
   const [hideComponentPanel, setHideComponentPanel] = useState(false);
   const [hideRightPanel, setHideRightPanel] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
   
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
@@ -150,17 +152,17 @@ export default function Editor() {
     },
   });
 
-  // Auto-save system
+  // Auto-save system with debounce
   React.useEffect(() => {
-    if (!localProject || !projectId) return;
+    if (!localProject || !projectId || saveProjectMutation.isPending) return;
     
     const autoSaveTimer = setTimeout(() => {
       console.log("Auto-saving project:", localProject.name);
       saveProjectMutation.mutate({ content: localProject.content });
-    }, 3000); // Auto-save after 3 seconds of inactivity
+    }, 5000); // Auto-save after 5 seconds of inactivity
 
     return () => clearTimeout(autoSaveTimer);
-  }, [localProject, projectId, saveProjectMutation]);
+  }, [localProject?.content, projectId]); // Only watch content changes
 
   const handleComponentUpdate = (updatedProjectOrComponent: Project | ComponentDefinition) => {
     if (!localProject) return;
@@ -317,7 +319,7 @@ export default function Editor() {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <Header 
         title={`Éditeur - ${localProject.name}`}
         subtitle={localProject.description || "Éditeur visuel"}
@@ -413,6 +415,16 @@ export default function Editor() {
               Exporter
             </Button>
 
+            <Button
+              variant={showAlignmentGuides ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowAlignmentGuides(!showAlignmentGuides)}
+              title="Activer/désactiver les guides d'alignement"
+            >
+              <Grid className="w-4 h-4 mr-2" />
+              Guides
+            </Button>
+
 
           </div>
         }
@@ -446,13 +458,30 @@ export default function Editor() {
             ) : (
               <div className="flex-1 overflow-auto bg-gray-100 p-4">
                 <div className={`mx-auto bg-white shadow-lg transition-all duration-300 ${getViewportClass()}`}>
-                  <VisualEditor
-                    project={localProject}
-                    selectedComponent={selectedComponent}
-                    onComponentSelect={setSelectedComponent}
-                    onComponentUpdate={handleComponentUpdate}
-                    showCode={showCode}
-                  />
+                  <div className="relative">
+                    <VisualEditor
+                      project={localProject}
+                      selectedComponent={selectedComponent}
+                      onComponentSelect={setSelectedComponent}
+                      onComponentUpdate={handleComponentUpdate}
+                      showCode={showCode}
+                    />
+                    
+                    {/* Alignment guides overlay */}
+                    <AlignmentGuides
+                      showGuides={showAlignmentGuides && !!selectedComponent}
+                      selectedComponent={selectedComponent ? {
+                        x: parseInt(selectedComponent.styles?.left || '0') || 0,
+                        y: parseInt(selectedComponent.styles?.top || '0') || 0,
+                        width: parseInt(selectedComponent.styles?.width || '200') || 200,
+                        height: parseInt(selectedComponent.styles?.height || '100') || 100
+                      } : undefined}
+                      containerBounds={{
+                        width: 800,
+                        height: 600
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -507,6 +536,14 @@ export default function Editor() {
           )}
         </div>
       </DndProvider>
-    </>
+
+      {/* Error notification */}
+      {errorMessage && (
+        <ErrorNotification
+          error={errorMessage}
+          onDismiss={() => setErrorMessage(null)}
+        />
+      )}
+    </div>
   );
 }
