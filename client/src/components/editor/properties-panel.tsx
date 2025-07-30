@@ -344,11 +344,18 @@ export default function PropertiesPanel({
                 type="text"
                 value={localComponent.styles?.height || '100px'}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  // Si la valeur est 'auto', la remplacer par une valeur numérique
-                  const finalValue = value === 'auto' ? '100px' : value;
-                  updateProperty('styles.height', finalValue);
+                  let value = e.target.value.trim();
+                  // Valider et nettoyer la valeur
+                  if (value === 'auto' || value === '' || value === 'undefined' || value === 'NaN') {
+                    value = '100px';
+                  }
+                  // Ajouter px si seulement un nombre est entré
+                  if (/^\d+$/.test(value)) {
+                    value = value + 'px';
+                  }
+                  updateProperty('styles.height', value);
                 }}
+                placeholder="ex: 100px"
                 className="mt-1 text-sm"
               />
             </div>
@@ -507,8 +514,9 @@ export default function PropertiesPanel({
               <Input
                 id="margin"
                 type="text"
-                value={localComponent.styles?.margin || '0px'}t || 'auto'}
-                onChange={(e) => updateProperty('styles.height', e.target.value)}
+                value={localComponent.styles?.margin || '0px'}
+                onChange={(e) => updateProperty('styles.margin', e.target.value)}
+                placeholder="ex: 10px 20px"
                 className="mt-1 text-sm"
               />
             </div>

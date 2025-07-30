@@ -30,9 +30,11 @@ export default function ResizableComponent({
 
   // Obtenir les dimensions et position actuelles avec gestion des valeurs auto
   const parseValue = (value: string | undefined, defaultValue: number) => {
-    if (!value || value === 'auto' || value === 'undefined') return defaultValue;
-    const parsed = parseInt(value.replace(/px|%|em|rem/g, ''));
-    return isNaN(parsed) ? defaultValue : parsed;
+    if (!value || value === 'auto' || value === 'undefined' || value === 'NaN' || value.trim() === '') {
+      return defaultValue;
+    }
+    const parsed = parseInt(value.replace(/px|%|em|rem|pt|vh|vw/g, ''));
+    return isNaN(parsed) || parsed < 0 ? defaultValue : parsed;
   };
 
   const currentLeft = parseValue(component.styles?.left, 0);
@@ -315,6 +317,9 @@ export default function ResizableComponent({
   }, []);
 
   const componentStyle: React.CSSProperties = {
+    // Appliquer d'abord les styles du composant
+    ...component.styles,
+    // Puis forcer les valeurs critiques pour le positionnement
     position: 'absolute',
     left: currentLeft + 'px',
     top: currentTop + 'px',
@@ -328,14 +333,7 @@ export default function ResizableComponent({
     transition: isDragging ? 'none' : 'transform 0.2s ease',
     touchAction: 'none',
     userSelect: 'none',
-    boxSizing: 'border-box',
-    ...component.styles,
-    // Forcer les valeurs critiques pour éviter les conflits
-    position: 'absolute',
-    left: currentLeft + 'px',
-    top: currentTop + 'px',
-    width: currentWidth + 'px',
-    height: currentHeight + 'px'
+    boxSizing: 'border-box'
   };
 
   return (

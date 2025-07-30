@@ -160,10 +160,15 @@ export default function Editor() {
   const saveMutation = useMutation({
     mutationFn: async (projectData: Project) => {
       console.log("Manual save - Saving project:", projectData.name);
-      // Ensure description is never null
+      // Ensure description is never null and clean up the data
       const cleanedProjectData = {
         ...projectData,
-        description: projectData.description || ""
+        description: projectData.description || "",
+        // Ensure all required fields are present
+        name: projectData.name || "Untitled Project",
+        type: projectData.type || "standalone",
+        content: projectData.content || {},
+        settings: projectData.settings || {}
       };
       return apiRequest("PATCH", `/api/projects/${projectData.id}`, cleanedProjectData);
     },
