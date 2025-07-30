@@ -318,7 +318,7 @@ export default function PropertiesPanel({
                 <SelectItem value="a">a</SelectItem>
                 <SelectItem value="section">section</SelectItem>
                 <SelectItem value="article">article</SelectItem>
-                <SelectItem value="header">header</SelectItem>
+                <SelectItem value="header">header</header>
                 <SelectItem value="footer">footer</SelectItem>
                 <SelectItem value="nav">nav</SelectItem>
                 <SelectItem value="main">main</SelectItem>

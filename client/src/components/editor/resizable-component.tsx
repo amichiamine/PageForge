@@ -313,6 +313,21 @@ export default function ResizableComponent({
     }
   }, []);
 
+  // Synchroniser les modifications de position avec le composant parent seulement si pas en train de déplacer
+  useEffect(() => {
+    if (!isDragging && !isResizing) {
+      const left = parseInt(component.styles?.left?.replace('px', '') || '0');
+      const top = parseInt(component.styles?.top?.replace('px', '') || '0');
+      const width = parseInt(component.styles?.width?.replace('px', '') || '100');
+      const height = parseInt(component.styles?.height?.replace('px', '') || '50');
+
+      setCurrentLeft(left);
+      setCurrentTop(top);
+      setCurrentWidth(width);
+      setCurrentHeight(height);
+    }
+  }, [component.styles?.left, component.styles?.top, component.styles?.width, component.styles?.height, isDragging, isResizing]);
+
   const componentStyle: React.CSSProperties = {
     position: 'absolute',
     left: currentLeft + 'px',

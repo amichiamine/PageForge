@@ -600,53 +600,37 @@ export default function Editor() {
                       handleComponentUpdate(updatedProject);
                     }
                   }}
+                  hideMainSidebar={hideMainSidebar}
+                  setHideMainSidebar={setHideMainSidebar}
                 />
               </div>
             )}
           </div>
 
           {/* Panel Toggle Buttons */}
-          <div className="fixed bottom-6 left-6 flex flex-col space-y-2">
-            {/* Main Sidebar Toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                console.log("Main sidebar toggle clicked - current hideMainSidebar:", hideMainSidebar);
-                const newValue = !hideMainSidebar;
-                console.log("Main sidebar toggle - setting hideMainSidebar to:", newValue);
-                setHideMainSidebar(newValue);
-              }}
-              className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl border-gray-200"
-              title={hideMainSidebar ? "Afficher la navigation" : "Masquer la navigation"}
-            >
-              {hideMainSidebar ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-            </Button>
-
-            <div className="flex space-x-2">
-              {hideComponentPanel && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setHideComponentPanel(false)}
-                  className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
-                  title="Afficher les composants"
-                >
-                  <PanelLeftOpen className="h-4 w-4" />
-                </Button>
-              )}
-              {hideRightPanel && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setHideRightPanel(false)}
-                  className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
-                  title="Afficher les propriétés"
-                >
-                  <PanelRightOpen className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+          <div className="fixed bottom-6 left-6 flex space-x-2">
+            {hideComponentPanel && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHideComponentPanel(false)}
+                className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
+                title="Afficher les composants"
+              >
+                <PanelLeftOpen className="h-4 w-4" />
+              </Button>
+            )}
+            {hideRightPanel && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHideRightPanel(false)}
+                className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
+                title="Afficher les propriétés"
+              >
+                <PanelRightOpen className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
