@@ -46,13 +46,13 @@ export default function Editor() {
     enabled: !!projectId,
   });
 
-  // Sync local project with server project when it loads (only if no unsaved changes)
+  // Sync local project with server project when it loads (only if no local project exists)
   React.useEffect(() => {
-    if (project && !hasUnsavedChanges) {
-      console.log("Syncing server project to local state:", project.name);
+    if (project && !localProject) {
+      console.log("Initial sync - Loading server project to local state:", project.name);
       setLocalProject(project);
     }
-  }, [project, hasUnsavedChanges]);
+  }, [project, localProject]);
 
   const saveProjectMutation = useMutation({
     mutationFn: async (updates: { content: any }) => {
@@ -73,7 +73,7 @@ export default function Editor() {
     },
     onSuccess: () => {
       setHasUnsavedChanges(false);
-      // Ne pas invalider les queries automatiquement pour éviter les cycles
+      console.log("Project saved successfully - no query invalidation to prevent sync loops");
       toast({
         title: "Projet sauvegardé",
         description: "Vos modifications ont été enregistrées avec succès.",
@@ -155,19 +155,27 @@ export default function Editor() {
 
   // Auto-save system with user control and debounce
   React.useEffect(() => {
-    if (!localProject || !projectId || saveProjectMutation.isPending || !autoSaveEnabled || !hasUnsavedChanges) return;
+    if (!localProject || !projectId || saveProjectMutation.isPending || !autoSaveEnabled || !hasUnsavedChanges) {
+      return;
+    }
     
+    console.log("Setting up auto-save timer for project:", localProject.name);
     const autoSaveTimer = setTimeout(() => {
       console.log("Auto-saving project:", localProject.name);
       saveProjectMutation.mutate({ content: localProject.content });
-      setHasUnsavedChanges(false);
     }, 3000); // Auto-save after 3 seconds of inactivity
 
-    return () => clearTimeout(autoSaveTimer);
-  }, [localProject?.content, projectId, autoSaveEnabled, hasUnsavedChanges, saveProjectMutation.isPending]);
+    return () => {
+      console.log("Clearing auto-save timer");
+      clearTimeout(autoSaveTimer);
+    };
+  }, [localProject?.content, projectId, autoSaveEnabled, hasUnsavedChanges, saveProjectMutation]);
 
   const handleComponentUpdate = (updatedProjectOrComponent: Project | ComponentDefinition) => {
-    if (!localProject) return;
+    if (!localProject) {
+      console.warn("handleComponentUpdate called but no localProject available");
+      return;
+    }
 
     console.log("handleComponentUpdate called with:", updatedProjectOrComponent);
 
@@ -212,32 +220,35 @@ export default function Editor() {
   };
 
   const handleSave = () => {
-    if (localProject) {
-      console.log("Manual save - Saving project:", localProject.name);
-      
-      // Ensure content structure is valid
-      const contentToSave = {
-        ...localProject.content,
-        pages: localProject.content?.pages || [{
-          id: "main-page",
-          name: "index",
-          path: "/",
-          content: {
-            structure: localProject.content?.pages?.[0]?.content?.structure || [],
-            styles: localProject.content?.pages?.[0]?.content?.styles || "",
-            scripts: localProject.content?.pages?.[0]?.content?.scripts || ""
-          }
-        }]
-      };
-      
-      saveProjectMutation.mutate({ content: contentToSave });
-      // Rafraîchir les données après sauvegarde manuelle
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
-      }, 500);
-    } else {
+    if (!localProject) {
       console.error("No local project to save");
+      return;
     }
+
+    console.log("Manual save - Saving project:", localProject.name);
+    
+    // Ensure content structure is valid
+    const contentToSave = {
+      ...localProject.content,
+      pages: localProject.content?.pages || [{
+        id: "main-page",
+        name: "index",
+        path: "/",
+        content: {
+          structure: localProject.content?.pages?.[0]?.content?.structure || [],
+          styles: localProject.content?.pages?.[0]?.content?.styles || "",
+          scripts: localProject.content?.pages?.[0]?.content?.scripts || ""
+        }
+      }]
+    };
+    
+    saveProjectMutation.mutate({ content: contentToSave });
+    
+    // Only refresh queries on manual save, with a flag to prevent sync loops
+    setTimeout(() => {
+      console.log("Manual save complete - refreshing queries");
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
+    }, 1000);
   };
 
   const getViewportClass = () => {
