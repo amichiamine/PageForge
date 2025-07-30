@@ -74,7 +74,18 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
       position: 'absolute',
       left: `${x}px`,
       top: `${y}px`,
-      zIndex: '1000'
+      width: newComponent.styles?.width || '200px',
+      height: newComponent.styles?.height || '100px',
+      backgroundColor: newComponent.styles?.backgroundColor || 'transparent',
+      color: newComponent.styles?.color || '#000000',
+      fontSize: newComponent.styles?.fontSize || '16px',
+      fontFamily: newComponent.styles?.fontFamily || 'Arial, sans-serif',
+      padding: newComponent.styles?.padding || '10px',
+      margin: newComponent.styles?.margin || '0px',
+      border: newComponent.styles?.border || 'none',
+      borderRadius: newComponent.styles?.borderRadius || '0px',
+      zIndex: '1000',
+      ...newComponent.styles
     };
 
     const updatedStructure = [...(project.content.pages[0].content.structure || []), newComponent];
@@ -280,12 +291,12 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         const touch = e.touches[0];
         const element = e.currentTarget;
         const rect = element.getBoundingClientRect();
-        
+
         // Gérer différemment selon la zone touchée
         const edgeThreshold = 40;
         const isNearEdge = touch.clientY < rect.top + edgeThreshold || 
                           touch.clientY > rect.bottom - edgeThreshold;
-        
+
         if (isNearEdge && structure.length > 0) {
           // Permettre le scroll près des bords s'il y a du contenu
           element.style.touchAction = 'pan-y';

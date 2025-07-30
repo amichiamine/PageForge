@@ -4,15 +4,32 @@ import type { ComponentDefinition } from "@shared/schema";
 export function createComponent(type: string): ComponentDefinition {
   const baseId = nanoid();
 
+  const baseStyles = {
+    position: 'absolute',
+    left: `50px`,
+    top: `50px`,
+    backgroundColor: 'transparent',
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px',
+    padding: '16px',
+    fontSize: '14px',
+    fontFamily: 'Arial, sans-serif',
+    color: '#374151',
+    cursor: 'pointer',
+    userSelect: 'none',
+    boxSizing: 'border-box',
+    zIndex: '1000',
+    margin: '0px'
+  };
+
   const baseComponent: ComponentDefinition = {
     id: baseId,
     type,
     content: '',
     styles: {
-      position: 'absolute',
-      left: '50px',
-      top: '50px',
-      zIndex: '1000'
+      ...baseStyles,
+      width: '200px',
+      height: '100px'
     },
     attributes: {},
     children: []

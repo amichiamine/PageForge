@@ -88,7 +88,7 @@ export default function PropertiesPanel({
   // Obtenir tous les composants de la page
   const getAllComponents = (components: ComponentDefinition[]): ComponentDefinition[] => {
     const allComponents: ComponentDefinition[] = [];
-    
+
     const traverse = (comps: ComponentDefinition[]) => {
       comps.forEach(comp => {
         allComponents.push(comp);
@@ -97,7 +97,7 @@ export default function PropertiesPanel({
         }
       });
     };
-    
+
     traverse(components);
     return allComponents;
   };
@@ -114,7 +114,7 @@ export default function PropertiesPanel({
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b border-gray-200 pb-2">
               Composants sur la page ({allComponents.length})
             </h3>
-            
+
             {allComponents.length > 0 ? (
               <div className="space-y-2">
                 {allComponents.map((comp) => (
@@ -188,6 +188,27 @@ export default function PropertiesPanel({
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-4 space-y-6">
+        {/* Liste des composants */}
+        <div>
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Composants sur la page</h3>
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {project?.content?.pages?.[0]?.content?.structure?.map((comp) => (
+              <div
+                key={comp.id}
+                className={`p-2 rounded text-xs cursor-pointer border transition-colors ${
+                  component?.id === comp.id 
+                    ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                }`}
+                onClick={() => onComponentSelect(comp)}
+              >
+                <div className="font-medium">{comp.type}</div>
+                <div className="text-gray-500 truncate">{comp.id.slice(-8)}</div>
+              </div>
+            )) || []}
+          </div>
+        </div>
+
         {/* En-tête du composant */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">

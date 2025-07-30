@@ -36,10 +36,12 @@ function generatePreviewHTML(project: Project): string {
     const { className, ...otherAttributes } = attributes;
 
     const styleString = Object.entries(styles)
+      .filter(([key, value]) => value !== '' && value !== undefined && value !== null)
       .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
       .join('; ');
 
     const attributeString = Object.entries(otherAttributes)
+      .filter(([key, value]) => value !== '' && value !== undefined && value !== null)
       .map(([key, value]) => `${key}="${value}"`)
       .join(' ');
 
@@ -48,20 +50,25 @@ function generatePreviewHTML(project: Project): string {
     const indentStr = ' '.repeat(indent);
     const childIndentStr = ' '.repeat(indent + 2);
 
-    // Construire la balise ouvrante
-    const openingTagParts = [tag, classAttr, attributeString, `style="${styleString}"`]
-      .filter(part => part.trim().length > 0);
+    // Construire la balise ouvrante avec un formatage propre
+    const openingTagParts = [
+      tag,
+      classAttr,
+      attributeString,
+      styleString ? `style="${styleString}"` : ''
+    ].filter(part => part.trim().length > 0);
+    
     const openingTag = `<${openingTagParts.join(' ')}>`;
 
     if (component.type === 'image') {
       if (attributes.src) {
-        return `${indentStr}<img src="${attributes.src}" alt="${attributes.alt || ''}" ${classAttr} style="${styleString}" />`;
+        return `${indentStr}<img src="${attributes.src}" alt="${attributes.alt || ''}" ${classAttr} ${styleString ? `style="${styleString}"` : ''} />`;
       } else {
-        return `${indentStr}<div ${classAttr} style="${styleString}">\n${childIndentStr}Image\n${indentStr}</div>`;
+        return `${indentStr}<div ${classAttr} ${styleString ? `style="${styleString}"` : ''}>\n${childIndentStr}Image\n${indentStr}</div>`;
       }
     }
 
-    // Contenu et enfants
+    // Contenu et enfants avec formatage amélioré
     const content = component.content || '';
     const children = component.children?.map(child => renderComponent(child, indent + 2)).join('\n') || '';
 
@@ -153,10 +160,7 @@ export default function Editor() {
   const saveMutation = useMutation({
     mutationFn: async (projectData: Project) => {
       console.log("Manual save - Saving project:", projectData.name);
-      return apiRequest(`/api/projects/${projectData.id}`, {
-        method: "PATCH",
-        body: projectData,
-      });
+      return apiRequest("PATCH", `/api/projects/${projectData.id}`, projectData);
     },
     onSuccess: () => {
       console.log("Project saved successfully - no query invalidation to prevent sync loops");
