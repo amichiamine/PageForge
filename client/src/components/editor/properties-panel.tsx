@@ -845,8 +845,7 @@ export default function PropertiesPanel({
               <div>
                 <Label htmlFor="buttonType" className="text-xs text-gray-600">Type de bouton</Label>
                 <Select
-                  value={local```text
-Component.attributes?.type || 'button'}
+                  value={localComponent.attributes?.type || 'button'}
                   onValueChange={(value) => updateProperty('attributes.type', value)}
                 >
                   <SelectTrigger className="mt-1">
