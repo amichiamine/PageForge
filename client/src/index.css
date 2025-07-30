@@ -444,8 +444,63 @@
   .component-palette,
   .properties-panel {
     width: 100% !important;
-    max-height: 40vh;
+    max-height: 50vh;
     overflow-y: auto;
+  }
+}
+
+/* Améliorations tactiles spécifiques */
+@media (max-width: 768px) {
+  /* Header responsive */
+  .editor-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .editor-header h1 {
+    font-size: 1.125rem;
+  }
+  
+  /* Boutons plus grands sur mobile */
+  .editor-header button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem;
+  }
+  
+  /* Zone d'édition adaptée mobile */
+  .visual-editor-container {
+    padding: 0.5rem;
+    min-height: calc(100vh - 120px);
+  }
+  
+  /* Panneaux en plein écran sur mobile */
+  .editor-panel-mobile {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Palette de composants en grille 2 colonnes sur petit mobile */
+  .component-grid-mobile {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Texte plus petit dans les composants */
+  .component-item-mobile {
+    padding: 0.5rem !important;
+  }
+  
+  .component-item-mobile span {
+    font-size: 0.75rem !important;
+  }
   }
 }
 

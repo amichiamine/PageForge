@@ -277,18 +277,28 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         msUserSelect: 'none'
       }}
       onTouchStart={(e) => {
-        // Permettre le défilement vertical si nécessaire
         const touch = e.touches[0];
         const element = e.currentTarget;
         const rect = element.getBoundingClientRect();
         
-        // Si le touch est près des bords, permettre le scroll
-        const edgeThreshold = 50;
-        if (touch.clientY < rect.top + edgeThreshold || 
-            touch.clientY > rect.bottom - edgeThreshold) {
+        // Gérer différemment selon la zone touchée
+        const edgeThreshold = 40;
+        const isNearEdge = touch.clientY < rect.top + edgeThreshold || 
+                          touch.clientY > rect.bottom - edgeThreshold;
+        
+        if (isNearEdge && structure.length > 0) {
+          // Permettre le scroll près des bords s'il y a du contenu
           element.style.touchAction = 'pan-y';
         } else {
+          // Bloquer le scroll pour permettre le drop
           element.style.touchAction = 'none';
+          e.preventDefault();
+        }
+      }}
+      onTouchEnd={() => {
+        // Restaurer le comportement par défaut
+        if (editorRef.current) {
+          editorRef.current.style.touchAction = 'manipulation';
         }
       }}
     >

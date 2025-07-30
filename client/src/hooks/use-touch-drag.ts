@@ -16,8 +16,8 @@ interface TouchDragState {
 
 export function useTouchDrag(options: TouchDragOptions = {}) {
   const {
-    threshold = 10,
-    delay = 150,
+    threshold = 8,
+    delay = 100,
     enableHapticFeedback = true
   } = options;
 
@@ -30,10 +30,11 @@ export function useTouchDrag(options: TouchDragOptions = {}) {
 
   const dragTimeoutRef = useRef<NodeJS.Timeout>();
   const elementRef = useRef<HTMLElement>();
+  const isDragConfirmedRef = useRef(false);
 
   const triggerHapticFeedback = useCallback(() => {
     if (enableHapticFeedback && 'vibrate' in navigator) {
-      navigator.vibrate(50);
+      navigator.vibrate(30);
     }
   }, [enableHapticFeedback]);
 
@@ -41,20 +42,29 @@ export function useTouchDrag(options: TouchDragOptions = {}) {
     const touch = e.touches[0];
     if (!touch) return;
 
+    // Empêcher le scroll par défaut
+    e.preventDefault();
+    
     const startPos = { x: touch.clientX, y: touch.clientY };
+    isDragConfirmedRef.current = false;
     
     setDragState(prev => ({
       ...prev,
       startPosition: startPos,
-      currentPosition: startPos
+      currentPosition: startPos,
+      isDragging: false
     }));
 
+    // Délai plus court pour démarrer le drag
     dragTimeoutRef.current = setTimeout(() => {
-      setDragState(prev => ({
-        ...prev,
-        isDragging: true
-      }));
-      triggerHapticFeedback();
+      if (!isDragConfirmedRef.current) {
+        isDragConfirmedRef.current = true;
+        setDragState(prev => ({
+          ...prev,
+          isDragging: true
+        }));
+        triggerHapticFeedback();
+      }
     }, delay);
 
   }, [delay, triggerHapticFeedback]);
@@ -63,6 +73,8 @@ export function useTouchDrag(options: TouchDragOptions = {}) {
     const touch = e.touches[0];
     if (!touch || !dragState.startPosition) return;
 
+    e.preventDefault();
+    
     const currentPos = { x: touch.clientX, y: touch.clientY };
     const offset = {
       x: currentPos.x - dragState.startPosition.x,
@@ -72,10 +84,11 @@ export function useTouchDrag(options: TouchDragOptions = {}) {
     // Vérifier si le seuil de déplacement est atteint
     const distance = Math.sqrt(offset.x * offset.x + offset.y * offset.y);
     
-    if (distance > threshold && !dragState.isDragging) {
+    if (distance > threshold && !isDragConfirmedRef.current) {
       if (dragTimeoutRef.current) {
         clearTimeout(dragTimeoutRef.current);
       }
+      isDragConfirmedRef.current = true;
       setDragState(prev => ({
         ...prev,
         isDragging: true
@@ -89,13 +102,14 @@ export function useTouchDrag(options: TouchDragOptions = {}) {
       dragOffset: offset
     }));
 
-  }, [dragState.startPosition, dragState.isDragging, threshold, triggerHapticFeedback]);
+  }, [dragState.startPosition, threshold, triggerHapticFeedback]);
 
   const endDrag = useCallback(() => {
     if (dragTimeoutRef.current) {
       clearTimeout(dragTimeoutRef.current);
     }
 
+    isDragConfirmedRef.current = false;
     setDragState({
       isDragging: false,
       startPosition: null,
@@ -109,8 +123,8 @@ export function useTouchDrag(options: TouchDragOptions = {}) {
     
     element.addEventListener('touchstart', startDrag, { passive: false });
     element.addEventListener('touchmove', updateDrag, { passive: false });
-    element.addEventListener('touchend', endDrag);
-    element.addEventListener('touchcancel', endDrag);
+    element.addEventListener('touchend', endDrag, { passive: false });
+    element.addEventListener('touchcancel', endDrag, { passive: false });
 
     return () => {
       element.removeEventListener('touchstart', startDrag);

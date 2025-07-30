@@ -50,40 +50,52 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
   }, [preview]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    // Délai pour détecter un vrai drag vs un tap
     const element = e.currentTarget as HTMLElement;
     const touch = e.touches[0];
-    const startTime = Date.now();
+    let dragTimer: NodeJS.Timeout;
+    let hasMoved = false;
+    
     const startX = touch.clientX;
     const startY = touch.clientY;
     
-    const dragTimer = setTimeout(() => {
-      e.preventDefault();
-      element.style.opacity = '0.7';
-      element.style.transform = 'scale(1.05)';
-      element.setAttribute('data-touch-dragging', 'true');
-      
-      // Ajouter un feedback visuel
-      element.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)';
-      element.style.zIndex = '9999';
-    }, 150);
+    // Délai plus court pour le feedback tactile
+    dragTimer = setTimeout(() => {
+      if (!hasMoved) {
+        element.style.opacity = '0.8';
+        element.style.transform = 'scale(1.02)';
+        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        element.setAttribute('data-touch-ready', 'true');
+        
+        // Feedback haptique
+        if ('vibrate' in navigator) {
+          navigator.vibrate(30);
+        }
+      }
+    }, 80);
     
     const handleTouchMove = (moveEvent: TouchEvent) => {
       const currentTouch = moveEvent.touches[0];
       const deltaX = Math.abs(currentTouch.clientX - startX);
       const deltaY = Math.abs(currentTouch.clientY - startY);
       
-      // Si mouvement significatif, démarrer le drag
-      if (deltaX > 10 || deltaY > 10) {
+      if (deltaX > 5 || deltaY > 5) {
+        hasMoved = true;
         clearTimeout(dragTimer);
-        element.style.opacity = '0.7';
-        element.style.transform = 'scale(1.05)';
+        
+        // Feedback visuel de drag actif
+        element.style.opacity = '0.9';
+        element.style.transform = 'scale(1.05) rotate(2deg)';
+        element.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+        element.style.zIndex = '9999';
         element.setAttribute('data-touch-dragging', 'true');
+        
+        moveEvent.preventDefault();
       }
     };
     
     const handleTouchEndLocal = () => {
       clearTimeout(dragTimer);
+      hasMoved = false;
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEndLocal);
     };
@@ -99,18 +111,20 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
     element.style.boxShadow = '';
     element.style.zIndex = '';
     element.removeAttribute('data-touch-dragging');
+    element.removeAttribute('data-touch-ready');
   };
 
   return (
     <div
       ref={drag}
-      className={`group relative p-3 sm:p-4 rounded-xl border-2 border-dashed transition-all duration-200 cursor-grab hover:cursor-grabbing ${
+      className={`group relative p-2 sm:p-3 rounded-lg border-2 border-dashed transition-all duration-200 cursor-grab hover:cursor-grabbing ${
         isDragging ? 'opacity-50 scale-95' : 'opacity-100 hover:scale-105'
-      } hover:border-solid hover:shadow-lg bg-white touch-manipulation select-none`}
+      } hover:border-solid hover:shadow-lg bg-white touch-manipulation select-none component-item-mobile`}
       style={{ 
         borderColor: color,
         transform: isDragging ? 'scale(0.95)' : 'scale(1)',
-        touchAction: 'manipulation'
+        touchAction: 'manipulation',
+        minHeight: '60px'
       }}
       title={description}
       onTouchStart={handleTouchStart}
@@ -231,7 +245,7 @@ export default function ComponentPalette() {
             <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide border-b border-gray-200 pb-2">
               {category.name}
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-3 component-grid-mobile">
               {category.components.map((component) => (
                 <DraggableComponent
                   key={component.type}

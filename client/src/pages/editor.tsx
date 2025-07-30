@@ -460,10 +460,14 @@ export default function Editor() {
           <div className="flex flex-1 overflow-hidden">
             {/* Component Palette */}
             {!hideComponentPanel && (
-              <div className="w-80 md:w-72 lg:w-80 bg-white border-r border-gray-200 shadow-sm overflow-y-auto">
-                <div className="p-4 border-b border-gray-100">
+              <div className={`
+                ${isMobile ? 'fixed inset-y-0 left-0 z-50 w-screen bg-white' : 'w-64 md:w-60 lg:w-64'} 
+                bg-white border-r border-gray-200 shadow-sm overflow-y-auto
+                ${isMobile ? 'animate-slide-right' : ''}
+              `}>
+                <div className="p-3 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">Composants</h2>
+                    <h2 className="text-base font-semibold text-gray-900">Composants</h2>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -535,10 +539,14 @@ export default function Editor() {
 
             {/* Properties Panel */}
             {!hideRightPanel && (
-              <div className="w-80 md:w-72 lg:w-80 bg-white border-l border-gray-200 shadow-sm overflow-y-auto">
-                <div className="p-4 border-b border-gray-100">
+              <div className={`
+                ${isMobile ? 'fixed inset-y-0 right-0 z-50 w-screen bg-white' : 'w-64 md:w-60 lg:w-64'} 
+                bg-white border-l border-gray-200 shadow-sm overflow-y-auto
+                ${isMobile ? 'animate-slide-right' : ''}
+              `}>
+                <div className="p-3 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">Propriétés</h2>
+                    <h2 className="text-base font-semibold text-gray-900">Propriétés</h2>
                     <Button
                       variant="ghost"
                       size="sm"
