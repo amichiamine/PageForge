@@ -36,7 +36,11 @@ const commonStyles: StyleProperty[] = [
   { name: "color", label: "Couleur du texte", type: "color" },
   { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
   { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
-  { name: "textAlign", label: "Alignement", type: "select", options: ["left", "center", "right", "justify"] },
+  { name: "lineHeight", label: "Hauteur de ligne", type: "text", unit: "px, rem, em, number" },
+  { name: "textAlign", label: "Alignement horizontal", type: "select", options: ["left", "center", "right", "justify"] },
+  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "middle", "bottom", "baseline", "text-top", "text-bottom", "super", "sub"] },
+  { name: "alignItems", label: "Alignement vertical (flex)", type: "select", options: ["stretch", "flex-start", "flex-end", "center", "baseline"] },
+  { name: "justifyContent", label: "Alignement horizontal (flex)", type: "select", options: ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
@@ -56,6 +60,7 @@ export default function PropertiesPanel({
 
   useEffect(() => {
     setLocalComponent(component);
+    setIsVisible(component?.styles?.display !== 'none');
   }, [component]);
 
   const updateProperty = (path: string, value: any) => {
@@ -75,6 +80,11 @@ export default function PropertiesPanel({
     
     const lastPart = pathParts[pathParts.length - 1];
     current[lastPart] = value;
+    
+    // Update visibility state if display property is changed
+    if (path === 'styles.display') {
+      setIsVisible(value !== 'none');
+    }
     
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);

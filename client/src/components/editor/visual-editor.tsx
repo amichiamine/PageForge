@@ -101,26 +101,31 @@ function DroppableComponent({
                 <img 
                   src={attributes.src} 
                   alt={attributes.alt || 'Image'} 
+                  width={attributes.width}
+                  height={attributes.height}
                   style={{
-                    width: component.styles?.width || '100%',
-                    height: component.styles?.height || 'auto',
+                    width: attributes.width || component.styles?.width || '100%',
+                    height: attributes.height || component.styles?.height || 'auto',
                     objectFit: 'cover',
-                    display: 'block'
+                    display: 'block',
+                    borderRadius: component.styles?.borderRadius,
+                    border: component.styles?.border
                   }}
                   {...otherAttributes}
                 />
               ) : (
                 <div 
                   style={{
-                    width: component.styles?.width || '200px',
-                    height: component.styles?.height || '150px',
+                    width: attributes.width || component.styles?.width || '200px',
+                    height: attributes.height || component.styles?.height || '150px',
                     backgroundColor: '#f5f5f5',
                     border: '2px dashed #ccc',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '14px',
-                    color: '#666'
+                    color: '#666',
+                    borderRadius: component.styles?.borderRadius
                   }}
                 >
                   Cliquez pour ajouter une image
