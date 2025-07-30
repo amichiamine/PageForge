@@ -12,6 +12,7 @@ interface ResizableComponentProps {
   children: React.ReactNode;
   showGuides?: boolean;
 }
+}
 
 export default function ResizableComponent({
   component,

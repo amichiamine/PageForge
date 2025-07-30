@@ -116,7 +116,7 @@ export default function Editor() {
     }
   }, [isMobile]);
 
-  const { data: project, isLoading } = useQuery<Project>({
+  const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
     enabled: !!projectId,
   });
@@ -227,7 +227,7 @@ export default function Editor() {
     }
   };
 
-  if (isLoading) {
+  if (isProjectLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center">
