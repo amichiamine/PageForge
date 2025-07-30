@@ -8,6 +8,7 @@ interface ResizableComponentProps {
   isSelected: boolean;
   onUpdate: (component: ComponentDefinition) => void;
   onSelect: () => void;
+  onDelete?: () => void;
   children: React.ReactNode;
   showGuides?: boolean;
 }
@@ -17,6 +18,7 @@ export default function ResizableComponent({
   isSelected,
   onUpdate,
   onSelect,
+  onDelete,
   children,
   showGuides = false
 }: ResizableComponentProps) {
