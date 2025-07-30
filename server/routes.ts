@@ -152,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         projectId: req.params.projectId
       });
-      const page = await storage.createPage(validatedData);
+      const page = await storage.createNewPage(validatedData);
       res.status(201).json(page);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -190,13 +190,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export route
+  // Export route with options support
   app.post("/api/projects/:id/export", async (req, res) => {
     try {
-      const exportData = await storage.exportProject(req.params.id);
+      const exportOptions = req.body || {};
+      const exportData = await storage.exportProject(req.params.id, exportOptions);
+      
+      res.setHeader('Content-Type', 'application/json');
       res.json(exportData);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to export project" });
+    } catch (error: any) {
+      console.error("Export error:", error);
+      const statusCode = error.message.includes('introuvable') || error.message.includes('not found') ? 404 : 500;
+      res.status(statusCode).json({ 
+        message: error.message || "Failed to export project",
+        error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   });
 

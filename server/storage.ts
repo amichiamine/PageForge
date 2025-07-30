@@ -24,12 +24,22 @@ export interface IStorage {
   // Page methods
   getProjectPages(projectId: string): Promise<Page[]>;
   getPage(id: string): Promise<Page | undefined>;
-  createPage(page: InsertPage): Promise<Page>;
+  createNewPage(page: InsertPage): Promise<Page>;
   updatePage(id: string, updates: UpdatePage): Promise<Page | undefined>;
   deletePage(id: string): Promise<boolean>;
   
   // Export methods
-  exportProject(projectId: string): Promise<{ files: Array<{ path: string; content: string; }> }>;
+  exportProject(projectId: string, options?: ExportOptions): Promise<{ files: Array<{ path: string; content: string; }> }>;
+}
+
+export interface ExportOptions {
+  includeCSS?: boolean;
+  includeJS?: boolean;
+  minify?: boolean;
+  inlineCSS?: boolean;
+  responsive?: boolean;
+  seoOptimized?: boolean;
+  cacheVersion?: string;
 }
 
 export class MemStorage implements IStorage {
@@ -631,7 +641,7 @@ export class MemStorage implements IStorage {
     return this.pages.get(id);
   }
 
-  async createPage(insertPage: InsertPage): Promise<Page> {
+  async createNewPage(insertPage: InsertPage): Promise<Page> {
     const id = randomUUID();
     const now = new Date();
     
@@ -669,69 +679,119 @@ export class MemStorage implements IStorage {
   }
 
   // Export methods
-  async exportProject(projectId: string): Promise<{ files: Array<{ path: string; content: string; }> }> {
+  async exportProject(projectId: string, options: ExportOptions = {}): Promise<{ files: Array<{ path: string; content: string; }> }> {
     const project = await this.getProject(projectId);
     if (!project) {
-      throw new Error("Project not found");
+      throw new Error(`Projet avec l'ID ${projectId} introuvable`);
+    }
+
+    // Vérifier que le projet a du contenu
+    if (!project.content) {
+      throw new Error(`Le projet "${project.name}" n'a pas de contenu à exporter`);
+    }
+
+    // Vérifier que le projet a au moins une page
+    if (!project.content.pages || project.content.pages.length === 0) {
+      throw new Error(`Le projet "${project.name}" n'a aucune page définie. Veuillez créer au moins une page avant d'exporter.`);
     }
 
     const files: Array<{ path: string; content: string; }> = [];
+    const exportOptions = {
+      includeCSS: true,
+      includeJS: true,
+      responsive: true,
+      seoOptimized: true,
+      cacheVersion: Date.now().toString(),
+      ...options
+    };
     
-    // Generate HTML files for each page
-    if (project.content.pages) {
-      for (const page of project.content.pages) {
-        const htmlContent = this.generateHTML(page, project);
+    // Générer les fichiers HTML pour chaque page
+    for (const page of project.content.pages) {
+      const htmlContent = this.generateOptimizedHTML(page, project, exportOptions);
+      const fileName = page.path === "/" ? "index.html" : this.sanitizeFileName(`${page.name}.html`);
+      files.push({
+        path: fileName,
+        content: htmlContent
+      });
+    }
+
+    // Générer le fichier CSS si demandé
+    if (exportOptions.includeCSS) {
+      const cssContent = this.generateOptimizedCSS(project, exportOptions);
+      if (cssContent.trim()) {
         files.push({
-          path: page.path === "/" ? "index.html" : `${page.name}.html`,
-          content: htmlContent
+          path: `styles.css${exportOptions.cacheVersion ? `?v=${exportOptions.cacheVersion}` : ''}`,
+          content: cssContent
         });
       }
     }
 
-    // Generate CSS file
-    const cssContent = this.generateCSS(project);
-    if (cssContent) {
-      files.push({
-        path: "styles.css",
-        content: cssContent
-      });
+    // Générer le fichier JavaScript si demandé
+    if (exportOptions.includeJS) {
+      const jsContent = this.generateOptimizedJS(project, exportOptions);
+      if (jsContent.trim()) {
+        files.push({
+          path: `script.js${exportOptions.cacheVersion ? `?v=${exportOptions.cacheVersion}` : ''}`,
+          content: jsContent
+        });
+      }
     }
 
-    // Generate JavaScript file
-    const jsContent = this.generateJS(project);
-    if (jsContent) {
-      files.push({
-        path: "script.js",
-        content: jsContent
-      });
-    }
+    // Ajouter les fichiers de métadonnées
+    files.push(...this.generateMetadataFiles(project));
 
-    // Add package.json
+    return { files };
+  }
+
+  // Nouvelles méthodes helper refactorisées
+  private sanitizeFileName(fileName: string): string {
+    return fileName
+      .toLowerCase()
+      .replace(/[^a-z0-9.-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  private generateMetadataFiles(project: Project): Array<{ path: string; content: string; }> {
+    const files: Array<{ path: string; content: string; }> = [];
+
+    // Ajouter package.json
     files.push({
       path: "package.json",
-      content: JSON.stringify({
-        name: project.name.toLowerCase().replace(/\s+/g, '-'),
-        version: "1.0.0",
-        description: project.description || "Exported from PageForge",
-        main: "index.html",
-        scripts: {
-          start: "npx serve .",
-          build: "echo 'Already built'",
-          dev: "npx serve . -l 3000"
-        },
-        keywords: ["website", "exported", "pageforge"],
-        author: "PageForge",
-        license: "MIT",
-        devDependencies: {
-          "serve": "^14.0.0"
-        }
-      }, null, 2)
+      content: JSON.stringify(this.createPackageJson(project), null, 2)
     });
 
-    // Add README.md
+    // Ajouter README.md
     files.push({
       path: "README.md",
-      content: `# ${project.name}
+      content: this.createReadmeContent(project)
+    });
+
+    return files;
+  }
+
+  private createPackageJson(project: Project) {
+    return {
+      name: project.name.toLowerCase().replace(/\s+/g, '-'),
+      version: "1.0.0",
+      description: project.description || "Exporté depuis PageForge",
+      main: "index.html",
+      scripts: {
+        start: "npx serve .",
+        build: "echo 'Already built'",
+        dev: "npx serve . -l 3000"
+      },
+      keywords: ["website", "exported", "pageforge"],
+      author: "PageForge",
+      license: "MIT",
+      devDependencies: {
+        "serve": "^14.0.0"
+      }
+    };
+  }
+
+  private createReadmeContent(project: Project): string {
+    return `# ${project.name}
 
 ${project.description || "Projet exporté depuis PageForge"}
 
@@ -759,34 +819,131 @@ Ce projet est prêt pour le déploiement sur n'importe quel serveur web statique
 
 ### Structure des fichiers :
 - \`index.html\` - Page principale
-- \`styles.css\` - Feuilles de style (si séparées)
-- \`script.js\` - Scripts JavaScript (si inclus)
+- \`styles.css\` - Feuilles de style
+- \`script.js\` - Scripts JavaScript
 
 Généré avec PageForge - ${new Date().toLocaleDateString()}
-`
-    });
-
-    return { files };
+`;
   }
 
   private generateHTML(page: any, project: Project): string {
-    const title = page.content?.meta?.title || project.settings.seo?.title || project.name;
-    const description = page.content?.meta?.description || project.settings.seo?.description || "";
+    const title = page.content?.meta?.title || project.settings?.seo?.title || project.name;
+    const description = page.content?.meta?.description || project.settings?.seo?.description || project.description || "";
     
     return `<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-    <meta name="description" content="${description}">
+    <title>${this.escapeHtml(title)}</title>
+    <meta name="description" content="${this.escapeHtml(description)}">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    ${this.renderComponents(page.content.structure || [])}
+    ${this.renderComponents(page.content?.structure || [])}
     <script src="script.js"></script>
 </body>
 </html>`;
+  }
+
+  private generateOptimizedHTML(page: any, project: Project, options: ExportOptions): string {
+    const title = page.content?.meta?.title || project.settings?.seo?.title || project.name;
+    const description = page.content?.meta?.description || project.settings?.seo?.description || project.description || "";
+    const keywords = Array.isArray(project.settings?.seo?.keywords) 
+      ? project.settings.seo.keywords.join(', ') 
+      : project.settings?.seo?.keywords || "";
+    const author = "PageForge";
+    const cacheVersion = options.cacheVersion || "";
+    
+    // Génération des meta tags SEO optimisés
+    const seoMeta = options.seoOptimized ? this.generateSeoMetaTags(page, project, { title, description, keywords, author }) : '';
+    
+    // Liens vers les ressources avec cache busting
+    const cssLink = options.includeCSS ? `<link rel="stylesheet" href="styles.css${cacheVersion ? `?v=${cacheVersion}` : ''}">\n    ` : '';
+    const jsScript = options.includeJS ? `<script src="script.js${cacheVersion ? `?v=${cacheVersion}` : ''}"></script>` : '';
+    
+    // Meta responsive si demandé
+    const responsiveMeta = options.responsive ? '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n    ' : '';
+    
+    return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    ${responsiveMeta}<title>${this.escapeHtml(title)}</title>
+    <meta name="description" content="${this.escapeHtml(description)}">
+    ${seoMeta}${cssLink}</head>
+<body>
+    ${this.renderComponents(page.content?.structure || [])}
+    ${jsScript}
+</body>
+</html>`;
+  }
+
+  private generateSeoMetaTags(page: any, project: Project, meta: { title: string; description: string; keywords: string; author: string }): string {
+    const tags = [];
+    
+    if (meta.keywords) {
+      tags.push(`<meta name="keywords" content="${this.escapeHtml(meta.keywords)}">`);
+    }
+    
+    if (meta.author) {
+      tags.push(`<meta name="author" content="${this.escapeHtml(meta.author)}">`);
+    }
+    
+    // Open Graph tags
+    tags.push(`<meta property="og:title" content="${this.escapeHtml(meta.title)}">`);
+    tags.push(`<meta property="og:description" content="${this.escapeHtml(meta.description)}">`);
+    tags.push(`<meta property="og:type" content="website">`);
+    tags.push(`<meta property="og:site_name" content="${this.escapeHtml(project.name)}">`);
+    
+    // Twitter Card tags
+    tags.push(`<meta name="twitter:card" content="summary">`);
+    tags.push(`<meta name="twitter:title" content="${this.escapeHtml(meta.title)}">`);
+    tags.push(`<meta name="twitter:description" content="${this.escapeHtml(meta.description)}">`);
+    
+    return tags.length > 0 ? tags.join('\n    ') + '\n    ' : '';
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private generateCSS(project: Project): string {
+    const globalStyles = project.content?.styles?.global || '';
+    const componentStyles = project.content?.styles?.components || {};
+    
+    let css = globalStyles + '\n\n';
+    
+    Object.entries(componentStyles).forEach(([selector, styles]) => {
+      css += `${selector} {\n${styles}\n}\n\n`;
+    });
+    
+    return css;
+  }
+
+  private generateJS(project: Project): string {
+    // Generate basic JavaScript for interactivity
+    return `
+// Generated by PageForge
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded successfully');
+    
+    // Add basic interactivity
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!this.getAttribute('onclick')) {
+                console.log('Button clicked:', this.textContent);
+            }
+        });
+    });
+});
+`;
   }
 
   private renderComponents(components: ComponentDefinition[]): string {
@@ -827,27 +984,99 @@ Généré avec PageForge - ${new Date().toLocaleDateString()}
     return str.replace(/([A-Z])/g, '-$1').toLowerCase();
   }
 
-  private generateCSS(project: Project): string {
-    const globalStyles = project.content.styles?.global || '';
-    const componentStyles = project.content.styles?.components || {};
+  private generateOptimizedCSS(project: Project, options: ExportOptions): string {
+    let css = `/* Generated by PageForge - ${new Date().toISOString()} */\n\n`;
     
-    let css = globalStyles + '\n\n';
+    // Reset CSS de base
+    css += `/* Reset CSS */\n* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\n`;
     
-    Object.entries(componentStyles).forEach(([selector, styles]) => {
-      css += `${selector} {\n${styles}\n}\n\n`;
-    });
+    // Styles de base
+    css += `/* Base Styles */\nbody {\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;\n  line-height: 1.6;\n  color: #333;\n}\n\n`;
     
-    return css;
+    // Styles globaux du projet
+    const globalStyles = project.content?.styles?.global || '';
+    if (globalStyles.trim()) {
+      css += `/* Global Project Styles */\n${globalStyles}\n\n`;
+    }
+    
+    // Styles des composants
+    const componentStyles = project.content?.styles?.components || {};
+    if (Object.keys(componentStyles).length > 0) {
+      css += `/* Component Styles */\n`;
+      Object.entries(componentStyles).forEach(([selector, styles]) => {
+        css += `${selector} {\n${styles}\n}\n\n`;
+      });
+    }
+    
+    // Styles responsive si demandés
+    if (options.responsive) {
+      css += this.generateResponsiveCSS();
+    }
+    
+    return options.minify ? this.minifyCSS(css) : css;
   }
 
-  private generateJS(project: Project): string {
-    // Generate basic JavaScript for interactivity
-    return `
-// Generated by PageForge
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded successfully');
+  private generateResponsiveCSS(): string {
+    return `/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.5rem;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 0.9rem;
+  }
+  
+  .container {
+    padding: 0.5rem;
+  }
+}
+
+`;
+  }
+
+  private minifyCSS(css: string): string {
+    return css
+      .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .replace(/;\s*}/g, '}') // Remove semicolon before closing brace
+      .replace(/\s*{\s*/g, '{') // Remove spaces around opening brace
+      .replace(/;\s*/g, ';') // Remove spaces after semicolon
+      .trim();
+  }
+
+  private generateOptimizedJS(project: Project, options: ExportOptions): string {
+    let js = `// Generated by PageForge - ${new Date().toISOString()}\n\n`;
     
-    // Add basic interactivity
+    js += `document.addEventListener('DOMContentLoaded', function() {\n`;
+    js += `    console.log('${project.name} - Page loaded successfully');\n\n`;
+    
+    // Ajouter l'interactivité de base
+    js += this.generateBasicInteractivity();
+    
+    // Ajouter des fonctionnalités spécifiques selon les composants
+    js += this.generateComponentInteractivity(project);
+    
+    js += `});\n\n`;
+    
+    // Ajouter des fonctions utilitaires
+    js += this.generateUtilityFunctions();
+    
+    return options.minify ? this.minifyJS(js) : js;
+  }
+
+  private generateBasicInteractivity(): string {
+    return `    // Basic button interactivity
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -856,8 +1085,139 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+
+    // Basic form handling
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted:', new FormData(this));
+        });
+    });
+
 `;
+  }
+
+  private generateComponentInteractivity(project: Project): string {
+    let js = '';
+    
+    // Vérifier si le projet contient des carrousels
+    if (this.projectHasComponent(project, 'carousel')) {
+      js += this.generateCarouselJS();
+    }
+    
+    // Vérifier si le projet contient des modales
+    if (this.projectHasComponent(project, 'modal')) {
+      js += this.generateModalJS();
+    }
+    
+    return js;
+  }
+
+  private generateUtilityFunctions(): string {
+    return `// Utility Functions
+function toggleClass(element, className) {
+    if (element.classList.contains(className)) {
+        element.classList.remove(className);
+    } else {
+        element.classList.add(className);
+    }
+}
+
+function smoothScrollTo(target) {
+    const element = document.querySelector(target);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+`;
+  }
+
+  private generateCarouselJS(): string {
+    return `    // Carousel functionality
+    const carousels = document.querySelectorAll('.carousel');
+    carousels.forEach(carousel => {
+        const items = carousel.querySelectorAll('.carousel-item');
+        const dots = carousel.querySelectorAll('.carousel-dot');
+        let currentIndex = 0;
+        
+        function showSlide(index) {
+            items.forEach((item, i) => {
+                item.style.display = i === index ? 'block' : 'none';
+            });
+            dots.forEach((dot, i) => {
+                dot.className = i === index ? 'carousel-dot active' : 'carousel-dot';
+            });
+        }
+        
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                currentIndex = i;
+                showSlide(currentIndex);
+            });
+        });
+        
+        // Auto-advance carousel every 5 seconds
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % items.length;
+            showSlide(currentIndex);
+        }, 5000);
+    });
+
+`;
+  }
+
+  private generateModalJS(): string {
+    return `    // Modal functionality
+    const modalTriggers = document.querySelectorAll('[data-modal-target]');
+    const modalCloses = document.querySelectorAll('[data-modal-close]');
+    
+    modalTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const modal = document.querySelector(trigger.dataset.modalTarget);
+            if (modal) modal.style.display = 'block';
+        });
+    });
+    
+    modalCloses.forEach(close => {
+        close.addEventListener('click', () => {
+            const modal = close.closest('.modal');
+            if (modal) modal.style.display = 'none';
+        });
+    });
+
+`;
+  }
+
+  private projectHasComponent(project: Project, componentType: string): boolean {
+    if (!project.content?.pages) return false;
+    
+    for (const page of project.content.pages) {
+      if (this.pageHasComponent(page.content?.structure || [], componentType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private pageHasComponent(structure: any[], componentType: string): boolean {
+    for (const component of structure) {
+      if (component.type === componentType) return true;
+      if (component.children && this.pageHasComponent(component.children, componentType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private minifyJS(js: string): string {
+    return js
+      .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+      .replace(/\/\/.*$/gm, '') // Remove single line comments
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .replace(/;\s*}/g, '}') // Remove semicolon before closing brace
+      .trim();
   }
 }
 

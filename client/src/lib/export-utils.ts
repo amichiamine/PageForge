@@ -164,21 +164,31 @@ function generateHTML(project: Project, page: any, options: ExportOptions): stri
   const jsScript = options.includeJS ? 
     '<script src="script.js"></script>' : '';
 
-  const inlineCSSStyles = options.inlineCSS ? '' : `
+  const inlineCSSStyles = options.inlineCSS && options.includeCSS ? `
     <style>
-      ${generateInlineCSS(project, page, options)}
+      ${generateCSS(project, page, options)}
     </style>
-  `;
+  ` : '';
 
   const responsiveMeta = options.responsive ? 
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">' : '';
 
   const seoMeta = options.seoOptimized ? `
-    <meta name="description" content="${page.content.meta?.description || project.description || 'Generated with SiteJet Clone'}">
-    <meta property="og:title" content="${page.content.meta?.title || project.name}">
-    <meta property="og:description" content="${page.content.meta?.description || project.description || ''}">
+    <meta name="description" content="${escapeHtml(page.content.meta?.description || project.description || 'Generated with PageForge')}">
+    <meta property="og:title" content="${escapeHtml(page.content.meta?.title || project.name)}">
+    <meta property="og:description" content="${escapeHtml(page.content.meta?.description || project.description || '')}">
     <meta property="og:type" content="website">
+    <meta name="author" content="PageForge">
   ` : '';
+
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
   
   return `<!DOCTYPE html>
 <html lang="fr">
