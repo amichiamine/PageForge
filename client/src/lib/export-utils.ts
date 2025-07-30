@@ -16,13 +16,18 @@ export interface ExportFile {
 }
 
 export function exportProject(project: Project, options: ExportOptions = {}): ExportFile[] {
+  // Validation du projet
+  if (!project || !project.name) {
+    throw new Error('Projet invalide : nom manquant');
+  }
+  
   const files: ExportFile[] = [];
   const currentPage = project.content?.pages?.[0];
   
   if (!currentPage) {
     return [{
       path: "index.html",
-      content: "<!DOCTYPE html><html><head><title>Empty Project</title></head><body><p>No content to export</p></body></html>",
+      content: `<!DOCTYPE html><html><head><title>${project.name}</title></head><body><p>Projet vide - aucun contenu à exporter</p></body></html>`,
       type: "html"
     }];
   }

@@ -185,7 +185,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     }
   }, [project, selectedComponent, onComponentUpdate, onComponentSelect]);
 
-  const renderComponent = (component: ComponentDefinition): React.ReactNode => {
+  const renderComponent = useCallback((component: ComponentDefinition): React.ReactNode => {
     return (
       <ResizableComponent
         key={component.id}
@@ -197,7 +197,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         showGuides={showAlignmentGuides}
       />
     );
-  };
+  }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides]);
 
   const structure = project?.content?.pages?.[0]?.content?.structure || [];
 

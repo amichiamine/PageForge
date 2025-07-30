@@ -95,6 +95,7 @@ export default function Editor() {
   const [hideComponentPanel, setHideComponentPanel] = useState(false);
   const [hideRightPanel, setHideRightPanel] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);

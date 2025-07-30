@@ -683,6 +683,7 @@ export class MemStorage implements IStorage {
     const project = await this.getProject(projectId);
     if (!project) {
       throw new Error(`Projet avec l'ID ${projectId} introuvable`);
+    } introuvable`);
     }
 
     // Vérifier que le projet a du contenu
@@ -842,6 +843,8 @@ Généré avec PageForge - ${new Date().toLocaleDateString()}
 <body>
     ${this.renderComponents(page.content?.structure || [])}
     <script src="script.js"></script>
+</body>
+</html>`;pt src="script.js"></script>
 </body>
 </html>`;
   }
@@ -1114,7 +1117,61 @@ document.addEventListener('DOMContentLoaded', function() {
     return js;
   }
 
-  private generateUtilityFunctions(): string {
+  private generateUIAnimations(): string {
+    return `    // UI Animations
+    const animatedElements = document.querySelectorAll('[data-animate]');
+    animatedElements.forEach(element => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        });
+        observer.observe(element);
+    });
+
+`;
+  }
+
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  private renderComponents(structure: any[]): string {
+    return structure.map(component => {
+      const tag = component.tag || 'div';
+      const styles = this.generateComponentStyles(component.styles || {});
+      const attributes = this.generateComponentAttributes(component.attributes || {});
+      
+      return `<${tag} ${attributes} style="${styles}">
+        ${component.content || ''}
+        ${component.children ? this.renderComponents(component.children) : ''}
+      </${tag}>`;
+    }).join('');
+  }
+
+  private generateComponentStyles(styles: Record<string, any>): string {
+    return Object.entries(styles)
+      .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
+      .join('; ');
+  }
+
+  private generateComponentAttributes(attributes: Record<string, any>): string {
+    return Object.entries(attributes)
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(' ');
+  }
+
+  private minifyJS(js: string): string {
+    return js.replace(/\s+/g, ' ').replace(/;\s*}/g, '}').trim();
+  }
+
+  private minifyCSS(css: string): string {
+    return css.replace(/\s+/g, ' ').replace(/;\s*}/g, '}').trim();
+  }tilityFunctions(): string {
     return `// Utility Functions
 function toggleClass(element, className) {
     if (element.classList.contains(className)) {
@@ -1205,6 +1262,11 @@ function smoothScrollTo(target) {
     for (const component of structure) {
       if (component.type === componentType) return true;
       if (component.children && this.pageHasComponent(component.children, componentType)) {
+        return true;
+      }
+    }
+    return false;
+  }) {
         return true;
       }
     }
