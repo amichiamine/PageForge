@@ -35,6 +35,8 @@ export default function Editor() {
   const [hideRightPanel, setHideRightPanel] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
@@ -44,15 +46,13 @@ export default function Editor() {
     enabled: !!projectId,
   });
 
-  // Sync local project with server project when it loads
+  // Sync local project with server project when it loads (only if no unsaved changes)
   React.useEffect(() => {
-    if (project) {
-      // Always sync server project to local state, ensuring fresh data
+    if (project && !hasUnsavedChanges) {
       console.log("Syncing server project to local state:", project.name);
-      console.log("Project content from server:", project.content);
       setLocalProject(project);
     }
-  }, [project]);
+  }, [project, hasUnsavedChanges]);
 
   const saveProjectMutation = useMutation({
     mutationFn: async (updates: { content: any }) => {
@@ -72,7 +72,8 @@ export default function Editor() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
+      setHasUnsavedChanges(false);
+      // Ne pas invalider les queries automatiquement pour éviter les cycles
       toast({
         title: "Projet sauvegardé",
         description: "Vos modifications ont été enregistrées avec succès.",
@@ -152,22 +153,26 @@ export default function Editor() {
     },
   });
 
-  // Auto-save system with debounce
+  // Auto-save system with user control and debounce
   React.useEffect(() => {
-    if (!localProject || !projectId || saveProjectMutation.isPending) return;
+    if (!localProject || !projectId || saveProjectMutation.isPending || !autoSaveEnabled || !hasUnsavedChanges) return;
     
     const autoSaveTimer = setTimeout(() => {
       console.log("Auto-saving project:", localProject.name);
       saveProjectMutation.mutate({ content: localProject.content });
-    }, 5000); // Auto-save after 5 seconds of inactivity
+      setHasUnsavedChanges(false);
+    }, 3000); // Auto-save after 3 seconds of inactivity
 
     return () => clearTimeout(autoSaveTimer);
-  }, [localProject?.content, projectId]); // Only watch content changes
+  }, [localProject?.content, projectId, autoSaveEnabled, hasUnsavedChanges, saveProjectMutation.isPending]);
 
   const handleComponentUpdate = (updatedProjectOrComponent: Project | ComponentDefinition) => {
     if (!localProject) return;
 
     console.log("handleComponentUpdate called with:", updatedProjectOrComponent);
+
+    // Mark as having unsaved changes
+    setHasUnsavedChanges(true);
 
     // If it's a Project, update local state only
     if ('content' in updatedProjectOrComponent && 'name' in updatedProjectOrComponent) {
@@ -208,9 +213,7 @@ export default function Editor() {
 
   const handleSave = () => {
     if (localProject) {
-      console.log("Saving project:", localProject.name);
-      console.log("Project content:", localProject.content);
-      console.log("Has pages:", localProject.content?.pages?.length || 0);
+      console.log("Manual save - Saving project:", localProject.name);
       
       // Ensure content structure is valid
       const contentToSave = {
@@ -227,8 +230,11 @@ export default function Editor() {
         }]
       };
       
-      console.log("Saving content:", contentToSave);
       saveProjectMutation.mutate({ content: contentToSave });
+      // Rafraîchir les données après sauvegarde manuelle
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
+      }, 500);
     } else {
       console.error("No local project to save");
     }
@@ -393,16 +399,16 @@ export default function Editor() {
             </Button>
 
             <Button
-              variant="outline"
+              variant={hasUnsavedChanges ? "default" : "outline"}
               size="sm"
               onClick={() => {
                 console.log("Save button clicked, localProject:", localProject?.name);
                 handleSave();
               }}
-              disabled={saveProjectMutation.isPending}
+              disabled={saveProjectMutation.isPending || !hasUnsavedChanges}
             >
               <Save className="w-4 h-4 mr-2" />
-              {saveProjectMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
+              {saveProjectMutation.isPending ? "Sauvegarde..." : hasUnsavedChanges ? "Sauvegarder" : "Sauvegardé"}
             </Button>
 
             <Button
@@ -425,6 +431,23 @@ export default function Editor() {
               Guides
             </Button>
 
+            <div className="flex items-center space-x-2 ml-4 px-3 py-1 bg-gray-100 rounded-lg">
+              <input
+                type="checkbox"
+                id="autoSave"
+                checked={autoSaveEnabled}
+                onChange={(e) => setAutoSaveEnabled(e.target.checked)}
+                className="rounded"
+              />
+              <label htmlFor="autoSave" className="text-sm font-medium cursor-pointer">
+                Auto-sauvegarde
+              </label>
+              {hasUnsavedChanges && (
+                <span className="text-xs text-amber-600 font-medium">
+                  • Non sauvegardé
+                </span>
+              )}
+            </div>
 
           </div>
         }
