@@ -85,17 +85,97 @@ export default function PropertiesPanel({
     updateProperty('styles.display', newDisplay);
   };
 
+  // Obtenir tous les composants de la page
+  const getAllComponents = (components: ComponentDefinition[]): ComponentDefinition[] => {
+    const allComponents: ComponentDefinition[] = [];
+    
+    const traverse = (comps: ComponentDefinition[]) => {
+      comps.forEach(comp => {
+        allComponents.push(comp);
+        if (comp.children && comp.children.length > 0) {
+          traverse(comp.children);
+        }
+      });
+    };
+    
+    traverse(components);
+    return allComponents;
+  };
+
+  const allComponents = project?.content?.pages?.[0]?.content?.structure ? 
+    getAllComponents(project.content.pages[0].content.structure) : [];
+
   if (!localComponent) {
     return (
-      <div className="p-6 text-center">
-        <div className="space-y-4">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-            <span className="text-2xl">🎨</span>
+      <div className="h-full overflow-y-auto">
+        <div className="p-4 space-y-6">
+          {/* Liste des composants */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b border-gray-200 pb-2">
+              Composants sur la page ({allComponents.length})
+            </h3>
+            
+            {allComponents.length > 0 ? (
+              <div className="space-y-2">
+                {allComponents.map((comp) => (
+                  <div
+                    key={comp.id}
+                    onClick={() => onComponentSelect(comp)}
+                    className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline" className="text-xs">
+                        {comp.type}
+                      </Badge>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {comp.content || comp.type}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          #{comp.id.slice(-8)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onComponentDelete(comp.id);
+                        }}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🎨</span>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun composant</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Glissez des composants depuis la palette pour commencer
+                </p>
+              </div>
+            )}
           </div>
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun composant sélectionné</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Cliquez sur un composant dans l'éditeur pour modifier ses propriétés
+
+          <Separator />
+
+          {/* Message de sélection */}
+          <div className="text-center py-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-xl text-blue-600">✨</span>
+            </div>
+            <h3 className="text-sm font-medium text-gray-900 mb-1">Propriétés</h3>
+            <p className="text-xs text-gray-600">
+              Sélectionnez un composant pour modifier ses propriétés
             </p>
           </div>
         </div>

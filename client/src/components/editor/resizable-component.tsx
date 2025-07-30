@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { ComponentDefinition } from '@shared/schema';
 
@@ -39,11 +38,11 @@ export default function ResizableComponent({
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
       e.preventDefault();
       e.stopPropagation();
-      
+
       onSelect();
-      
+
       if (!isSelected) return;
-      
+
       const rect = elementRef.current?.getBoundingClientRect();
       if (rect) {
         setIsDragging(true);
@@ -59,11 +58,11 @@ export default function ResizableComponent({
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
       // Pas de preventDefault pour permettre le scroll si nécessaire
       e.stopPropagation();
-      
+
       onSelect();
-      
+
       if (!isSelected) return;
-      
+
       const touch = e.touches[0];
       const rect = elementRef.current?.getBoundingClientRect();
       if (rect && touch) {
@@ -81,36 +80,92 @@ export default function ResizableComponent({
     }
   }, [isSelected, onSelect]);
 
-  const handleResizeStart = useCallback((e: React.MouseEvent, direction: string) => {
+  const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent, direction: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    setIsResizing(true);
-    setResizeDirection(direction);
-    setResizeStart({
-      x: e.clientX,
-      y: e.clientY,
-      width: currentWidth,
-      height: currentHeight
-    });
-  }, [currentWidth, currentHeight]);
 
-  const handleTouchResizeStart = useCallback((e: React.TouchEvent, direction: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const touch = e.touches[0];
-    if (touch) {
-      setIsResizing(true);
-      setResizeDirection(direction);
-      setResizeStart({
-        x: touch.clientX,
-        y: touch.clientY,
-        width: currentWidth,
-        height: currentHeight
-      });
-    }
-  }, [currentWidth, currentHeight]);
+    const startX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const startY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const startWidth = parseInt(component.styles?.width?.replace('px', '') || '100');
+    const startHeight = parseInt(component.styles?.height?.replace('px', '') || '50');
+    const startLeft = parseInt(component.styles?.left?.replace('px', '') || '0');
+    const startTop = parseInt(component.styles?.top?.replace('px', '') || '0');
+
+    const handleResize = (moveEvent: MouseEvent | TouchEvent) => {
+      const currentX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX;
+      const currentY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY;
+
+      const deltaX = currentX - startX;
+      const deltaY = currentY - startY;
+
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+      let newLeft = startLeft;
+      let newTop = startTop;
+
+      switch (direction) {
+        case 'se': // Bottom-right
+          newWidth = Math.max(20, startWidth + deltaX);
+          newHeight = Math.max(20, startHeight + deltaY);
+          break;
+        case 'sw': // Bottom-left
+          newWidth = Math.max(20, startWidth - deltaX);
+          newHeight = Math.max(20, startHeight + deltaY);
+          newLeft = startLeft + (startWidth - newWidth);
+          break;
+        case 'ne': // Top-right
+          newWidth = Math.max(20, startWidth + deltaX);
+          newHeight = Math.max(20, startHeight - deltaY);
+          newTop = startTop + (startHeight - newHeight);
+          break;
+        case 'nw': // Top-left
+          newWidth = Math.max(20, startWidth - deltaX);
+          newHeight = Math.max(20, startHeight - deltaY);
+          newLeft = startLeft + (startWidth - newWidth);
+          newTop = startTop + (startHeight - newHeight);
+          break;
+        case 'n': // Top
+          newHeight = Math.max(20, startHeight - deltaY);
+          newTop = startTop + (startHeight - newHeight);
+          break;
+        case 's': // Bottom
+          newHeight = Math.max(20, startHeight + deltaY);
+          break;
+        case 'w': // Left
+          newWidth = Math.max(20, startWidth - deltaX);
+          newLeft = startLeft + (startWidth - newWidth);
+          break;
+        case 'e': // Right
+          newWidth = Math.max(20, startWidth + deltaX);
+          break;
+      }
+
+      const updatedComponent = {
+        ...component,
+        styles: {
+          ...component.styles,
+          width: `${newWidth}px`,
+          height: `${newHeight}px`,
+          left: `${Math.max(0, newLeft)}px`,
+          top: `${Math.max(0, newTop)}px`
+        }
+      };
+
+      onUpdate(updatedComponent);
+    };
+
+    const handleResizeEnd = () => {
+      document.removeEventListener('mousemove', handleResize);
+      document.removeEventListener('mouseup', handleResizeEnd);
+      document.removeEventListener('touchmove', handleResize);
+      document.removeEventListener('touchend', handleResizeEnd);
+    };
+
+    document.addEventListener('mousemove', handleResize);
+    document.addEventListener('mouseup', handleResizeEnd);
+    document.addEventListener('touchmove', handleResize);
+    document.addEventListener('touchend', handleResizeEnd);
+  }, [component, onUpdate]);
 
   const handleMove = useCallback((clientX: number, clientY: number) => {
     if (isDragging && elementRef.current && containerRef.current) {
@@ -139,7 +194,7 @@ export default function ResizableComponent({
     if (isResizing) {
       const deltaX = clientX - resizeStart.x;
       const deltaY = clientY - resizeStart.y;
-      
+
       let newWidth = resizeStart.width;
       let newHeight = resizeStart.height;
       let newLeft = currentLeft;
@@ -245,17 +300,24 @@ export default function ResizableComponent({
     }
   }, []);
 
-  const componentStyle = {
-    position: 'absolute' as const,
-    left: `${currentLeft}px`,
-    top: `${currentTop}px`,
-    width: `${currentWidth}px`,
-    height: `${currentHeight}px`,
+  const componentStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: parseInt(component.styles?.left?.replace('px', '') || '0') + 'px',
+    top: parseInt(component.styles?.top?.replace('px', '') || '0') + 'px',
+    width: component.styles?.width || 'auto',
+    height: component.styles?.height || 'auto',
     minWidth: '20px',
     minHeight: '20px',
+    zIndex: parseInt(component.styles?.zIndex || '1000'),
+    cursor: isDragging ? 'grabbing' : 'grab',
+    transform: isDragging ? 'scale(1.02)' : 'scale(1)',
+    transition: isDragging ? 'none' : 'transform 0.2s ease',
+    touchAction: 'none',
+    userSelect: 'none',
+    boxSizing: 'border-box',
     ...component.styles,
-    cursor: isDragging ? 'move' : 'pointer',
-    zIndex: isSelected ? 1001 : (component.styles?.zIndex || 1000),
+    // Forcer les valeurs critiques
+    position: 'absolute'
   };
 
   return (
@@ -308,115 +370,59 @@ export default function ResizableComponent({
         </div>
       )}
 
-      {/* Poignées de redimensionnement */}
-      {isSelected && (
+      {/* Resize handles */}
+      {isSelected && showGuides && (
         <>
-          {/* Coins */}
-          <div
-            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-nw-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              top: '-6px', 
-              left: '-6px',
-              minWidth: '20px',
-              minHeight: '20px',
-              marginTop: '-7px',
-              marginLeft: '-7px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'top-left')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'top-left')}
+          {/* Corner handles */}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nw-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ top: '-8px', left: '-8px', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'nw')}
+            onTouchStart={(e) => handleResizeStart(e, 'nw')}
           />
-          <div
-            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-ne-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              top: '-6px', 
-              right: '-6px',
-              minWidth: '20px',
-              minHeight: '20px',
-              marginTop: '-7px',
-              marginRight: '-7px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'top-right')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'top-right')}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-ne-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ top: '-8px', right: '-8px', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'ne')}
+            onTouchStart={(e) => handleResizeStart(e, 'ne')}
           />
-          <div
-            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-sw-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              bottom: '-6px', 
-              left: '-6px',
-              minWidth: '20px',
-              minHeight: '20px',
-              marginBottom: '-7px',
-              marginLeft: '-7px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'bottom-left')}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-sw-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ bottom: '-8px', left: '-8px', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'sw')}
+            onTouchStart={(e) => handleResizeStart(e, 'sw')}
           />
-          <div
-            className="resize-handle absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-se-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              bottom: '-6px', 
-              right: '-6px',
-              minWidth: '20px',
-              minHeight: '20px',
-              marginBottom: '-7px',
-              marginRight: '-7px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'bottom-right')}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-se-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ bottom: '-8px', right: '-8px', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'se')}
+            onTouchStart={(e) => handleResizeStart(e, 'se')}
           />
 
-          {/* Côtés */}
-          <div
-            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-n-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              top: '-8px', 
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              minWidth: '24px',
-              minHeight: '24px',
-              marginTop: '-4px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'top')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'top')}
+          {/* Edge handles */}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-n-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ top: '-8px', left: '50%', transform: 'translateX(-50%)', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'n')}
+            onTouchStart={(e) => handleResizeStart(e, 'n')}
           />
-          <div
-            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-s-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              bottom: '-8px', 
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              minWidth: '24px',
-              minHeight: '24px',
-              marginBottom: '-4px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'bottom')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'bottom')}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-s-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ bottom: '-8px', left: '50%', transform: 'translateX(-50%)', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 's')}
+            onTouchStart={(e) => handleResizeStart(e, 's')}
           />
-          <div
-            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-w-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              left: '-8px', 
-              top: '50%', 
-              transform: 'translateY(-50%)',
-              minWidth: '24px',
-              minHeight: '24px',
-              marginLeft: '-4px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'left')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'left')}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-w-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ left: '-8px', top: '50%', transform: 'translateY(-50%)', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'w')}
+            onTouchStart={(e) => handleResizeStart(e, 'w')}
           />
-          <div
-            className="resize-handle absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-e-resize hover:bg-blue-600 shadow-sm touch-manipulation"
-            style={{ 
-              right: '-8px', 
-              top: '50%', 
-              transform: 'translateY(-50%)',
-              minWidth: '24px',
-              minHeight: '24px',
-              marginRight: '-4px'
-            }}
-            onMouseDown={(e) => handleResizeStart(e, 'right')}
-            onTouchStart={(e) => handleTouchResizeStart(e, 'right')}
+          <div 
+            className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-e-resize resize-handle hover:bg-blue-600 transition-colors"
+            style={{ right: '-8px', top: '50%', transform: 'translateY(-50%)', zIndex: 1002 }}
+            onMouseDown={(e) => handleResizeStart(e, 'e')}
+            onTouchStart={(e) => handleResizeStart(e, 'e')}
           />
         </>
       )}
@@ -438,20 +444,20 @@ export default function ResizableComponent({
         .component-wrapper:hover {
           outline: 1px dashed #60a5fa;
         }
-        
+
         /* Amélioration pour les écrans tactiles */
         @media (hover: none) and (pointer: coarse) {
           .component-wrapper {
             min-width: 44px;
             min-height: 44px;
           }
-          
+
           .component-wrapper:active {
             transform: scale(1.02);
             transition: transform 0.1s ease;
           }
         }
-        
+
         /* Poignées de redimensionnement plus grandes sur tactile */
         @media (hover: none) and (pointer: coarse) {
           .component-wrapper .resize-handle {

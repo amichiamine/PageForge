@@ -30,7 +30,7 @@ function generatePreviewHTML(project: Project): string {
   const currentPage = project.content?.pages?.[0];
   const pageStructure = currentPage?.content?.structure || [];
 
-  const renderComponent = (component: ComponentDefinition): string => {
+  const renderComponent = (component: ComponentDefinition, indent: number = 2): string => {
     const styles = component.styles || {};
     const attributes = component.attributes || {};
     const { className, ...otherAttributes } = attributes;
@@ -45,17 +45,35 @@ function generatePreviewHTML(project: Project): string {
 
     const tag = component.tag || 'div';
     const classAttr = className ? `class="${className}"` : '';
+    const indentStr = ' '.repeat(indent);
+    const childIndentStr = ' '.repeat(indent + 2);
+
+    // Construire la balise ouvrante
+    const openingTagParts = [tag, classAttr, attributeString, `style="${styleString}"`]
+      .filter(part => part.trim().length > 0);
+    const openingTag = `<${openingTagParts.join(' ')}>`;
 
     if (component.type === 'image') {
-      return `<${tag} ${classAttr} ${attributeString} style="${styleString}">
-        ${attributes.src ? `<img src="${attributes.src}" alt="${attributes.alt || ''}" style="width: 100%; height: 100%; object-fit: cover;" />` : 'Image'}
-      </${tag}>`;
+      if (attributes.src) {
+        return `${indentStr}<img src="${attributes.src}" alt="${attributes.alt || ''}" ${classAttr} style="${styleString}" />`;
+      } else {
+        return `${indentStr}<div ${classAttr} style="${styleString}">\n${childIndentStr}Image\n${indentStr}</div>`;
+      }
     }
 
-    return `<${tag} ${classAttr} ${attributeString} style="${styleString}">
-      ${component.content || ''}
-      ${component.children?.map(renderComponent).join('') || ''}
-    </${tag}>`;
+    // Contenu et enfants
+    const content = component.content || '';
+    const children = component.children?.map(child => renderComponent(child, indent + 2)).join('\n') || '';
+
+    if (content && children) {
+      return `${indentStr}${openingTag}\n${childIndentStr}${content}\n${children}\n${indentStr}</${tag}>`;
+    } else if (content) {
+      return `${indentStr}${openingTag}\n${childIndentStr}${content}\n${indentStr}</${tag}>`;
+    } else if (children) {
+      return `${indentStr}${openingTag}\n${children}\n${indentStr}</${tag}>`;
+    } else {
+      return `${indentStr}${openingTag}</${tag}>`;
+    }
   };
 
   return `
@@ -73,7 +91,7 @@ function generatePreviewHTML(project: Project): string {
     </head>
     <body>
       <div class="container">
-        ${pageStructure.map(renderComponent).join('')}
+${pageStructure.map(component => renderComponent(component, 4)).join('\n')}
       </div>
       <script>${currentPage?.content?.scripts || ''}</script>
     </body>
@@ -321,14 +339,14 @@ export default function Editor() {
         {/* Enhanced Header */}
         <div className="flex flex-col w-full">
           <div className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between px-6 py-3">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-3 space-y-3 lg:space-y-0">
               {/* Project Info */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <h1 className="text-xl font-bold text-gray-900">{localProject.name}</h1>
+              <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{localProject.name}</h1>
                   {hasUnsavedChanges && (
-                    <Badge variant="outline" className="text-orange-600 border-orange-300">
+                    <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs flex-shrink-0">
                       Non sauvegardé
                     </Badge>
                   )}
@@ -336,17 +354,19 @@ export default function Editor() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2 justify-end">
                 {/* Undo/Redo */}
-                <div className="flex items-center space-x-1 mr-2">
+                <div className="flex items-center space-x-1">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleUndo}
                     disabled={undoStack.length === 0}
                     className="rounded-lg"
+                    title="Annuler"
                   >
                     <Undo className="h-4 w-4" />
+                    <span className="sr-only sm:not-sr-only sm:ml-2 hidden md:inline">Annuler</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -354,12 +374,12 @@ export default function Editor() {
                     onClick={handleRedo}
                     disabled={redoStack.length === 0}
                     className="rounded-lg"
+                    title="Refaire"
                   >
                     <Redo className="h-4 w-4" />
+                    <span className="sr-only sm:not-sr-only sm:ml-2 hidden md:inline">Refaire</span>
                   </Button>
                 </div>
-
-                <Separator orientation="vertical" className="h-6" />
 
                 {/* View Mode Toggles */}
                 <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
@@ -368,6 +388,7 @@ export default function Editor() {
                     size="sm"
                     onClick={() => setViewMode("desktop")}
                     className="rounded-md"
+                    title="Vue bureau"
                   >
                     <Monitor className="h-4 w-4" />
                   </Button>
@@ -376,6 +397,7 @@ export default function Editor() {
                     size="sm"
                     onClick={() => setViewMode("tablet")}
                     className="rounded-md"
+                    title="Vue tablette"
                   >
                     <Tablet className="h-4 w-4" />
                   </Button>
@@ -384,12 +406,11 @@ export default function Editor() {
                     size="sm"
                     onClick={() => setViewMode("mobile")}
                     className="rounded-md"
+                    title="Vue mobile"
                   >
                     <Smartphone className="h-4 w-4" />
                   </Button>
                 </div>
-
-                <Separator orientation="vertical" className="h-6" />
 
                 {/* Editor Modes */}
                 <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
@@ -398,6 +419,7 @@ export default function Editor() {
                     size="sm"
                     onClick={() => { setShowCode(false); setShowPreview(false); }}
                     className="rounded-md"
+                    title="Mode éditeur"
                   >
                     <Layers className="h-4 w-4" />
                   </Button>
@@ -406,6 +428,7 @@ export default function Editor() {
                     size="sm"
                     onClick={() => { setShowCode(!showCode); setShowPreview(false); }}
                     className="rounded-md"
+                    title="Voir le code"
                   >
                     <Code className="h-4 w-4" />
                   </Button>
@@ -414,33 +437,34 @@ export default function Editor() {
                     size="sm"
                     onClick={() => { setShowPreview(!showPreview); setShowCode(false); }}
                     className="rounded-md"
+                    title="Prévisualiser"
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
                 </div>
 
-                <Separator orientation="vertical" className="h-6" />
+                {/* Settings and Auto-save - Hidden on small screens */}
+                <div className="hidden lg:flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAlignmentGuides(!showAlignmentGuides)}
+                    className={`rounded-lg ${showAlignmentGuides ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
+                    title="Guides d'alignement"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
 
-                {/* Settings */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAlignmentGuides(!showAlignmentGuides)}
-                  className={`rounded-lg ${showAlignmentGuides ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-
-                {/* Auto-save Toggle */}
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="autoSave"
-                    checked={autoSaveEnabled}
-                    onChange={(e) => setAutoSaveEnabled(e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <label htmlFor="autoSave" className="text-sm text-gray-600">Auto-save</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="autoSave"
+                      checked={autoSaveEnabled}
+                      onChange={(e) => setAutoSaveEnabled(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <label htmlFor="autoSave" className="text-sm text-gray-600 whitespace-nowrap">Auto-save</label>
+                  </div>
                 </div>
 
                 {/* Save Button */}
@@ -449,8 +473,10 @@ export default function Editor() {
                   disabled={!hasUnsavedChanges || saveMutation.isPending}
                   className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  {saveMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
+                  <Save className="h-4 w-4" />
+                  <span className="ml-2 hidden sm:inline">
+                    {saveMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
+                  </span>
                 </Button>
               </div>
             </div>

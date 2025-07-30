@@ -1,365 +1,192 @@
 import { nanoid } from "nanoid";
 import type { ComponentDefinition } from "@shared/schema";
 
-export function createComponent(type: string, content?: string): ComponentDefinition {
-  const id = nanoid();
-  
-  const componentMap: Record<string, Partial<ComponentDefinition>> = {
-    container: {
-      tag: "div",
-      styles: {
-        padding: "20px",
-        backgroundColor: "#f8f9fa",
-        borderRadius: "8px",
-        minHeight: "100px"
-      },
-      attributes: { className: "container" }
+export function createComponent(type: string): ComponentDefinition {
+  const baseId = nanoid();
+
+  const baseComponent: ComponentDefinition = {
+    id: baseId,
+    type,
+    content: '',
+    styles: {
+      position: 'absolute',
+      left: '50px',
+      top: '50px',
+      zIndex: '1000'
     },
-    section: {
-      tag: "section",
-      styles: {
-        padding: "40px 0",
-        minHeight: "200px"
-      },
-      attributes: { className: "section" }
-    },
-    heading: {
-      tag: "h1",
-      content: content || "Titre principal",
-      styles: {
-        fontSize: "2rem",
-        fontWeight: "bold",
-        marginBottom: "1rem"
-      },
-      attributes: { className: "heading" }
-    },
-    text: {
-      tag: "p",
-      content: content || "Votre texte ici...",
-      styles: {
-        fontSize: "1rem",
-        lineHeight: "1.5",
-        marginBottom: "1rem"
-      },
-      attributes: { className: "text-paragraph" }
-    },
-    button: {
-      tag: "button",
-      content: content || "Cliquez ici",
-      styles: {
-        padding: "12px 24px",
-        backgroundColor: "#007bff",
-        color: "white",
-        border: "none",
-        borderRadius: "6px",
-        cursor: "pointer",
-        fontSize: "1rem"
-      },
-      attributes: { type: "button", className: "btn btn-primary" }
-    },
-    image: {
-      tag: "img",
-      attributes: {
-        src: "https://via.placeholder.com/400x200",
-        alt: "Image de démonstration",
-        className: "responsive-image"
-      },
-      styles: {
-        maxWidth: "100%",
-        height: "auto",
-        borderRadius: "8px"
-      }
-    },
-    link: {
-      tag: "a",
-      content: content || "Lien",
-      attributes: {
-        href: "#",
-        target: "_blank",
-        className: "link"
-      },
-      styles: {
-        color: "#007bff",
-        textDecoration: "underline"
-      }
-    },
-    list: {
-      tag: "ul",
-      attributes: { className: "list" },
-      children: [
-        {
-          id: nanoid(),
-          type: "listitem",
-          tag: "li",
-          content: "Élément 1",
-          attributes: { className: "list-item" }
-        },
-        {
-          id: nanoid(),
-          type: "listitem",
-          tag: "li",
-          content: "Élément 2",
-          attributes: { className: "list-item" }
-        },
-        {
-          id: nanoid(),
-          type: "listitem",
-          tag: "li",
-          content: "Élément 3",
-          attributes: { className: "list-item" }
-        }
-      ],
-      styles: {
-        paddingLeft: "20px"
-      }
-    },
-    carousel: {
-      tag: "div",
-      attributes: { className: "carousel" },
-      styles: {
-        position: "relative",
-        maxWidth: "600px",
-        margin: "0 auto",
-        backgroundColor: "#f8f9fa",
-        borderRadius: "8px",
-        overflow: "hidden"
-      },
-      children: [
-        {
-          id: nanoid(),
-          type: "carousel-item",
-          tag: "img",
-          attributes: { 
-            className: "carousel-item active",
-            src: "https://via.placeholder.com/600x300/007bff/ffffff?text=Image+1",
-            alt: "Image 1"
-          },
-          styles: {
-            display: "block",
-            width: "100%",
-            height: "300px",
-            objectFit: "cover"
-          },
-          content: ""
-        },
-        {
-          id: nanoid(),
-          type: "carousel-item",
-          tag: "img",
-          attributes: { 
-            className: "carousel-item",
-            src: "https://via.placeholder.com/600x300/28a745/ffffff?text=Image+2",
-            alt: "Image 2"
-          },
-          styles: {
-            display: "none",
-            width: "100%",
-            height: "300px",
-            objectFit: "cover"
-          },
-          content: ""
-        },
-        {
-          id: nanoid(),
-          type: "carousel-controls",
-          tag: "div",
-          attributes: { className: "carousel-controls" },
-          styles: {
-            position: "absolute",
-            bottom: "10px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            gap: "8px"
-          },
-          children: [
-            {
-              id: nanoid(),
-              type: "carousel-dot",
-              tag: "button",
-              attributes: { className: "carousel-dot active" },
-              styles: {
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                border: "none",
-                backgroundColor: "#007bff",
-                cursor: "pointer"
-              }
-            },
-            {
-              id: nanoid(),
-              type: "carousel-dot",
-              tag: "button",
-              attributes: { className: "carousel-dot" },
-              styles: {
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                border: "none",
-                backgroundColor: "#dee2e6",
-                cursor: "pointer"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    calendar: {
-      tag: "div",
-      attributes: { className: "calendar" },
-      styles: {
-        border: "1px solid #dee2e6",
-        borderRadius: "8px",
-        padding: "20px",
-        maxWidth: "300px",
-        backgroundColor: "white"
-      },
-      children: [
-        {
-          id: nanoid(),
-          type: "calendar-header",
-          tag: "div",
-          attributes: { className: "calendar-header" },
-          styles: {
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px"
-          },
-          children: [
-            {
-              id: nanoid(),
-              type: "calendar-nav",
-              tag: "button",
-              content: "‹",
-              styles: {
-                border: "none",
-                background: "none",
-                fontSize: "1.5rem",
-                cursor: "pointer"
-              }
-            },
-            {
-              id: nanoid(),
-              type: "calendar-title",
-              tag: "h3",
-              content: "Janvier 2024",
-              styles: { margin: 0 }
-            },
-            {
-              id: nanoid(),
-              type: "calendar-nav",
-              tag: "button",
-              content: "›",
-              styles: {
-                border: "none",
-                background: "none",
-                fontSize: "1.5rem",
-                cursor: "pointer"
-              }
-            }
-          ]
-        },
-        {
-          id: nanoid(),
-          type: "calendar-grid",
-          tag: "div",
-          attributes: { className: "calendar-grid" },
-          styles: {
-            display: "grid",
-            gridTemplateColumns: "repeat(7, 1fr)",
-            gap: "4px",
-            textAlign: "center"
-          },
-          content: "Grille du calendrier"
-        }
-      ]
-    },
-    form: {
-      tag: "form",
-      attributes: { className: "form" },
-      styles: {
-        padding: "20px",
-        border: "1px solid #dee2e6",
-        borderRadius: "8px",
-        backgroundColor: "white"
-      },
-      children: []
-    },
-    input: {
-      tag: "input",
-      attributes: {
-        type: "text",
-        placeholder: "Saisissez votre texte",
-        className: "form-input"
-      },
-      styles: {
-        width: "100%",
-        padding: "12px",
-        border: "1px solid #ced4da",
-        borderRadius: "4px",
-        fontSize: "1rem"
-      }
-    },
-    textarea: {
-      tag: "textarea",
-      attributes: {
-        placeholder: "Saisissez votre message",
-        rows: "4",
-        className: "form-textarea"
-      },
-      styles: {
-        width: "100%",
-        padding: "12px",
-        border: "1px solid #ced4da",
-        borderRadius: "4px",
-        fontSize: "1rem",
-        resize: "vertical"
-      }
-    }
+    attributes: {},
+    children: []
   };
 
-  const baseComponent = componentMap[type] || {};
-  
-  const baseStyles = baseComponent.styles || {};
-  
-  return {
-    id,
-    type,
-    tag: baseComponent.tag || "div",
-    content: baseComponent.content || content || "",
-    styles: {
-      // Start with type-specific styles
-      ...baseStyles,
-      // Add all CSS positioning properties with defaults
-      position: baseStyles.position || 'relative',
-      top: 'auto',
-      right: 'auto', 
-      bottom: 'auto',
-      left: 'auto',
-      zIndex: 'auto',
-      margin: baseStyles.margin || '0',
-      padding: baseStyles.padding || '8px',
-      width: baseStyles.width || 'auto',
-      height: baseStyles.height || 'auto',
-      backgroundColor: baseStyles.backgroundColor || 'transparent',
-      color: baseStyles.color || 'inherit',
-      fontSize: baseStyles.fontSize || '1rem',
-      fontWeight: baseStyles.fontWeight || 'normal',
-      lineHeight: baseStyles.lineHeight || 'normal',
-      textAlign: baseStyles.textAlign || 'left',
-      verticalAlign: 'baseline',
-      alignItems: 'stretch',
-      justifyContent: 'flex-start',
-      display: baseStyles.display || 'block',
-      borderRadius: baseStyles.borderRadius || '0',
-      border: baseStyles.border || 'none',
-      boxShadow: 'none'
-    },
-    attributes: baseComponent.attributes || {},
-    children: baseComponent.children || []
-  };
+  switch (type) {
+    case 'text':
+      return {
+        ...baseComponent,
+        content: 'Votre texte ici...',
+        tag: 'p',
+        styles: {
+          ...baseComponent.styles,
+          width: '200px',
+          height: 'auto',
+          minHeight: '24px',
+          padding: '8px',
+          fontSize: '14px',
+          lineHeight: '1.5',
+          color: '#333',
+          backgroundColor: 'transparent'
+        },
+        attributes: {
+          className: 'text-paragraph'
+        }
+      };
+
+    case 'heading':
+      return {
+        ...baseComponent,
+        content: 'Titre principal',
+        tag: 'h1',
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: 'auto',
+          minHeight: '32px',
+          padding: '8px',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          lineHeight: '1.2',
+          color: '#222',
+          backgroundColor: 'transparent'
+        },
+        attributes: {
+          className: 'heading'
+        }
+      };
+
+    case 'button':
+      return {
+        ...baseComponent,
+        content: 'Cliquez ici',
+        tag: 'button',
+        styles: {
+          ...baseComponent.styles,
+          width: '120px',
+          height: '40px',
+          padding: '8px 16px',
+          fontSize: '14px',
+          fontWeight: '500',
+          color: '#fff',
+          backgroundColor: '#3b82f6',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        },
+        attributes: {
+          className: 'btn-primary',
+          type: 'button'
+        }
+      };
+
+    case 'image':
+      return {
+        ...baseComponent,
+        content: '',
+        tag: 'img',
+        styles: {
+          ...baseComponent.styles,
+          width: '200px',
+          height: '150px',
+          objectFit: 'cover',
+          borderRadius: '4px'
+        },
+        attributes: {
+          src: 'https://via.placeholder.com/400x200',
+          alt: 'Image de démonstration',
+          className: 'responsive-image'
+        }
+      };
+
+    case 'container':
+      return {
+        ...baseComponent,
+        content: '',
+        tag: 'div',
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '200px',
+          padding: '16px',
+          backgroundColor: '#f8f9fa',
+          border: '1px solid #dee2e6',
+          borderRadius: '4px'
+        },
+        attributes: {
+          className: 'container'
+        }
+      };
+
+    case 'input':
+      return {
+        ...baseComponent,
+        content: '',
+        tag: 'input',
+        styles: {
+          ...baseComponent.styles,
+          width: '200px',
+          height: '40px',
+          padding: '8px 12px',
+          fontSize: '14px',
+          border: '1px solid #d1d5db',
+          borderRadius: '4px',
+          backgroundColor: '#fff'
+        },
+        attributes: {
+          type: 'text',
+          placeholder: 'Saisir du texte...',
+          className: 'form-input'
+        }
+      };
+
+    case 'textarea':
+      return {
+        ...baseComponent,
+        content: '',
+        tag: 'textarea',
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '100px',
+          padding: '8px 12px',
+          fontSize: '14px',
+          border: '1px solid #d1d5db',
+          borderRadius: '4px',
+          backgroundColor: '#fff',
+          resize: 'both'
+        },
+        attributes: {
+          placeholder: 'Saisir du texte...',
+          className: 'form-textarea'
+        }
+      };
+
+    default:
+      return {
+        ...baseComponent,
+        content: type,
+        tag: 'div',
+        styles: {
+          ...baseComponent.styles,
+          width: '150px',
+          height: '50px',
+          padding: '8px',
+          backgroundColor: '#f3f4f6',
+          border: '1px solid #d1d5db',
+          borderRadius: '4px'
+        },
+        attributes: {
+          className: `component-${type}`
+        }
+      };
+  }
 }
 
 export function findComponentById(components: ComponentDefinition[], id: string): ComponentDefinition | null {
