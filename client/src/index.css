@@ -462,3 +462,55 @@
     touch-action: none;
   }
 }
+
+/* Touch-friendly scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .editor-panel {
+    width: 100vw !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 50 !important;
+    height: 100vh !important;
+  }
+
+  .editor-mobile-hidden {
+    display: none !important;
+  }
+
+  .component-wrapper {
+    touch-action: none;
+  }
+
+  /* Larger touch targets for mobile */
+  .resize-handle {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .editor-sidebar {
+    width: 280px !important;
+  }
+}

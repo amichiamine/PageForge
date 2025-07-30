@@ -8,6 +8,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { MultiBackend, MultiBackendOptions } from 'react-dnd-multi-backend';
+import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
 import ComponentPalette from "@/components/editor/component-palette";
@@ -99,9 +100,20 @@ export default function Editor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [undoStack, setUndoStack] = useState<Project[]>([]);
   const [redoStack, setRedoStack] = useState<Project[]>([]);
+  
+  // Mobile detection
+  const { isMobile, isTablet, isMobileOrTablet } = useIsMobile();
 
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
+
+  // Auto-hide panels on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setHideComponentPanel(true);
+      setHideRightPanel(true);
+    }
+  }, [isMobile]);
 
   const { data: project, isLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
@@ -257,9 +269,11 @@ export default function Editor() {
         backend: TouchBackend,
         options: {
           enableMouseEvents: true,
-          delayTouchStart: 200,
+          delayTouchStart: isMobileOrTablet ? 150 : 200,
           delayMouseStart: 0,
-          touchSlop: 16,
+          touchSlop: isMobileOrTablet ? 20 : 16,
+          enableTouchEvents: true,
+          enableKeyboardEvents: false,
         },
         preview: true,
         transition: {
@@ -439,7 +453,7 @@ export default function Editor() {
           <div className="flex flex-1 overflow-hidden">
             {/* Component Palette */}
             {!hideComponentPanel && (
-              <div className="w-80 bg-white border-r border-gray-200 shadow-sm overflow-y-auto">
+              <div className="w-80 md:w-72 lg:w-80 bg-white border-r border-gray-200 shadow-sm overflow-y-auto">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-gray-900">Composants</h2>
@@ -514,7 +528,7 @@ export default function Editor() {
 
             {/* Properties Panel */}
             {!hideRightPanel && (
-              <div className="w-80 bg-white border-l border-gray-200 shadow-sm overflow-y-auto">
+              <div className="w-80 md:w-72 lg:w-80 bg-white border-l border-gray-200 shadow-sm overflow-y-auto">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-gray-900">Propriétés</h2>
