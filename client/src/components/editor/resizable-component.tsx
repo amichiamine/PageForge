@@ -25,6 +25,10 @@ export default function ResizableComponent({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [resizeDirection, setResizeDirection] = useState<string>('');
+  const [currentLeft, setCurrentLeft] = useState(0);
+  const [currentTop, setCurrentTop] = useState(0);
+  const [currentWidth, setCurrentWidth] = useState(200);
+  const [currentHeight, setCurrentHeight] = useState(100);
   const elementRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -36,11 +40,6 @@ export default function ResizableComponent({
     const parsed = parseFloat(value.replace(/px|%|em|rem|pt|vh|vw/g, ''));
     return isNaN(parsed) || parsed < 0 ? defaultValue : parsed;
   };
-
-  const currentLeft = parseValue(component.styles?.left, 0);
-  const currentTop = parseValue(component.styles?.top, 0);
-  const currentWidth = parseValue(component.styles?.width, 200);
-  const currentHeight = parseValue(component.styles?.height, 100);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
@@ -313,20 +312,18 @@ export default function ResizableComponent({
     }
   }, []);
 
-  // Synchroniser les modifications de position avec le composant parent seulement si pas en train de déplacer
+  // Initialiser et synchroniser les valeurs d'état avec les styles du composant
   useEffect(() => {
-    if (!isDragging && !isResizing) {
-      const left = parseInt(component.styles?.left?.replace('px', '') || '0');
-      const top = parseInt(component.styles?.top?.replace('px', '') || '0');
-      const width = parseInt(component.styles?.width?.replace('px', '') || '100');
-      const height = parseInt(component.styles?.height?.replace('px', '') || '50');
+    const left = parseValue(component.styles?.left, 0);
+    const top = parseValue(component.styles?.top, 0);
+    const width = parseValue(component.styles?.width, 200);
+    const height = parseValue(component.styles?.height, 100);
 
-      setCurrentLeft(left);
-      setCurrentTop(top);
-      setCurrentWidth(width);
-      setCurrentHeight(height);
-    }
-  }, [component.styles?.left, component.styles?.top, component.styles?.width, component.styles?.height, isDragging, isResizing]);
+    setCurrentLeft(left);
+    setCurrentTop(top);
+    setCurrentWidth(width);
+    setCurrentHeight(height);
+  }, [component.styles?.left, component.styles?.top, component.styles?.width, component.styles?.height]);
 
   const componentStyle: React.CSSProperties = {
     position: 'absolute',
