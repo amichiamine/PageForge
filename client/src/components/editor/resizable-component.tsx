@@ -28,11 +28,17 @@ export default function ResizableComponent({
   const elementRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Obtenir les dimensions et position actuelles
-  const currentLeft = parseInt(component.styles?.left?.replace('px', '') || '0');
-  const currentTop = parseInt(component.styles?.top?.replace('px', '') || '0');
-  const currentWidth = parseInt(component.styles?.width?.replace('px', '') || '100');
-  const currentHeight = parseInt(component.styles?.height?.replace('px', '') || '50');
+  // Obtenir les dimensions et position actuelles avec gestion des valeurs auto
+  const parseValue = (value: string | undefined, defaultValue: number) => {
+    if (!value || value === 'auto' || value === 'undefined') return defaultValue;
+    const parsed = parseInt(value.replace(/px|%|em|rem/g, ''));
+    return isNaN(parsed) ? defaultValue : parsed;
+  };
+
+  const currentLeft = parseValue(component.styles?.left, 0);
+  const currentTop = parseValue(component.styles?.top, 0);
+  const currentWidth = parseValue(component.styles?.width, 100);
+  const currentHeight = parseValue(component.styles?.height, 50);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
@@ -43,20 +49,25 @@ export default function ResizableComponent({
 
       if (!isSelected) return;
 
-      const rect = elementRef.current?.getBoundingClientRect();
-      if (rect) {
+      const containerRect = containerRef.current?.getBoundingClientRect();
+      if (containerRect) {
+        // Calculer l'offset relatif au conteneur parent
+        const relativeX = e.clientX - containerRect.left;
+        const relativeY = e.clientY - containerRect.top;
+        const componentX = currentLeft;
+        const componentY = currentTop;
+        
         setIsDragging(true);
         setDragStart({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
+          x: relativeX - componentX,
+          y: relativeY - componentY
         });
       }
     }
-  }, [isSelected, onSelect]);
+  }, [isSelected, onSelect, currentLeft, currentTop]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
-      // Pas de preventDefault pour permettre le scroll si nécessaire
       e.stopPropagation();
 
       onSelect();
@@ -65,20 +76,23 @@ export default function ResizableComponent({
 
       const touch = e.touches[0];
       const rect = elementRef.current?.getBoundingClientRect();
-      if (rect && touch) {
-        // Délai court pour distinguer tap et drag
-        setTimeout(() => {
-          if (e.touches.length === 1) {
-            setIsDragging(true);
-            setDragStart({
-              x: touch.clientX - rect.left,
-              y: touch.clientY - rect.top
-            });
-          }
-        }, 100);
+      const containerRect = containerRef.current?.getBoundingClientRect();
+      
+      if (rect && touch && containerRect) {
+        // Calculer l'offset relatif au conteneur parent
+        const relativeX = touch.clientX - containerRect.left;
+        const relativeY = touch.clientY - containerRect.top;
+        const componentX = currentLeft;
+        const componentY = currentTop;
+        
+        setIsDragging(true);
+        setDragStart({
+          x: relativeX - componentX,
+          y: relativeY - componentY
+        });
       }
     }
-  }, [isSelected, onSelect]);
+  }, [isSelected, onSelect, currentLeft, currentTop]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent, direction: string) => {
     e.preventDefault();
@@ -302,10 +316,10 @@ export default function ResizableComponent({
 
   const componentStyle: React.CSSProperties = {
     position: 'absolute',
-    left: parseInt(component.styles?.left?.replace('px', '') || '0') + 'px',
-    top: parseInt(component.styles?.top?.replace('px', '') || '0') + 'px',
-    width: component.styles?.width || 'auto',
-    height: component.styles?.height || 'auto',
+    left: currentLeft + 'px',
+    top: currentTop + 'px',
+    width: currentWidth + 'px',
+    height: currentHeight + 'px',
     minWidth: '20px',
     minHeight: '20px',
     zIndex: parseInt(component.styles?.zIndex || '1000'),
@@ -316,8 +330,12 @@ export default function ResizableComponent({
     userSelect: 'none',
     boxSizing: 'border-box',
     ...component.styles,
-    // Forcer les valeurs critiques
-    position: 'absolute'
+    // Forcer les valeurs critiques pour éviter les conflits
+    position: 'absolute',
+    left: currentLeft + 'px',
+    top: currentTop + 'px',
+    width: currentWidth + 'px',
+    height: currentHeight + 'px'
   };
 
   return (

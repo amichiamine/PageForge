@@ -160,7 +160,12 @@ export default function Editor() {
   const saveMutation = useMutation({
     mutationFn: async (projectData: Project) => {
       console.log("Manual save - Saving project:", projectData.name);
-      return apiRequest("PATCH", `/api/projects/${projectData.id}`, projectData);
+      // Ensure description is never null
+      const cleanedProjectData = {
+        ...projectData,
+        description: projectData.description || ""
+      };
+      return apiRequest("PATCH", `/api/projects/${projectData.id}`, cleanedProjectData);
     },
     onSuccess: () => {
       console.log("Project saved successfully - no query invalidation to prevent sync loops");

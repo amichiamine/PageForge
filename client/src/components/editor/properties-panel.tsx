@@ -342,7 +342,172 @@ export default function PropertiesPanel({
               <Input
                 id="height"
                 type="text"
-                value={localComponent.styles?.height || 'auto'}
+                value={localComponent.styles?.height || '100px'}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Si la valeur est 'auto', la remplacer par une valeur numérique
+                  const finalValue = value === 'auto' ? '100px' : value;
+                  updateProperty('styles.height', finalValue);
+                }}
+                className="mt-1 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Z-Index */}
+          <div>
+            <Label htmlFor="zIndex" className="text-xs text-gray-600">Z-Index</Label>
+            <Input
+              id="zIndex"
+              type="number"
+              value={localComponent.styles?.zIndex || '1000'}
+              onChange={(e) => updateProperty('styles.zIndex', e.target.value)}
+              className="mt-1 text-sm"
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Couleurs et apparence */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-gray-900">Apparence</h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="backgroundColor" className="text-xs text-gray-600">Arrière-plan</Label>
+              <Input
+                id="backgroundColor"
+                type="color"
+                value={localComponent.styles?.backgroundColor || '#transparent'}
+                onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
+                className="mt-1 h-8"
+              />
+            </div>
+            <div>
+              <Label htmlFor="color" className="text-xs text-gray-600">Couleur du texte</Label>
+              <Input
+                id="color"
+                type="color"
+                value={localComponent.styles?.color || '#000000'}
+                onChange={(e) => updateProperty('styles.color', e.target.value)}
+                className="mt-1 h-8"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="border" className="text-xs text-gray-600">Bordure</Label>
+            <Input
+              id="border"
+              type="text"
+              value={localComponent.styles?.border || 'none'}
+              onChange={(e) => updateProperty('styles.border', e.target.value)}
+              className="mt-1 text-sm"
+              placeholder="ex: 1px solid #000"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="borderRadius" className="text-xs text-gray-600">Arrondi des coins</Label>
+            <Input
+              id="borderRadius"
+              type="text"
+              value={localComponent.styles?.borderRadius || '0px'}
+              onChange={(e) => updateProperty('styles.borderRadius', e.target.value)}
+              className="mt-1 text-sm"
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Typographie */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-gray-900">Typographie</h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="fontSize" className="text-xs text-gray-600">Taille</Label>
+              <Input
+                id="fontSize"
+                type="text"
+                value={localComponent.styles?.fontSize || '16px'}
+                onChange={(e) => updateProperty('styles.fontSize', e.target.value)}
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="fontWeight" className="text-xs text-gray-600">Poids</Label>
+              <Select
+                value={localComponent.styles?.fontWeight || 'normal'}
+                onValueChange={(value) => updateProperty('styles.fontWeight', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="bold">Gras</SelectItem>
+                  <SelectItem value="lighter">Léger</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="200">200</SelectItem>
+                  <SelectItem value="300">300</SelectItem>
+                  <SelectItem value="400">400</SelectItem>
+                  <SelectItem value="500">500</SelectItem>
+                  <SelectItem value="600">600</SelectItem>
+                  <SelectItem value="700">700</SelectItem>
+                  <SelectItem value="800">800</SelectItem>
+                  <SelectItem value="900">900</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="fontFamily" className="text-xs text-gray-600">Police</Label>
+            <Select
+              value={localComponent.styles?.fontFamily || 'Arial, sans-serif'}
+              onValueChange={(value) => updateProperty('styles.fontFamily', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Arial, sans-serif">Arial</SelectItem>
+                <SelectItem value="Helvetica, sans-serif">Helvetica</SelectItem>
+                <SelectItem value="'Times New Roman', serif">Times New Roman</SelectItem>
+                <SelectItem value="Georgia, serif">Georgia</SelectItem>
+                <SelectItem value="'Courier New', monospace">Courier New</SelectItem>
+                <SelectItem value="Verdana, sans-serif">Verdana</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Espacement */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-gray-900">Espacement</h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="padding" className="text-xs text-gray-600">Padding</Label>
+              <Input
+                id="padding"
+                type="text"
+                value={localComponent.styles?.padding || '0px'}
+                onChange={(e) => updateProperty('styles.padding', e.target.value)}
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="margin" className="text-xs text-gray-600">Margin</Label>
+              <Input
+                id="margin"
+                type="text"
+                value={localComponent.styles?.margin || '0px'}t || 'auto'}
                 onChange={(e) => updateProperty('styles.height', e.target.value)}
                 className="mt-1 text-sm"
               />

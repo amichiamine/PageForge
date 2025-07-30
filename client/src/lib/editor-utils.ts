@@ -2,206 +2,234 @@ import { nanoid } from "nanoid";
 import type { ComponentDefinition } from "@shared/schema";
 
 export function createComponent(type: string): ComponentDefinition {
-  const baseId = nanoid();
-
-  const baseStyles = {
-    position: 'absolute',
-    left: `50px`,
-    top: `50px`,
-    backgroundColor: 'transparent',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    padding: '16px',
-    fontSize: '14px',
-    fontFamily: 'Arial, sans-serif',
-    color: '#374151',
-    cursor: 'pointer',
-    userSelect: 'none',
-    boxSizing: 'border-box',
-    zIndex: '1000',
-    margin: '0px'
-  };
-
   const baseComponent: ComponentDefinition = {
-    id: baseId,
+    id: `component-${nanoid()}`,
     type,
     content: '',
-    styles: {
-      ...baseStyles,
-      width: '200px',
-      height: '100px'
-    },
     attributes: {},
-    children: []
+    styles: {
+      position: 'absolute',
+      left: '50px',
+      top: '50px',
+      width: '200px',
+      height: '100px',
+      backgroundColor: 'transparent',
+      color: '#000000',
+      fontSize: '16px',
+      fontFamily: 'Arial, sans-serif',
+      padding: '10px',
+      margin: '0px',
+      border: 'none',
+      borderRadius: '0px',
+      zIndex: '1000'
+    },
   };
 
   switch (type) {
-    case 'text':
-      return {
-        ...baseComponent,
-        content: 'Votre texte ici...',
-        tag: 'p',
-        styles: {
-          ...baseComponent.styles,
-          width: '200px',
-          height: 'auto',
-          minHeight: '24px',
-          padding: '8px',
-          fontSize: '14px',
-          lineHeight: '1.5',
-          color: '#333',
-          backgroundColor: 'transparent'
-        },
-        attributes: {
-          className: 'text-paragraph'
-        }
-      };
-
     case 'heading':
       return {
         ...baseComponent,
-        content: 'Titre principal',
         tag: 'h1',
+        content: 'Titre principal',
+        attributes: { className: 'heading' },
         styles: {
           ...baseComponent.styles,
-          width: '300px',
-          height: 'auto',
-          minHeight: '32px',
-          padding: '8px',
           fontSize: '24px',
           fontWeight: 'bold',
-          lineHeight: '1.2',
-          color: '#222',
-          backgroundColor: 'transparent'
+          color: '#333333',
+          height: '60px',
+          width: '300px',
         },
-        attributes: {
-          className: 'heading'
-        }
+      };
+
+    case 'paragraph':
+      return {
+        ...baseComponent,
+        tag: 'p',
+        content: 'Votre texte ici...',
+        attributes: { className: 'text-paragraph' },
+        styles: {
+          ...baseComponent.styles,
+          fontSize: '16px',
+          lineHeight: '1.5',
+          color: '#666666',
+          height: '80px',
+          width: '400px',
+        },
       };
 
     case 'button':
       return {
         ...baseComponent,
-        content: 'Cliquez ici',
         tag: 'button',
+        content: 'Cliquez ici',
+        attributes: { className: 'btn-primary', type: 'button' },
         styles: {
           ...baseComponent.styles,
-          width: '120px',
-          height: '40px',
-          padding: '8px 16px',
-          fontSize: '14px',
-          fontWeight: '500',
-          color: '#fff',
-          backgroundColor: '#3b82f6',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer'
+          backgroundColor: '#007bff',
+          color: '#ffffff',
+          border: '1px solid #007bff',
+          borderRadius: '4px',
+          padding: '10px 20px',
+          cursor: 'pointer',
+          width: '150px',
+          height: '50px',
         },
-        attributes: {
-          className: 'btn-primary',
-          type: 'button'
-        }
       };
 
     case 'image':
       return {
         ...baseComponent,
-        content: '',
         tag: 'img',
-        styles: {
-          ...baseComponent.styles,
-          width: '200px',
-          height: '150px',
-          objectFit: 'cover',
-          borderRadius: '4px'
-        },
         attributes: {
           src: 'https://via.placeholder.com/400x200',
           alt: 'Image de démonstration',
-          className: 'responsive-image'
-        }
+          className: 'responsive-image',
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '200px',
+          objectFit: 'cover',
+          border: '1px solid #ddd',
+        },
       };
 
     case 'container':
       return {
         ...baseComponent,
-        content: '',
         tag: 'div',
+        attributes: { className: 'container' },
         styles: {
           ...baseComponent.styles,
-          width: '300px',
-          height: '200px',
-          padding: '16px',
           backgroundColor: '#f8f9fa',
           border: '1px solid #dee2e6',
-          borderRadius: '4px'
+          borderRadius: '4px',
+          padding: '20px',
+          width: '300px',
+          height: '200px',
         },
-        attributes: {
-          className: 'container'
-        }
+      };
+
+    case 'list':
+      return {
+        ...baseComponent,
+        tag: 'ul',
+        content: '',
+        attributes: { className: 'list-unstyled' },
+        styles: {
+          ...baseComponent.styles,
+          listStyle: 'none',
+          padding: '10px',
+          height: '120px',
+          width: '250px',
+        },
+        children: [
+          {
+            id: `component-${nanoid()}`,
+            type: 'list-item',
+            tag: 'li',
+            content: 'Élément de liste 1',
+            attributes: {},
+            styles: { padding: '5px 0' },
+          },
+          {
+            id: `component-${nanoid()}`,
+            type: 'list-item',
+            tag: 'li',
+            content: 'Élément de liste 2',
+            attributes: {},
+            styles: { padding: '5px 0' },
+          },
+        ],
+      };
+
+    case 'form':
+      return {
+        ...baseComponent,
+        tag: 'form',
+        attributes: { className: 'form' },
+        styles: {
+          ...baseComponent.styles,
+          backgroundColor: '#ffffff',
+          border: '1px solid #cccccc',
+          borderRadius: '4px',
+          padding: '20px',
+          width: '350px',
+          height: '250px',
+        },
+        children: [
+          {
+            id: `component-${nanoid()}`,
+            type: 'input',
+            tag: 'input',
+            attributes: { type: 'text', placeholder: 'Votre nom', className: 'form-input' },
+            styles: {
+              width: '280px',
+              height: '40px',
+              padding: '10px',
+              marginBottom: '10px',
+              border: '1px solid #dddddd',
+              borderRadius: '4px',
+            },
+          },
+          {
+            id: `component-${nanoid()}`,
+            type: 'textarea',
+            tag: 'textarea',
+            attributes: { placeholder: 'Votre message', className: 'form-textarea' },
+            styles: {
+              width: '280px',
+              height: '100px',
+              padding: '10px',
+              marginBottom: '10px',
+              border: '1px solid #dddddd',
+              borderRadius: '4px',
+            },
+          },
+        ],
       };
 
     case 'input':
       return {
         ...baseComponent,
-        content: '',
         tag: 'input',
+        attributes: { type: 'text', placeholder: 'Tapez ici...', className: 'form-input' },
         styles: {
           ...baseComponent.styles,
-          width: '200px',
-          height: '40px',
-          padding: '8px 12px',
-          fontSize: '14px',
-          border: '1px solid #d1d5db',
+          padding: '10px',
+          border: '1px solid #dddddd',
           borderRadius: '4px',
-          backgroundColor: '#fff'
+          fontSize: '16px',
+          width: '250px',
+          height: '40px',
         },
-        attributes: {
-          type: 'text',
-          placeholder: 'Saisir du texte...',
-          className: 'form-input'
-        }
       };
 
     case 'textarea':
       return {
         ...baseComponent,
-        content: '',
         tag: 'textarea',
+        content: 'Contenu du composant',
+        attributes: { placeholder: 'Tapez votre texte ici...', className: 'form-textarea' },
         styles: {
           ...baseComponent.styles,
-          width: '300px',
-          height: '100px',
-          padding: '8px 12px',
-          fontSize: '14px',
-          border: '1px solid #d1d5db',
+          padding: '10px',
+          border: '1px solid #dddddd',
           borderRadius: '4px',
-          backgroundColor: '#fff',
-          resize: 'both'
+          fontSize: '16px',
+          resize: 'vertical',
+          width: '300px',
+          height: '120px',
         },
-        attributes: {
-          placeholder: 'Saisir du texte...',
-          className: 'form-textarea'
-        }
       };
 
     default:
       return {
         ...baseComponent,
-        content: type,
         tag: 'div',
-        styles: {
-          ...baseComponent.styles,
-          width: '150px',
-          height: '50px',
-          padding: '8px',
-          backgroundColor: '#f3f4f6',
-          border: '1px solid #d1d5db',
-          borderRadius: '4px'
-        },
-        attributes: {
-          className: `component-${type}`
-        }
+        content: 'Nouveau composant',
+        attributes: { className: '' },
       };
   }
 }
