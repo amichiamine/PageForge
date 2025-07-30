@@ -36,12 +36,11 @@ const commonStyles: StyleProperty[] = [
   { name: "color", label: "Couleur du texte", type: "color" },
   { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
   { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
-  { name: "textAlign", label: "Alignement du texte", type: "select", options: ["left", "center", "right", "justify"] },
-  { name: "verticalAlign", label: "Alignement vertical", type: "select", options: ["top", "center", "middle", "bottom", "baseline", "text-top", "text-bottom", "super", "sub"] },
+  { name: "textAlign", label: "Alignement", type: "select", options: ["left", "center", "right", "justify"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
-  { name: "border", label: "Bordure", type: "select", options: ["none", "1px solid #000", "2px solid #000", "1px dashed #000", "2px dashed #000", "1px dotted #000", "2px dotted #000"] },
+  { name: "border", label: "Bordure", type: "text" },
   { name: "boxShadow", label: "Ombre", type: "text" },
 ];
 
@@ -97,7 +96,7 @@ export default function PropertiesPanel({
   };
 
   const handleDuplicate = () => {
-    if (!localComponent || !project?.content?.pages?.[0]?.content?.structure) return;
+    if (!localComponent) return;
     
     const duplicatedComponent: ComponentDefinition = {
       ...localComponent,
@@ -108,28 +107,7 @@ export default function PropertiesPanel({
       })) || []
     };
     
-    // Add the duplicated component to the structure
-    const currentStructure = project.content.pages[0].content.structure;
-    const updatedStructure = [...currentStructure, duplicatedComponent];
-    
-    const updatedProject = {
-      ...project,
-      content: {
-        ...project.content,
-        pages: project.content.pages.map((page, index) => 
-          index === 0 ? {
-            ...page,
-            content: {
-              ...page.content,
-              structure: updatedStructure
-            }
-          } : page
-        )
-      }
-    };
-    
-    // Cast to any to avoid type error, the component will handle the project update correctly
-    onComponentUpdate(updatedProject as any);
+    onComponentUpdate(duplicatedComponent);
   };
 
   const handleDelete = () => {
@@ -172,8 +150,8 @@ export default function PropertiesPanel({
       {/* Component List */}
       <div className="p-4 border-b border-gray-200">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Composants ({allComponents.length})</h3>
-        <div className="space-y-1 max-h-64 overflow-y-auto">
-          {allComponents.map((comp, index) => (
+        <div className="space-y-1 max-h-32 overflow-y-auto">
+          {allComponents.map((comp) => (
             <div
               key={comp.id}
               className={`p-2 rounded cursor-pointer text-xs flex items-center justify-between hover:bg-gray-100 ${
@@ -181,82 +159,10 @@ export default function PropertiesPanel({
               }`}
               onClick={() => onComponentSelect?.(comp)}
             >
-              <div className="flex items-center flex-1 min-w-0">
-                <div className="flex flex-col mr-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0"
-                    disabled={index === 0}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Move component up
-                      if (project?.content?.pages?.[0]?.content?.structure && index > 0) {
-                        const structure = [...project.content.pages[0].content.structure];
-                        [structure[index], structure[index - 1]] = [structure[index - 1], structure[index]];
-                        
-                        const updatedProject = {
-                          ...project,
-                          content: {
-                            ...project.content,
-                            pages: project.content.pages.map((page, pageIndex) => 
-                              pageIndex === 0 ? {
-                                ...page,
-                                content: {
-                                  ...page.content,
-                                  structure
-                                }
-                              } : page
-                            )
-                          }
-                        };
-                        
-                        onComponentUpdate(updatedProject as any);
-                      }
-                    }}
-                  >
-                    ↑
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0"
-                    disabled={index === allComponents.length - 1}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Move component down
-                      if (project?.content?.pages?.[0]?.content?.structure && index < allComponents.length - 1) {
-                        const structure = [...project.content.pages[0].content.structure];
-                        [structure[index], structure[index + 1]] = [structure[index + 1], structure[index]];
-                        
-                        const updatedProject = {
-                          ...project,
-                          content: {
-                            ...project.content,
-                            pages: project.content.pages.map((page, pageIndex) => 
-                              pageIndex === 0 ? {
-                                ...page,
-                                content: {
-                                  ...page.content,
-                                  structure
-                                }
-                              } : page
-                            )
-                          }
-                        };
-                        
-                        onComponentUpdate(updatedProject as any);
-                      }
-                    }}
-                  >
-                    ↓
-                  </Button>
-                </div>
-                <span className="truncate">
-                  <Badge variant="outline" className="mr-2 text-xs">{comp.type}</Badge>
-                  {comp.content?.slice(0, 15) || `${comp.type} component`}
-                </span>
-              </div>
+              <span className="truncate">
+                <Badge variant="outline" className="mr-2 text-xs">{comp.type}</Badge>
+                {comp.content?.slice(0, 20) || `${comp.type} component`}
+              </span>
               {comp.id === component?.id && (
                 <Button
                   variant="ghost"
@@ -375,6 +281,113 @@ export default function PropertiesPanel({
                     <>
                       <div>
                         <Label htmlFor="src">URL de l'image</Label>
+                        <Input
+                          id="src"
+                          value={getPropertyValue('attributes.src')}
+                          onChange={(e) => updateProperty('attributes.src', e.target.value)}
+                          placeholder="https://example.com/image.jpg"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="alt">Texte alternatif</Label>
+                        <Input
+                          id="alt"
+                          value={getPropertyValue('attributes.alt')}
+                          onChange={(e) => updateProperty('attributes.alt', e.target.value)}
+                          placeholder="Description de l'image"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Button specific properties */}
+                  {localComponent.type === "button" && (
+                    <>
+                      <div>
+                        <Label htmlFor="buttonType">Type de bouton</Label>
+                        <Select
+                          value={getPropertyValue('attributes.type') || 'button'}
+                          onValueChange={(value) => updateProperty('attributes.type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="button">Bouton normal</SelectItem>
+                            <SelectItem value="submit">Bouton de soumission</SelectItem>
+                            <SelectItem value="reset">Bouton de réinitialisation</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="required"
+                          checked={getPropertyValue('attributes.required') || false}
+                          onChange={(e) => updateProperty('attributes.required', e.target.checked)}
+                          className="rounded"
+                        />
+                        <Label htmlFor="required">Champ obligatoire</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="disabled"
+                          checked={getPropertyValue('attributes.disabled') || false}
+                          onChange={(e) => updateProperty('attributes.disabled', e.target.checked)}
+                          className="rounded"
+                        />
+                        <Label htmlFor="disabled">Désactivé</Label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Link specific properties */}
+                  {localComponent.type === "link" && (
+                    <>
+                      <div>
+                        <Label htmlFor="href">URL du lien</Label>
+                        <Input
+                          id="href"
+                          value={getPropertyValue('attributes.href')}
+                          onChange={(e) => updateProperty('attributes.href', e.target.value)}
+                          placeholder="https://example.com ou /page"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="target">Cible du lien</Label>
+                        <Select
+                          value={getPropertyValue('attributes.target') || '_self'}
+                          onValueChange={(value) => updateProperty('attributes.target', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="_self">Même onglet</SelectItem>
+                            <SelectItem value="_blank">Nouvel onglet</SelectItem>
+                            <SelectItem value="_parent">Fenêtre parent</SelectItem>
+                            <SelectItem value="_top">Fenêtre principale</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="title">Titre du lien (tooltip)</Label>
+                        <Input
+                          id="title"
+                          value={getPropertyValue('attributes.title')}
+                          onChange={(e) => updateProperty('attributes.title', e.target.value)}
+                          placeholder="Description qui apparaît au survol"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Enhanced Image properties with file browser */}
+                  {localComponent.type === "image" && (
+                    <>
+                      <div>
+                        <Label htmlFor="src">URL de l'image</Label>
                         <div className="flex gap-2">
                           <Input
                             id="src"
@@ -397,19 +410,6 @@ export default function PropertiesPanel({
                                   reader.onload = (e) => {
                                     const result = e.target?.result as string;
                                     updateProperty('attributes.src', result);
-                                    
-                                    // Force component re-render
-                                    if (localComponent) {
-                                      const updatedComponent = {
-                                        ...localComponent,
-                                        attributes: {
-                                          ...localComponent.attributes,
-                                          src: result
-                                        }
-                                      };
-                                      setLocalComponent(updatedComponent);
-                                      onComponentUpdate(updatedComponent);
-                                    }
                                   };
                                   reader.readAsDataURL(file);
                                 }
@@ -436,7 +436,7 @@ export default function PropertiesPanel({
                           id="width"
                           value={getPropertyValue('attributes.width')}
                           onChange={(e) => updateProperty('attributes.width', e.target.value)}
-                          placeholder="400"
+                          placeholder="300px, 50%, auto"
                         />
                       </div>
                       <div>
@@ -445,109 +445,13 @@ export default function PropertiesPanel({
                           id="height"
                           value={getPropertyValue('attributes.height')}
                           onChange={(e) => updateProperty('attributes.height', e.target.value)}
-                          placeholder="300"
+                          placeholder="200px, 50%, auto"
                         />
                       </div>
                     </>
                   )}
 
-                  {/* Link specific properties */}
-                  {localComponent.type === "link" && (
-                    <>
-                      <div>
-                        <Label htmlFor="href">URL du lien</Label>
-                        <Input
-                          id="href"
-                          value={getPropertyValue('attributes.href')}
-                          onChange={(e) => updateProperty('attributes.href', e.target.value)}
-                          placeholder="https://example.com"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="target">Cible</Label>
-                        <Select
-                          value={getPropertyValue('attributes.target')}
-                          onValueChange={(value) => updateProperty('attributes.target', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choisir..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="_self">Même fenêtre</SelectItem>
-                            <SelectItem value="_blank">Nouvelle fenêtre</SelectItem>
-                            <SelectItem value="_parent">Fenêtre parent</SelectItem>
-                            <SelectItem value="_top">Fenêtre principale</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Button specific properties */}
-                  {localComponent.type === "button" && (
-                    <div>
-                      <Label htmlFor="buttonType">Type de bouton</Label>
-                      <Select
-                        value={getPropertyValue('attributes.type')}
-                        onValueChange={(value) => updateProperty('attributes.type', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="button">Bouton</SelectItem>
-                          <SelectItem value="submit">Envoyer</SelectItem>
-                          <SelectItem value="reset">Réinitialiser</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Form input specific properties */}
-                  {localComponent.type === "input" && (
-                    <>
-                      <div>
-                        <Label htmlFor="inputType">Type d'input</Label>
-                        <Select
-                          value={getPropertyValue('attributes.type')}
-                          onValueChange={(value) => updateProperty('attributes.type', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="text">Texte</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="password">Mot de passe</SelectItem>
-                            <SelectItem value="number">Nombre</SelectItem>
-                            <SelectItem value="tel">Téléphone</SelectItem>
-                            <SelectItem value="url">URL</SelectItem>
-                            <SelectItem value="date">Date</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="placeholder">Placeholder</Label>
-                        <Input
-                          id="placeholder"
-                          value={getPropertyValue('attributes.placeholder')}
-                          onChange={(e) => updateProperty('attributes.placeholder', e.target.value)}
-                          placeholder="Texte d'aide"
-                        />
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="required"
-                          checked={getPropertyValue('attributes.required') || false}
-                          onChange={(e) => updateProperty('attributes.required', e.target.checked)}
-                        />
-                        <Label htmlFor="required">Obligatoire</Label>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Carousel specific properties */}
+                  {/* Enhanced Carousel properties */}
                   {localComponent.type === "carousel" && (
                     <>
                       <div>
@@ -557,7 +461,6 @@ export default function PropertiesPanel({
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              // Add new slide functionality
                               const newSlide = {
                                 id: `slide-${Date.now()}`,
                                 type: "carousel-item",
@@ -566,7 +469,8 @@ export default function PropertiesPanel({
                                 styles: {
                                   display: "none",
                                   textAlign: "center",
-                                  padding: "60px 20px"
+                                  padding: "60px 20px",
+                                  minHeight: "300px"
                                 },
                                 attributes: { className: "carousel-item" },
                                 children: []
@@ -605,8 +509,6 @@ export default function PropertiesPanel({
                                         content: "",
                                         styles: {
                                           display: index === 0 ? "block" : "none",
-                                          textAlign: "center",
-                                          padding: "0",
                                           backgroundImage: `url(${result})`,
                                           backgroundSize: "cover",
                                           backgroundPosition: "center",
@@ -635,80 +537,22 @@ export default function PropertiesPanel({
                           >
                             Ajouter images
                           </Button>
-                          
-                          {/* Add individual image browser for existing slides */}
-                          {localComponent.children?.filter(child => child.type === "carousel-item").map((slide, index) => (
-                            <div key={slide.id} className="flex items-center gap-2 mt-2">
-                              <span className="text-xs">Slide {index + 1}:</span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  const input = document.createElement('input');
-                                  input.type = 'file';
-                                  input.accept = 'image/*';
-                                  input.onchange = (e) => {
-                                    const file = (e.target as HTMLInputElement).files?.[0];
-                                    if (file) {
-                                      const reader = new FileReader();
-                                      reader.onload = (e) => {
-                                        const result = e.target?.result as string;
-                                        
-                                        const updatedChildren = localComponent.children?.map(child => 
-                                          child.id === slide.id ? {
-                                            ...child,
-                                            tag: "img",
-                                            attributes: {
-                                              ...child.attributes,
-                                              src: result,
-                                              alt: `Slide ${index + 1}`
-                                            },
-                                            styles: {
-                                              ...child.styles,
-                                              width: "100%",
-                                              height: "300px",
-                                              objectFit: "cover"
-                                            }
-                                          } : child
-                                        ) || [];
-                                        
-                                        const updatedComponent = {
-                                          ...localComponent,
-                                          children: updatedChildren
-                                        };
-                                        
-                                        setLocalComponent(updatedComponent);
-                                        onComponentUpdate(updatedComponent);
-                                      };
-                                      reader.readAsDataURL(file);
-                                    }
-                                  };
-                                  input.click();
-                                }}
-                              >
-                                Parcourir
-                              </Button>
-                            </div>
-                          ))}
                         </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="autoPlay">Lecture automatique</Label>
-                        <Select
-                          value={getPropertyValue('attributes.data-autoplay') || "false"}
-                          onValueChange={(value) => updateProperty('attributes.data-autoplay', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="false">Non</SelectItem>
-                            <SelectItem value="true">Oui</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
                     </>
                   )}
+
+                  {/* Visibility toggle */}
+                  <div className="flex items-center space-x-2 pt-2 border-t">
+                    <input
+                      type="checkbox"
+                      id="visible"
+                      checked={isVisible}
+                      onChange={toggleVisibility}
+                      className="rounded"
+                    />
+                    <Label htmlFor="visible">Composant visible</Label>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -729,45 +573,7 @@ export default function PropertiesPanel({
                       {style.type === "select" ? (
                         <Select
                           value={getPropertyValue(`styles.${style.name}`)}
-                          onValueChange={(value) => {
-                            // Handle vertical alignment properly
-                            if (style.name === "verticalAlign") {
-                              const currentDisplay = getPropertyValue('styles.display') || 'block';
-                              
-                              // For flex containers, use alignItems instead of verticalAlign
-                              if (currentDisplay === "flex") {
-                                if (value === "center" || value === "middle") {
-                                  updateProperty(`styles.alignItems`, "center");
-                                } else if (value === "top") {
-                                  updateProperty(`styles.alignItems`, "flex-start");
-                                } else if (value === "bottom") {
-                                  updateProperty(`styles.alignItems`, "flex-end");
-                                }
-                                // Don't set verticalAlign for flex items
-                                return;
-                              }
-                              // For grid containers, use align-items
-                              else if (currentDisplay === "grid") {
-                                if (value === "center" || value === "middle") {
-                                  updateProperty(`styles.alignItems`, "center");
-                                } else if (value === "top") {
-                                  updateProperty(`styles.alignItems`, "start");
-                                } else if (value === "bottom") {
-                                  updateProperty(`styles.alignItems`, "end");
-                                }
-                                // Don't set verticalAlign for grid items
-                                return;
-                              }
-                              // For inline/table-cell elements, use standard vertical-align
-                              else {
-                                updateProperty(`styles.${style.name}`, value);
-                                // Remove any problematic line-height that was set
-                                updateProperty(`styles.lineHeight`, "");
-                              }
-                            } else {
-                              updateProperty(`styles.${style.name}`, value);
-                            }
-                          }}
+                          onValueChange={(value) => updateProperty(`styles.${style.name}`, value)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Sélectionner..." />

@@ -79,8 +79,7 @@ function DroppableComponent({
   drag(drop(ref));
 
   const renderComponent = () => {
-    const Tag = component.tag as keyof JSX.IntrinsicElements || 'div';
-    const style: React.CSSProperties = {
+    const baseStyle: React.CSSProperties = {
       ...component.styles,
       opacity: isDragging ? 0.5 : 1,
       position: 'relative',
@@ -93,16 +92,156 @@ function DroppableComponent({
     const attributes = component.attributes || {};
     const { className, ...otherAttributes } = attributes;
 
+    const renderSpecializedComponent = () => {
+      switch (component.type) {
+        case 'image':
+          return (
+            <div style={baseStyle} className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer", className)}>
+              {attributes.src ? (
+                <img 
+                  src={attributes.src} 
+                  alt={attributes.alt || 'Image'} 
+                  style={{
+                    width: component.styles?.width || '100%',
+                    height: component.styles?.height || 'auto',
+                    objectFit: 'cover',
+                    display: 'block'
+                  }}
+                  {...otherAttributes}
+                />
+              ) : (
+                <div 
+                  style={{
+                    width: component.styles?.width || '200px',
+                    height: component.styles?.height || '150px',
+                    backgroundColor: '#f5f5f5',
+                    border: '2px dashed #ccc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    color: '#666'
+                  }}
+                >
+                  Cliquez pour ajouter une image
+                </div>
+              )}
+            </div>
+          );
+
+        case 'carousel':
+          const activeSlideIndex = 0; // Pour l'éditeur, montrer toujours le premier slide
+          const slides = component.children?.filter(child => child.type === 'carousel-item') || [];
+          
+          return (
+            <div style={baseStyle} className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer carousel", className)}>
+              <div style={{ position: 'relative', overflow: 'hidden', minHeight: '200px' }}>
+                {slides.length > 0 ? (
+                  slides.map((slide, index) => (
+                    <div
+                      key={slide.id}
+                      style={{
+                        ...slide.styles,
+                        display: index === activeSlideIndex ? 'block' : 'none',
+                        minHeight: '200px'
+                      }}
+                      className={slide.attributes?.className}
+                    >
+                      {slide.content && <span dangerouslySetInnerHTML={{ __html: slide.content }} />}
+                    </div>
+                  ))
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '200px',
+                    backgroundColor: '#f5f5f5',
+                    border: '2px dashed #ccc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    color: '#666'
+                  }}>
+                    Carrousel vide - Ajoutez des slides via le panneau de propriétés
+                  </div>
+                )}
+                
+                {/* Carousel indicators */}
+                {slides.length > 1 && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: '5px'
+                  }}>
+                    {slides.map((_, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          backgroundColor: index === activeSlideIndex ? '#007bff' : '#ccc'
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+
+        case 'button':
+          const Tag = component.tag as keyof JSX.IntrinsicElements || 'button';
+          return (
+            <Tag 
+              style={baseStyle} 
+              className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer", className)}
+              {...otherAttributes}
+            >
+              {component.content || 'Bouton'}
+            </Tag>
+          );
+
+        case 'link':
+          return (
+            <a 
+              href={attributes.href || '#'} 
+              target={attributes.target || '_self'}
+              style={baseStyle} 
+              className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer", className)}
+              {...otherAttributes}
+              onClick={(e) => e.preventDefault()} // Prevent navigation in editor
+            >
+              {component.content || 'Lien'}
+            </a>
+          );
+
+        default:
+          const DefaultTag = component.tag as keyof JSX.IntrinsicElements || 'div';
+          return (
+            <DefaultTag 
+              style={baseStyle} 
+              className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer", className)}
+              {...otherAttributes}
+            >
+              {component.content && (
+                <span dangerouslySetInnerHTML={{ __html: component.content }} />
+              )}
+            </DefaultTag>
+          );
+      }
+    };
+
     return (
       <div
         ref={ref}
-        style={style}
-        className={cn("group hover:outline-2 hover:outline-blue-400 hover:outline-dashed cursor-pointer", className)}
         onClick={(e) => {
           e.stopPropagation();
           onSelect(component);
         }}
-        {...otherAttributes}
       >
         {/* Component controls */}
         {isSelected && (
@@ -122,13 +261,11 @@ function DroppableComponent({
           </div>
         )}
 
-        {/* Render content */}
-        {component.content && (
-          <span dangerouslySetInnerHTML={{ __html: component.content }} />
-        )}
+        {/* Render specialized component */}
+        {renderSpecializedComponent()}
 
-        {/* Render children */}
-        {component.children && component.children.length > 0 && (
+        {/* Render children for container components */}
+        {component.children && component.children.length > 0 && component.type !== 'carousel' && (
           <div className="pl-4 space-y-2">
             {component.children.map((child) => (
               <DroppableComponent
