@@ -149,7 +149,6 @@ export default function Editor() {
   // Synchronize server project with local state
   useEffect(() => {
     if (project && (!localProject || project.id !== localProject.id)) {
-      console.log("Initial sync - Loading server project to local state:", project.name);
       setLocalProject(project);
       setHasUnsavedChanges(false);
       setUndoStack([]);
@@ -159,7 +158,6 @@ export default function Editor() {
 
   const saveMutation = useMutation({
     mutationFn: async (projectData: Project) => {
-      console.log("Manual save - Saving project:", projectData.name);
       // Ensure description is never null and clean up the data
       const cleanedProjectData = {
         ...projectData,
@@ -173,7 +171,6 @@ export default function Editor() {
       return apiRequest("PATCH", `/api/projects/${projectData.id}`, cleanedProjectData);
     },
     onSuccess: () => {
-      console.log("Project saved successfully - no query invalidation to prevent sync loops");
       setHasUnsavedChanges(false);
       toast({
         title: "Projet sauvegardé",
@@ -182,7 +179,6 @@ export default function Editor() {
 
       // Refresh queries after successful save
       setTimeout(() => {
-        console.log("Manual save complete - refreshing queries");
         queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
       }, 100);
     },
@@ -200,7 +196,6 @@ export default function Editor() {
   const handleSave = useCallback(async () => {
     if (!localProject) return;
 
-    console.log("Save button clicked, localProject:", localProject.name);
     await saveMutation.mutateAsync(localProject);
   }, [localProject, saveMutation]);
 
@@ -209,7 +204,6 @@ export default function Editor() {
     if (!autoSaveEnabled || !hasUnsavedChanges || !localProject) return;
 
     const autoSaveTimer = setTimeout(() => {
-      console.log("Auto-save triggered for project:", localProject.name);
       saveMutation.mutate(localProject);
     }, 3000); // Auto-save after 3 seconds of inactivity
 
@@ -217,8 +211,6 @@ export default function Editor() {
   }, [localProject, hasUnsavedChanges, autoSaveEnabled, saveMutation]);
 
   const handleComponentUpdate = useCallback((updatedProject: Project) => {
-    console.log("handleComponentUpdate called with:", updatedProject.name);
-
     // Add current state to undo stack
     if (localProject) {
       setUndoStack(prev => [...prev.slice(-19), localProject]); // Keep last 20 states
@@ -335,20 +327,7 @@ export default function Editor() {
           />
         )}
 
-        {/* Sidebar Toggle */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="fixed top-4 left-4 z-50 bg-white/90 backdrop-blur-sm shadow-lg rounded-xl border-gray-200"
-          onClick={() => {
-            console.log("Sidebar toggle clicked - current hideMainSidebar:", hideMainSidebar);
-            const newValue = !hideMainSidebar;
-            console.log("Sidebar toggle - setting hideMainSidebar to:", newValue);
-            setHideMainSidebar(newValue);
-          }}
-        >
-          {hideMainSidebar ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-        </Button>
+        
 
         {/* Enhanced Header */}
         <div className="flex flex-col w-full">
@@ -627,27 +606,47 @@ export default function Editor() {
           </div>
 
           {/* Panel Toggle Buttons */}
-          <div className="fixed bottom-6 left-6 flex space-x-2">
-            {hideComponentPanel && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setHideComponentPanel(false)}
-                className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
-              >
-                <PanelLeftOpen className="h-4 w-4" />
-              </Button>
-            )}
-            {hideRightPanel && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setHideRightPanel(false)}
-                className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
-              >
-                <PanelRightOpen className="h-4 w-4" />
-              </Button>
-            )}
+          <div className="fixed bottom-6 left-6 flex flex-col space-y-2">
+            {/* Main Sidebar Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                console.log("Main sidebar toggle clicked - current hideMainSidebar:", hideMainSidebar);
+                const newValue = !hideMainSidebar;
+                console.log("Main sidebar toggle - setting hideMainSidebar to:", newValue);
+                setHideMainSidebar(newValue);
+              }}
+              className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl border-gray-200"
+              title={hideMainSidebar ? "Afficher la navigation" : "Masquer la navigation"}
+            >
+              {hideMainSidebar ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </Button>
+
+            <div className="flex space-x-2">
+              {hideComponentPanel && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHideComponentPanel(false)}
+                  className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
+                  title="Afficher les composants"
+                >
+                  <PanelLeftOpen className="h-4 w-4" />
+                </Button>
+              )}
+              {hideRightPanel && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHideRightPanel(false)}
+                  className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
+                  title="Afficher les propriétés"
+                >
+                  <PanelRightOpen className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

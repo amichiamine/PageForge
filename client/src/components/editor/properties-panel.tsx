@@ -27,16 +27,17 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [localComponent, setLocalComponent] = useState<ComponentDefinition | null>(null);
 
-  // Synchroniser le composant local avec le prop
+  // Effect pour détecter les changements de composant
   useEffect(() => {
-    console.log('PropertiesPanel - component prop changed:', component?.id, component?.type);
-    setLocalComponent(component);
+    if (component) {
+      setLocalComponent(component);
+    } else {
+      setLocalComponent(null);
+    }
   }, [component]);
 
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
-
-    console.log(`PropertiesPanel - Updating property ${path} to:`, value);
 
     const updatedComponent = { ...localComponent };
 
@@ -56,7 +57,6 @@ export default function PropertiesPanel({
       (updatedComponent as any)[path] = value;
     }
 
-    console.log('PropertiesPanel - Updated component:', updatedComponent);
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
   };
@@ -427,7 +427,7 @@ export default function PropertiesPanel({
         {/* Couleurs et apparence */}
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-gray-900">Apparence</h3>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="backgroundColor" className="text-xs text-gray-600">Arrière-plan</Label>
@@ -480,7 +480,7 @@ export default function PropertiesPanel({
         {/* Typographie */}
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-gray-900">Typographie</h3>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="fontSize" className="text-xs text-gray-600">Taille</Label>
@@ -545,7 +545,7 @@ export default function PropertiesPanel({
         {/* Espacement */}
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-gray-900">Espacement</h3>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="padding" className="text-xs text-gray-600">Padding</Label>
@@ -845,7 +845,8 @@ export default function PropertiesPanel({
               <div>
                 <Label htmlFor="buttonType" className="text-xs text-gray-600">Type de bouton</Label>
                 <Select
-                  value={localComponent.attributes?.type || 'button'}
+                  value={local```text
+Component.attributes?.type || 'button'}
                   onValueChange={(value) => updateProperty('attributes.type', value)}
                 >
                   <SelectTrigger className="mt-1">
