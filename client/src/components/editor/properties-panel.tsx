@@ -1,747 +1,563 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Trash2, Copy, Eye, EyeOff } from "lucide-react";
-import type { ComponentDefinition } from "@shared/schema";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, Copy, Eye, EyeOff, Lock, Unlock } from 'lucide-react';
+import type { ComponentDefinition, Project } from '@shared/schema';
 
 interface PropertiesPanelProps {
   component: ComponentDefinition | null;
   onComponentUpdate: (component: ComponentDefinition) => void;
-  project?: { content?: { pages?: Array<{ content: { structure: ComponentDefinition[] } }> } };
-  onComponentSelect?: (component: ComponentDefinition) => void;
-  onComponentDelete?: (componentId: string) => void;
+  project: Project;
+  onComponentSelect: (component: ComponentDefinition | null) => void;
+  onComponentDelete: (componentId: string) => void;
 }
 
-interface StyleProperty {
-  name: string;
-  label: string;
-  type: "text" | "select" | "color" | "number";
-  options?: string[];
-  unit?: string;
-}
-
-const commonStyles: StyleProperty[] = [
-  { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
-  { name: "left", label: "Position X (gauche)", type: "text", unit: "px, %, auto" },
-  { name: "top", label: "Position Y (haut)", type: "text", unit: "px, %, auto" },
-  { name: "width", label: "Largeur", type: "text", unit: "px, %, auto" },
-  { name: "height", label: "Hauteur", type: "text", unit: "px, %, auto" },
-  { name: "zIndex", label: "Ordre d'affichage (Z)", type: "number" },
-  { name: "margin", label: "Marge externe", type: "text", unit: "px, rem" },
-  { name: "padding", label: "Espacement interne", type: "text", unit: "px, rem" },
-  { name: "backgroundColor", label: "Couleur de fond", type: "color" },
-  { name: "color", label: "Couleur du texte", type: "color" },
-  { name: "fontSize", label: "Taille de police", type: "text", unit: "px, rem, em" },
-  { name: "fontWeight", label: "Graisse", type: "select", options: ["normal", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"] },
-  { name: "lineHeight", label: "Hauteur de ligne", type: "text", unit: "px, rem, em, number" },
-  { name: "textAlign", label: "Alignement du texte", type: "select", options: ["left", "center", "right", "justify"] },
-  { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
-  { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
-  { name: "border", label: "Bordure", type: "text" },
-  { name: "boxShadow", label: "Ombre portée", type: "text" },
-];
-
-export default function PropertiesPanel({ 
-  component, 
-  onComponentUpdate, 
-  project, 
-  onComponentSelect, 
-  onComponentDelete 
+export default function PropertiesPanel({
+  component,
+  onComponentUpdate,
+  project,
+  onComponentSelect,
+  onComponentDelete
 }: PropertiesPanelProps) {
   const [localComponent, setLocalComponent] = useState<ComponentDefinition | null>(null);
-  const [isVisible, setIsVisible] = useState(true);
 
+  // Synchroniser le composant local avec le prop
   useEffect(() => {
-    console.log("PropertiesPanel - component prop changed:", component?.id, component?.type);
+    console.log('PropertiesPanel - component prop changed:', component?.id, component?.type);
     setLocalComponent(component);
-    setIsVisible(component?.styles?.display !== 'none');
   }, [component]);
 
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
-    
+
     console.log(`PropertiesPanel - Updating property ${path} to:`, value);
-    
+
     const updatedComponent = { ...localComponent };
-    const pathParts = path.split('.');
-    
-    let current: any = updatedComponent;
-    for (let i = 0; i < pathParts.length - 1; i++) {
-      const part = pathParts[i];
-      if (!current[part]) {
-        current[part] = {};
-      }
-      current = current[part];
+
+    if (path.startsWith('styles.')) {
+      const styleProp = path.replace('styles.', '');
+      updatedComponent.styles = {
+        ...updatedComponent.styles,
+        [styleProp]: value
+      };
+    } else if (path.startsWith('attributes.')) {
+      const attrProp = path.replace('attributes.', '');
+      updatedComponent.attributes = {
+        ...updatedComponent.attributes,
+        [attrProp]: value
+      };
+    } else {
+      (updatedComponent as any)[path] = value;
     }
-    
-    const lastPart = pathParts[pathParts.length - 1];
-    current[lastPart] = value;
-    
-    // Update visibility state if display property is changed
-    if (path === 'styles.display') {
-      setIsVisible(value !== 'none');
-    }
-    
-    console.log("PropertiesPanel - Updated component:", updatedComponent);
+
+    console.log('PropertiesPanel - Updated component:', updatedComponent);
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
   };
 
-  const getPropertyValue = (path: string): any => {
-    const pathParts = path.split('.');
-    let current: any = localComponent;
-    
-    for (const part of pathParts) {
-      if (current && typeof current === 'object' && part in current) {
-        current = current[part];
-      } else {
-        return '';
-      }
-    }
-    
-    return current || '';
-  };
-
-  const handleDuplicate = () => {
+  const duplicateComponent = () => {
     if (!localComponent) return;
-    
-    const duplicatedComponent: ComponentDefinition = {
-      ...localComponent,
-      id: `component-${Date.now()}`,
-      children: localComponent.children?.map(child => ({
-        ...child,
-        id: `component-${Date.now()}-${Math.random()}`
-      })) || []
-    };
-    
-    onComponentUpdate(duplicatedComponent);
-  };
 
-  const handleDelete = () => {
-    if (!localComponent || !onComponentDelete) return;
-    onComponentDelete(localComponent.id);
+    const duplicated = {
+      ...localComponent,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      styles: {
+        ...localComponent.styles,
+        left: `${parseInt(localComponent.styles?.left?.replace('px', '') || '0') + 20}px`,
+        top: `${parseInt(localComponent.styles?.top?.replace('px', '') || '0') + 20}px`
+      }
+    };
+
+    onComponentUpdate(duplicated);
   };
 
   const toggleVisibility = () => {
-    const newVisibility = !isVisible;
-    setIsVisible(newVisibility);
-    updateProperty('styles.display', newVisibility ? 'block' : 'none');
+    if (!localComponent) return;
+
+    const currentDisplay = localComponent.styles?.display || 'block';
+    const newDisplay = currentDisplay === 'none' ? 'block' : 'none';
+    updateProperty('styles.display', newDisplay);
   };
 
-  // Get all components from project structure for the component list
-  const getAllComponents = (components: ComponentDefinition[]): ComponentDefinition[] => {
-    const allComponents: ComponentDefinition[] = [];
-    
-    const traverse = (comps: ComponentDefinition[]) => {
-      comps.forEach(comp => {
-        allComponents.push(comp);
-        if (comp.children) {
-          traverse(comp.children);
-        }
-      });
-    };
-    
-    traverse(components);
-    return allComponents;
-  };
+  if (!localComponent) {
+    return (
+      <div className="p-6 text-center">
+        <div className="space-y-4">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+            <span className="text-2xl">🎨</span>
+          </div>
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun composant sélectionné</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Cliquez sur un composant dans l'éditeur pour modifier ses propriétés
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const allComponents = project?.content?.pages?.[0]?.content?.structure ? 
-    getAllComponents(project.content.pages[0].content.structure) : [];
+  const isVisible = localComponent.styles?.display !== 'none';
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Propriétés</h2>
-      </div>
-
-      {/* Component List */}
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Composants ({allComponents.length})</h3>
-        <div className="space-y-1 max-h-32 overflow-y-auto">
-          {allComponents.map((comp) => (
-            <div
-              key={comp.id}
-              className={`p-2 rounded cursor-pointer text-xs flex items-center justify-between hover:bg-gray-100 ${
-                comp.id === component?.id ? 'bg-blue-100 border border-blue-300' : 'bg-gray-50'
-              }`}
-              onClick={() => onComponentSelect?.(comp)}
-            >
-              <span className="truncate">
-                <Badge variant="outline" className="mr-2 text-xs">{comp.type}</Badge>
-                {comp.content?.slice(0, 20) || `${comp.type} component`}
-              </span>
-              {comp.id === component?.id && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 p-0 ml-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete();
-                  }}
-                >
-                  <Trash2 className="h-3 w-3 text-red-500" />
-                </Button>
-              )}
-            </div>
-          ))}
-          {allComponents.length === 0 && (
-            <p className="text-gray-500 text-xs">Aucun composant ajouté</p>
-          )}
-        </div>
-      </div>
-
-      {!localComponent ? (
-        <div className="p-4">
-          <div className="text-center py-8">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
-              <Eye className="w-6 h-6 text-gray-400" />
-            </div>
-            <p className="text-gray-500 text-sm">Sélectionnez un composant pour voir ses propriétés</p>
-          </div>
-        </div>
-      ) : (
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
+      <div className="p-4 space-y-6">
+        {/* En-tête du composant */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Badge variant="secondary">{localComponent.type}</Badge>
-              <Badge variant="outline">{localComponent.tag}</Badge>
+              <Badge variant="outline" className="text-xs">
+                {localComponent.type}
+              </Badge>
+              <span className="text-sm text-gray-600">#{localComponent.id.slice(-8)}</span>
             </div>
-            <div className="flex space-x-1">
-              <Button variant="ghost" size="sm" onClick={toggleVisibility}>
-                {isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleVisibility}
+                className="h-8 w-8 p-0"
+                title={isVisible ? 'Masquer' : 'Afficher'}
+              >
+                {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleDuplicate}>
-                <Copy className="w-4 h-4" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={duplicateComponent}
+                className="h-8 w-8 p-0"
+                title="Dupliquer"
+              >
+                <Copy className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleDelete}>
-                <Trash2 className="w-4 h-4" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onComponentDelete(localComponent.id)}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                title="Supprimer"
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          <Tabs defaultValue="content" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="content">Contenu</TabsTrigger>
-              <TabsTrigger value="style">Style</TabsTrigger>
-              <TabsTrigger value="advanced">Avancé</TabsTrigger>
-            </TabsList>
-
-            {/* Content Tab */}
-            <TabsContent value="content" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Contenu</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {localComponent.type !== "image" && (
-                    <div>
-                      <Label htmlFor="content">Texte</Label>
-                      <Textarea
-                        id="content"
-                        value={getPropertyValue('content')}
-                        onChange={(e) => updateProperty('content', e.target.value)}
-                        placeholder="Contenu du composant..."
-                        rows={3}
-                      />
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="tag">Balise HTML</Label>
-                    <Select
-                      value={getPropertyValue('tag')}
-                      onValueChange={(value) => updateProperty('tag', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="div">div</SelectItem>
-                        <SelectItem value="section">section</SelectItem>
-                        <SelectItem value="article">article</SelectItem>
-                        <SelectItem value="header">header</SelectItem>
-                        <SelectItem value="footer">footer</SelectItem>
-                        <SelectItem value="main">main</SelectItem>
-                        <SelectItem value="aside">aside</SelectItem>
-                        <SelectItem value="nav">nav</SelectItem>
-                        <SelectItem value="h1">h1</SelectItem>
-                        <SelectItem value="h2">h2</SelectItem>
-                        <SelectItem value="h3">h3</SelectItem>
-                        <SelectItem value="h4">h4</SelectItem>
-                        <SelectItem value="h5">h5</SelectItem>
-                        <SelectItem value="h6">h6</SelectItem>
-                        <SelectItem value="p">p</SelectItem>
-                        <SelectItem value="span">span</SelectItem>
-                        <SelectItem value="a">a</SelectItem>
-                        <SelectItem value="button">button</SelectItem>
-                        <SelectItem value="img">img</SelectItem>
-                        <SelectItem value="ul">ul</SelectItem>
-                        <SelectItem value="ol">ol</SelectItem>
-                        <SelectItem value="li">li</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Image specific properties */}
-                  {localComponent.type === "image" && (
-                    <>
-                      <div>
-                        <Label htmlFor="src">URL de l'image</Label>
-                        <Input
-                          id="src"
-                          value={getPropertyValue('attributes.src')}
-                          onChange={(e) => updateProperty('attributes.src', e.target.value)}
-                          placeholder="https://example.com/image.jpg"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="alt">Texte alternatif</Label>
-                        <Input
-                          id="alt"
-                          value={getPropertyValue('attributes.alt')}
-                          onChange={(e) => updateProperty('attributes.alt', e.target.value)}
-                          placeholder="Description de l'image"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* Button specific properties */}
-                  {localComponent.type === "button" && (
-                    <>
-                      <div>
-                        <Label htmlFor="buttonType">Type de bouton</Label>
-                        <Select
-                          value={getPropertyValue('attributes.type') || 'button'}
-                          onValueChange={(value) => updateProperty('attributes.type', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="button">Bouton normal</SelectItem>
-                            <SelectItem value="submit">Bouton de soumission</SelectItem>
-                            <SelectItem value="reset">Bouton de réinitialisation</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="required"
-                          checked={getPropertyValue('attributes.required') || false}
-                          onChange={(e) => updateProperty('attributes.required', e.target.checked)}
-                          className="rounded"
-                        />
-                        <Label htmlFor="required">Champ obligatoire</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="disabled"
-                          checked={getPropertyValue('attributes.disabled') || false}
-                          onChange={(e) => updateProperty('attributes.disabled', e.target.checked)}
-                          className="rounded"
-                        />
-                        <Label htmlFor="disabled">Désactivé</Label>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Link specific properties */}
-                  {localComponent.type === "link" && (
-                    <>
-                      <div>
-                        <Label htmlFor="href">URL du lien</Label>
-                        <Input
-                          id="href"
-                          value={getPropertyValue('attributes.href')}
-                          onChange={(e) => updateProperty('attributes.href', e.target.value)}
-                          placeholder="https://example.com ou /page"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="target">Cible du lien</Label>
-                        <Select
-                          value={getPropertyValue('attributes.target') || '_self'}
-                          onValueChange={(value) => updateProperty('attributes.target', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="_self">Même onglet</SelectItem>
-                            <SelectItem value="_blank">Nouvel onglet</SelectItem>
-                            <SelectItem value="_parent">Fenêtre parent</SelectItem>
-                            <SelectItem value="_top">Fenêtre principale</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="title">Titre du lien (tooltip)</Label>
-                        <Input
-                          id="title"
-                          value={getPropertyValue('attributes.title')}
-                          onChange={(e) => updateProperty('attributes.title', e.target.value)}
-                          placeholder="Description qui apparaît au survol"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* Enhanced Image properties with file browser */}
-                  {localComponent.type === "image" && (
-                    <>
-                      <div>
-                        <Label htmlFor="src">URL de l'image</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="src"
-                            value={getPropertyValue('attributes.src')}
-                            onChange={(e) => updateProperty('attributes.src', e.target.value)}
-                            placeholder="https://example.com/image.jpg"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.accept = 'image/*';
-                              input.onchange = (e) => {
-                                const file = (e.target as HTMLInputElement).files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onload = (e) => {
-                                    const result = e.target?.result as string;
-                                    updateProperty('attributes.src', result);
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              };
-                              input.click();
-                            }}
-                          >
-                            Parcourir
-                          </Button>
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="alt">Texte alternatif</Label>
-                        <Input
-                          id="alt"
-                          value={getPropertyValue('attributes.alt')}
-                          onChange={(e) => updateProperty('attributes.alt', e.target.value)}
-                          placeholder="Description de l'image"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="width">Largeur</Label>
-                        <Input
-                          id="width"
-                          value={getPropertyValue('attributes.width')}
-                          onChange={(e) => updateProperty('attributes.width', e.target.value)}
-                          placeholder="300px, 50%, auto"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="height">Hauteur</Label>
-                        <Input
-                          id="height"
-                          value={getPropertyValue('attributes.height')}
-                          onChange={(e) => updateProperty('attributes.height', e.target.value)}
-                          placeholder="200px, 50%, auto"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* Enhanced Carousel properties */}
-                  {localComponent.type === "carousel" && (
-                    <>
-                      <div>
-                        <Label>Gestion des slides</Label>
-                        <div className="space-y-2 mt-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              const newSlide = {
-                                id: `slide-${Date.now()}`,
-                                type: "carousel-item",
-                                tag: "div",
-                                content: `Nouveau slide ${(localComponent.children?.length || 0) + 1}`,
-                                styles: {
-                                  display: "none",
-                                  textAlign: "center",
-                                  padding: "60px 20px",
-                                  minHeight: "300px"
-                                },
-                                attributes: { className: "carousel-item" },
-                                children: []
-                              };
-                              
-                              const updatedComponent = {
-                                ...localComponent,
-                                children: [...(localComponent.children || []), newSlide]
-                              };
-                              
-                              setLocalComponent(updatedComponent);
-                              onComponentUpdate(updatedComponent);
-                            }}
-                          >
-                            Ajouter un slide
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.accept = 'image/*';
-                              input.multiple = true;
-                              input.onchange = (e) => {
-                                const files = (e.target as HTMLInputElement).files;
-                                if (files) {
-                                  Array.from(files).forEach((file, index) => {
-                                    const reader = new FileReader();
-                                    reader.onload = (e) => {
-                                      const result = e.target?.result as string;
-                                      const newSlide = {
-                                        id: `slide-${Date.now()}-${index}`,
-                                        type: "carousel-item",
-                                        tag: "div",
-                                        content: "",
-                                        styles: {
-                                          display: index === 0 ? "block" : "none",
-                                          backgroundImage: `url(${result})`,
-                                          backgroundSize: "cover",
-                                          backgroundPosition: "center",
-                                          minHeight: "300px"
-                                        },
-                                        attributes: { 
-                                          className: index === 0 ? "carousel-item active" : "carousel-item"
-                                        },
-                                        children: []
-                                      };
-                                      
-                                      const updatedComponent = {
-                                        ...localComponent,
-                                        children: [...(localComponent.children || []), newSlide]
-                                      };
-                                      
-                                      setLocalComponent(updatedComponent);
-                                      onComponentUpdate(updatedComponent);
-                                    };
-                                    reader.readAsDataURL(file);
-                                  });
-                                }
-                              };
-                              input.click();
-                            }}
-                          >
-                            Ajouter images
-                          </Button>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Visibility toggle */}
-                  <div className="flex items-center space-x-2 pt-2 border-t">
-                    <input
-                      type="checkbox"
-                      id="visible"
-                      checked={isVisible}
-                      onChange={toggleVisibility}
-                      className="rounded"
-                    />
-                    <Label htmlFor="visible">Composant visible</Label>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Style Tab */}
-            <TabsContent value="style" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Position & Taille</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="left">Position X</Label>
-                      <Input
-                        id="left"
-                        value={getPropertyValue('styles.left') || '0px'}
-                        onChange={(e) => updateProperty('styles.left', e.target.value)}
-                        placeholder="0px"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="top">Position Y</Label>
-                      <Input
-                        id="top"
-                        value={getPropertyValue('styles.top') || '0px'}
-                        onChange={(e) => updateProperty('styles.top', e.target.value)}
-                        placeholder="0px"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="width">Largeur</Label>
-                      <Input
-                        id="width"
-                        value={getPropertyValue('styles.width') || 'auto'}
-                        onChange={(e) => updateProperty('styles.width', e.target.value)}
-                        placeholder="auto"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="height">Hauteur</Label>
-                      <Input
-                        id="height"
-                        value={getPropertyValue('styles.height') || 'auto'}
-                        onChange={(e) => updateProperty('styles.height', e.target.value)}
-                        placeholder="auto"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="zIndex">Ordre d'affichage (Z-Index)</Label>
-                    <Input
-                      id="zIndex"
-                      type="number"
-                      value={getPropertyValue('styles.zIndex') || '1'}
-                      onChange={(e) => updateProperty('styles.zIndex', e.target.value)}
-                      placeholder="1"
-                    />
-                  </div>
-
-                  <Separator />
-                  
-                  {commonStyles.slice(6).map((style) => (
-                    <div key={style.name}>
-                      <Label htmlFor={style.name}>
-                        {style.label}
-                        {style.unit && <span className="text-xs text-gray-500 ml-1">({style.unit})</span>}
-                      </Label>
-                      {style.type === "select" ? (
-                        <Select
-                          value={getPropertyValue(`styles.${style.name}`)}
-                          onValueChange={(value) => updateProperty(`styles.${style.name}`, value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {style.options?.map((option) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : style.type === "color" ? (
-                        <Input
-                          id={style.name}
-                          type="color"
-                          value={getPropertyValue(`styles.${style.name}`) || "#000000"}
-                          onChange={(e) => updateProperty(`styles.${style.name}`, e.target.value)}
-                          className="w-full h-10"
-                        />
-                      ) : (
-                        <Input
-                          id={style.name}
-                          value={getPropertyValue(`styles.${style.name}`)}
-                          onChange={(e) => updateProperty(`styles.${style.name}`, e.target.value)}
-                          placeholder={`Ex: 20px, 1rem, auto`}
-                        />
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Advanced Tab */}
-            <TabsContent value="advanced" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleDuplicate}
-                    className="w-full justify-start"
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Dupliquer le composant
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm" 
-                    onClick={handleDelete}
-                    className="w-full justify-start"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer le composant
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Classes CSS</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <Label htmlFor="className">Classes personnalisées</Label>
-                    <Input
-                      id="className"
-                      value={getPropertyValue('attributes.className')}
-                      onChange={(e) => updateProperty('attributes.className', e.target.value)}
-                      placeholder="classe1 classe2 classe3"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Attributs HTML</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <Label htmlFor="id">ID</Label>
-                    <Input
-                      id="id"
-                      value={getPropertyValue('attributes.id')}
-                      onChange={(e) => updateProperty('attributes.id', e.target.value)}
-                      placeholder="identifiant-unique"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Separator />
         </div>
-      )}
+
+        {/* Contenu */}
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="content" className="text-sm font-medium">Contenu</Label>
+            <Textarea
+              id="content"
+              value={localComponent.content || ''}
+              onChange={(e) => updateProperty('content', e.target.value)}
+              placeholder="Contenu du composant"
+              rows={3}
+              className="mt-1"
+            />
+          </div>
+
+          {/* Tag HTML */}
+          <div>
+            <Label htmlFor="tag" className="text-sm font-medium">Balise HTML</Label>
+            <Select
+              value={localComponent.tag || 'div'}
+              onValueChange={(value) => updateProperty('tag', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="div">div</SelectItem>
+                <SelectItem value="span">span</SelectItem>
+                <SelectItem value="p">p</SelectItem>
+                <SelectItem value="h1">h1</SelectItem>
+                <SelectItem value="h2">h2</SelectItem>
+                <SelectItem value="h3">h3</SelectItem>
+                <SelectItem value="h4">h4</SelectItem>
+                <SelectItem value="h5">h5</SelectItem>
+                <SelectItem value="h6">h6</SelectItem>
+                <SelectItem value="button">button</SelectItem>
+                <SelectItem value="a">a</SelectItem>
+                <SelectItem value="section">section</SelectItem>
+                <SelectItem value="article">article</SelectItem>
+                <SelectItem value="header">header</SelectItem>
+                <SelectItem value="footer">footer</SelectItem>
+                <SelectItem value="nav">nav</SelectItem>
+                <SelectItem value="main">main</SelectItem>
+                <SelectItem value="aside">aside</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+        </div>
+
+        {/* Position et Dimensions */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">Position & Dimensions</h4>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="left" className="text-xs text-gray-600">Position X</Label>
+              <Input
+                id="left"
+                type="text"
+                value={localComponent.styles?.left || '0px'}
+                onChange={(e) => updateProperty('styles.left', e.target.value)}
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="top" className="text-xs text-gray-600">Position Y</Label>
+              <Input
+                id="top"
+                type="text"
+                value={localComponent.styles?.top || '0px'}
+                onChange={(e) => updateProperty('styles.top', e.target.value)}
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="width" className="text-xs text-gray-600">Largeur</Label>
+              <Input
+                id="width"
+                type="text"
+                value={localComponent.styles?.width || 'auto'}
+                onChange={(e) => updateProperty('styles.width', e.target.value)}
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="height" className="text-xs text-gray-600">Hauteur</Label>
+              <Input
+                id="height"
+                type="text"
+                value={localComponent.styles?.height || 'auto'}
+                onChange={(e) => updateProperty('styles.height', e.target.value)}
+                className="mt-1 text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="zIndex" className="text-xs text-gray-600">Z-Index</Label>
+            <Input
+              id="zIndex"
+              type="number"
+              value={localComponent.styles?.zIndex || '1000'}
+              onChange={(e) => updateProperty('styles.zIndex', e.target.value)}
+              className="mt-1 text-sm"
+            />
+          </div>
+
+          <Separator />
+        </div>
+
+        {/* Apparence */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">Apparence</h4>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="backgroundColor" className="text-xs text-gray-600">Couleur de fond</Label>
+              <div className="flex mt-1">
+                <Input
+                  id="backgroundColor"
+                  type="color"
+                  value={localComponent.styles?.backgroundColor || '#transparent'}
+                  onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
+                  className="w-12 h-9 p-1 rounded-l border-r-0"
+                />
+                <Input
+                  type="text"
+                  value={localComponent.styles?.backgroundColor || 'transparent'}
+                  onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
+                  className="flex-1 text-sm rounded-l-none"
+                  placeholder="transparent"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="color" className="text-xs text-gray-600">Couleur du texte</Label>
+              <div className="flex mt-1">
+                <Input
+                  id="color"
+                  type="color"
+                  value={localComponent.styles?.color || '#000000'}
+                  onChange={(e) => updateProperty('styles.color', e.target.value)}
+                  className="w-12 h-9 p-1 rounded-l border-r-0"
+                />
+                <Input
+                  type="text"
+                  value={localComponent.styles?.color || 'inherit'}
+                  onChange={(e) => updateProperty('styles.color', e.target.value)}
+                  className="flex-1 text-sm rounded-l-none"
+                  placeholder="inherit"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="fontSize" className="text-xs text-gray-600">Taille de police</Label>
+              <Select
+                value={localComponent.styles?.fontSize || '1rem'}
+                onValueChange={(value) => updateProperty('styles.fontSize', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0.75rem">Très petit</SelectItem>
+                  <SelectItem value="0.875rem">Petit</SelectItem>
+                  <SelectItem value="1rem">Normal</SelectItem>
+                  <SelectItem value="1.125rem">Grand</SelectItem>
+                  <SelectItem value="1.25rem">Très grand</SelectItem>
+                  <SelectItem value="1.5rem">XXL</SelectItem>
+                  <SelectItem value="2rem">XXXL</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="fontWeight" className="text-xs text-gray-600">Poids de police</Label>
+              <Select
+                value={localComponent.styles?.fontWeight || 'normal'}
+                onValueChange={(value) => updateProperty('styles.fontWeight', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="bold">Gras</SelectItem>
+                  <SelectItem value="lighter">Léger</SelectItem>
+                  <SelectItem value="bolder">Très gras</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="textAlign" className="text-xs text-gray-600">Alignement du texte</Label>
+            <Select
+              value={localComponent.styles?.textAlign || 'left'}
+              onValueChange={(value) => updateProperty('styles.textAlign', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Gauche</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="right">Droite</SelectItem>
+                <SelectItem value="justify">Justifié</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+        </div>
+
+        {/* Espacement */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">Espacement</h4>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="padding" className="text-xs text-gray-600">Padding interne</Label>
+              <Input
+                id="padding"
+                type="text"
+                value={localComponent.styles?.padding || '0'}
+                onChange={(e) => updateProperty('styles.padding', e.target.value)}
+                placeholder="ex: 10px 20px"
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="margin" className="text-xs text-gray-600">Margin externe</Label>
+              <Input
+                id="margin"
+                type="text"
+                value={localComponent.styles?.margin || '0'}
+                onChange={(e) => updateProperty('styles.margin', e.target.value)}
+                placeholder="ex: 10px 20px"
+                className="mt-1 text-sm"
+              />
+            </div>
+          </div>
+
+          <Separator />
+        </div>
+
+        {/* Bordure et Effets */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">Bordure & Effets</h4>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="border" className="text-xs text-gray-600">Bordure</Label>
+              <Input
+                id="border"
+                type="text"
+                value={localComponent.styles?.border || 'none'}
+                onChange={(e) => updateProperty('styles.border', e.target.value)}
+                placeholder="ex: 1px solid #000"
+                className="mt-1 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="borderRadius" className="text-xs text-gray-600">Coins arrondis</Label>
+              <Input
+                id="borderRadius"
+                type="text"
+                value={localComponent.styles?.borderRadius || '0'}
+                onChange={(e) => updateProperty('styles.borderRadius', e.target.value)}
+                placeholder="ex: 8px"
+                className="mt-1 text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="boxShadow" className="text-xs text-gray-600">Ombre</Label>
+            <Input
+              id="boxShadow"
+              type="text"
+              value={localComponent.styles?.boxShadow || 'none'}
+              onChange={(e) => updateProperty('styles.boxShadow', e.target.value)}
+              placeholder="ex: 0 2px 4px rgba(0,0,0,0.1)"
+              className="mt-1 text-sm"
+            />
+          </div>
+
+          <Separator />
+        </div>
+
+        {/* Attributs spécifiques */}
+        {(localComponent.type === 'image' || localComponent.type === 'input' || localComponent.type === 'button') && (
+          <div className="space-y-4">
+            <h4 className="text-sm font-semibold text-gray-900">Attributs spécifiques</h4>
+
+            {localComponent.type === 'image' && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="src" className="text-xs text-gray-600">URL de l'image</Label>
+                  <Input
+                    id="src"
+                    type="url"
+                    value={localComponent.attributes?.src || ''}
+                    onChange={(e) => updateProperty('attributes.src', e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="mt-1 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="alt" className="text-xs text-gray-600">Texte alternatif</Label>
+                  <Input
+                    id="alt"
+                    type="text"
+                    value={localComponent.attributes?.alt || ''}
+                    onChange={(e) => updateProperty('attributes.alt', e.target.value)}
+                    placeholder="Description de l'image"
+                    className="mt-1 text-sm"
+                  />
+                </div>
+              </div>
+            )}
+
+            {localComponent.type === 'input' && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="inputType" className="text-xs text-gray-600">Type de champ</Label>
+                  <Select
+                    value={localComponent.attributes?.type || 'text'}
+                    onValueChange={(value) => updateProperty('attributes.type', value)}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="text">Texte</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="password">Mot de passe</SelectItem>
+                      <SelectItem value="number">Nombre</SelectItem>
+                      <SelectItem value="tel">Téléphone</SelectItem>
+                      <SelectItem value="url">URL</SelectItem>
+                      <SelectItem value="date">Date</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="placeholder" className="text-xs text-gray-600">Placeholder</Label>
+                  <Input
+                    id="placeholder"
+                    type="text"
+                    value={localComponent.attributes?.placeholder || ''}
+                    onChange={(e) => updateProperty('attributes.placeholder', e.target.value)}
+                    className="mt-1 text-sm"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="required"
+                    checked={localComponent.attributes?.required || false}
+                    onCheckedChange={(checked) => updateProperty('attributes.required', checked)}
+                  />
+                  <Label htmlFor="required" className="text-xs text-gray-600">Champ obligatoire</Label>
+                </div>
+              </div>
+            )}
+
+            {localComponent.type === 'button' && (
+              <div>
+                <Label htmlFor="buttonType" className="text-xs text-gray-600">Type de bouton</Label>
+                <Select
+                  value={localComponent.attributes?.type || 'button'}
+                  onValueChange={(value) => updateProperty('attributes.type', value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="button">Bouton</SelectItem>
+                    <SelectItem value="submit">Soumettre</SelectItem>
+                    <SelectItem value="reset">Réinitialiser</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <Separator />
+          </div>
+        )}
+
+        {/* Classes CSS */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">Classes CSS</h4>
+          <div>
+            <Label htmlFor="className" className="text-xs text-gray-600">Classes CSS</Label>
+            <Input
+              id="className"
+              type="text"
+              value={localComponent.attributes?.className || ''}
+              onChange={(e) => updateProperty('attributes.className', e.target.value)}
+              placeholder="ex: btn btn-primary"
+              className="mt-1 text-sm"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

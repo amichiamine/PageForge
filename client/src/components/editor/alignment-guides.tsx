@@ -1,19 +1,19 @@
 
-import React from "react";
+import React from 'react';
 
 interface AlignmentGuidesProps {
   showGuides: boolean;
-  selectedComponent?: {
+  selectedComponent: {
     x: number;
     y: number;
     width: number;
     height: number;
   } | null;
-  containerBounds?: {
+  containerBounds: {
     width: number;
     height: number;
-  } | null;
-  allComponents?: Array<{
+  };
+  allComponents: Array<{
     id: string;
     x: number;
     y: number;
@@ -22,133 +22,198 @@ interface AlignmentGuidesProps {
   }>;
 }
 
-export default function AlignmentGuides({ 
-  showGuides, 
-  selectedComponent, 
+export default function AlignmentGuides({
+  showGuides,
+  selectedComponent,
   containerBounds,
-  allComponents = []
+  allComponents
 }: AlignmentGuidesProps) {
-  if (!showGuides || !selectedComponent || !containerBounds) {
+  if (!showGuides || !selectedComponent) {
     return null;
   }
 
-  const centerX = containerBounds.width / 2;
-  const centerY = containerBounds.height / 2;
-  const componentCenterX = selectedComponent.x + selectedComponent.width / 2;
-  const componentCenterY = selectedComponent.y + selectedComponent.height / 2;
+  const guides: React.ReactElement[] = [];
+  const threshold = 5; // Seuil de proximité pour afficher les guides
 
-  const snapDistance = 10;
-  const showVerticalGuide = Math.abs(componentCenterX - centerX) < snapDistance;
-  const showHorizontalGuide = Math.abs(componentCenterY - centerY) < snapDistance;
+  // Guides de grille de base
+  if (showGuides) {
+    // Grille verticale tous les 20px
+    for (let x = 0; x <= containerBounds.width; x += 20) {
+      guides.push(
+        <div
+          key={`grid-v-${x}`}
+          className="absolute border-l border-gray-200 opacity-30 pointer-events-none"
+          style={{
+            left: `${x}px`,
+            top: 0,
+            height: `${containerBounds.height}px`,
+          }}
+        />
+      );
+    }
 
-  // Guides d'alignement avec d'autres composants
-  const otherComponents = allComponents.filter(comp => 
-    comp.id !== selectedComponent && selectedComponent
-  );
-
-  const alignmentLines: Array<{
-    type: 'vertical' | 'horizontal';
-    position: number;
-    color: string;
-  }> = [];
-
-  // Guide vertical du centre du conteneur
-  if (showVerticalGuide) {
-    alignmentLines.push({
-      type: 'vertical',
-      position: centerX,
-      color: '#3b82f6'
-    });
-  }
-
-  // Guide horizontal du centre du conteneur
-  if (showHorizontalGuide) {
-    alignmentLines.push({
-      type: 'horizontal',
-      position: centerY,
-      color: '#3b82f6'
-    });
+    // Grille horizontale tous les 20px
+    for (let y = 0; y <= containerBounds.height; y += 20) {
+      guides.push(
+        <div
+          key={`grid-h-${y}`}
+          className="absolute border-t border-gray-200 opacity-30 pointer-events-none"
+          style={{
+            top: `${y}px`,
+            left: 0,
+            width: `${containerBounds.width}px`,
+          }}
+        />
+      );
+    }
   }
 
   // Guides d'alignement avec d'autres composants
-  otherComponents.forEach(comp => {
-    const compCenterX = comp.x + comp.width / 2;
-    const compCenterY = comp.y + comp.height / 2;
+  allComponents.forEach((comp, index) => {
+    if (!selectedComponent) return;
 
-    // Alignement vertical
-    if (Math.abs(componentCenterX - compCenterX) < snapDistance) {
-      alignmentLines.push({
-        type: 'vertical',
-        position: compCenterX,
-        color: '#ef4444'
-      });
+    // Guide d'alignement vertical (centres alignés)
+    const centerXDiff = Math.abs((selectedComponent.x + selectedComponent.width / 2) - (comp.x + comp.width / 2));
+    if (centerXDiff <= threshold) {
+      const centerX = comp.x + comp.width / 2;
+      guides.push(
+        <div
+          key={`align-v-center-${index}`}
+          className="absolute border-l-2 border-blue-400 opacity-70 pointer-events-none"
+          style={{
+            left: `${centerX}px`,
+            top: 0,
+            height: `${containerBounds.height}px`,
+          }}
+        />
+      );
     }
 
-    // Alignement horizontal
-    if (Math.abs(componentCenterY - compCenterY) < snapDistance) {
-      alignmentLines.push({
-        type: 'horizontal',
-        position: compCenterY,
-        color: '#ef4444'
-      });
+    // Guide d'alignement horizontal (centres alignés)
+    const centerYDiff = Math.abs((selectedComponent.y + selectedComponent.height / 2) - (comp.y + comp.height / 2));
+    if (centerYDiff <= threshold) {
+      const centerY = comp.y + comp.height / 2;
+      guides.push(
+        <div
+          key={`align-h-center-${index}`}
+          className="absolute border-t-2 border-blue-400 opacity-70 pointer-events-none"
+          style={{
+            top: `${centerY}px`,
+            left: 0,
+            width: `${containerBounds.width}px`,
+          }}
+        />
+      );
     }
 
-    // Alignement des bords
-    if (Math.abs(selectedComponent.x - comp.x) < snapDistance) {
-      alignmentLines.push({
-        type: 'vertical',
-        position: comp.x,
-        color: '#10b981'
-      });
+    // Guides d'alignement des bords
+    // Bord gauche
+    if (Math.abs(selectedComponent.x - comp.x) <= threshold) {
+      guides.push(
+        <div
+          key={`align-left-${index}`}
+          className="absolute border-l-2 border-green-400 opacity-70 pointer-events-none"
+          style={{
+            left: `${comp.x}px`,
+            top: 0,
+            height: `${containerBounds.height}px`,
+          }}
+        />
+      );
     }
 
-    if (Math.abs(selectedComponent.y - comp.y) < snapDistance) {
-      alignmentLines.push({
-        type: 'horizontal',
-        position: comp.y,
-        color: '#10b981'
-      });
+    // Bord droit
+    if (Math.abs((selectedComponent.x + selectedComponent.width) - (comp.x + comp.width)) <= threshold) {
+      guides.push(
+        <div
+          key={`align-right-${index}`}
+          className="absolute border-l-2 border-green-400 opacity-70 pointer-events-none"
+          style={{
+            left: `${comp.x + comp.width}px`,
+            top: 0,
+            height: `${containerBounds.height}px`,
+          }}
+        />
+      );
+    }
+
+    // Bord haut
+    if (Math.abs(selectedComponent.y - comp.y) <= threshold) {
+      guides.push(
+        <div
+          key={`align-top-${index}`}
+          className="absolute border-t-2 border-green-400 opacity-70 pointer-events-none"
+          style={{
+            top: `${comp.y}px`,
+            left: 0,
+            width: `${containerBounds.width}px`,
+          }}
+        />
+      );
+    }
+
+    // Bord bas
+    if (Math.abs((selectedComponent.y + selectedComponent.height) - (comp.y + comp.height)) <= threshold) {
+      guides.push(
+        <div
+          key={`align-bottom-${index}`}
+          className="absolute border-t-2 border-green-400 opacity-70 pointer-events-none"
+          style={{
+            top: `${comp.y + comp.height}px`,
+            left: 0,
+            width: `${containerBounds.width}px`,
+          }}
+        />
+      );
     }
   });
 
+  // Guides de bordure du conteneur
+  if (selectedComponent.x <= threshold) {
+    guides.push(
+      <div
+        key="container-left"
+        className="absolute border-l-2 border-red-400 opacity-70 pointer-events-none"
+        style={{
+          left: 0,
+          top: 0,
+          height: `${containerBounds.height}px`,
+        }}
+      />
+    );
+  }
+
+  if (selectedComponent.y <= threshold) {
+    guides.push(
+      <div
+        key="container-top"
+        className="absolute border-t-2 border-red-400 opacity-70 pointer-events-none"
+        style={{
+          top: 0,
+          left: 0,
+          width: `${containerBounds.width}px`,
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="absolute inset-0 pointer-events-none z-30">
-      {alignmentLines.map((line, index) => (
-        <div
-          key={index}
-          className="absolute transition-opacity duration-200"
-          style={{
-            backgroundColor: line.color,
-            opacity: 0.7,
-            ...(line.type === 'vertical' ? {
-              left: line.position - 0.5,
-              top: 0,
-              width: 1,
-              height: containerBounds.height,
-            } : {
-              left: 0,
-              top: line.position - 0.5,
-              width: containerBounds.width,
-              height: 1,
-            })
-          }}
-        />
-      ))}
+    <div className="absolute inset-0 pointer-events-none z-50">
+      {guides}
       
-      {/* Indicateurs aux intersections */}
-      {alignmentLines.filter(l => l.type === 'vertical').map(vLine => 
-        alignmentLines.filter(l => l.type === 'horizontal').map(hLine => (
-          <div
-            key={`${vLine.position}-${hLine.position}`}
-            className="absolute w-2 h-2 border-2 border-white rounded-full"
-            style={{
-              left: vLine.position - 4,
-              top: hLine.position - 4,
-              backgroundColor: vLine.color,
-              boxShadow: '0 0 4px rgba(0,0,0,0.3)'
-            }}
-          />
-        ))
+      {/* Informations de position */}
+      {selectedComponent && (
+        <div 
+          className="absolute bg-black/75 text-white text-xs px-2 py-1 rounded pointer-events-none"
+          style={{
+            left: `${selectedComponent.x + selectedComponent.width + 10}px`,
+            top: `${selectedComponent.y}px`,
+          }}
+        >
+          x: {selectedComponent.x}, y: {selectedComponent.y}
+          <br />
+          w: {selectedComponent.width}, h: {selectedComponent.height}
+        </div>
       )}
     </div>
   );
