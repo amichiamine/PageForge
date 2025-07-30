@@ -721,8 +721,8 @@ export class MemStorage implements IStorage {
       const cssContent = this.generateOptimizedCSS(project, exportOptions);
       if (cssContent.trim()) {
         files.push({
-          path: `styles.css${exportOptions.cacheVersion ? `?v=${exportOptions.cacheVersion}` : ''}`,
-          content: cssContent
+          path: "styles.css",
+          content: cssContentntent
         });
       }
     }
@@ -1086,7 +1086,6 @@ function smoothScrollTo(target) {
             if (modal) modal.style.display = 'none';
         });
     });
-
 `;
   }
 

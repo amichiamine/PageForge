@@ -195,11 +195,68 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         onUpdate={handleComponentUpdate}
         onDelete={() => handleComponentDelete(component.id)}
         showGuides={showAlignmentGuides}
-      />
+      >
+        <ComponentRenderer component={component} />
+      </ResizableComponent>
     );
   }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides]);
 
   const structure = project?.content?.pages?.[0]?.content?.structure || [];
+
+  // Component renderer for different component types
+  const ComponentRenderer = ({ component }: { component: ComponentDefinition }) => {
+    const style = {
+      ...component.styles,
+      position: 'relative' as const,
+      width: '100%',
+      height: '100%',
+    };
+
+    switch (component.type) {
+      case 'text':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.content || 'Texte'}
+          </div>
+        );
+      case 'button':
+        return (
+          <button style={style} className={component.attributes?.className}>
+            {component.content || 'Bouton'}
+          </button>
+        );
+      case 'image':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.attributes?.src ? (
+              <img 
+                src={component.attributes.src} 
+                alt={component.attributes.alt || ''} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <div className="flex items-center justify-center bg-gray-200 text-gray-500 w-full h-full">
+                Image
+              </div>
+            )}
+          </div>
+        );
+      case 'container':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            ))}
+          </div>
+        );
+      default:
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.content || component.type}
+          </div>
+        );
+    }
+  };
 
   return (
     <div

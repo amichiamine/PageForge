@@ -1,5 +1,4 @@
 
-<old_str>
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { ComponentDefinition } from '@shared/schema';
 
@@ -11,7 +10,6 @@ interface ResizableComponentProps {
   onDelete?: () => void;
   children: React.ReactNode;
   showGuides?: boolean;
-}
 }
 
 export default function ResizableComponent({
@@ -372,5 +370,3 @@ export default function ResizableComponent({
     </div>
   );
 }
-
-</new_str>
