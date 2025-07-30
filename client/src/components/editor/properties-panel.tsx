@@ -43,6 +43,11 @@ const commonStyles: StyleProperty[] = [
   { name: "justifyContent", label: "Alignement horizontal (flex)", type: "select", options: ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"] },
   { name: "display", label: "Affichage", type: "select", options: ["block", "inline", "inline-block", "flex", "grid", "none"] },
   { name: "position", label: "Position", type: "select", options: ["static", "relative", "absolute", "fixed", "sticky"] },
+  { name: "top", label: "Position haut", type: "text", unit: "px, %, auto" },
+  { name: "right", label: "Position droite", type: "text", unit: "px, %, auto" },
+  { name: "bottom", label: "Position bas", type: "text", unit: "px, %, auto" },
+  { name: "left", label: "Position gauche", type: "text", unit: "px, %, auto" },
+  { name: "zIndex", label: "Index Z", type: "number" },
   { name: "borderRadius", label: "Bordure arrondie", type: "text", unit: "px, rem, %" },
   { name: "border", label: "Bordure", type: "text" },
   { name: "boxShadow", label: "Ombre", type: "text" },
@@ -59,12 +64,15 @@ export default function PropertiesPanel({
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    console.log("PropertiesPanel - component prop changed:", component?.id, component?.type);
     setLocalComponent(component);
     setIsVisible(component?.styles?.display !== 'none');
   }, [component]);
 
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
+    
+    console.log(`PropertiesPanel - Updating property ${path} to:`, value);
     
     const updatedComponent = { ...localComponent };
     const pathParts = path.split('.');
@@ -86,6 +94,7 @@ export default function PropertiesPanel({
       setIsVisible(value !== 'none');
     }
     
+    console.log("PropertiesPanel - Updated component:", updatedComponent);
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
   };

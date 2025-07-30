@@ -17,6 +17,7 @@ import type { Project, ComponentDefinition } from "@shared/schema";
 import { useLocation } from "wouter";
 import CodePreview from "@/components/editor/code-preview";
 import { useSidebarContext } from "@/App";
+import ErrorNotification from "@/components/ui/error-notification";
 
 export default function Editor() {
   const { projectId } = useParams();
@@ -31,6 +32,7 @@ export default function Editor() {
   const [showPreview, setShowPreview] = useState(false);
   const [hideComponentPanel, setHideComponentPanel] = useState(false);
   const [hideRightPanel, setHideRightPanel] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
@@ -148,8 +150,22 @@ export default function Editor() {
     },
   });
 
+  // Auto-save system
+  React.useEffect(() => {
+    if (!localProject || !projectId) return;
+    
+    const autoSaveTimer = setTimeout(() => {
+      console.log("Auto-saving project:", localProject.name);
+      saveProjectMutation.mutate({ content: localProject.content });
+    }, 3000); // Auto-save after 3 seconds of inactivity
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [localProject, projectId, saveProjectMutation]);
+
   const handleComponentUpdate = (updatedProjectOrComponent: Project | ComponentDefinition) => {
     if (!localProject) return;
+
+    console.log("handleComponentUpdate called with:", updatedProjectOrComponent);
 
     // If it's a Project, update local state only
     if ('content' in updatedProjectOrComponent && 'name' in updatedProjectOrComponent) {

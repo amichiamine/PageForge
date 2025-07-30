@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Trash2, Move, Copy } from "lucide-react";
 import type { Project, ComponentDefinition } from "@shared/schema";
 import { createComponent } from "@/lib/editor-utils";
+import ResizableComponent from "./resizable-component";
 
 interface VisualEditorProps {
   project: Project;
@@ -82,7 +83,7 @@ function DroppableComponent({
     const baseStyle: React.CSSProperties = {
       ...component.styles,
       opacity: isDragging ? 0.5 : 1,
-      position: 'relative',
+      position: component.styles?.position || 'relative',
       border: isSelected ? '2px solid #007bff' : isOver ? '2px dashed #007bff' : '1px solid transparent',
       borderRadius: '4px',
       padding: component.styles?.padding || '8px',
