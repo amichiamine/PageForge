@@ -57,7 +57,7 @@ function generatePreviewHTML(project: Project): string {
       attributeString,
       styleString ? `style="${styleString}"` : ''
     ].filter(part => part.trim().length > 0);
-    
+
     const openingTag = `<${openingTagParts.join(' ')}>`;
 
     if (component.type === 'image') {
@@ -126,7 +126,7 @@ export default function Editor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [undoStack, setUndoStack] = useState<Project[]>([]);
   const [redoStack, setRedoStack] = useState<Project[]>([]);
-  
+
   // Mobile detection
   const { isMobile, isTablet, isMobileOrTablet } = useIsMobile();
 

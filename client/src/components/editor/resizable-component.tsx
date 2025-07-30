@@ -33,14 +33,14 @@ export default function ResizableComponent({
     if (!value || value === 'auto' || value === 'undefined' || value === 'NaN' || value.trim() === '') {
       return defaultValue;
     }
-    const parsed = parseInt(value.replace(/px|%|em|rem|pt|vh|vw/g, ''));
+    const parsed = parseFloat(value.replace(/px|%|em|rem|pt|vh|vw/g, ''));
     return isNaN(parsed) || parsed < 0 ? defaultValue : parsed;
   };
 
   const currentLeft = parseValue(component.styles?.left, 0);
   const currentTop = parseValue(component.styles?.top, 0);
-  const currentWidth = parseValue(component.styles?.width, 100);
-  const currentHeight = parseValue(component.styles?.height, 50);
+  const currentWidth = parseValue(component.styles?.width, 200);
+  const currentHeight = parseValue(component.styles?.height, 100);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
@@ -51,22 +51,22 @@ export default function ResizableComponent({
 
       if (!isSelected) return;
 
+      const elementRect = elementRef.current?.getBoundingClientRect();
       const containerRect = containerRef.current?.getBoundingClientRect();
-      if (containerRect) {
-        // Calculer l'offset relatif au conteneur parent
-        const relativeX = e.clientX - containerRect.left;
-        const relativeY = e.clientY - containerRect.top;
-        const componentX = currentLeft;
-        const componentY = currentTop;
+      
+      if (elementRect && containerRect) {
+        // Calculer l'offset relatif à l'élément lui-même
+        const offsetX = e.clientX - elementRect.left;
+        const offsetY = e.clientY - elementRect.top;
         
         setIsDragging(true);
         setDragStart({
-          x: relativeX - componentX,
-          y: relativeY - componentY
+          x: offsetX,
+          y: offsetY
         });
       }
     }
-  }, [isSelected, onSelect, currentLeft, currentTop]);
+  }, [isSelected, onSelect]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
@@ -77,24 +77,21 @@ export default function ResizableComponent({
       if (!isSelected) return;
 
       const touch = e.touches[0];
-      const rect = elementRef.current?.getBoundingClientRect();
-      const containerRect = containerRef.current?.getBoundingClientRect();
+      const elementRect = elementRef.current?.getBoundingClientRect();
       
-      if (rect && touch && containerRect) {
-        // Calculer l'offset relatif au conteneur parent
-        const relativeX = touch.clientX - containerRect.left;
-        const relativeY = touch.clientY - containerRect.top;
-        const componentX = currentLeft;
-        const componentY = currentTop;
+      if (elementRect && touch) {
+        // Calculer l'offset relatif à l'élément lui-même
+        const offsetX = touch.clientX - elementRect.left;
+        const offsetY = touch.clientY - elementRect.top;
         
         setIsDragging(true);
         setDragStart({
-          x: relativeX - componentX,
-          y: relativeY - componentY
+          x: offsetX,
+          y: offsetY
         });
       }
     }
-  }, [isSelected, onSelect, currentLeft, currentTop]);
+  }, [isSelected, onSelect]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent, direction: string) => {
     e.preventDefault();
@@ -317,9 +314,6 @@ export default function ResizableComponent({
   }, []);
 
   const componentStyle: React.CSSProperties = {
-    // Appliquer d'abord les styles du composant
-    ...component.styles,
-    // Puis forcer les valeurs critiques pour le positionnement
     position: 'absolute',
     left: currentLeft + 'px',
     top: currentTop + 'px',
@@ -329,11 +323,24 @@ export default function ResizableComponent({
     minHeight: '20px',
     zIndex: parseInt(component.styles?.zIndex || '1000'),
     cursor: isDragging ? 'grabbing' : 'grab',
-    transform: isDragging ? 'scale(1.02)' : 'scale(1)',
-    transition: isDragging ? 'none' : 'transform 0.2s ease',
+    transform: isDragging ? 'scale(1.01)' : 'scale(1)',
+    transition: isDragging ? 'none' : 'transform 0.1s ease',
     touchAction: 'none',
     userSelect: 'none',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    // Appliquer les autres styles du composant en préservant le positionnement
+    backgroundColor: component.styles?.backgroundColor,
+    color: component.styles?.color,
+    fontSize: component.styles?.fontSize,
+    fontFamily: component.styles?.fontFamily,
+    fontWeight: component.styles?.fontWeight,
+    padding: component.styles?.padding,
+    margin: '0', // Forcer margin à 0 pour éviter les décalages
+    border: component.styles?.border,
+    borderRadius: component.styles?.borderRadius,
+    textAlign: component.styles?.textAlign,
+    display: component.styles?.display || 'block',
+    overflow: 'visible'
   };
 
   return (
@@ -349,7 +356,16 @@ export default function ResizableComponent({
       }}
     >
       {/* Contenu du composant */}
-      <div className="component-content h-full w-full">
+      <div className="component-content" style={{ 
+        width: '100%', 
+        height: '100%', 
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: component.styles?.textAlign === 'center' ? 'center' : 'flex-start',
+        justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
+                       component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start'
+      }}>
         {children}
       </div>
 

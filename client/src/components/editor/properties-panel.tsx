@@ -332,8 +332,24 @@ export default function PropertiesPanel({
               <Input
                 id="width"
                 type="text"
-                value={localComponent.styles?.width || 'auto'}
-                onChange={(e) => updateProperty('styles.width', e.target.value)}
+                value={localComponent.styles?.width || '200px'}
+                onChange={(e) => {
+                  let value = e.target.value.trim();
+                  // Valider et nettoyer la valeur
+                  if (!value || value === 'auto' || value === '' || value === 'undefined' || value === 'NaN') {
+                    value = '200px';
+                  }
+                  // Ajouter px si seulement un nombre est entré
+                  if (/^\d+\.?\d*$/.test(value)) {
+                    value = value + 'px';
+                  }
+                  // Vérifier que la valeur est valide
+                  if (!/^\d+\.?\d*(px|%|em|rem|vh|vw)$/.test(value)) {
+                    value = '200px';
+                  }
+                  updateProperty('styles.width', value);
+                }}
+                placeholder="ex: 200px"
                 className="mt-1 text-sm"
               />
             </div>
@@ -346,12 +362,16 @@ export default function PropertiesPanel({
                 onChange={(e) => {
                   let value = e.target.value.trim();
                   // Valider et nettoyer la valeur
-                  if (value === 'auto' || value === '' || value === 'undefined' || value === 'NaN') {
+                  if (!value || value === 'auto' || value === '' || value === 'undefined' || value === 'NaN') {
                     value = '100px';
                   }
                   // Ajouter px si seulement un nombre est entré
-                  if (/^\d+$/.test(value)) {
+                  if (/^\d+\.?\d*$/.test(value)) {
                     value = value + 'px';
+                  }
+                  // Vérifier que la valeur est valide
+                  if (!/^\d+\.?\d*(px|%|em|rem|vh|vw)$/.test(value)) {
+                    value = '100px';
                   }
                   updateProperty('styles.height', value);
                 }}
