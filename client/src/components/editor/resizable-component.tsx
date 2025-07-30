@@ -53,6 +53,27 @@ export default function ResizableComponent({
     }
   }, [isSelected, onSelect]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.component-content')) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      onSelect();
+      
+      if (!isSelected) return;
+      
+      const touch = e.touches[0];
+      const rect = elementRef.current?.getBoundingClientRect();
+      if (rect && touch) {
+        setIsDragging(true);
+        setDragStart({
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top
+        });
+      }
+    }
+  }, [isSelected, onSelect]);
+
   const handleResizeStart = useCallback((e: React.MouseEvent, direction: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -67,15 +88,32 @@ export default function ResizableComponent({
     });
   }, [currentWidth, currentHeight]);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
+  const handleTouchResizeStart = useCallback((e: React.TouchEvent, direction: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    if (touch) {
+      setIsResizing(true);
+      setResizeDirection(direction);
+      setResizeStart({
+        x: touch.clientX,
+        y: touch.clientY,
+        width: currentWidth,
+        height: currentHeight
+      });
+    }
+  }, [currentWidth, currentHeight]);
+
+  const handleMove = useCallback((clientX: number, clientY: number) => {
     if (isDragging && elementRef.current && containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
       const newLeft = Math.max(0, Math.min(
-        e.clientX - containerRect.left - dragStart.x,
+        clientX - containerRect.left - dragStart.x,
         containerRect.width - currentWidth
       ));
       const newTop = Math.max(0, Math.min(
-        e.clientY - containerRect.top - dragStart.y,
+        clientY - containerRect.top - dragStart.y,
         containerRect.height - currentHeight
       ));
 
@@ -92,8 +130,8 @@ export default function ResizableComponent({
     }
 
     if (isResizing) {
-      const deltaX = e.clientX - resizeStart.x;
-      const deltaY = e.clientY - resizeStart.y;
+      const deltaX = clientX - resizeStart.x;
+      const deltaY = clientY - resizeStart.y;
       
       let newWidth = resizeStart.width;
       let newHeight = resizeStart.height;
@@ -152,6 +190,18 @@ export default function ResizableComponent({
     }
   }, [isDragging, isResizing, dragStart, resizeStart, resizeDirection, component, currentLeft, currentTop, currentWidth, currentHeight, onUpdate]);
 
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    handleMove(e.clientX, e.clientY);
+  }, [handleMove]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    if (touch) {
+      handleMove(touch.clientX, touch.clientY);
+    }
+  }, [handleMove]);
+
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setIsResizing(false);
@@ -162,17 +212,21 @@ export default function ResizableComponent({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleMouseUp);
       document.body.style.cursor = isDragging ? 'move' : 'resize';
       document.body.style.userSelect = 'none';
 
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleMouseUp);
         document.body.style.cursor = 'default';
         document.body.style.userSelect = 'auto';
       };
     }
-  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
+  }, [isDragging, isResizing, handleMouseMove, handleTouchMove, handleMouseUp]);
 
   // Obtenir le conteneur parent pour les calculs de bounds
   useEffect(() => {
@@ -203,6 +257,7 @@ export default function ResizableComponent({
       className={`component-wrapper ${isSelected ? 'selected' : ''}`}
       style={componentStyle}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
     >
       {/* Contenu du composant */}
       <div className="component-content h-full w-full">
@@ -250,43 +305,51 @@ export default function ResizableComponent({
             className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-nw-resize hover:bg-blue-600 shadow-sm"
             style={{ top: '-6px', left: '-6px' }}
             onMouseDown={(e) => handleResizeStart(e, 'top-left')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'top-left')}
           />
           <div
             className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-ne-resize hover:bg-blue-600 shadow-sm"
             style={{ top: '-6px', right: '-6px' }}
             onMouseDown={(e) => handleResizeStart(e, 'top-right')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'top-right')}
           />
           <div
             className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-sw-resize hover:bg-blue-600 shadow-sm"
             style={{ bottom: '-6px', left: '-6px' }}
             onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'bottom-left')}
           />
           <div
             className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-se-resize hover:bg-blue-600 shadow-sm"
             style={{ bottom: '-6px', right: '-6px' }}
             onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'bottom-right')}
           />
 
           {/* Côtés */}
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-n-resize hover:bg-blue-600 shadow-sm"
-            style={{ top: '-6px', left: '50%', transform: 'translateX(-50%)' }}
+            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-n-resize hover:bg-blue-600 shadow-sm"
+            style={{ top: '-8px', left: '50%', transform: 'translateX(-50%)' }}
             onMouseDown={(e) => handleResizeStart(e, 'top')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'top')}
           />
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-s-resize hover:bg-blue-600 shadow-sm"
-            style={{ bottom: '-6px', left: '50%', transform: 'translateX(-50%)' }}
+            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-s-resize hover:bg-blue-600 shadow-sm"
+            style={{ bottom: '-8px', left: '50%', transform: 'translateX(-50%)' }}
             onMouseDown={(e) => handleResizeStart(e, 'bottom')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'bottom')}
           />
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-w-resize hover:bg-blue-600 shadow-sm"
-            style={{ left: '-6px', top: '50%', transform: 'translateY(-50%)' }}
+            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-w-resize hover:bg-blue-600 shadow-sm"
+            style={{ left: '-8px', top: '50%', transform: 'translateY(-50%)' }}
             onMouseDown={(e) => handleResizeStart(e, 'left')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'left')}
           />
           <div
-            className="absolute w-3 h-3 bg-blue-500 border border-white rounded-full cursor-e-resize hover:bg-blue-600 shadow-sm"
-            style={{ right: '-6px', top: '50%', transform: 'translateY(-50%)' }}
+            className="absolute w-4 h-4 bg-blue-500 border border-white rounded-full cursor-e-resize hover:bg-blue-600 shadow-sm"
+            style={{ right: '-8px', top: '50%', transform: 'translateY(-50%)' }}
             onMouseDown={(e) => handleResizeStart(e, 'right')}
+            onTouchStart={(e) => handleTouchResizeStart(e, 'right')}
           />
         </>
       )}

@@ -208,7 +208,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         drop(node);
       }}
       className={`
-        relative w-full h-full min-h-[600px] bg-white overflow-hidden
+        relative w-full h-full min-h-[600px] bg-white overflow-hidden touch-none
         ${isOver && canDrop ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''}
         ${!structure.length ? 'editor-drop-zone' : ''}
       `}

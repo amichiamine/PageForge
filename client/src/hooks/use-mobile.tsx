@@ -17,3 +17,26 @@ export function useIsMobile() {
 
   return !!isMobile
 }
+
+export function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = React.useState<boolean>(false)
+
+  React.useEffect(() => {
+    const checkTouch = () => {
+      setIsTouch(
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        (navigator as any).msMaxTouchPoints > 0
+      )
+    }
+    
+    checkTouch()
+    window.addEventListener('touchstart', checkTouch, { once: true })
+    
+    return () => {
+      window.removeEventListener('touchstart', checkTouch)
+    }
+  }, [])
+
+  return isTouch
+}

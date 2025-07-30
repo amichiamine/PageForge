@@ -47,10 +47,11 @@ function DraggableComponent({ type, label, icon, color, description }: Draggable
       ref={drag}
       className={`group relative p-4 rounded-xl border-2 border-dashed transition-all duration-200 cursor-grab hover:cursor-grabbing ${
         isDragging ? 'opacity-50 scale-95' : 'opacity-100 hover:scale-105'
-      } hover:border-solid hover:shadow-lg bg-white`}
+      } hover:border-solid hover:shadow-lg bg-white touch-manipulation select-none`}
       style={{ 
         borderColor: color,
         transform: isDragging ? 'scale(0.95)' : 'scale(1)',
+        touchAction: 'none'
       }}
       title={description}
     >

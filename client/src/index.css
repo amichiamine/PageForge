@@ -122,6 +122,34 @@
   transition: all 0.2s ease;
 }
 
+/* Touch-friendly styles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.touch-none {
+  touch-action: none;
+}
+
+/* Larger touch targets for mobile */
+@media (pointer: coarse) {
+  .component-wrapper {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .component-wrapper .resize-handle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  
+  .component-palette .draggable-component {
+    min-height: 60px;
+    padding: 12px;
+  }
+}
+
 /* Modern Button Styles */
 .btn-modern {
   @apply px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm;
