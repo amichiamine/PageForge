@@ -34,12 +34,7 @@ function Router() {
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;
   
-  // Add logging for state changes
-  useEffect(() => {
-    console.log("App.tsx - hideMainSidebar state changed to:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
-  }, [hideMainSidebar, showMainSidebar]);
-  
-  console.log("App.tsx - render - location:", location, "hideMainSidebar:", hideMainSidebar, "showMainSidebar:", showMainSidebar);
+  // Debug logs removed for production
 
   return (
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
@@ -49,12 +44,7 @@ function Router() {
           {/* Toggle button for main navigation */}
           <div className="p-2 border-b border-gray-700">
             <button
-              onClick={() => {
-                console.log("Sidebar toggle clicked - current hideMainSidebar:", hideMainSidebar);
-                const newValue = !hideMainSidebar;
-                console.log("Sidebar toggle - setting hideMainSidebar to:", newValue);
-                setHideMainSidebar(newValue);
-              }}
+              onClick={() => setHideMainSidebar(!hideMainSidebar)}
               className="w-full h-10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
               title={showMainSidebar ? "Masquer la navigation" : "Afficher la navigation"}
             >

@@ -722,7 +722,7 @@ export class MemStorage implements IStorage {
       if (cssContent.trim()) {
         files.push({
           path: "styles.css",
-          content: cssContentntent
+          content: cssContent
         });
       }
     }

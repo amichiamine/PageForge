@@ -205,7 +205,9 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
               component={component}
               isSelected={selectedComponent?.id === component.id}
               onUpdate={(updatedComponent) => {
-                const currentStructure = project?.content?.pages?.[0]?.content?.structure || [];
+                if (!project || !project.content?.pages?.[0]) return;
+                
+                const currentStructure = project.content.pages[0].content?.structure || [];
                 const updatedStructure = currentStructure.map(c => 
                   c.id === updatedComponent.id ? updatedComponent : c
                 );
@@ -306,7 +308,9 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
   return (
     <div
       ref={(node) => {
-        editorRef.current = node;
+        if (editorRef.current !== node) {
+          (editorRef as any).current = node;
+        }
         drop(node);
       }}
       className={`
@@ -347,13 +351,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         }
       }}
     >
-      {/* Alignment Guides */}
-      {showAlignmentGuides && (
-        <AlignmentGuides
-          guides={guides}
-          containerRef={editorRef}
-        />
-      )}
+      {/* Alignment Guides will be implemented as an overlay in the parent component */}
 
       {/* Components */}
       {structure.map(renderComponent)}

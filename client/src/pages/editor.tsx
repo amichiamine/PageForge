@@ -283,10 +283,7 @@ export default function Editor() {
         id: 'html5',
         backend: HTML5Backend,
         transition: { 
-          type: 'pointer',
-          options: {
-            pointerTypes: ['mouse']
-          }
+          event: 'pointer'
         }
       },
       {
@@ -308,10 +305,7 @@ export default function Editor() {
         },
         preview: true,
         transition: {
-          type: 'pointer',
-          options: {
-            pointerTypes: ['touch', 'pen']
-          }
+          event: 'pointer'
         }
       }
     ]
@@ -322,8 +316,8 @@ export default function Editor() {
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         {errorMessage && (
           <ErrorNotification 
-            message={errorMessage} 
-            onClose={() => setErrorMessage(null)} 
+            error={errorMessage} 
+            onDismiss={() => setErrorMessage(null)} 
           />
         )}
 
@@ -529,7 +523,7 @@ export default function Editor() {
                         selectedComponent={selectedComponent}
                         onComponentSelect={setSelectedComponent}
                         onComponentUpdate={handleComponentUpdate}
-                        showCode={showCode}
+                        showAlignmentGuides={showAlignmentGuides}
                       />
 
                       {/* Alignment guides overlay */}

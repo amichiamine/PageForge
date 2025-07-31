@@ -98,6 +98,7 @@ export interface PageContent {
   structure: Array<ComponentDefinition>;
   styles?: string;
   scripts?: string;
+  meta?: PageMeta;
 }
 
 export interface PageMeta {
