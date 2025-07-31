@@ -473,26 +473,37 @@ export default function Editor() {
           <div className="flex flex-1 overflow-hidden">
             {/* Component Palette */}
             {!hideComponentPanel && (
-              <div className={`
-                ${isMobile ? 'fixed inset-y-0 left-0 z-50 w-screen bg-white' : 'w-64 md:w-60 lg:w-64'} 
-                bg-white border-r border-gray-200 shadow-sm overflow-y-auto
-                ${isMobile ? 'animate-slide-right' : ''}
-              `}>
-                <div className="p-3 border-b border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-gray-900">Composants</h2>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setHideComponentPanel(true)}
-                      className="rounded-lg"
-                    >
-                      <PanelLeftClose className="h-4 w-4" />
-                    </Button>
+              <>
+                {/* Overlay for mobile/tablet */}
+                {isMobileOrTablet && (
+                  <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+                    onClick={() => setHideComponentPanel(true)}
+                    onTouchStart={(e) => e.stopPropagation()}
+                  />
+                )}
+                <div className={`
+                  ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 bg-white shadow-2xl' : 'w-64 md:w-60 lg:w-64'} 
+                  ${isMobile ? 'w-80 max-w-[85vw]' : isTablet ? 'w-96 max-w-[60vw]' : ''} 
+                  bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300
+                  ${isMobileOrTablet ? 'animate-slide-in-left' : ''}
+                `}>
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-base font-semibold text-gray-900">Composants</h2>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setHideComponentPanel(true)}
+                        className="rounded-lg"
+                      >
+                        <PanelLeftClose className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
+                  <ComponentPalette />
                 </div>
-                <ComponentPalette />
-              </div>
+              </>
             )}
 
             {/* Editor Area */}
@@ -552,77 +563,92 @@ export default function Editor() {
 
             {/* Properties Panel */}
             {!hideRightPanel && (
-              <div className={`
-                ${isMobile ? 'fixed inset-y-0 right-0 z-50 w-screen bg-white' : 'w-64 md:w-60 lg:w-64'} 
-                bg-white border-l border-gray-200 shadow-sm overflow-y-auto
-                ${isMobile ? 'animate-slide-right' : ''}
-              `}>
-                <div className="p-3 border-b border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-gray-900">Propriétés</h2>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setHideRightPanel(true)}
-                      className="rounded-lg"
-                    >
-                      <PanelRightClose className="h-4 w-4" />
-                    </Button>
+              <>
+                {/* Overlay for mobile/tablet */}
+                {isMobileOrTablet && (
+                  <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+                    onClick={() => setHideRightPanel(true)}
+                    onTouchStart={(e) => e.stopPropagation()}
+                  />
+                )}
+                <div className={`
+                  ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 bg-white shadow-2xl' : 'w-64 md:w-60 lg:w-64'} 
+                  ${isMobile ? 'w-80 max-w-[85vw]' : isTablet ? 'w-96 max-w-[60vw]' : ''} 
+                  bg-white border-l border-gray-200 overflow-y-auto transition-all duration-300
+                  ${isMobileOrTablet ? 'animate-slide-in-right' : ''}
+                `}>
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-base font-semibold text-gray-900">Propriétés</h2>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setHideRightPanel(true)}
+                        className="rounded-lg"
+                      >
+                        <PanelRightClose className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <PropertiesPanel
-                  component={selectedComponent}
-                  onComponentUpdate={(component) => {
-                    const updatedProject = { ...localProject };
-                    if (updatedProject.content?.pages?.[0]?.content?.structure) {
-                      const structure = updatedProject.content.pages[0].content.structure;
-                      const index = structure.findIndex(c => c.id === component.id);
-                      if (index !== -1) {
-                        structure[index] = component;
+                  <PropertiesPanel
+                    component={selectedComponent}
+                    onComponentUpdate={(component) => {
+                      const updatedProject = { ...localProject };
+                      if (updatedProject.content?.pages?.[0]?.content?.structure) {
+                        const structure = updatedProject.content.pages[0].content.structure;
+                        const index = structure.findIndex(c => c.id === component.id);
+                        if (index !== -1) {
+                          structure[index] = component;
+                          handleComponentUpdate(updatedProject);
+                        }
+                      }
+                    }}
+                    project={localProject}
+                    onComponentSelect={setSelectedComponent}
+                    onComponentDelete={(componentId) => {
+                      const updatedProject = { ...localProject };
+                      if (updatedProject.content?.pages?.[0]?.content?.structure) {
+                        updatedProject.content.pages[0].content.structure = 
+                          updatedProject.content.pages[0].content.structure.filter(c => c.id !== componentId);
+                        setSelectedComponent(null);
                         handleComponentUpdate(updatedProject);
                       }
-                    }
-                  }}
-                  project={localProject}
-                  onComponentSelect={setSelectedComponent}
-                  onComponentDelete={(componentId) => {
-                    const updatedProject = { ...localProject };
-                    if (updatedProject.content?.pages?.[0]?.content?.structure) {
-                      updatedProject.content.pages[0].content.structure = 
-                        updatedProject.content.pages[0].content.structure.filter(c => c.id !== componentId);
-                      setSelectedComponent(null);
-                      handleComponentUpdate(updatedProject);
-                    }
-                  }}
-                  hideMainSidebar={hideMainSidebar}
-                  setHideMainSidebar={setHideMainSidebar}
-                />
-              </div>
+                    }}
+                    hideMainSidebar={hideMainSidebar}
+                    setHideMainSidebar={setHideMainSidebar}
+                  />
+                </div>
+              </>
             )}
           </div>
 
-          {/* Panel Toggle Buttons */}
-          <div className="fixed bottom-6 left-6 flex space-x-2">
+          {/* Panel Toggle Buttons - Positioned differently for mobile */}
+          <div className={`fixed flex space-x-2 z-30 ${
+            isMobileOrTablet ? 'bottom-4 left-1/2 transform -translate-x-1/2' : 'bottom-6 left-6'
+          }`}>
             {hideComponentPanel && (
               <Button
                 variant="outline"
-                size="sm"
+                size={isMobileOrTablet ? "default" : "sm"}
                 onClick={() => setHideComponentPanel(false)}
                 className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
                 title="Afficher les composants"
               >
                 <PanelLeftOpen className="h-4 w-4" />
+                {isMobileOrTablet && <span className="ml-2">Composants</span>}
               </Button>
             )}
             {hideRightPanel && (
               <Button
                 variant="outline"
-                size="sm"
+                size={isMobileOrTablet ? "default" : "sm"}
                 onClick={() => setHideRightPanel(false)}
                 className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
                 title="Afficher les propriétés"
               >
                 <PanelRightOpen className="h-4 w-4" />
+                {isMobileOrTablet && <span className="ml-2">Propriétés</span>}
               </Button>
             )}
           </div>
