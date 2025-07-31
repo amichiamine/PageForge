@@ -17,6 +17,7 @@ import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor, PanelLeftClose,
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
+import { createComponent } from "@/lib/editor-utils";
 import { useLocation } from "wouter";
 import CodePreview from "@/components/editor/code-preview";
 import { useSidebarContext } from "@/App";
@@ -123,6 +124,7 @@ export default function Editor() {
   const [isLoading, setIsLoading] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
+  const [touchMode, setTouchMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [undoStack, setUndoStack] = useState<Project[]>([]);
   const [redoStack, setRedoStack] = useState<Project[]>([]);
@@ -133,13 +135,14 @@ export default function Editor() {
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
 
-  // Auto-hide panels on mobile
+  // Auto-hide panels on mobile and set touch mode
   useEffect(() => {
+    setTouchMode(isMobileOrTablet);
     if (isMobile) {
       setHideComponentPanel(true);
       setHideRightPanel(true);
     }
-  }, [isMobile]);
+  }, [isMobile, isMobileOrTablet]);
 
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
@@ -242,6 +245,70 @@ export default function Editor() {
     setLocalProject(nextState);
     setHasUnsavedChanges(true);
   }, [redoStack, localProject]);
+
+  // Gestion du double-clic pour ajouter des composants
+  const handleComponentDoubleClick = useCallback((componentType: string) => {
+    if (!localProject) return;
+
+    // Ajouter le composant au centre de l'éditeur
+    const centerX = 200;
+    const centerY = 100;
+    
+    const newComponent = createComponent(componentType);
+    const baseWidths: Record<string, string> = {
+      'container': '250px', 'section': '280px', 'header': '300px', 'footer': '300px',
+      'heading': '200px', 'paragraph': '220px', 'image': '180px', 'button': '120px',
+      'link': '100px', 'form': '240px', 'list': '180px', 'video': '200px',
+      'audio': '200px', 'calendar': '200px', 'contact': '200px', 'testimonial': '220px', 'pricing': '200px'
+    };
+    const baseHeights: Record<string, string> = {
+      'container': '120px', 'section': '150px', 'header': '80px', 'footer': '80px',
+      'heading': '40px', 'paragraph': '60px', 'image': '120px', 'button': '36px',
+      'link': '24px', 'form': '200px', 'list': '100px', 'video': '120px',
+      'audio': '50px', 'calendar': '200px', 'contact': '150px', 'testimonial': '120px', 'pricing': '200px'
+    };
+
+    newComponent.styles = {
+      ...newComponent.styles,
+      position: 'absolute',
+      left: `${centerX}px`,
+      top: `${centerY}px`,
+      width: baseWidths[componentType] || '180px',
+      height: baseHeights[componentType] || '80px',
+      backgroundColor: newComponent.styles?.backgroundColor || 'transparent',
+      color: newComponent.styles?.color || '#000000',
+      fontSize: newComponent.styles?.fontSize || '14px',
+      fontFamily: newComponent.styles?.fontFamily || 'Inter, sans-serif',
+      padding: newComponent.styles?.padding || '8px',
+      margin: newComponent.styles?.margin || '0px',
+      border: newComponent.styles?.border || '1px solid #e5e7eb',
+      borderRadius: newComponent.styles?.borderRadius || '6px',
+      zIndex: '1000'
+    };
+
+    const updatedStructure = [...(localProject.content?.pages?.[0]?.content?.structure || []), newComponent];
+    const updatedProject = {
+      ...localProject,
+      content: {
+        ...localProject.content,
+        pages: [{
+          ...localProject.content?.pages?.[0],
+          content: {
+            ...localProject.content?.pages?.[0]?.content,
+            structure: updatedStructure
+          }
+        }]
+      }
+    };
+
+    handleComponentUpdate(updatedProject);
+    setSelectedComponent(newComponent);
+
+    toast({
+      title: "Composant ajouté",
+      description: `${componentType} ajouté au centre de l'éditeur`,
+    });
+  }, [localProject, handleComponentUpdate, setSelectedComponent, toast]);
 
   const getViewportClass = () => {
     switch (viewMode) {
@@ -501,7 +568,7 @@ export default function Editor() {
                       </Button>
                     </div>
                   </div>
-                  <ComponentPalette />
+                  <ComponentPalette onComponentDoubleClick={handleComponentDoubleClick} />
                 </div>
               </>
             )}
@@ -611,8 +678,8 @@ export default function Editor() {
                       if (updatedProject.content?.pages?.[0]?.content?.structure) {
                         updatedProject.content.pages[0].content.structure = 
                           updatedProject.content.pages[0].content.structure.filter(c => c.id !== componentId);
-                        setSelectedComponent(null);
                         handleComponentUpdate(updatedProject);
+                        setSelectedComponent(null);
                       }
                     }}
                     hideMainSidebar={hideMainSidebar}

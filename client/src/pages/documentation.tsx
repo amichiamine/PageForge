@@ -1,457 +1,317 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/layout/header";
+import React, { useState } from 'react';
 import { 
-  Download, 
+  BookOpen, 
+  Search, 
+  Play, 
   Code, 
-  Server, 
-  FileText, 
-  ExternalLink, 
-  Copy,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  Terminal
-} from "lucide-react";
+  Palette, 
+  Settings,
+  HelpCircle,
+  ExternalLink,
+  ChevronRight,
+  Video,
+  FileText,
+  Users
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 export default function Documentation() {
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const quickStart = [
+    {
+      title: "Créer votre premier projet",
+      description: "Guide étape par étape pour débuter",
+      duration: "5 min",
+      icon: Play,
+      category: "Débutant"
+    },
+    {
+      title: "Interface de l'éditeur",
+      description: "Découvrez les outils disponibles",
+      duration: "8 min",
+      icon: Palette,
+      category: "Débutant"
+    },
+    {
+      title: "Système de composants",
+      description: "Comprendre les éléments de design",
+      duration: "12 min",
+      icon: Code,
+      category: "Intermédiaire"
+    },
+    {
+      title: "Déploiement et publication",
+      description: "Mettre votre site en ligne",
+      duration: "6 min",
+      icon: Settings,
+      category: "Débutant"
+    }
+  ];
+
+  const categories = [
+    {
+      title: "Guides de Démarrage",
+      description: "Tout ce qu'il faut savoir pour commencer",
+      icon: BookOpen,
+      articles: 12,
+      color: "bg-blue-500"
+    },
+    {
+      title: "Éditeur Visuel",
+      description: "Maîtrisez l'interface de création",
+      icon: Palette,
+      articles: 18,
+      color: "bg-green-500"
+    },
+    {
+      title: "Composants",
+      description: "Documentation des éléments disponibles",
+      icon: Code,
+      articles: 24,
+      color: "bg-purple-500"
+    },
+    {
+      title: "Déploiement",
+      description: "Publier et gérer vos sites",
+      icon: Settings,
+      articles: 8,
+      color: "bg-orange-500"
+    },
+    {
+      title: "API & Intégrations",
+      description: "Connecter des services externes",
+      icon: ExternalLink,
+      articles: 15,
+      color: "bg-red-500"
+    },
+    {
+      title: "Résolution de Problèmes",
+      description: "Solutions aux problèmes courants",
+      icon: HelpCircle,
+      articles: 10,
+      color: "bg-yellow-500"
+    }
+  ];
+
+  const popularArticles = [
+    {
+      title: "Comment personnaliser les couleurs de votre site",
+      category: "Design",
+      views: "2.1k vues",
+      type: "article"
+    },
+    {
+      title: "Rendre votre site responsive sur mobile",
+      category: "Responsive",
+      views: "1.8k vues",
+      type: "video"
+    },
+    {
+      title: "Optimiser les performances de votre site",
+      category: "Performance",
+      views: "1.5k vues",
+      type: "article"
+    },
+    {
+      title: "Intégrer des formulaires de contact",
+      category: "Composants",
+      views: "1.3k vues",
+      type: "tutorial"
+    },
+    {
+      title: "Configurer un domaine personnalisé",
+      category: "Déploiement",
+      views: "1.1k vues",
+      type: "article"
+    }
+  ];
+
+  const filteredQuickStart = quickStart.filter(item =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <>
-      <Header 
-        title="Documentation"
-        subtitle="Guide complet d'utilisation et d'intégration"
-        actions={
-          <Button variant="outline">
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Documentation complète
-          </Button>
-        }
-      />
-
-      <main className="flex-1 overflow-auto bg-gray-50">
-        <div className="p-6 max-w-6xl mx-auto">
-          <Tabs defaultValue="installation" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="installation">Installation</TabsTrigger>
-              <TabsTrigger value="usage">Utilisation</TabsTrigger>
-              <TabsTrigger value="vscode">VS Code</TabsTrigger>
-              <TabsTrigger value="deployment">Déploiement</TabsTrigger>
-              <TabsTrigger value="package">Package</TabsTrigger>
-            </TabsList>
-
-            {/* Installation */}
-            <TabsContent value="installation" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Download className="w-5 h-5 mr-2" />
-                    Installation de PageForge
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <Info className="w-4 h-4 text-blue-600 mr-2" />
-                      <span className="font-medium text-blue-900">Prérequis</span>
-                    </div>
-                    <ul className="text-sm text-blue-800 space-y-1">
-                      <li>• Node.js 18+ et npm</li>
-                      <li>• VS Code (pour l'intégration)</li>
-                      <li>• Git (optionnel)</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Installation globale</h3>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      <div className="flex items-center justify-between">
-                        <span>npm install -g pageforge</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => copyToClipboard("npm install -g pageforge")}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Installation dans un projet</h3>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span>npm install pageforge</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => copyToClipboard("npm install pageforge")}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>npx pageforge init</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => copyToClipboard("npx pageforge init")}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Vérification de l'installation</h3>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      <div className="flex items-center justify-between">
-                        <span>pageforge --version</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => copyToClipboard("pageforge --version")}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Usage */}
-            <TabsContent value="usage" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <FileText className="w-5 h-5 mr-2" />
-                    Utilisation Standalone
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-3">Lancement de l'application</h3>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      <div className="flex items-center justify-between">
-                        <span>sitejet-clone start</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => copyToClipboard("sitejet-clone start")}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Lance l'interface web sur http://localhost:5000
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Création d'un nouveau projet</h3>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                      <li>Cliquez sur "Nouvelle Page" dans le tableau de bord</li>
-                      <li>Choisissez un nom et un type de projet</li>
-                      <li>Sélectionnez un template ou commencez from scratch</li>
-                      <li>Cliquez sur "Créer la Page"</li>
-                    </ol>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Édition visuelle</h3>
-                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
-                      <li>Glissez-déposez des composants depuis la palette</li>
-                      <li>Sélectionnez un élément pour modifier ses propriétés</li>
-                      <li>Utilisez les outils de responsive design</li>
-                      <li>Prévisualisez en temps réel</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Export du projet</h3>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                        <span className="font-medium text-green-900">Export automatique</span>
-                      </div>
-                      <p className="text-sm text-green-800">
-                        L'export génère du code HTML/CSS/JS propre et optimisé, prêt pour la production.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* VS Code Integration */}
-            <TabsContent value="vscode" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Code className="w-5 h-5 mr-2" />
-                    Intégration VS Code
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-3">Installation de l'extension</h3>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                      <li>Ouvrez VS Code</li>
-                      <li>Allez dans Extensions (Ctrl+Shift+X)</li>
-                      <li>Recherchez "PageForge"</li>
-                      <li>Cliquez sur "Install"</li>
-                    </ol>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Utilisation dans un projet existant</h3>
-                    <div className="space-y-3">
-                      <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                        <div className="text-gray-400 mb-1"># Ouvrir l'éditeur visuel</div>
-                        <div>Ctrl+Shift+P → "PageForge: Edit Page"</div>
-                      </div>
-                      
-                      <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                        <div className="text-gray-400 mb-1"># Ou via clic droit sur un fichier HTML</div>
-                        <div>Right-click → "Edit with PageForge"</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Configuration</h3>
-                    <div className="bg-gray-100 p-4 rounded-lg">
-                      <pre className="text-sm"><code>{`{
-  "pageforge.autoSave": true,
-  "pageforge.theme": "auto",
-  "pageforge.port": 5000,
-  "pageforge.openInExternalBrowser": false
-}`}</code></pre>
-                    </div>
-                  </div>
-
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <AlertTriangle className="w-4 h-4 text-yellow-600 mr-2" />
-                      <span className="font-medium text-yellow-900">Important</span>
-                    </div>
-                    <p className="text-sm text-yellow-800">
-                      L'extension modifie directement vos fichiers. Assurez-vous d'avoir une sauvegarde ou d'utiliser Git.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Deployment */}
-            <TabsContent value="deployment" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Server className="w-5 h-5 mr-2" />
-                    Déploiement cPanel
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-3">Configuration FTP/SFTP</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Serveur</label>
-                        <div className="bg-gray-100 p-2 rounded text-sm font-mono">
-                          ftp.votre-site.com
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Port</label>
-                        <div className="bg-gray-100 p-2 rounded text-sm font-mono">
-                          21 (FTP) / 22 (SFTP)
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Utilisateur</label>
-                        <div className="bg-gray-100 p-2 rounded text-sm font-mono">
-                          votre-username
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Dossier cible</label>
-                        <div className="bg-gray-100 p-2 rounded text-sm font-mono">
-                          /public_html/
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Déploiement automatique</h3>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                      <li>Configurez vos paramètres FTP dans les réglages</li>
-                      <li>Testez la connexion</li>
-                      <li>Cliquez sur "Déployer" dans l'éditeur</li>
-                      <li>Les fichiers sont uploadés automatiquement</li>
-                    </ol>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Déploiement manuel</h3>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-gray-700 mb-2">1. Exportez votre projet</p>
-                        <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                          pageforge export --project-id=123
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-gray-700 mb-2">2. Uploadez les fichiers via cPanel File Manager ou FTP</p>
-                        <ul className="list-disc list-inside text-sm text-gray-600 ml-4">
-                          <li>index.html → /public_html/</li>
-                          <li>styles.css → /public_html/css/</li>
-                          <li>script.js → /public_html/js/</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      <span className="font-medium text-green-900">Optimisations incluses</span>
-                    </div>
-                    <ul className="text-sm text-green-800 space-y-1">
-                      <li>• Code minifié et optimisé</li>
-                      <li>• Meta tags SEO automatiques</li>
-                      <li>• Structure responsive</li>
-                      <li>• Performance optimisée</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Package Management */}
-            <TabsContent value="package" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Terminal className="w-5 h-5 mr-2" />
-                    Gestion des Packages
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-3">Build portable</h3>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      <div className="flex items-center justify-between">
-                        <span>npm run build-portable</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => copyToClipboard("npm run build-portable")}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Génère un exécutable portable pour Windows, macOS et Linux
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Package pour distribution</h3>
-                    <div className="space-y-2">
-                      <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                        npm run package-win    # Windows .exe
-                      </div>
-                      <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                        npm run package-mac    # macOS .dmg
-                      </div>
-                      <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                        npm run package-linux  # Linux .AppImage
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Mise à jour</h3>
-                    <div className="space-y-2">
-                      <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                        <div className="text-gray-400 mb-1"># Vérifier les mises à jour</div>
-                        <div>pageforge --check-updates</div>
-                      </div>
-                      <div className="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-sm">
-                        <div className="text-gray-400 mb-1"># Mettre à jour</div>
-                        <div>npm update -g pageforge</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Configuration avancée</h3>
-                    <div className="bg-gray-100 p-4 rounded-lg">
-                      <pre className="text-sm"><code>{`{
-  "name": "pageforge",
-  "version": "1.0.0",
-  "portable": {
-    "platform": "all",
-    "architecture": "x64",
-    "compression": true,
-    "bundleExtensions": true
-  },
-  "build": {
-    "target": "node18",
-    "minify": true,
-    "externals": ["electron"]
-  }
-}`}</code></pre>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <Info className="w-4 h-4 text-blue-600 mr-2" />
-                        <span className="font-medium text-blue-900">Avantages du package portable</span>
-                      </div>
-                      <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• Aucune dépendance externe</li>
-                        <li>• Installation rapide</li>
-                        <li>• Compatible tous OS</li>
-                        <li>• Auto-mise à jour</li>
-                      </ul>
-                    </div>
-
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <Download className="w-4 h-4 text-purple-600 mr-2" />
-                        <span className="font-medium text-purple-900">Distribution</span>
-                      </div>
-                      <ul className="text-sm text-purple-800 space-y-1">
-                        <li>• NPM Registry</li>
-                        <li>• GitHub Releases</li>
-                        <li>• VS Code Marketplace</li>
-                        <li>• Site web officiel</li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Documentation</h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Guides, tutoriels et références pour maîtriser PageForge
+        </p>
+        
+        {/* Search */}
+        <div className="max-w-md mx-auto relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Input
+            placeholder="Rechercher dans la documentation..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12"
+          />
         </div>
-      </main>
-    </>
+      </div>
+
+      {/* Quick Start */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Play className="h-5 w-5" />
+            <span>Démarrage Rapide</span>
+          </CardTitle>
+          <CardDescription>
+            Les guides essentiels pour commencer avec PageForge
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredQuickStart.map((guide, index) => (
+              <div key={index} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <guide.icon className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {guide.title}
+                      </h3>
+                      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{guide.description}</p>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {guide.category}
+                      </Badge>
+                      <span className="text-xs text-gray-500">{guide.duration}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Categories */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Catégories</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((category, index) => (
+            <Card key={index} className="cursor-pointer hover:shadow-lg transition-shadow group">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className={`p-3 rounded-lg ${category.color}`}>
+                    <category.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {category.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">{category.articles} articles</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                </div>
+                <p className="text-sm text-gray-600">{category.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Popular Articles */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Articles Populaires</CardTitle>
+            <CardDescription>
+              Les guides les plus consultés par la communauté
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {popularArticles.map((article, index) => (
+                <div key={index} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group">
+                  <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-gray-200 transition-colors">
+                    {article.type === 'video' ? (
+                      <Video className="h-4 w-4 text-gray-600" />
+                    ) : article.type === 'tutorial' ? (
+                      <Play className="h-4 w-4 text-gray-600" />
+                    ) : (
+                      <FileText className="h-4 w-4 text-gray-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors text-sm">
+                      {article.title}
+                    </h4>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        {article.category}
+                      </Badge>
+                      <span className="text-xs text-gray-500">{article.views}</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Support & Communauté</CardTitle>
+            <CardDescription>
+              Obtenez de l'aide et connectez-vous avec d'autres utilisateurs
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-3 mb-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                <h4 className="font-medium text-blue-900">Forum Communauté</h4>
+              </div>
+              <p className="text-sm text-blue-800 mb-3">
+                Posez vos questions et partagez vos créations avec la communauté PageForge
+              </p>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                Rejoindre le Forum
+              </Button>
+            </div>
+
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center space-x-3 mb-2">
+                <HelpCircle className="h-5 w-5 text-green-600" />
+                <h4 className="font-medium text-green-900">Support Direct</h4>
+              </div>
+              <p className="text-sm text-green-800 mb-3">
+                Contactez notre équipe pour un support personnalisé
+              </p>
+              <Button size="sm" variant="outline" className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white">
+                Contacter le Support
+              </Button>
+            </div>
+
+            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <div className="flex items-center space-x-3 mb-2">
+                <Video className="h-5 w-5 text-purple-600" />
+                <h4 className="font-medium text-purple-900">Tutoriels Vidéo</h4>
+              </div>
+              <p className="text-sm text-purple-800 mb-3">
+                Apprenez en regardant nos tutoriels vidéo détaillés
+              </p>
+              <Button size="sm" variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white">
+                Voir les Vidéos
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

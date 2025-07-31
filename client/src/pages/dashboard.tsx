@@ -1,255 +1,268 @@
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import Header from "@/components/layout/header";
-import ProjectCard from "@/components/project/project-card";
-import CreateProjectModal from "@/components/project/create-project-modal";
-import { useState } from "react";
-import { useLocation } from "wouter";
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { 
   Plus, 
   FolderOpen, 
-  Code, 
-  Download, 
-  Eye, 
-  CheckCircle, 
-  AlertTriangle,
-  Rocket,
-  Plug,
-  Book
-} from "lucide-react";
-import type { Project } from "@shared/schema";
+  Layers, 
+  Users, 
+  BarChart3, 
+  Clock, 
+  Star,
+  TrendingUp,
+  Calendar,
+  Activity
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import type { Project } from '@shared/schema';
 
 export default function Dashboard() {
-  const [, setLocation] = useLocation();
-  const [showCreateModal, setShowCreateModal] = useState(false);
-
   const { data: projects = [], isLoading } = useQuery<Project[]>({
-    queryKey: ["/api/projects"],
+    queryKey: ['/api/projects']
   });
 
-  const recentProjects = projects.slice(0, 3);
+  const recentProjects = projects.slice(0, 5);
+  const totalProjects = projects.length;
+  const completedProjects = projects.filter(p => p.settings?.status === 'completed').length;
+  const inProgressProjects = projects.filter(p => p.settings?.status === 'draft' || !p.settings?.status).length;
+
+  const stats = [
+    {
+      title: "Projets Total",
+      value: totalProjects.toString(),
+      description: "Tous vos projets",
+      icon: FolderOpen,
+      color: "bg-blue-500"
+    },
+    {
+      title: "En Cours",
+      value: inProgressProjects.toString(),
+      description: "Projets actifs",
+      icon: Activity,
+      color: "bg-yellow-500"
+    },
+    {
+      title: "Terminés",
+      value: completedProjects.toString(),
+      description: "Projets finalisés",
+      icon: Star,
+      color: "bg-green-500"
+    },
+    {
+      title: "Templates",
+      value: "8",
+      description: "Modèles disponibles",
+      icon: Layers,
+      color: "bg-purple-500"
+    }
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Header 
-        title="Tableau de Bord"
-        subtitle="Portable & Intégrable"
-        actions={
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" onClick={() => setLocation("/templates")}>
-              <Eye className="w-4 h-4 mr-2" />
-              Aperçu
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tableau de bord</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
+            Gérez vos projets et suivez vos statistiques
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href="/templates">
+            <Button variant="outline" className="w-full sm:w-auto">
+              <Layers className="h-4 w-4 mr-2" />
+              Parcourir Templates
             </Button>
-            <Button onClick={() => setLocation("/projects")}>
-              <Download className="w-4 h-4 mr-2" />
-              Exporter
+          </Link>
+          <Link href="/projects">
+            <Button className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Nouveau Projet
             </Button>
-          </div>
-        }
-      />
+          </Link>
+        </div>
+      </div>
 
-      <main className="flex-1 overflow-auto bg-gray-50">
-        <div className="p-6">
-          {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card 
-                className="group cursor-pointer hover:border-primary hover:shadow-lg transition-all duration-200"
-                onClick={() => setShowCreateModal(true)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4 group-hover:bg-primary/20">
-                    <Plus className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg mb-2">Nouvelle Page</CardTitle>
-                  <CardDescription>
-                    Créer une nouvelle page web depuis zéro ou à partir d'un template
-                  </CardDescription>
-                </CardContent>
-              </Card>
-
-              <Card 
-                className="group cursor-pointer hover:border-secondary hover:shadow-lg transition-all duration-200"
-                onClick={() => setLocation("/projects")}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center w-12 h-12 bg-secondary/10 rounded-lg mb-4 group-hover:bg-secondary/20">
-                    <FolderOpen className="w-6 h-6 text-secondary" />
-                  </div>
-                  <CardTitle className="text-lg mb-2">Importer Projet</CardTitle>
-                  <CardDescription>
-                    Intégrer un projet VS Code existant pour modification
-                  </CardDescription>
-                </CardContent>
-              </Card>
-
-              <Card 
-                className="group cursor-pointer hover:border-accent hover:shadow-lg transition-all duration-200"
-                onClick={() => setLocation("/documentation")}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center w-12 h-12 bg-accent/10 rounded-lg mb-4 group-hover:bg-accent/20">
-                    <Code className="w-6 h-6 text-accent" />
-                  </div>
-                  <CardTitle className="text-lg mb-2">Extension VS Code</CardTitle>
-                  <CardDescription>
-                    Lancer l'intégration directement dans VS Code
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Recent Projects */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Projets Récents</h2>
-              <Button 
-                variant="ghost" 
-                onClick={() => setLocation("/projects")}
-                className="text-primary hover:text-blue-700"
-              >
-                Voir tout →
-              </Button>
-            </div>
-            
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-xl animate-pulse" />
-                ))}
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {stats.map((stat, index) => (
+          <Card key={index} className="relative overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                {stat.title}
+              </CardTitle>
+              <div className={`p-2 rounded-lg ${stat.color}`}>
+                <stat.icon className="h-4 w-4 text-white" />
               </div>
-            ) : recentProjects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentProjects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <FolderOpen className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun projet récent</h3>
-                  <p className="text-gray-600 text-center mb-4">
-                    Créez votre premier projet pour commencer à construire des pages web
-                  </p>
-                  <Button onClick={() => setShowCreateModal(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Créer un Projet
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Integration Status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Intégration VS Code</CardTitle>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Configuré
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="mb-4">
-                  Extension installée et prête à utiliser dans vos projets VS Code.
-                </CardDescription>
-                <div className="flex space-x-3">
-                  <Button className="flex-1">
-                    Ouvrir VS Code
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    Configurer
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Déploiement cPanel</CardTitle>
-                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    Configuration requise
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="mb-4">
-                  Configurez vos paramètres d'hébergement pour le déploiement automatique.
-                </CardDescription>
-                <div className="flex space-x-3">
-                  <Button variant="outline" className="flex-1 bg-secondary text-white hover:bg-green-700">
-                    Configurer
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    Tester
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Documentation Quick Access */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Documentation & Guides</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="group cursor-pointer hover:border-primary hover:bg-blue-50 transition-all duration-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center mb-3">
-                      <Download className="w-5 h-5 text-primary mr-3" />
-                      <h4 className="font-medium text-gray-900">Installation</h4>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Guide d'installation et configuration initiale
-                    </p>
-                  </CardContent>
-                </Card>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-gray-500 mt-1">
+                {stat.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-                <Card className="group cursor-pointer hover:border-secondary hover:bg-green-50 transition-all duration-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center mb-3">
-                      <Plug className="w-5 h-5 text-secondary mr-3" />
-                      <h4 className="font-medium text-gray-900">Intégration</h4>
+      {/* Recent Projects and Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Recent Projects */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Projets Récents</CardTitle>
+                <CardDescription>
+                  Vos derniers projets modifiés
+                </CardDescription>
+              </div>
+              <Link href="/projects">
+                <Button variant="ghost" size="sm">
+                  Voir tout
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentProjects.length === 0 ? (
+                <div className="text-center py-8">
+                  <FolderOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">Aucun projet pour le moment</p>
+                  <Link href="/projects">
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Créer votre premier projet
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                recentProjects.map((project) => (
+                  <div key={project.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <FolderOpen className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {project.name}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {project.description || 'Aucune description'}
+                        </p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {project.type}
+                          </Badge>
+                          <span className="text-xs text-gray-400">
+                            <Clock className="h-3 w-3 inline mr-1" />
+                            Modifié récemment
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Intégrer dans projets VS Code existants
-                    </p>
-                  </CardContent>
-                </Card>
+                    <Link href={`/editor/${project.id}`}>
+                      <Button size="sm" variant="ghost">
+                        Ouvrir
+                      </Button>
+                    </Link>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-                <Card className="group cursor-pointer hover:border-accent hover:bg-purple-50 transition-all duration-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center mb-3">
-                      <Rocket className="w-5 h-5 text-accent mr-3" />
-                      <h4 className="font-medium text-gray-900">Déploiement</h4>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Déployer sur hébergement cPanel
-                    </p>
-                  </CardContent>
-                </Card>
+        {/* Quick Actions */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Actions Rapides</CardTitle>
+              <CardDescription>
+                Raccourcis vers les fonctionnalités principales
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/projects" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau Projet
+                </Button>
+              </Link>
+              <Link href="/templates" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <Layers className="h-4 w-4 mr-2" />
+                  Parcourir Templates
+                </Button>
+              </Link>
+              <Link href="/deployment" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Déployer un Site
+                </Button>
+              </Link>
+              <Link href="/documentation" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <Users className="h-4 w-4 mr-2" />
+                  Documentation
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Activité</CardTitle>
+              <CardDescription>
+                Résumé de votre activité récente
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="p-1 bg-green-100 rounded-full">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  </div>
+                  <div className="text-sm">
+                    <p className="text-gray-900">Système en ligne</p>
+                    <p className="text-gray-500 text-xs">Tous les services fonctionnent</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <div className="text-sm">
+                    <p className="text-gray-900">Dernière connexion</p>
+                    <p className="text-gray-500 text-xs">Aujourd'hui</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <BarChart3 className="h-4 w-4 text-gray-400" />
+                  <div className="text-sm">
+                    <p className="text-gray-900">Performance</p>
+                    <p className="text-gray-500 text-xs">Excellente</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      </main>
-
-      <CreateProjectModal 
-        open={showCreateModal} 
-        onOpenChange={setShowCreateModal}
-      />
-    </>
+      </div>
+    </div>
   );
 }

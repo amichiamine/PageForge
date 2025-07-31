@@ -36,9 +36,10 @@ interface DraggableComponentProps {
   description?: string;
   onDelete?: () => void;
   showDelete?: boolean;
+  onDoubleClick?: (componentType: string) => void;
 }
 
-function DraggableComponent({ type, label, icon, color, description, onDelete, showDelete = false }: DraggableComponentProps) {
+function DraggableComponent({ type, label, icon, color, description, onDelete, showDelete = false, onDoubleClick }: DraggableComponentProps) {
   const [{ isDragging }, drag, preview] = useDrag({
     type: 'component',
     item: { type, componentType: type },
@@ -52,8 +53,14 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
     preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
+  const handleDoubleClick = () => {
+    onDoubleClick?.(type);
+    if ('vibrate' in navigator) {
+      navigator.vibrate([30, 10, 30]);
+    }
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
-    // Feedback tactile simple pour ne pas interférer avec react-dnd
     const element = e.currentTarget as HTMLElement;
     element.style.opacity = '0.9';
     element.style.transform = 'scale(1.02)';
@@ -69,12 +76,20 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
     element.style.transform = 'scale(1)';
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    // Prévenir le déclenchement du drag sur mobile
+    if (window.innerWidth <= 768) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <div
       ref={drag}
       className={`
-        group relative flex flex-col items-center p-2 rounded-lg border border-gray-200 
-        bg-white hover:bg-gray-50 hover:border-gray-300 cursor-grab 
+        group relative flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-200 
+        bg-white hover:bg-gray-50 hover:border-gray-300 cursor-grab active:cursor-grabbing
         transition-all duration-200 hover:scale-102 hover:shadow-sm
         ${isDragging ? 'opacity-50 scale-95' : ''}
         ${showDelete ? 'pr-6' : ''}
@@ -83,18 +98,20 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
       style={{ 
         opacity: isDragging ? 0.5 : 1,
         borderColor: color,
-        minHeight: '60px',
+        minHeight: '55px',
         userSelect: 'none',
         touchAction: 'manipulation'
       }}
+      onDoubleClick={handleDoubleClick}
+      onClick={handleClick}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      title={description || label}
+      title={`${description || label} (Double-clic pour ajouter)`}
     >
       <div className={`text-${color} mb-1`} style={{ color }}>
-        {React.cloneElement(icon, { size: 18 })}
+        {React.cloneElement(icon, { size: 16 })}
       </div>
-      <span className="text-xs font-medium text-gray-700 text-center leading-tight">
+      <span className="text-xs sm:text-xs font-medium text-gray-700 text-center leading-tight">
         {label}
       </span>
       {showDelete && onDelete && (
@@ -105,6 +122,9 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
           <Trash2 size={10} />
         </button>
       )}
+      
+      {/* Indicateur pour double-clic sur tactile */}
+      <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity sm:hidden" />
     </div>
   );
 }
@@ -159,7 +179,11 @@ const componentCategories = [
   }
 ];
 
-export default function ComponentPalette() {
+interface ComponentPaletteProps {
+  onComponentDoubleClick?: (componentType: string) => void;
+}
+
+export default function ComponentPalette({ onComponentDoubleClick }: ComponentPaletteProps) {
   const [expandedCategory, setExpandedCategory] = React.useState<string | null>('Layout');
 
   const toggleCategory = (categoryName: string) => {
@@ -195,6 +219,7 @@ export default function ComponentPalette() {
                       icon={component.icon}
                       color={component.color}
                       description={component.description}
+                      onDoubleClick={onComponentDoubleClick}
                     />
                   ))}
                 </div>
@@ -206,7 +231,7 @@ export default function ComponentPalette() {
       
       <div className="p-3 border-t border-gray-200 bg-gray-50">
         <p className="text-xs text-gray-500 text-center">
-          Glissez les composants vers l'éditeur pour les ajouter à votre page
+          Glissez ou double-cliquez les composants pour les ajouter
         </p>
       </div>
     </div>
