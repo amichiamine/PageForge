@@ -57,6 +57,41 @@
   animation: slide-out-right 0.3s ease-out;
 }
 
+/* Améliorations pour les appareils tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.component-item-mobile {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Amélioration des zones de drop sur mobile */
+@media (max-width: 768px) {
+  .drop-zone {
+    min-height: 60vh;
+  }
+  
+  .component-palette {
+    max-height: 85vh;
+  }
+  
+  .properties-panel {
+    max-height: 85vh;
+  }
+}
+
+/* Styles pour le feedback de drag sur tactile */
+.touch-dragging {
+  opacity: 0.8 !important;
+  transform: scale(1.05) !important;
+  z-index: 9999 !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(240, 10%, 3.9%);

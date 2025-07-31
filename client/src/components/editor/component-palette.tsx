@@ -53,116 +53,56 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
   }, [preview]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    // Feedback tactile simple pour ne pas interférer avec react-dnd
     const element = e.currentTarget as HTMLElement;
-    const touch = e.touches[0];
-    let dragTimer: NodeJS.Timeout;
-    let hasMoved = false;
-
-    const startX = touch.clientX;
-    const startY = touch.clientY;
-
-    // Délai plus court pour le feedback tactile
-    dragTimer = setTimeout(() => {
-      if (!hasMoved) {
-        element.style.opacity = '0.8';
-        element.style.transform = 'scale(1.02)';
-        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        element.setAttribute('data-touch-ready', 'true');
-
-        // Feedback haptique
-        if ('vibrate' in navigator) {
-          navigator.vibrate(30);
-        }
-      }
-    }, 80);
-
-    const handleTouchMove = (moveEvent: TouchEvent) => {
-      const currentTouch = moveEvent.touches[0];
-      const deltaX = Math.abs(currentTouch.clientX - startX);
-      const deltaY = Math.abs(currentTouch.clientY - startY);
-
-      if (deltaX > 5 || deltaY > 5) {
-        hasMoved = true;
-        clearTimeout(dragTimer);
-
-        // Feedback visuel de drag actif
-        element.style.opacity = '0.9';
-        element.style.transform = 'scale(1.05) rotate(2deg)';
-        element.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
-        element.style.zIndex = '9999';
-        element.setAttribute('data-touch-dragging', 'true');
-
-        moveEvent.preventDefault();
-      }
-    };
-
-    const handleTouchEndLocal = () => {
-      clearTimeout(dragTimer);
-      hasMoved = false;
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEndLocal);
-    };
-
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEndLocal);
+    element.style.opacity = '0.9';
+    element.style.transform = 'scale(1.02)';
+    
+    if ('vibrate' in navigator) {
+      navigator.vibrate(15);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const element = e.currentTarget as HTMLElement;
     element.style.opacity = '1';
     element.style.transform = 'scale(1)';
-    element.style.boxShadow = '';
-    element.style.zIndex = '';
-    element.removeAttribute('data-touch-dragging');
-    element.removeAttribute('data-touch-ready');
   };
 
   return (
     <div
       ref={drag}
-      className={`group relative p-2 sm:p-3 rounded-lg border-2 border-dashed transition-all duration-200 cursor-grab hover:cursor-grabbing ${
-        isDragging ? 'opacity-50 scale-95' : 'opacity-100 hover:scale-105'
-      } hover:border-solid hover:shadow-lg bg-white touch-manipulation select-none component-item-mobile`}
+      className={`
+        group relative flex flex-col items-center p-2 rounded-lg border border-gray-200 
+        bg-white hover:bg-gray-50 hover:border-gray-300 cursor-grab 
+        transition-all duration-200 hover:scale-102 hover:shadow-sm
+        ${isDragging ? 'opacity-50 scale-95' : ''}
+        ${showDelete ? 'pr-6' : ''}
+        touch-manipulation select-none
+      `}
       style={{ 
+        opacity: isDragging ? 0.5 : 1,
         borderColor: color,
-        transform: isDragging ? 'scale(0.95)' : 'scale(1)',
-        touchAction: 'manipulation',
-        minHeight: '60px'
+        minHeight: '60px',
+        userSelect: 'none',
+        touchAction: 'manipulation'
       }}
-      title={description}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      title={description || label}
     >
-      <div className="flex flex-col items-center space-y-1 sm:space-y-2">
-        <div 
-          className="p-2 sm:p-3 rounded-lg transition-colors"
-          style={{ 
-            backgroundColor: `${color}15`,
-            color: color
-          }}
-        >
-          {React.cloneElement(icon, { size: window.innerWidth < 640 ? 20 : 24 })}
-        </div>
-        <span className="text-xs sm:text-sm font-medium text-gray-700 text-center leading-tight">
-          {label}
-        </span>
+      <div className={`text-${color} mb-1`} style={{ color }}>
+        {React.cloneElement(icon, { size: 18 })}
       </div>
-
-      {/* Effet de survol */}
-      <div 
-        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-10 transition-opacity"
-        style={{ backgroundColor: color }}
-      />
+      <span className="text-xs font-medium text-gray-700 text-center leading-tight">
+        {label}
+      </span>
       {showDelete && onDelete && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute top-1 right-1 p-1 bg-red-100 rounded-full text-red-500 hover:bg-red-200 hover:text-red-700 transition-colors opacity-0 group-hover:opacity-100"
-          title="Supprimer ce composant"
+          onClick={onDelete}
+          className="absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 size={10} />
         </button>
       )}
     </div>
@@ -171,115 +111,102 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
 
 const componentCategories = [
   {
-    name: "Texte & Contenu",
+    name: "Layout",
+    icon: <Layout size={16} />,
     components: [
-      { type: 'heading', label: 'Titre', icon: <Type />, color: '#3b82f6', description: 'Titre principal ou secondaire' },
-      { type: 'text', label: 'Texte', icon: <FileText />, color: '#64748b', description: 'Paragraphe de texte' },
-      { type: 'list', label: 'Liste', icon: <Menu />, color: '#8b5cf6', description: 'Liste à puces ou numérotée' },
-      { type: 'quote', label: 'Citation', icon: <Type />, color: '#10b981', description: 'Citation ou témoignage' },
+      { type: 'container', label: 'Container', icon: <Square />, color: '#6366f1', description: 'Conteneur de base' },
+      { type: 'section', label: 'Section', icon: <Layout />, color: '#8b5cf6', description: 'Section de page' },
+      { type: 'header', label: 'Header', icon: <Layers />, color: '#06b6d4', description: 'En-tête de page' },
+      { type: 'footer', label: 'Footer', icon: <Layers />, color: '#84cc16', description: 'Pied de page' },
     ]
   },
   {
-    name: "Interactions",
+    name: "Texte",
+    icon: <Type size={16} />,
     components: [
-      { type: 'button', label: 'Bouton', icon: <MousePointer />, color: '#ef4444', description: 'Bouton d\'action' },
-      { type: 'input', label: 'Champ de saisie', icon: <Square />, color: '#f59e0b', description: 'Zone de saisie de texte' },
-      { type: 'textarea', label: 'Zone de texte', icon: <FileText />, color: '#84cc16', description: 'Zone de texte multi-lignes' },
-      { type: 'select', label: 'Sélection', icon: <Menu />, color: '#06b6d4', description: 'Menu déroulant' },
-      { type: 'checkbox', label: 'Case à cocher', icon: <Square />, color: '#8b5cf6', description: 'Case à cocher' },
-      { type: 'radio', label: 'Bouton radio', icon: <MousePointer />, color: '#ec4899', description: 'Sélection unique' },
+      { type: 'heading', label: 'Titre', icon: <Type />, color: '#dc2626', description: 'Titre (H1-H6)' },
+      { type: 'paragraph', label: 'Paragraphe', icon: <FileText />, color: '#059669', description: 'Texte de paragraphe' },
+      { type: 'list', label: 'Liste', icon: <Menu />, color: '#d97706', description: 'Liste à puces ou numérotée' },
     ]
   },
   {
-    name: "Médias",
+    name: "Média",
+    icon: <Image size={16} />,
     components: [
-      { type: 'image', label: 'Image', icon: <Image />, color: '#10b981', description: 'Image ou photo' },
-      { type: 'video', label: 'Vidéo', icon: <Video />, color: '#f59e0b', description: 'Lecteur vidéo' },
-      { type: 'audio', label: 'Audio', icon: <Music />, color: '#8b5cf6', description: 'Lecteur audio' },
-      { type: 'gallery', label: 'Galerie', icon: <Layers />, color: '#06b6d4', description: 'Galerie d\'images' },
+      { type: 'image', label: 'Image', icon: <Image />, color: '#7c3aed', description: 'Image ou photo' },
+      { type: 'video', label: 'Vidéo', icon: <Video />, color: '#be185d', description: 'Lecteur vidéo' },
+      { type: 'audio', label: 'Audio', icon: <Music />, color: '#0891b2', description: 'Lecteur audio' },
     ]
   },
   {
-    name: "Structure",
+    name: "Interactif",
+    icon: <MousePointer size={16} />,
     components: [
-      { type: 'container', label: 'Conteneur', icon: <Square />, color: '#6b7280', description: 'Conteneur générique' },
-      { type: 'section', label: 'Section', icon: <Layout />, color: '#3b82f6', description: 'Section de page' },
-      { type: 'header', label: 'En-tête', icon: <Layout />, color: '#10b981', description: 'En-tête de page' },
-      { type: 'footer', label: 'Pied de page', icon: <Layout />, color: '#64748b', description: 'Pied de page' },
-      { type: 'sidebar', label: 'Barre latérale', icon: <Layers />, color: '#8b5cf6', description: 'Barre latérale' },
-      { type: 'card', label: 'Carte', icon: <Square />, color: '#f59e0b', description: 'Carte d\'information' },
+      { type: 'button', label: 'Bouton', icon: <MousePointer />, color: '#ea580c', description: 'Bouton cliquable' },
+      { type: 'link', label: 'Lien', icon: <Download />, color: '#0d9488', description: 'Lien hypertexte' },
+      { type: 'form', label: 'Formulaire', icon: <Upload />, color: '#7c2d12', description: 'Formulaire de contact' },
     ]
   },
   {
-    name: "Navigation",
+    name: "Contenu",
+    icon: <Star size={16} />,
     components: [
-      { type: 'navbar', label: 'Barre de navigation', icon: <Menu />, color: '#3b82f6', description: 'Menu de navigation' },
-      { type: 'breadcrumb', label: 'Fil d\'Ariane', icon: <FileText />, color: '#64748b', description: 'Navigation hiérarchique' },
-      { type: 'tabs', label: 'Onglets', icon: <Layers />, color: '#8b5cf6', description: 'Navigation par onglets' },
-      { type: 'pagination', label: 'Pagination', icon: <Menu />, color: '#10b981', description: 'Navigation de pages' },
-    ]
-  },
-  {
-    name: "E-commerce",
-    components: [
-      { type: 'product-card', label: 'Fiche produit', icon: <ShoppingCart />, color: '#ef4444', description: 'Carte produit' },
-      { type: 'price', label: 'Prix', icon: <Star />, color: '#f59e0b', description: 'Affichage de prix' },
-      { type: 'cart', label: 'Panier', icon: <ShoppingCart />, color: '#10b981', description: 'Icône panier' },
-      { type: 'rating', label: 'Note', icon: <Star />, color: '#fbbf24', description: 'Système de notation' },
-    ]
-  },
-  {
-    name: "Contact & Social",
-    components: [
-      { type: 'contact-form', label: 'Formulaire contact', icon: <Mail />, color: '#3b82f6', description: 'Formulaire de contact' },
-      { type: 'phone', label: 'Téléphone', icon: <Phone />, color: '#10b981', description: 'Numéro de téléphone' },
-      { type: 'email', label: 'Email', icon: <Mail />, color: '#ef4444', description: 'Adresse email' },
-      { type: 'address', label: 'Adresse', icon: <MapPin />, color: '#8b5cf6', description: 'Adresse postale' },
-      { type: 'social-icons', label: 'Réseaux sociaux', icon: <Heart />, color: '#ec4899', description: 'Icônes sociales' },
-    ]
-  },
-  {
-    name: "Avancé",
-    components: [
-      { type: 'calendar', label: 'Calendrier', icon: <Calendar />, color: '#06b6d4', description: 'Widget calendrier' },
-      { type: 'search', label: 'Recherche', icon: <Search />, color: '#64748b', description: 'Barre de recherche' },
-      { type: 'upload', label: 'Upload', icon: <Upload />, color: '#10b981', description: 'Zone d\'upload' },
-      { type: 'download', label: 'Téléchargement', icon: <Download />, color: '#f59e0b', description: 'Bouton de téléchargement' },
-      { type: 'login', label: 'Connexion', icon: <User />, color: '#8b5cf6', description: 'Formulaire de connexion' },
-      { type: 'security', label: 'Sécurité', icon: <Lock />, color: '#ef4444', description: 'Élément sécurisé' },
+      { type: 'calendar', label: 'Calendrier', icon: <Calendar />, color: '#16a34a', description: 'Calendrier d\'événements' },
+      { type: 'contact', label: 'Contact', icon: <Mail />, color: '#2563eb', description: 'Informations de contact' },
+      { type: 'testimonial', label: 'Témoignage', icon: <Heart />, color: '#dc2626', description: 'Avis client' },
+      { type: 'pricing', label: 'Tarifs', icon: <ShoppingCart />, color: '#059669', description: 'Tableau des prix' },
     ]
   }
 ];
 
 export default function ComponentPalette() {
+  const [expandedCategory, setExpandedCategory] = React.useState<string | null>('Layout');
+
+  const toggleCategory = (categoryName: string) => {
+    setExpandedCategory(expandedCategory === categoryName ? null : categoryName);
+  };
+
   return (
     <div className="h-full overflow-y-auto">
-      <div className="space-y-6 p-4">
+      <div className="p-3 space-y-3">
         {componentCategories.map((category) => (
-          <div key={category.name} className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide border-b border-gray-200 pb-2">
-              {category.name}
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-3 component-grid-mobile">
-              {category.components.map((component) => (
-                <DraggableComponent
-                  key={component.type}
-                  type={component.type}
-                  label={component.label}
-                  icon={component.icon}
-                  color={component.color}
-                  description={component.description}
-                />
-              ))}
-            </div>
+          <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
+            <button
+              onClick={() => toggleCategory(category.name)}
+              className="w-full flex items-center justify-between p-2 bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center space-x-2">
+                {category.icon}
+                <span className="text-sm font-medium text-gray-700">{category.name}</span>
+              </div>
+              <span className="text-xs text-gray-500">
+                {expandedCategory === category.name ? '−' : '+'}
+              </span>
+            </button>
+            
+            {expandedCategory === category.name && (
+              <div className="p-2 bg-white">
+                <div className="grid grid-cols-2 gap-2">
+                  {category.components.map((component) => (
+                    <DraggableComponent
+                      key={component.type}
+                      type={component.type}
+                      label={component.label}
+                      icon={component.icon}
+                      color={component.color}
+                      description={component.description}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
-
-      {/* Aide en bas */}
-      <div className="p-4 bg-gray-50 border-t border-gray-200 text-center">
-        <p className="text-xs text-gray-600 leading-relaxed">
-          💡 <strong>Astuce :</strong> Glissez-déposez les composants sur la zone d'édition pour les ajouter à votre page
+      
+      <div className="p-3 border-t border-gray-200 bg-gray-50">
+        <p className="text-xs text-gray-500 text-center">
+          Glissez les composants vers l'éditeur pour les ajouter à votre page
         </p>
       </div>
     </div>

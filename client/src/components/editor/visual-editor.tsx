@@ -48,8 +48,9 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
 
       if (!offset || !editorRect) return;
 
-      const x = Math.max(0, offset.x - editorRect.left);
-      const y = Math.max(0, offset.y - editorRect.top);
+      // Ajuster les coordonnées pour tenir compte du scroll et des marges
+      const x = Math.max(10, offset.x - editorRect.left - 10);
+      const y = Math.max(10, offset.y - editorRect.top - 10);
 
       if (item.isExisting && item.id) {
         // Moving existing component
@@ -69,23 +70,64 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     if (!project || !project.content?.pages?.[0]) return;
 
     const newComponent = createComponent(componentType);
+    
+    // Tailles réduites pour tous les composants
+    const baseWidths: Record<string, string> = {
+      'container': '250px',
+      'section': '280px', 
+      'header': '300px',
+      'footer': '300px',
+      'heading': '200px',
+      'paragraph': '220px',
+      'image': '180px',
+      'button': '120px',
+      'link': '100px',
+      'form': '240px',
+      'list': '180px',
+      'video': '200px',
+      'audio': '200px',
+      'calendar': '200px',
+      'contact': '200px',
+      'testimonial': '220px',
+      'pricing': '200px'
+    };
+
+    const baseHeights: Record<string, string> = {
+      'container': '120px',
+      'section': '150px',
+      'header': '80px', 
+      'footer': '80px',
+      'heading': '40px',
+      'paragraph': '60px',
+      'image': '120px',
+      'button': '36px',
+      'link': '24px',
+      'form': '200px',
+      'list': '100px',
+      'video': '120px',
+      'audio': '50px',
+      'calendar': '200px',
+      'contact': '150px',
+      'testimonial': '120px',
+      'pricing': '200px'
+    };
+    
     newComponent.styles = {
       ...newComponent.styles,
       position: 'absolute',
       left: `${x}px`,
       top: `${y}px`,
-      width: newComponent.styles?.width || '200px',
-      height: newComponent.styles?.height || '100px',
+      width: baseWidths[componentType] || newComponent.styles?.width || '180px',
+      height: baseHeights[componentType] || newComponent.styles?.height || '80px',
       backgroundColor: newComponent.styles?.backgroundColor || 'transparent',
       color: newComponent.styles?.color || '#000000',
-      fontSize: newComponent.styles?.fontSize || '16px',
-      fontFamily: newComponent.styles?.fontFamily || 'Arial, sans-serif',
-      padding: newComponent.styles?.padding || '10px',
+      fontSize: newComponent.styles?.fontSize || '14px',
+      fontFamily: newComponent.styles?.fontFamily || 'Inter, sans-serif',
+      padding: newComponent.styles?.padding || '8px',
       margin: newComponent.styles?.margin || '0px',
-      border: newComponent.styles?.border || 'none',
-      borderRadius: newComponent.styles?.borderRadius || '0px',
-      zIndex: '1000',
-      ...newComponent.styles
+      border: newComponent.styles?.border || '1px solid #e5e7eb',
+      borderRadius: newComponent.styles?.borderRadius || '6px',
+      zIndex: '1000'
     };
 
     const updatedStructure = [...(project.content.pages[0].content.structure || []), newComponent];
