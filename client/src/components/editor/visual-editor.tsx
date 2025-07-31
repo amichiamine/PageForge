@@ -347,6 +347,13 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     }
   };
 
+  // Gérer le clic sur le fond pour désélectionner
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onComponentSelect(null);
+    }
+  };
+
   return (
     <div
       ref={(node) => {
@@ -365,9 +372,17 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         touchAction: 'none',
         userSelect: 'none',
         WebkitUserSelect: 'none',
-        msUserSelect: 'none'
+        msUserSelect: 'none',
+        zIndex: 1
       }}
+      onClick={handleBackgroundClick}
       onTouchStart={(e) => {
+        // Gérer le clic tactile pour désélectionner aussi
+        if (e.target === e.currentTarget) {
+          onComponentSelect(null);
+        }
+        
+        // Gérer différemment selon la zone touchée
         const touch = e.touches[0];
         const element = e.currentTarget;
         const rect = element.getBoundingClientRect();

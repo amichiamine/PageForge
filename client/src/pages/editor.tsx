@@ -550,8 +550,8 @@ export default function Editor() {
                   />
                 )}
                 <div className={`
-                  ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 bg-white shadow-2xl' : 'w-64 md:w-60 lg:w-64'} 
-                  ${isMobile ? 'w-80 max-w-[85vw]' : isTablet ? 'w-96 max-w-[60vw]' : ''} 
+                  ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 bg-white shadow-2xl' : 'w-48 md:w-52 lg:w-56'} 
+                  ${isMobile ? 'w-72 max-w-[80vw]' : isTablet ? 'w-80 max-w-[55vw]' : ''} 
                   bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300
                   ${isMobileOrTablet ? 'animate-slide-in-left' : ''}
                 `}>
@@ -640,8 +640,8 @@ export default function Editor() {
                   />
                 )}
                 <div className={`
-                  ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 bg-white shadow-2xl' : 'w-64 md:w-60 lg:w-64'} 
-                  ${isMobile ? 'w-80 max-w-[85vw]' : isTablet ? 'w-96 max-w-[60vw]' : ''} 
+                  ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 bg-white shadow-2xl' : 'w-48 md:w-52 lg:w-56'} 
+                  ${isMobile ? 'w-72 max-w-[80vw]' : isTablet ? 'w-80 max-w-[55vw]' : ''} 
                   bg-white border-l border-gray-200 overflow-y-auto transition-all duration-300
                   ${isMobileOrTablet ? 'animate-slide-in-right' : ''}
                 `}>

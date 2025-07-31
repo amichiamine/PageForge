@@ -770,6 +770,27 @@
   }
 }
 
+/* Éviter la superposition des composants sur les menus */
+.visual-editor-container .component-wrapper {
+  z-index: 2;
+  position: relative;
+}
+
+.visual-editor-container .component-wrapper.selected {
+  z-index: 3;
+}
+
+/* S'assurer que les panneaux restent au-dessus */
+.component-panel, .properties-panel {
+  z-index: 50;
+}
+
+/* Masquer les débordements des composants */
+.visual-editor-container {
+  overflow: visible;
+  isolation: isolate;
+}
+
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;

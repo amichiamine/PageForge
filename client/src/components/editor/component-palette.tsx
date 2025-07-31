@@ -88,7 +88,7 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
     <div
       ref={drag}
       className={`
-        group relative flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-200 
+        group relative flex flex-col items-center p-1.5 sm:p-2 rounded-md border border-gray-200 
         bg-white hover:bg-gray-50 hover:border-gray-300 cursor-grab active:cursor-grabbing
         transition-all duration-200 hover:scale-102 hover:shadow-sm
         ${isDragging ? 'opacity-50 scale-95' : ''}
@@ -98,7 +98,7 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
       style={{ 
         opacity: isDragging ? 0.5 : 1,
         borderColor: color,
-        minHeight: '55px',
+        minHeight: '45px',
         userSelect: 'none',
         touchAction: 'manipulation'
       }}
@@ -108,10 +108,10 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
       onTouchEnd={handleTouchEnd}
       title={`${description || label} (Double-clic pour ajouter)`}
     >
-      <div className={`text-${color} mb-1`} style={{ color }}>
-        {React.cloneElement(icon, { size: 16 })}
+      <div className={`text-${color} mb-0.5`} style={{ color }}>
+        {React.cloneElement(icon, { size: 14 })}
       </div>
-      <span className="text-xs sm:text-xs font-medium text-gray-700 text-center leading-tight">
+      <span className="text-xs font-medium text-gray-700 text-center leading-tight">
         {label}
       </span>
       {showDelete && onDelete && (
@@ -192,7 +192,7 @@ export default function ComponentPalette({ onComponentDoubleClick }: ComponentPa
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-3 space-y-3">
+      <div className="p-2 space-y-2">
         {componentCategories.map((category) => (
           <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
             <button
@@ -209,8 +209,8 @@ export default function ComponentPalette({ onComponentDoubleClick }: ComponentPa
             </button>
             
             {expandedCategory === category.name && (
-              <div className="p-2 bg-white">
-                <div className="grid grid-cols-2 gap-2">
+              <div className="p-1.5 bg-white">
+                <div className="grid grid-cols-2 gap-1.5">
                   {category.components.map((component) => (
                     <DraggableComponent
                       key={component.type}
@@ -229,9 +229,9 @@ export default function ComponentPalette({ onComponentDoubleClick }: ComponentPa
         ))}
       </div>
       
-      <div className="p-3 border-t border-gray-200 bg-gray-50">
-        <p className="text-xs text-gray-500 text-center">
-          Glissez ou double-cliquez les composants pour les ajouter
+      <div className="p-2 border-t border-gray-200 bg-gray-50">
+        <p className="text-xs text-gray-500 text-center leading-tight">
+          Double-cliquez pour ajouter
         </p>
       </div>
     </div>
