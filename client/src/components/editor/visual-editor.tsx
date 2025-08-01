@@ -394,9 +394,8 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
             className={component.attributes?.className}
             placeholder={component.attributes?.placeholder || ''}
             rows={component.attributes?.rows || 3}
-          >
-            {component.content || ''}
-          </textarea>
+            defaultValue={component.content || ''}
+          />
         );
         
       case 'card':
