@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext, lazy } from "react";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
@@ -66,7 +66,7 @@ function Router() {
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/projects" component={Projects} />
-            <Route path="/editor/:projectId?" component={EditorComplete} />
+            <Route path="/editor/:projectId?" component={lazy(() => import('./pages/editor-complete-fixed'))} />
             <Route path="/templates" component={Templates} />
             <Route path="/vscode" component={VSCode} />
             <Route path="/deployment" component={Deployment} />
