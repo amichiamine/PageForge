@@ -35,7 +35,7 @@ export const enhancedTemplates: EnhancedTemplate[] = [
     name: 'Landing Startup Moderne',
     description: 'Page d\'atterrissage moderne pour startup avec sections hero, fonctionnalités, témoignages et CTA',
     category: 'landing',
-    thumbnail: '/api/placeholder/400/300',
+    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&auto=format',
     tags: ['startup', 'saas', 'moderne', 'conversion'],
     isBuiltIn: true,
     isNew: true,
@@ -207,12 +207,290 @@ export const enhancedTemplates: EnhancedTemplate[] = [
     }
   },
 
+  // Portfolio Templates
+  {
+    id: 'creative-portfolio',
+    name: 'Portfolio Créatif',
+    description: 'Portfolio moderne pour designers, artistes et créatifs avec galerie interactive',
+    category: 'portfolio',
+    thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop&auto=format',
+    tags: ['portfolio', 'créatif', 'design', 'galerie'],
+    isBuiltIn: true,
+    isNew: true,
+    content: {
+      structure: [
+        {
+          id: 'portfolio-hero',
+          type: 'section',
+          tag: 'section',
+          attributes: { className: 'min-h-screen bg-black text-white flex items-center justify-center relative' },
+          styles: { minHeight: '100vh', backgroundColor: '#000000', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+          children: [
+            {
+              id: 'portfolio-content',
+              type: 'container',
+              tag: 'div',
+              attributes: { className: 'text-center z-10' },
+              children: [
+                {
+                  id: 'portfolio-name',
+                  type: 'heading',
+                  tag: 'h1',
+                  content: 'ALEX MARTIN',
+                  attributes: { className: 'text-7xl font-light mb-4 tracking-wider' },
+                  styles: { fontSize: '4.5rem', fontWeight: '300', marginBottom: '1rem', letterSpacing: '0.2em' }
+                },
+                {
+                  id: 'portfolio-title',
+                  type: 'paragraph',
+                  tag: 'p',
+                  content: 'Designer Graphique & Développeur Créatif',
+                  attributes: { className: 'text-xl text-gray-300 mb-8 font-light' },
+                  styles: { fontSize: '1.25rem', color: '#d1d5db', marginBottom: '2rem', fontWeight: '300' }
+                },
+                {
+                  id: 'portfolio-cta',
+                  type: 'button',
+                  tag: 'button',
+                  content: 'Découvrir mon travail',
+                  attributes: { className: 'border border-white px-8 py-3 hover:bg-white hover:text-black transition-all duration-300' },
+                  styles: { border: '1px solid white', padding: '0.75rem 2rem', backgroundColor: 'transparent', color: 'white' }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      styles: `
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .portfolio-item { overflow: hidden; border-radius: 8px; transition: transform 0.3s ease; }
+        .portfolio-item:hover { transform: scale(1.05); }
+      `,
+      meta: {
+        title: 'Alex Martin - Portfolio Créatif',
+        description: 'Portfolio professionnel d\'Alex Martin, designer graphique et développeur créatif spécialisé en expériences digitales.'
+      }
+    }
+  },
+
+  // E-commerce Templates
+  {
+    id: 'modern-shop',
+    name: 'Boutique E-commerce Moderne',
+    description: 'Site e-commerce complet avec catalogue produits, panier et checkout optimisé',
+    category: 'ecommerce',
+    thumbnail: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=300&fit=crop&auto=format',
+    tags: ['ecommerce', 'boutique', 'vente', 'moderne'],
+    isBuiltIn: true,
+    isPremium: true,
+    content: {
+      structure: [
+        {
+          id: 'shop-header',
+          type: 'header',
+          tag: 'header',
+          attributes: { className: 'bg-white shadow-md sticky top-0 z-50' },
+          styles: { backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', position: 'sticky', top: '0', zIndex: '50' },
+          children: [
+            {
+              id: 'shop-nav',
+              type: 'nav',
+              tag: 'nav',
+              attributes: { className: 'max-w-7xl mx-auto px-4 py-4 flex justify-between items-center' },
+              children: [
+                {
+                  id: 'shop-logo',
+                  type: 'text',
+                  tag: 'div',
+                  content: 'BOUTIQUE',
+                  attributes: { className: 'text-2xl font-bold' },
+                  styles: { fontSize: '1.5rem', fontWeight: 'bold' }
+                },
+                {
+                  id: 'shop-cart',
+                  type: 'button',
+                  tag: 'button',
+                  content: 'Panier (0)',
+                  attributes: { className: 'bg-black text-white px-4 py-2 rounded-lg' },
+                  styles: { backgroundColor: '#000000', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.5rem' }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      styles: `
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+        .product-card:hover { transform: translateY(-5px); }
+      `,
+      meta: {
+        title: 'Boutique Moderne - Mode & Lifestyle',
+        description: 'Découvrez notre collection exclusive de produits mode et lifestyle avec livraison gratuite.'
+      }
+    }
+  },
+
+  // Restaurant Templates
+  {
+    id: 'restaurant-elegant',
+    name: 'Restaurant Élégant',
+    description: 'Site restaurant raffiné avec menu, réservations et ambiance chaleureuse',
+    category: 'restaurant',
+    thumbnail: 'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&h=300&fit=crop&auto=format',
+    tags: ['restaurant', 'menu', 'réservation', 'gastronomie'],
+    isBuiltIn: true,
+    content: {
+      structure: [
+        {
+          id: 'restaurant-hero',
+          type: 'section',
+          tag: 'section',
+          attributes: { className: 'relative h-screen bg-cover bg-center flex items-center justify-center' },
+          styles: { 
+            height: '100vh', 
+            backgroundImage: 'url(https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&h=800&fit=crop)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            position: 'relative'
+          },
+          children: [
+            {
+              id: 'overlay',
+              type: 'container',
+              tag: 'div',
+              attributes: { className: 'absolute inset-0 bg-black bg-opacity-50' },
+              styles: { position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', backgroundColor: 'rgba(0,0,0,0.5)' }
+            },
+            {
+              id: 'restaurant-content',
+              type: 'container',
+              tag: 'div',
+              attributes: { className: 'text-center text-white z-10 relative' },
+              children: [
+                {
+                  id: 'restaurant-name',
+                  type: 'heading',
+                  tag: 'h1',
+                  content: 'LE BISTROT PARISIEN',
+                  attributes: { className: 'text-6xl font-serif mb-4' },
+                  styles: { fontSize: '4rem', fontFamily: 'serif', marginBottom: '1rem', color: 'white' }
+                },
+                {
+                  id: 'restaurant-tagline',
+                  type: 'paragraph',
+                  tag: 'p',
+                  content: 'Une expérience culinaire authentique au cœur de Paris',
+                  attributes: { className: 'text-xl mb-8 font-light' },
+                  styles: { fontSize: '1.25rem', marginBottom: '2rem', fontWeight: '300' }
+                },
+                {
+                  id: 'reservation-btn',
+                  type: 'button',
+                  tag: 'button',
+                  content: 'Réserver une table',
+                  attributes: { className: 'bg-gold text-black px-8 py-3 font-semibold uppercase tracking-wider hover:bg-gold-light transition-colors' },
+                  styles: { backgroundColor: '#d4af37', color: '#000000', padding: '0.75rem 2rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.1em' }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      styles: `
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap');
+        body { font-family: 'Source Sans Pro', sans-serif; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .bg-gold { background-color: #d4af37; }
+        .menu-item { border-bottom: 1px dotted #ccc; padding: 1rem 0; }
+      `,
+      meta: {
+        title: 'Le Bistrot Parisien - Restaurant Gastronomique',
+        description: 'Découvrez notre cuisine française raffinée dans un cadre authentique. Réservation en ligne disponible.'
+      }
+    }
+  },
+
+  // SaaS Templates
+  {
+    id: 'saas-platform',
+    name: 'Plateforme SaaS',
+    description: 'Landing page pour application SaaS avec pricing, features et dashboard preview',
+    category: 'saas',
+    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&auto=format',
+    tags: ['saas', 'software', 'pricing', 'dashboard'],
+    isBuiltIn: true,
+    isPremium: true,
+    isNew: true,
+    content: {
+      structure: [
+        {
+          id: 'saas-hero',
+          type: 'section',
+          tag: 'section',
+          attributes: { className: 'bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-20' },
+          styles: { background: 'linear-gradient(135deg, #eef2ff 0%, #ffffff 50%, #faf5ff 100%)', padding: '5rem 2rem' },
+          children: [
+            {
+              id: 'saas-container',
+              type: 'container',
+              tag: 'div',
+              attributes: { className: 'max-w-6xl mx-auto text-center' },
+              children: [
+                {
+                  id: 'saas-title',
+                  type: 'heading',
+                  tag: 'h1',
+                  content: 'Automatisez votre workflow comme jamais auparavant',
+                  attributes: { className: 'text-5xl font-bold text-gray-900 mb-6 leading-tight' },
+                  styles: { fontSize: '3rem', fontWeight: 'bold', marginBottom: '2rem', lineHeight: '1.2' }
+                },
+                {
+                  id: 'saas-subtitle',
+                  type: 'paragraph',
+                  tag: 'p',
+                  content: 'Rejoignez plus de 10,000 équipes qui utilisent notre plateforme pour optimiser leur productivité et collaborer efficacement.',
+                  attributes: { className: 'text-xl text-gray-600 mb-8 max-w-3xl mx-auto' },
+                  styles: { fontSize: '1.25rem', color: '#4b5563', marginBottom: '2rem', maxWidth: '48rem', marginLeft: 'auto', marginRight: 'auto' }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      styles: `
+        .pricing-card { 
+          background: white; 
+          border-radius: 16px; 
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+          transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        }
+        .pricing-card:hover { 
+          transform: translateY(-5px); 
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+        }
+        .feature-icon { 
+          width: 48px; 
+          height: 48px; 
+          border-radius: 12px; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        }
+      `,
+      meta: {
+        title: 'WorkFlow Pro - Automatisation & Productivité',
+        description: 'Augmentez votre productivité avec notre plateforme d\'automatisation intuitive. Essai gratuit de 14 jours.'
+      }
+    }
+  },
+
   {
     id: 'product-launch',
     name: 'Lancement de Produit',
     description: 'Page optimisée pour le lancement d\'un nouveau produit avec countdown et pré-commandes',
     category: 'landing',
-    thumbnail: '/api/placeholder/400/300',
+    thumbnail: 'https://images.unsplash.com/photo-1572177812156-58036aae439c?w=400&h=300&fit=crop&auto=format',
     tags: ['produit', 'lancement', 'countdown', 'conversion'],
     isBuiltIn: true,
     isPremium: true,
@@ -326,7 +604,7 @@ export const enhancedTemplates: EnhancedTemplate[] = [
     name: 'Site Corporatif Professionnel',
     description: 'Site d\'entreprise complet avec présentation, services, équipe et contact',
     category: 'business',
-    thumbnail: '/api/placeholder/400/300',
+    thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop&auto=format',
     tags: ['entreprise', 'corporatif', 'professionnel', 'services'],
     isBuiltIn: true,
     content: {

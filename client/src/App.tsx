@@ -41,7 +41,7 @@ function Router() {
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
-        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-theme-surface border-r border-theme-border flex flex-col`}>
+        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-48 sm:w-48' : 'w-10'} bg-theme-surface border-r border-theme-border flex flex-col`}>
           {/* Toggle button for main navigation */}
           <div className="p-2 border-b border-gray-700">
             <button

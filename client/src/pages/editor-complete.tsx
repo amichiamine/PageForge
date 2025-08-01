@@ -24,6 +24,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useDrop, useDrag } from "react-dnd";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import ColorPicker from "@/components/editor/color-picker";
+import ImageSelector from "@/components/editor/image-selector";
+import TouchComponentPalette from "@/components/editor/touch-component-palette";
 
 // Configuration multi-backend pour drag and drop
 const HTML5toTouch = {
@@ -71,18 +77,31 @@ function DraggableComponent({ component }: DraggableComponentProps) {
     }),
   });
 
+  const handleDoubleClick = () => {
+    // Double-click to add component at center of canvas
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Dispatch a custom event to add component
+    window.dispatchEvent(new CustomEvent('addComponentByDoubleClick', {
+      detail: { componentType: component.type, position: { x: centerX, y: centerY } }
+    }));
+  };
+
   return (
     <div
       ref={drag}
-      className={`p-3 border rounded-lg cursor-move transition-all hover:shadow-md ${
+      className={`p-2 border rounded-lg cursor-move transition-all hover:shadow-md active:scale-95 ${
         isDragging ? 'opacity-50' : ''
       }`}
+      onDoubleClick={handleDoubleClick}
+      style={{ touchAction: 'manipulation' }}
     >
       <div className="flex items-center gap-2">
-        <span className="text-lg">{component.icon}</span>
-        <div>
-          <p className="font-medium text-sm">{component.name}</p>
-          <p className="text-xs text-gray-500">{component.category}</p>
+        <span className="text-sm">{component.icon}</span>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-xs truncate">{component.name}</p>
+          <p className="text-xs text-gray-500 truncate">{component.category}</p>
         </div>
       </div>
     </div>
@@ -308,6 +327,19 @@ export default function EditorComplete() {
     }
   }, [project]);
 
+  // Double-click event listener for adding components
+  useEffect(() => {
+    const handleDoubleClickAdd = (event: any) => {
+      const { componentType, position } = event.detail;
+      handleComponentAdd(componentType, position);
+    };
+
+    window.addEventListener('addComponentByDoubleClick', handleDoubleClickAdd);
+    return () => {
+      window.removeEventListener('addComponentByDoubleClick', handleDoubleClickAdd);
+    };
+  }, [handleComponentAdd]);
+
   // Save project mutation
   const saveProjectMutation = useMutation({
     mutationFn: async (updatedProject: Partial<Project>) => {
@@ -529,10 +561,10 @@ export default function EditorComplete() {
         {/* Main editor content */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left sidebar - Component palette */}
-          <div className="w-64 border-r bg-white flex-shrink-0 overflow-y-auto">
-            <div className="p-4">
-              <h2 className="text-sm font-semibold mb-4">Palette de composants</h2>
-              <div className="space-y-2">
+          <div className="w-48 border-r bg-white flex-shrink-0 overflow-y-auto">
+            <div className="p-2">
+              <h2 className="text-xs font-semibold mb-3">Composants</h2>
+              <div className="space-y-1">
                 {componentTypes.map((component) => (
                   <DraggableComponent
                     key={component.type}
@@ -540,6 +572,13 @@ export default function EditorComplete() {
                   />
                 ))}
               </div>
+              
+              {isMobile && (
+                <div className="mt-4 p-2 bg-blue-50 rounded-lg">
+                  <p className="text-xs text-blue-700 mb-2">Sur mobile :</p>
+                  <p className="text-xs text-blue-600">Double-cliquez pour ajouter</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -559,9 +598,9 @@ export default function EditorComplete() {
           </div>
 
           {/* Right sidebar - Properties panel */}
-          <div className="w-64 border-l bg-white flex-shrink-0 overflow-y-auto">
-            <div className="p-4">
-              <h2 className="text-sm font-semibold mb-4">Propriétés</h2>
+          <div className="w-52 border-l bg-white flex-shrink-0 overflow-y-auto">
+            <div className="p-3">
+              <h2 className="text-xs font-semibold mb-3">Propriétés</h2>
               {selectedComponent ? (
                 <div className="space-y-4">
                   <Card className="p-3">
@@ -621,28 +660,153 @@ export default function EditorComplete() {
                       </div>
                     </div>
 
-                    {/* Basic styles */}
-                    <div className="space-y-2 mt-4">
-                      <Label>Couleur de texte</Label>
-                      <Select 
-                        value={selectedComponent.styles?.color || 'black'}
-                        onValueChange={(value) => handleComponentUpdate({
-                          ...selectedComponent,
-                          styles: { ...selectedComponent.styles, color: value }
-                        })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="black">Noir</SelectItem>
-                          <SelectItem value="blue">Bleu</SelectItem>
-                          <SelectItem value="red">Rouge</SelectItem>
-                          <SelectItem value="green">Vert</SelectItem>
-                          <SelectItem value="purple">Violet</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {/* Enhanced styling with ColorPicker */}
+                    <Tabs defaultValue="style" className="mt-4">
+                      <TabsList className="grid w-full grid-cols-2 h-7">
+                        <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
+                        <TabsTrigger value="layout" className="text-xs">Mise en page</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="style" className="space-y-3 mt-3">
+                        {/* Text Color */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Couleur du texte</Label>
+                          <ColorPicker
+                            value={selectedComponent.styles?.color || '#000000'}
+                            onChange={(color) => handleComponentUpdate({
+                              ...selectedComponent,
+                              styles: { ...selectedComponent.styles, color }
+                            })}
+                          />
+                        </div>
+
+                        {/* Background */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Arrière-plan</Label>
+                          <ColorPicker
+                            value={selectedComponent.styles?.backgroundColor || '#ffffff'}
+                            onChange={(backgroundColor) => handleComponentUpdate({
+                              ...selectedComponent,
+                              styles: { ...selectedComponent.styles, backgroundColor }
+                            })}
+                            showBackgroundTypes={true}
+                          />
+                        </div>
+
+                        {/* Font Size */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Taille du texte</Label>
+                          <div className="flex items-center gap-2">
+                            <Slider
+                              value={[parseInt(selectedComponent.styles?.fontSize?.replace('px', '') || '16')]}
+                              onValueChange={([value]) => handleComponentUpdate({
+                                ...selectedComponent,
+                                styles: { ...selectedComponent.styles, fontSize: `${value}px` }
+                              })}
+                              max={72}
+                              min={8}
+                              step={1}
+                              className="flex-1"
+                            />
+                            <span className="text-xs w-8 text-center">
+                              {parseInt(selectedComponent.styles?.fontSize?.replace('px', '') || '16')}px
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Image selector for image components */}
+                        {selectedComponent.type === 'image' && (
+                          <div className="space-y-1">
+                            <Label className="text-xs">Image</Label>
+                            <ImageSelector
+                              value={selectedComponent.attributes?.src || ''}
+                              onChange={(src) => handleComponentUpdate({
+                                ...selectedComponent,
+                                attributes: { ...selectedComponent.attributes, src }
+                              })}
+                            />
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="layout" className="space-y-3 mt-3">
+                        {/* Width & Height */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Largeur</Label>
+                            <Input
+                              type="number"
+                              className="h-7 text-xs"
+                              value={selectedComponent.position?.width || 200}
+                              onChange={(e) => handleComponentUpdate({
+                                ...selectedComponent,
+                                position: { 
+                                  ...selectedComponent.position,
+                                  width: parseInt(e.target.value) || 200
+                                }
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Hauteur</Label>
+                            <Input
+                              type="number"
+                              className="h-7 text-xs"
+                              value={selectedComponent.position?.height || 100}
+                              onChange={(e) => handleComponentUpdate({
+                                ...selectedComponent,
+                                position: { 
+                                  ...selectedComponent.position,
+                                  height: parseInt(e.target.value) || 100
+                                }
+                              })}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Padding */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Espacement interne</Label>
+                          <div className="flex items-center gap-2">
+                            <Slider
+                              value={[parseInt(selectedComponent.styles?.padding?.replace('px', '') || '8')]}
+                              onValueChange={([value]) => handleComponentUpdate({
+                                ...selectedComponent,
+                                styles: { ...selectedComponent.styles, padding: `${value}px` }
+                              })}
+                              max={50}
+                              min={0}
+                              step={1}
+                              className="flex-1"
+                            />
+                            <span className="text-xs w-8 text-center">
+                              {parseInt(selectedComponent.styles?.padding?.replace('px', '') || '8')}px
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Border Radius */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Arrondi des coins</Label>
+                          <div className="flex items-center gap-2">
+                            <Slider
+                              value={[parseInt(selectedComponent.styles?.borderRadius?.replace('px', '') || '0')]}
+                              onValueChange={([value]) => handleComponentUpdate({
+                                ...selectedComponent,
+                                styles: { ...selectedComponent.styles, borderRadius: `${value}px` }
+                              })}
+                              max={50}
+                              min={0}
+                              step={1}
+                              className="flex-1"
+                            />
+                            <span className="text-xs w-8 text-center">
+                              {parseInt(selectedComponent.styles?.borderRadius?.replace('px', '') || '0')}px
+                            </span>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
 
                     {/* Delete button */}
                     <Button 
