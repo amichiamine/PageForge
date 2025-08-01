@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/contexts/theme-context";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
-import EditorClean from "@/pages/editor-clean";
+import EditorComplete from "@/pages/editor-complete";
 import Templates from "@/pages/templates";
 import Documentation from "@/pages/documentation";
 import VSCode from "@/pages/vscode";
@@ -41,18 +41,18 @@ function Router() {
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
-        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-48 sm:w-40' : 'w-10 sm:w-8'} bg-theme-surface border-r border-theme-border flex flex-col`}>
+        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-40 sm:w-40' : 'w-8'} bg-theme-surface border-r border-theme-border flex flex-col`}>
           {/* Toggle button for main navigation */}
-          <div className="p-1 sm:p-2 border-b border-gray-700">
+          <div className="p-2 border-b border-gray-700">
             <button
               onClick={() => setHideMainSidebar(!hideMainSidebar)}
-              className="w-full h-8 sm:h-10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              className="w-full h-10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
               title={showMainSidebar ? "Masquer la navigation" : "Afficher la navigation"}
             >
               {showMainSidebar ? (
-                <PanelLeftClose className="w-4 h-4 sm:w-5 sm:h-5" />
+                <PanelLeftClose className="w-5 h-5" />
               ) : (
-                <PanelLeftOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                <PanelLeftOpen className="w-5 h-5" />
               )}
             </button>
           </div>
@@ -66,7 +66,7 @@ function Router() {
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/projects" component={Projects} />
-            <Route path="/editor/:projectId?" component={EditorClean} />
+            <Route path="/editor/:projectId?" component={EditorComplete} />
             <Route path="/templates" component={Templates} />
             <Route path="/vscode" component={VSCode} />
             <Route path="/deployment" component={Deployment} />

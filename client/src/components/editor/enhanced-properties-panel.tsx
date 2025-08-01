@@ -8,8 +8,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Trash2, 
   Copy, 
@@ -30,22 +28,14 @@ import {
   RotateCcw,
   Smartphone,
   Tablet,
-  Monitor,
-  Grid3X3,
-  Move,
-  Maximize,
-  PaintBucket,
-  Square,
-  Sparkles,
-  MousePointer
+  Monitor
 } from 'lucide-react';
 import type { ComponentDefinition, Project } from '@shared/schema';
 import { 
-  massiveCSSProperties,
-  massivePropertyGroups,
-  getCSSPropertyDefinition,
-  type CSSPropertyDefinition
-} from '@/lib/massive-css-properties';
+  getComponentDefinition, 
+  getAllCSSPropertiesForComponent, 
+  commonCSSProperties 
+} from '@/lib/component-definitions';
 
 interface EnhancedPropertiesPanelProps {
   component: ComponentDefinition | null;
@@ -64,8 +54,7 @@ interface PropertyGroup {
   properties: string[];
 }
 
-// Groupes massifs de propriétés CSS avec icônes
-const massivePropertyGroups: PropertyGroup[] = [
+const propertyGroups: PropertyGroup[] = [
   {
     id: 'content',
     name: 'Contenu',
@@ -75,122 +64,45 @@ const massivePropertyGroups: PropertyGroup[] = [
   },
   {
     id: 'layout',
-    name: 'Layout & Position',
+    name: 'Disposition',
     shortName: 'Layout',
     icon: Layout,
-    properties: cssPropertyGroups['Layout'] || []
+    properties: ['display', 'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear', 'overflow', 'visibility']
   },
   {
-    id: 'flexbox',
-    name: 'Flexbox',
-    shortName: 'Flex',
-    icon: Move,
-    properties: cssPropertyGroups['Flexbox'] || []
-  },
-  {
-    id: 'grid',
-    name: 'CSS Grid',
-    shortName: 'Grid',
-    icon: Grid3X3,
-    properties: cssPropertyGroups['Grid'] || []
-  },
-  {
-    id: 'dimensions',
-    name: 'Dimensions',
+    id: 'boxModel',
+    name: 'Modèle de boîte',
     shortName: 'Tailles',
-    icon: Maximize,
-    properties: cssPropertyGroups['Dimensions'] || []
-  },
-  {
-    id: 'spacing',
-    name: 'Marges & Espacement',
-    shortName: 'Espaces',
     icon: Box,
-    properties: [...(cssPropertyGroups['Marges'] || []), ...(cssPropertyGroups['Espacement'] || [])]
+    properties: ['width', 'height', 'max-width', 'max-height', 'min-width', 'min-height', 'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left']
   },
   {
     id: 'typography',
     name: 'Typographie',
     shortName: 'Typo',
     icon: Type,
-    properties: cssPropertyGroups['Typographie'] || []
-  },
-  {
-    id: 'colors',
-    name: 'Couleurs',
-    shortName: 'Couleurs',
-    icon: Palette,
-    properties: cssPropertyGroups['Couleurs'] || []
+    properties: ['font-family', 'font-size', 'font-weight', 'font-style', 'text-align', 'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'word-spacing', 'color']
   },
   {
     id: 'background',
     name: 'Arrière-plan',
     shortName: 'Fond',
-    icon: PaintBucket,
-    properties: cssPropertyGroups['Arrière-plan'] || []
+    icon: Palette,
+    properties: ['background-color', 'background-image', 'background-size', 'background-position', 'background-repeat', 'background-attachment', 'opacity']
   },
   {
-    id: 'borders',
-    name: 'Bordures',
+    id: 'border',
+    name: 'Bordures & Ombres',
     shortName: 'Bordures',
-    icon: Square,
-    properties: cssPropertyGroups['Bordures'] || []
+    icon: Settings,
+    properties: ['border', 'border-width', 'border-style', 'border-color', 'border-radius', 'border-top', 'border-right', 'border-bottom', 'border-left', 'box-shadow', 'outline']
   },
   {
-    id: 'effects',
-    name: 'Effets & Ombres',
+    id: 'animation',
+    name: 'Animations & Effets',
     shortName: 'Effets',
-    icon: Sparkles,
-    properties: cssPropertyGroups['Effets'] || []
-  },
-  {
-    id: 'transforms',
-    name: 'Transformations',
-    shortName: 'Transform',
-    icon: RotateCcw,
-    properties: cssPropertyGroups['Transformations'] || []
-  },
-  {
-    id: 'animations',
-    name: 'Animations',
-    shortName: 'Anim',
     icon: Zap,
-    properties: cssPropertyGroups['Animations'] || []
-  },
-  {
-    id: 'display',
-    name: 'Affichage',
-    shortName: 'Affichage',
-    icon: Eye,
-    properties: cssPropertyGroups['Affichage'] || []
-  },
-  {
-    id: 'interaction',
-    name: 'Interaction',
-    shortName: 'Interact',
-    icon: MousePointer,
-    properties: cssPropertyGroups['Interaction'] || []
-  },
-  {
-    id: 'table',
-    name: 'Table',
-    shortName: 'Table',
-    icon: Settings,
-    properties: cssPropertyGroups['Table'] || []
-  },
-  {
-    id: 'list',
-    name: 'Liste',
-    shortName: 'Liste',
-    icon: Settings,
-    properties: cssPropertyGroups['Liste'] || []
-  },
-  {
-    id: 'outline',
-    name: 'Contour',
-    shortName: 'Contour',
-    icon: Settings,
-    properties: cssPropertyGroups['Contour'] || []
+    properties: ['transition', 'transform', 'animation', 'filter', 'cursor', 'pointer-events']
   }
 ];
 
@@ -210,7 +122,7 @@ export default function EnhancedPropertiesPanel({
 }: EnhancedPropertiesPanelProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(['content', 'layout', 'dimensions'])
+    new Set(['content', 'layout', 'boxModel'])
   );
   const [selectedBreakpoint, setSelectedBreakpoint] = useState('desktop');
   const [isCompactMode, setIsCompactMode] = useState(window.innerWidth < 1024);
@@ -241,9 +153,7 @@ export default function EnhancedPropertiesPanel({
   const updateProperty = (propertyName: string, value: any) => {
     if (!component) return;
     
-    // Déterminer si c'est une propriété CSS ou un attribut
-    const cssProperty = getCSSPropertyDefinition(propertyName);
-    const isStyleProperty = cssProperty !== null;
+    const isStyleProperty = commonCSSProperties.includes(propertyName);
     const updatedComponent = { ...component };
     
     if (isStyleProperty) {
@@ -256,9 +166,7 @@ export default function EnhancedPropertiesPanel({
   };
 
   const resetProperty = (propertyName: string) => {
-    const cssProperty = getCSSPropertyDefinition(propertyName);
-    const defaultValue = cssProperty?.defaultValue || '';
-    updateProperty(propertyName, defaultValue);
+    updateProperty(propertyName, '');
   };
 
   const handleComponentDelete = () => {
@@ -270,31 +178,30 @@ export default function EnhancedPropertiesPanel({
 
   const availableProperties = useMemo(() => {
     if (!component) return [];
-    // Retourner toutes les propriétés CSS disponibles
-    return Object.keys(massiveCSSProperties);
+    return getAllCSSPropertiesForComponent(component.type);
   }, [component]);
 
   const filteredGroups = useMemo(() => {
-    if (!searchTerm) return massivePropertyGroups;
+    if (!searchTerm) return propertyGroups;
     
-    const searchResults = searchTerm.toLowerCase();
-    return massivePropertyGroups.map(group => ({
+    return propertyGroups.map(group => ({
       ...group,
-      properties: group.properties.filter(prop => {
-        const cssProperty = getCSSPropertyDefinition(prop);
-        return prop.toLowerCase().includes(searchResults) ||
-               (cssProperty?.label && cssProperty.label.toLowerCase().includes(searchResults)) ||
-               (cssProperty?.category && cssProperty.category.toLowerCase().includes(searchResults));
-      })
+      properties: group.properties.filter(prop => 
+        prop.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        availableProperties.includes(prop)
+      )
     })).filter(group => group.properties.length > 0);
-  }, [searchTerm]);
+  }, [searchTerm, availableProperties]);
 
   if (!component) {
     return (
-      <div className={`h-full flex items-center justify-center text-center p-4 ${className || ''}`}>
-        <div>
-          <Box className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-sm text-gray-500">
+      <div className={`h-full flex items-center justify-center bg-theme-surface border-l border-theme-border ${className}`}>
+        <div className="text-center spacing-responsive">
+          <Settings className="w-8 h-8 sm:w-12 sm:h-12 text-theme-text-secondary mx-auto mb-2 sm:mb-4" />
+          <h3 className="text-responsive-base font-medium text-theme-text mb-1 sm:mb-2">
+            Aucun composant sélectionné
+          </h3>
+          <p className="text-responsive-sm text-theme-text-secondary">
             Sélectionnez un composant pour modifier ses propriétés
           </p>
         </div>
@@ -302,133 +209,22 @@ export default function EnhancedPropertiesPanel({
     );
   }
 
-  // Rendu du panneau de propriétés CSS massif
-  const renderPropertyInput = (propertyName: string) => {
-    const cssProperty = getCSSPropertyDefinition(propertyName);
-    if (!cssProperty) return null;
-
-    const currentValue = getPropertyValue(propertyName);
-
-    switch (cssProperty.type) {
-      case 'color':
-        return (
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">{cssProperty.label}</Label>
-            <div className="flex gap-2">
-              <Input
-                type="color"
-                value={currentValue || cssProperty.defaultValue}
-                onChange={(e) => updateProperty(propertyName, e.target.value)}
-                className="w-12 h-8 p-1 rounded border"
-              />
-              <Input
-                type="text"
-                value={currentValue || cssProperty.defaultValue}
-                onChange={(e) => updateProperty(propertyName, e.target.value)}
-                placeholder={cssProperty.defaultValue?.toString()}
-                className="flex-1 h-8 text-xs"
-              />
-            </div>
-          </div>
-        );
-
-      case 'select':
-        return (
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">{cssProperty.label}</Label>
-            <Select
-              value={currentValue || cssProperty.defaultValue}
-              onValueChange={(value) => updateProperty(propertyName, value)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder={cssProperty.defaultValue?.toString()} />
-              </SelectTrigger>
-              <SelectContent>
-                {cssProperty.options?.map((option) => (
-                  <SelectItem key={option} value={option} className="text-xs">
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        );
-
-      case 'range':
-        return (
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <Label className="text-xs font-medium">{cssProperty.label}</Label>
-              <span className="text-xs text-gray-500">
-                {currentValue || cssProperty.defaultValue}{cssProperty.unit}
-              </span>
-            </div>
-            <Slider
-              value={[parseFloat(currentValue) || cssProperty.defaultValue || 0]}
-              onValueChange={([value]) => updateProperty(propertyName, value.toString())}
-              min={cssProperty.min}
-              max={cssProperty.max}
-              step={cssProperty.step}
-              className="w-full"
-            />
-          </div>
-        );
-
-      case 'checkbox':
-        return (
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={currentValue === 'true' || currentValue === true}
-              onCheckedChange={(checked) => updateProperty(propertyName, checked.toString())}
-            />
-            <Label className="text-xs font-medium">{cssProperty.label}</Label>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">{cssProperty.label}</Label>
-            <div className="flex gap-2">
-              <Input
-                type={cssProperty.type === 'number' ? 'number' : 'text'}
-                value={currentValue || ''}
-                onChange={(e) => updateProperty(propertyName, e.target.value)}
-                placeholder={cssProperty.defaultValue?.toString()}
-                className="flex-1 h-8 text-xs"
-                min={cssProperty.min}
-                max={cssProperty.max}
-                step={cssProperty.step}
-              />
-              {cssProperty.unit && (
-                <span className="text-xs text-gray-500 self-center">{cssProperty.unit}</span>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => resetProperty(propertyName)}
-                className="h-8 w-8 p-0"
-                title="Réinitialiser"
-              >
-                <RotateCcw className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        );
-    }
-  };
+  const componentDef = getComponentDefinition(component.type);
 
   return (
-    <div className={`h-full flex flex-col bg-white border-l ${className || ''}`}>
+    <div className={`h-full flex flex-col bg-theme-surface border-l border-theme-border ${className}`}>
       {/* En-tête avec informations du composant */}
-      <div className="p-3 border-b">
+      <div className="panel-header-compact border-b border-theme-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0 flex-1">
+            {componentDef?.icon && (
+              <componentDef.icon className="w-4 h-4 flex-shrink-0" style={{ color: componentDef.color }} />
+            )}
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 truncate">
-                {component.type}
+              <h3 className="compact-title text-theme-text truncate">
+                {componentDef?.label || component.type}
               </h3>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-theme-text-secondary truncate">
                 ID: {component.id}
               </p>
             </div>
@@ -437,8 +233,17 @@ export default function EnhancedPropertiesPanel({
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => {/* Toggle visibility */}}
+              className="h-6 w-6 p-0 touch-friendly-compact"
+              title="Masquer/Afficher"
+            >
+              <Eye className="w-3 h-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleComponentDelete}
-              className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+              className="h-6 w-6 p-0 touch-friendly-compact text-red-600 hover:text-red-700"
               title="Supprimer"
             >
               <Trash2 className="w-3 h-3" />
@@ -447,22 +252,47 @@ export default function EnhancedPropertiesPanel({
         </div>
       </div>
 
+      {/* Sélecteur de breakpoint responsive */}
+      {!isCompactMode && (
+        <div className="p-2 border-b border-theme-border">
+          <div className="flex gap-1">
+            {responsiveBreakpoints.map(breakpoint => {
+              const Icon = breakpoint.icon;
+              return (
+                <Button
+                  key={breakpoint.id}
+                  variant={selectedBreakpoint === breakpoint.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedBreakpoint(breakpoint.id)}
+                  className="flex-1 h-7 text-xs touch-friendly-compact"
+                  title={`${breakpoint.name} (${breakpoint.width})`}
+                >
+                  <Icon className="w-3 h-3 mr-1" />
+                  <span className="hidden sm:inline">{breakpoint.name}</span>
+                  <span className="sm:hidden">{breakpoint.name.charAt(0)}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Barre de recherche */}
-      <div className="p-3 border-b">
+      <div className="p-2 border-b border-theme-border">
         <div className="relative">
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-2 top-2 w-3 h-3 text-theme-text-secondary" />
           <Input
-            placeholder="Rechercher une propriété CSS..."
+            placeholder="Rechercher une propriété..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-8 text-xs"
+            className="pl-7 h-7 text-xs bg-theme-background border-theme-border input-responsive"
           />
           {searchTerm && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSearchTerm('')}
-              className="absolute right-1 top-1 h-6 w-6 p-0"
+              className="absolute right-1 top-1 h-5 w-5 p-0 hover:bg-theme-surface touch-friendly-compact"
             >
               <X className="w-3 h-3" />
             </Button>
@@ -470,61 +300,214 @@ export default function EnhancedPropertiesPanel({
         </div>
       </div>
 
-      {/* Liste des groupes de propriétés CSS */}
+      {/* Propriétés organisées par groupes */}
       <div className="flex-1 overflow-y-auto">
-        {filteredGroups.map((group) => {
-          const Icon = group.icon;
-          const isExpanded = expandedGroups.has(group.id);
-          
-          if (group.properties.length === 0) return null;
+        <div className="p-2 space-y-2">
+          {filteredGroups.map(group => {
+            if (group.properties.length === 0) return null;
+            
+            const Icon = group.icon;
+            const isExpanded = expandedGroups.has(group.id);
+            const groupName = isCompactMode ? group.shortName : group.name;
 
-          return (
-            <div key={group.id} className="border-b">
-              {/* En-tête du groupe */}
-              <button
-                onClick={() => toggleGroup(group.id)}
-                className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Icon className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-900">
-                    {isCompactMode ? group.shortName : group.name}
-                  </span>
-                  <Badge variant="secondary" className="text-xs">
-                    {group.properties.length}
+            return (
+              <div key={group.id} className="space-y-1">
+                <button
+                  onClick={() => toggleGroup(group.id)}
+                  className="flex items-center gap-2 w-full text-left p-1 rounded hover:bg-theme-background transition-colors touch-friendly-compact"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="w-3 h-3 text-theme-text-secondary" />
+                  ) : (
+                    <ChevronRight className="w-3 h-3 text-theme-text-secondary" />
+                  )}
+                  <Icon className="w-3 h-3 text-theme-primary" />
+                  <span className="text-xs font-medium text-theme-text">{groupName}</span>
+                  <Badge variant="secondary" className="h-4 text-xs px-1">
+                    {group.properties.filter(prop => availableProperties.includes(prop)).length}
                   </Badge>
-                </div>
-                {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {isExpanded && (
+                  <div className="space-y-2 pl-2">
+                    {group.properties
+                      .filter(prop => availableProperties.includes(prop))
+                      .map(propertyName => (
+                        <PropertyField
+                          key={propertyName}
+                          propertyName={propertyName}
+                          value={getPropertyValue(propertyName)}
+                          onChange={(value) => updateProperty(propertyName, value)}
+                          onReset={() => resetProperty(propertyName)}
+                          isCompact={isCompactMode}
+                        />
+                      ))}
+                  </div>
                 )}
-              </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-              {/* Contenu du groupe */}
-              {isExpanded && (
-                <div className="px-3 pb-3 space-y-3">
-                  {group.properties.map((propertyName) => (
-                    <div key={propertyName}>
-                      {renderPropertyInput(propertyName)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
+      {/* Actions rapides */}
+      <div className="p-2 border-t border-theme-border">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs touch-friendly-compact"
+            onClick={() => {/* Copy component */}}
+          >
+            <Copy className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Dupliquer</span>
+            <span className="sm:hidden">Copy</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs touch-friendly-compact"
+            onClick={() => {/* Reset all styles */}}
+          >
+            <RotateCcw className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Réinitialiser</span>
+            <span className="sm:hidden">Reset</span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        {/* Message si aucune propriété trouvée */}
-        {filteredGroups.every(group => group.properties.length === 0) && (
-          <div className="p-6 text-center">
-            <Search className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">
-              Aucune propriété trouvée pour "{searchTerm}"
-            </p>
+interface PropertyFieldProps {
+  propertyName: string;
+  value: any;
+  onChange: (value: any) => void;
+  onReset: () => void;
+  isCompact: boolean;
+}
+
+function PropertyField({ propertyName, value, onChange, onReset, isCompact }: PropertyFieldProps) {
+  const renderInput = () => {
+    // Propriétés de couleur
+    if (propertyName.includes('color') || propertyName === 'background-color') {
+      return (
+        <div className="flex gap-1">
+          <Input
+            type="color"
+            value={value || '#000000'}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-8 h-6 p-0 border rounded input-responsive"
+          />
+          <Input
+            type="text"
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="#000000"
+            className="flex-1 h-6 text-xs input-responsive"
+          />
+        </div>
+      );
+    }
+
+    // Propriétés numériques avec slider
+    if (['opacity', 'z-index', 'font-weight'].includes(propertyName)) {
+      const max = propertyName === 'opacity' ? 1 : propertyName === 'z-index' ? 1000 : 900;
+      const step = propertyName === 'opacity' ? 0.1 : 1;
+      
+      return (
+        <div className="space-y-1">
+          <div className="flex gap-1">
+            <Slider
+              value={[parseFloat(value) || 0]}
+              onValueChange={(values) => onChange(values[0].toString())}
+              max={max}
+              step={step}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              value={value || ''}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-16 h-6 text-xs input-responsive"
+              step={step}
+              min="0"
+              max={max}
+            />
           </div>
+        </div>
+      );
+    }
+
+    // Sélecteur pour certaines propriétés
+    if (['display', 'position', 'text-align', 'font-weight'].includes(propertyName)) {
+      const options = {
+        'display': ['block', 'inline', 'flex', 'grid', 'none'],
+        'position': ['static', 'relative', 'absolute', 'fixed', 'sticky'],
+        'text-align': ['left', 'center', 'right', 'justify'],
+        'font-weight': ['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900']
+      };
+
+      return (
+        <Select value={value || ''} onValueChange={onChange}>
+          <SelectTrigger className="h-6 text-xs">
+            <SelectValue placeholder="Sélectionner..." />
+          </SelectTrigger>
+          <SelectContent>
+            {options[propertyName as keyof typeof options]?.map(option => (
+              <SelectItem key={option} value={option} className="text-xs">
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    // Textarea pour les propriétés longues
+    if (['text', 'content'].includes(propertyName)) {
+      return (
+        <Textarea
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Entrez le texte..."
+          className="min-h-16 text-xs resize-none"
+          rows={3}
+        />
+      );
+    }
+
+    // Input par défaut
+    return (
+      <Input
+        type="text"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Valeur..."
+        className="h-6 text-xs input-responsive"
+      />
+    );
+  };
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-theme-text truncate flex-1">
+          {isCompact ? propertyName.split('-').pop() : propertyName}
+        </Label>
+        {value && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            className="h-4 w-4 p-0 text-theme-text-secondary hover:text-theme-text touch-friendly-compact"
+            title="Réinitialiser"
+          >
+            <X className="w-2 h-2" />
+          </Button>
         )}
       </div>
+      {renderInput()}
     </div>
   );
 }

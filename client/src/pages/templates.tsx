@@ -264,16 +264,14 @@ ${pageContent}
         title="Templates"
         subtitle={`${totalTemplates} templates disponibles`}
         actions={
-          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
-              <Crown className="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-yellow-500" />
-              <span className="hidden sm:inline">{premiumCount} Premium</span>
-              <span className="sm:hidden">{premiumCount}</span>
+              <Crown className="w-3 h-3 mr-1 text-yellow-500" />
+              {premiumCount} Premium
             </Badge>
             <Badge variant="outline" className="text-xs">
-              <Sparkles className="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-blue-500" />
-              <span className="hidden sm:inline">{newCount} Nouveaux</span>
-              <span className="sm:hidden">{newCount}</span>
+              <Sparkles className="w-3 h-3 mr-1 text-blue-500" />
+              {newCount} Nouveaux
             </Badge>
           </div>
         }
@@ -282,50 +280,47 @@ ${pageContent}
       <div className="flex-1 overflow-hidden">
         <div className={`h-full transition-all duration-300 ${hideMainSidebar ? 'ml-0' : 'ml-64'}`}>
           <div className="h-full overflow-y-auto">
-            <div className="max-w-7xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-8">
+            <div className="max-w-7xl mx-auto p-6 space-y-8">
 
               {/* Section en vedette */}
               {featuredTemplates.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-2 mb-4 sm:mb-6">
-                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                    <h2 className="text-lg sm:text-2xl font-bold text-theme-text">Templates en vedette</h2>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Star className="w-5 h-5 text-yellow-500" />
+                    <h2 className="text-2xl font-bold text-theme-text">Templates en vedette</h2>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                     {featuredTemplates.map((template) => (
                       <Card key={template.id} className="group hover:shadow-lg transition-all duration-300 border-theme-border bg-theme-surface">
                         <div className="relative">
                           <img
                             src={template.thumbnail}
                             alt={template.name}
-                            className="w-full h-32 sm:h-48 object-cover rounded-t-lg"
+                            className="w-full h-48 object-cover rounded-t-lg"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = '/api/placeholder/400/200';
                             }}
                           />
                           <div className="absolute top-2 right-2 flex gap-1">
                             {template.isPremium && (
-                              <Badge className="bg-yellow-500 text-white text-xs">
-                                <Crown className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
-                                <span className="hidden sm:inline">Premium</span>
-                                <span className="sm:hidden">Pro</span>
+                              <Badge className="bg-yellow-500 text-white">
+                                <Crown className="w-3 h-3 mr-1" />
+                                Premium
                               </Badge>
                             )}
                             {template.isNew && (
-                              <Badge className="bg-blue-500 text-white text-xs">
-                                <Sparkles className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
-                                <span className="hidden sm:inline">Nouveau</span>
-                                <span className="sm:hidden">New</span>
+                              <Badge className="bg-blue-500 text-white">
+                                <Sparkles className="w-3 h-3 mr-1" />
+                                Nouveau
                               </Badge>
                             )}
                           </div>
                           <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-t-lg">
-                            <div className="flex flex-col sm:flex-row gap-2 p-2">
+                            <div className="flex gap-2">
                               <Button 
                                 variant="secondary" 
                                 size="sm"
                                 onClick={() => handlePreviewTemplate(template)}
-                                className="text-xs sm:text-sm w-full sm:w-auto"
                               >
                                 Aperçu
                               </Button>
@@ -333,7 +328,6 @@ ${pageContent}
                                 size="sm"
                                 onClick={() => handleUseTemplate(template)}
                                 disabled={createProjectMutation.isPending}
-                                className="text-xs sm:text-sm w-full sm:w-auto"
                               >
                                 Utiliser
                               </Button>
