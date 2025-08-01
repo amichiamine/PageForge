@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Palette, Gradient, Image } from "lucide-react";
+import { Palette, Zap, Image } from "lucide-react";
 
 interface ColorPickerProps {
   value?: string;
@@ -124,7 +124,7 @@ export default function ColorPicker({
                   <span className="hidden sm:inline">Couleur</span>
                 </TabsTrigger>
                 <TabsTrigger value="gradient" className="flex items-center gap-1">
-                  <Gradient className="w-3 h-3" />
+                  <Zap className="w-3 h-3" />
                   <span className="hidden sm:inline">Dégradé</span>
                 </TabsTrigger>
                 <TabsTrigger value="image" className="flex items-center gap-1">

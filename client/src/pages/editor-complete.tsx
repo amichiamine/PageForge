@@ -10,7 +10,7 @@ import { MultiBackend } from 'react-dnd-multi-backend';
 import { useCollaboration } from '@/hooks/useCollaboration';
 import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/header";
-import { Save, Eye, Download, Code, ArrowLeft, Wifi, Undo, Redo, Grid, Settings, Plus, X, Menu } from "lucide-react";
+import { Save, Eye, Download, Code, ArrowLeft, Wifi, Undo, Redo, Grid, Settings, Plus, X, Menu, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Project, ComponentDefinition } from "@shared/schema";
 import { createComponent } from "@/lib/editor-utils";
@@ -118,6 +118,8 @@ interface DropZoneProps {
   onComponentSelect: (component: ComponentDefinition | null) => void;
   onComponentAdd: (type: string, position: { x: number; y: number }) => void;
   onComponentMove: (id: string, position: { x: number; y: number }) => void;
+  onComponentUpdate: (component: ComponentDefinition) => void;
+  onComponentDelete: (id: string) => void;
 }
 
 function DropZone({ 
@@ -125,7 +127,9 @@ function DropZone({
   selectedComponent, 
   onComponentSelect, 
   onComponentAdd, 
-  onComponentMove 
+  onComponentMove,
+  onComponentUpdate,
+  onComponentDelete
 }: DropZoneProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -200,8 +204,8 @@ function DropZone({
           isSelected={selectedComponent?.id === component.id}
           onSelect={onComponentSelect}
           onMove={onComponentMove}
-          onUpdate={handleComponentUpdate}
-          onDelete={handleComponentDelete}
+          onUpdate={onComponentUpdate}
+          onDelete={onComponentDelete}
           onDuplicate={(comp) => {
             const duplicatedComponent = {
               ...comp,
@@ -213,8 +217,7 @@ function DropZone({
                 height: comp.position?.height || 100
               }
             };
-            setComponents([...components, duplicatedComponent]);
-            setIsDirty(true);
+            onComponentAdd(duplicatedComponent.type, duplicatedComponent.position || { x: 0, y: 0 });
           }}
           containerRef={dropRef}
         />
@@ -681,6 +684,8 @@ export default function EditorComplete() {
                   onComponentSelect={setSelectedComponent}
                   onComponentAdd={handleComponentAdd}
                   onComponentMove={handleComponentMove}
+                  onComponentUpdate={handleComponentUpdate}
+                  onComponentDelete={handleComponentDelete}
                 />
               </Card>
             </div>
