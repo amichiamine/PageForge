@@ -78,9 +78,9 @@ function DraggableComponent({ component }: DraggableComponentProps) {
   });
 
   const handleDoubleClick = () => {
-    // Double-click to add component at center of canvas
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
+    // Double-click to add component at canvas center with random offset
+    const centerX = 250 + Math.random() * 100;
+    const centerY = 100 + Math.random() * 100;
     
     // Dispatch a custom event to add component
     window.dispatchEvent(new CustomEvent('addComponentByDoubleClick', {
@@ -91,17 +91,16 @@ function DraggableComponent({ component }: DraggableComponentProps) {
   return (
     <div
       ref={drag}
-      className={`component-item p-2 border rounded-lg cursor-move transition-all hover:shadow-md touch-feedback ${
+      className={`component-item p-1 border rounded cursor-move transition-all hover:shadow-md touch-feedback ${
         isDragging ? 'opacity-50' : ''
       }`}
       onDoubleClick={handleDoubleClick}
       style={{ touchAction: 'manipulation' }}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-sm">{component.icon}</span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs">{component.icon}</span>
         <div className="flex-1 min-w-0">
           <p className="font-medium text-xs truncate">{component.name}</p>
-          <p className="text-xs text-gray-500 truncate">{component.category}</p>
         </div>
       </div>
     </div>
@@ -224,6 +223,34 @@ function DraggableRenderedComponent({
     }),
   });
 
+  // Touch drag functionality
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [isDragActive, setIsDragActive] = useState(false);
+  const dragRef = useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragActive(true);
+    const touch = e.touches[0];
+    setDragPosition({
+      x: touch.clientX - (component.position?.x || 0),
+      y: touch.clientY - (component.position?.y || 0)
+    });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragActive) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const newX = touch.clientX - dragPosition.x;
+    const newY = touch.clientY - dragPosition.y;
+    onMove(component.id, { x: Math.max(0, newX), y: Math.max(0, newY) });
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragActive(false);
+  };
+
   const renderComponentContent = () => {
     const content = component.content || 'Nouveau composant';
     const styles = component.styles || {};
@@ -236,9 +263,19 @@ function DraggableRenderedComponent({
       case 'button':
         return <button className="px-4 py-2 bg-blue-500 text-white rounded" style={styles}>{content}</button>;
       case 'image':
-        return <div className="w-32 h-20 bg-gray-200 flex items-center justify-center rounded" style={styles}>
-          📷 Image
-        </div>;
+        const imageSrc = component.attributes?.src;
+        return imageSrc ? (
+          <img
+            src={imageSrc}
+            alt="Component image"
+            className="max-w-32 max-h-20 object-cover rounded"
+            style={styles}
+          />
+        ) : (
+          <div className="w-32 h-20 bg-gray-200 flex items-center justify-center rounded" style={styles}>
+            📷 Image
+          </div>
+        );
       case 'container':
         return <div className="p-4 border border-dashed border-gray-300 min-h-20" style={styles}>
           Container
@@ -255,17 +292,22 @@ function DraggableRenderedComponent({
   return (
     <div
       ref={drag}
-      className={`absolute cursor-move transition-all ${
-        isDragging ? 'opacity-50' : ''
+      className={`absolute cursor-move transition-all touch-manipulation ${
+        isDragging || isDragActive ? 'opacity-70 z-50' : ''
       } ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
       style={{
         left: component.position?.x || 0,
         top: component.position?.y || 0,
+        touchAction: 'none',
+        transform: isDragActive ? 'scale(1.02)' : 'scale(1)',
       }}
       onClick={(e) => {
         e.stopPropagation();
         onSelect(component);
       }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {renderComponentContent()}
       
@@ -570,9 +612,9 @@ export default function EditorComplete() {
         {/* Main editor content */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left sidebar - Component palette */}
-          <div className="w-48 border-r bg-white flex-shrink-0 overflow-y-auto">
-            <div className="p-2">
-              <h2 className="text-xs font-semibold mb-3">Composants</h2>
+          <div className="w-40 border-r bg-white flex-shrink-0 overflow-y-auto">
+            <div className="p-1">
+              <h2 className="text-xs font-semibold mb-2">Composants</h2>
               <div className="space-y-1">
                 {componentTypes.map((component) => (
                   <DraggableComponent
@@ -607,9 +649,9 @@ export default function EditorComplete() {
           </div>
 
           {/* Right sidebar - Properties panel */}
-          <div className="w-52 border-l bg-white flex-shrink-0 overflow-y-auto">
-            <div className="p-3">
-              <h2 className="text-xs font-semibold mb-3">Propriétés</h2>
+          <div className="w-44 border-l bg-white flex-shrink-0 overflow-y-auto">
+            <div className="p-2">
+              <h2 className="text-xs font-semibold mb-2">Propriétés</h2>
               {selectedComponent ? (
                 <div className="space-y-4">
                   <Card className="p-3">
@@ -680,26 +722,116 @@ export default function EditorComplete() {
                         {/* Text Color */}
                         <div className="space-y-1">
                           <Label className="text-xs">Couleur du texte</Label>
-                          <ColorPicker
+                          <input
+                            type="color"
                             value={selectedComponent.styles?.color || '#000000'}
-                            onChange={(color) => handleComponentUpdate({
+                            onChange={(e) => handleComponentUpdate({
                               ...selectedComponent,
-                              styles: { ...selectedComponent.styles, color }
+                              styles: { ...selectedComponent.styles, color: e.target.value }
                             })}
+                            className="w-full h-8 rounded border cursor-pointer"
                           />
                         </div>
 
-                        {/* Background */}
+                        {/* Background Types */}
                         <div className="space-y-1">
                           <Label className="text-xs">Arrière-plan</Label>
-                          <ColorPicker
-                            value={selectedComponent.styles?.backgroundColor || '#ffffff'}
-                            onChange={(backgroundColor) => handleComponentUpdate({
-                              ...selectedComponent,
-                              styles: { ...selectedComponent.styles, backgroundColor }
-                            })}
-                            showBackgroundTypes={true}
-                          />
+                          <Tabs defaultValue="solid" className="w-full">
+                            <TabsList className="grid w-full grid-cols-3 h-6">
+                              <TabsTrigger value="solid" className="text-xs">Uni</TabsTrigger>
+                              <TabsTrigger value="gradient" className="text-xs">Dégradé</TabsTrigger>
+                              <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="solid" className="mt-2">
+                              <input
+                                type="color"
+                                value={selectedComponent.styles?.backgroundColor || '#ffffff'}
+                                onChange={(e) => handleComponentUpdate({
+                                  ...selectedComponent,
+                                  styles: { ...selectedComponent.styles, backgroundColor: e.target.value }
+                                })}
+                                className="w-full h-8 rounded border cursor-pointer"
+                              />
+                            </TabsContent>
+                            
+                            <TabsContent value="gradient" className="mt-2 space-y-2">
+                              <div className="grid grid-cols-2 gap-1">
+                                <input
+                                  type="color"
+                                  value={selectedComponent.styles?.gradientStart || '#3b82f6'}
+                                  onChange={(e) => {
+                                    const start = e.target.value;
+                                    const end = selectedComponent.styles?.gradientEnd || '#8b5cf6';
+                                    handleComponentUpdate({
+                                      ...selectedComponent,
+                                      styles: { 
+                                        ...selectedComponent.styles, 
+                                        background: `linear-gradient(135deg, ${start}, ${end})`,
+                                        gradientStart: start,
+                                        gradientEnd: end
+                                      }
+                                    });
+                                  }}
+                                  className="w-full h-6 rounded border cursor-pointer"
+                                />
+                                <input
+                                  type="color"
+                                  value={selectedComponent.styles?.gradientEnd || '#8b5cf6'}
+                                  onChange={(e) => {
+                                    const start = selectedComponent.styles?.gradientStart || '#3b82f6';
+                                    const end = e.target.value;
+                                    handleComponentUpdate({
+                                      ...selectedComponent,
+                                      styles: { 
+                                        ...selectedComponent.styles, 
+                                        background: `linear-gradient(135deg, ${start}, ${end})`,
+                                        gradientStart: start,
+                                        gradientEnd: end
+                                      }
+                                    });
+                                  }}
+                                  className="w-full h-6 rounded border cursor-pointer"
+                                />
+                              </div>
+                            </TabsContent>
+                            
+                            <TabsContent value="image" className="mt-2">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                      const imageSrc = event.target?.result as string;
+                                      handleComponentUpdate({
+                                        ...selectedComponent,
+                                        styles: { 
+                                          ...selectedComponent.styles, 
+                                          backgroundImage: `url(${imageSrc})`,
+                                          backgroundSize: 'cover',
+                                          backgroundRepeat: 'no-repeat'
+                                        }
+                                      });
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                                className="hidden"
+                                id="bg-image-upload"
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 text-xs w-full"
+                                onClick={() => document.getElementById('bg-image-upload')?.click()}
+                              >
+                                Choisir image
+                              </Button>
+                            </TabsContent>
+                          </Tabs>
                         </div>
 
                         {/* Font Size */}
@@ -727,13 +859,45 @@ export default function EditorComplete() {
                         {selectedComponent.type === 'image' && (
                           <div className="space-y-1">
                             <Label className="text-xs">Image</Label>
-                            <ImageSelector
-                              value={selectedComponent.attributes?.src || ''}
-                              onChange={(src) => handleComponentUpdate({
-                                ...selectedComponent,
-                                attributes: { ...selectedComponent.attributes, src }
-                              })}
-                            />
+                            <div className="flex flex-col gap-2">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                      const imageSrc = event.target?.result as string;
+                                      handleComponentUpdate({
+                                        ...selectedComponent,
+                                        attributes: { ...selectedComponent.attributes, src: imageSrc }
+                                      });
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                                className="hidden"
+                                id="image-upload"
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() => document.getElementById('image-upload')?.click()}
+                              >
+                                Choisir une image
+                              </Button>
+                              {selectedComponent.attributes?.src && (
+                                <div className="w-full h-16 bg-gray-100 rounded overflow-hidden">
+                                  <img
+                                    src={selectedComponent.attributes.src}
+                                    alt="Preview"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </TabsContent>

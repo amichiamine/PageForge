@@ -278,7 +278,7 @@ ${pageContent}
       />
 
       <div className="flex-1 overflow-hidden">
-        <div className={`h-full transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+        <div className={`h-full transition-all duration-300 ${hideMainSidebar ? 'ml-0' : 'ml-64'}`}>
           <div className="h-full overflow-y-auto">
             <div className="max-w-7xl mx-auto p-6 space-y-8">
 
