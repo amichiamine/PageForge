@@ -24,7 +24,7 @@ export default function EditorClean() {
   const [, params] = useRoute('/editor/:id');
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  const isMobile = useIsMobile();
+  const { isMobile } = useIsMobile();
 
   // État de l'interface
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
@@ -60,13 +60,14 @@ export default function EditorClean() {
   const handleComponentUpdate = (updatedComponent: ComponentDefinition) => {
     if (!project) return;
     
-    const updatedComponents = project.content.components.map(comp => 
+    const currentContent = project.content as any;
+    const updatedComponents = (currentContent.components || []).map((comp: any) => 
       comp.id === updatedComponent.id ? updatedComponent : comp
     );
     
     updateProject.mutate({
       content: {
-        ...project.content,
+        ...currentContent,
         components: updatedComponents
       }
     });
@@ -77,11 +78,12 @@ export default function EditorClean() {
   const handleComponentDelete = (componentId: string) => {
     if (!project) return;
     
-    const updatedComponents = project.content.components.filter(comp => comp.id !== componentId);
+    const currentContent = project.content as any;
+    const updatedComponents = (currentContent.components || []).filter((comp: any) => comp.id !== componentId);
     
     updateProject.mutate({
       content: {
-        ...project.content,
+        ...currentContent,
         components: updatedComponents
       }
     });
@@ -103,10 +105,11 @@ export default function EditorClean() {
       }
     };
     
+    const currentContent = project.content as any;
     updateProject.mutate({
       content: {
-        ...project.content,
-        components: [...project.content.components, newComponent]
+        ...currentContent,
+        components: [...(currentContent.components || []), newComponent]
       }
     });
   };
@@ -218,10 +221,10 @@ export default function EditorClean() {
         {/* Center - Visual Editor */}
         <div className="flex-1 relative overflow-hidden">
           <VisualEditor
-            components={project.content.components}
+            components={(project.content as any).components || []}
             selectedComponent={selectedComponent}
             onComponentSelect={setSelectedComponent}
-            onComponentUpdate={handleComponentUpdate}
+            onComponentUpdate={(component: ComponentDefinition) => handleComponentUpdate(component)}
             onComponentDelete={handleComponentDelete}
             onAddComponent={handleAddComponent}
             pageBackground={pageBackground}
