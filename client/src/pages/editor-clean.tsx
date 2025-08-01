@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -139,7 +141,8 @@ export default function EditorClean() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <DndProvider backend={HTML5Backend}>
+      <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <div className="h-12 sm:h-14 border-b bg-white flex items-center justify-between px-2 sm:px-4 flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -221,13 +224,14 @@ export default function EditorClean() {
         {/* Center - Visual Editor */}
         <div className="flex-1 relative overflow-hidden">
           <VisualEditor
-            components={(project.content as any).components || []}
+            project={project}
             selectedComponent={selectedComponent}
             onComponentSelect={setSelectedComponent}
-            onComponentUpdate={(component: ComponentDefinition) => handleComponentUpdate(component)}
-            onComponentDelete={handleComponentDelete}
-            onAddComponent={handleAddComponent}
-            pageBackground={pageBackground}
+            onComponentUpdate={(updatedProject: Project) => {
+              updateProject.mutate({
+                content: updatedProject.content
+              });
+            }}
           />
         </div>
 
@@ -310,6 +314,7 @@ export default function EditorClean() {
           onClose={() => setShowImageSelector(false)}
         />
       )}
-    </div>
+      </div>
+    </DndProvider>
   );
 }
