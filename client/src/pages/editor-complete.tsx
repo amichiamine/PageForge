@@ -639,11 +639,11 @@ export default function EditorComplete() {
 
         {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left sidebar - Component palette (RÉDUIT 28px TOUS écrans) */}
-          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-28'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
+          {/* Left sidebar - Component palette (RÉDUIT 20px TOUS écrans) */}
+          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-20'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
             <div className="p-1">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xs font-semibold">Composants</h2>
+                <h2 className="text-xs font-semibold">Cmpts</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -654,8 +654,8 @@ export default function EditorComplete() {
                   <Plus className="w-3 h-3" />
                 </Button>
               </div>
-              <div className="grid grid-cols-2 gap-1">
-                {componentTypes.slice(0, 8).map((component) => (
+              <div className="grid grid-cols-1 gap-1">
+                {componentTypes.slice(0, 6).map((component) => (
                   <DraggableComponent
                     key={component.type}
                     component={component}
@@ -688,9 +688,9 @@ export default function EditorComplete() {
             {/* Point 4 CORRIGÉ - Plus de boutons flottants, tout dans le header */}
           </div>
 
-          {/* Right sidebar - Properties panel (RÉDUIT 32px TOUS écrans) */}
-          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-32'} border-l bg-white flex-shrink-0 overflow-y-auto`}>
-            <div className="p-2">
+          {/* Right sidebar - Properties panel (RÉDUIT 24px TOUS écrans) */}
+          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-24'} border-l bg-white flex-shrink-0 overflow-y-auto`}>
+            <div className="p-1">
               <Tabs defaultValue="component" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-6">
                   <TabsTrigger value="component" className="text-xs">Composant</TabsTrigger>
