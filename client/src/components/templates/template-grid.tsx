@@ -56,26 +56,26 @@ function TemplatePreviewModal({ template, open, onOpenChange, onUseTemplate }: T
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>Aperçu du template: {template.name}</span>
-            <div className="flex items-center space-x-2">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <span className="text-lg sm:text-xl truncate">Aperçu: {template.name}</span>
+            <div className="flex items-center gap-2 flex-wrap">
               {template.isBuiltIn && (
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="text-xs">
                   <Star className="w-3 h-3 mr-1" />
                   Officiel
                 </Badge>
               )}
-              <Badge variant="outline">{template.category}</Badge>
+              <Badge variant="outline" className="text-xs">{template.category}</Badge>
             </div>
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Prévisualisez ce template et utilisez-le pour créer un nouveau projet.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Preview */}
           <div>
             <h4 className="font-medium mb-3">Aperçu</h4>
@@ -168,18 +168,20 @@ function TemplateCard({ template, onPreview, onUseTemplate }: {
         
         {/* Overlay actions */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2 p-2">
             <Button 
               size="sm" 
               variant="secondary"
               onClick={() => onPreview(template)}
+              className="text-xs sm:text-sm w-full sm:w-auto"
             >
-              <Eye className="w-4 h-4 mr-1" />
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               Aperçu
             </Button>
             <Button 
               size="sm"
               onClick={() => onUseTemplate(template.id)}
+              className="text-xs sm:text-sm w-full sm:w-auto"
             >
               Utiliser
             </Button>
@@ -187,18 +189,19 @@ function TemplateCard({ template, onPreview, onUseTemplate }: {
         </div>
 
         {/* Category badge */}
-        <div className="absolute top-3 left-3">
-          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3">
+          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
             {template.category}
           </Badge>
         </div>
 
         {/* Built-in badge */}
         {template.isBuiltIn && (
-          <div className="absolute top-3 right-3">
-            <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-100 border-yellow-300/30">
-              <Star className="w-3 h-3 mr-1" />
-              Officiel
+          <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+            <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-100 border-yellow-300/30 text-xs">
+              <Star className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
+              <span className="hidden sm:inline">Officiel</span>
+              <span className="sm:hidden">Off</span>
             </Badge>
           </div>
         )}
@@ -211,14 +214,14 @@ function TemplateCard({ template, onPreview, onUseTemplate }: {
       </div>
 
       {/* Template Info */}
-      <CardContent className="p-4">
+      <CardContent className="p-3 sm:p-4">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-gray-900 text-lg line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-sm sm:text-lg line-clamp-1">
             {template.name}
           </h3>
         </div>
         
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
           {template.description}
         </p>
 
