@@ -106,6 +106,7 @@ Preferred communication style: Simple, everyday language.
 - **Project Types Extended**: Added single-page, multi-page, and FTP integration project types with database schema updates
 - **Template Library Expanded**: Added 4 new professional templates (Blog moderne, Dashboard analytiques, Page contact) bringing total to 6 templates
 - **Database Schema Enhanced**: Extended ProjectSettings interface with FTP configuration options and project type specifications
+- **UI Components Optimization**: Cleaned up component library from 49 to 42 components, removing 7 redundant/low-utility components while preserving all functionality
 
 ### User Experience Improvements ✅
 - **Mobile-First Navigation**: Floating buttons automatically appear on mobile/tablet devices for optimal touch experience
@@ -115,9 +116,10 @@ Preferred communication style: Simple, everyday language.
 
 ### Technical Architecture ✅
 - **PostgreSQL Integration**: All project types and settings stored in database with proper schema validation
-- **Component System**: Comprehensive component library with drag-and-drop functionality and touch optimization
+- **Component System**: Optimized component library (42 components) with drag-and-drop functionality and touch optimization
 - **Template Engine**: Built-in template system with categories and metadata for easy project initialization
 - **Responsive Design**: Floating UI elements that adapt to device size with proper z-index management
+- **Bundle Optimization**: Removed 7 redundant UI components (alert-dialog, aspect-ratio, collapsible, command, hover-card, input-otp, menubar) saving ~30KB
 
 ## Previous Changes (July 31, 2025)
 
