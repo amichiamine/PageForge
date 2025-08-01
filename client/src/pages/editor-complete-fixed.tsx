@@ -50,10 +50,19 @@ export default function EditorComplete() {
   } = useProjects();
   const project = projects?.find(p => p.id === id);
   
+  // Si pas d'ID spécifié, utiliser le premier projet ou créer un projet temporaire
+  const activeProject = project || (projects?.[0]) || {
+    id: 'temp',
+    name: 'Nouveau projet',
+    type: 'single-page',
+    content: { pages: [{ id: 'main', name: 'Accueil', path: '/', content: { structure: [] } }] }
+  };
+  
   // Debugging pour voir le problème
   console.log('ID recherché:', id);
   console.log('Projets disponibles:', projects);
   console.log('Projet trouvé:', project);
+  console.log('Projet actif:', activeProject);
   
   // Editor state
   const [components, setComponents] = useState<ComponentDefinition[]>([]);
@@ -331,14 +340,6 @@ export default function EditorComplete() {
       </div>
     );
   }
-
-  // Si pas d'ID spécifié, utiliser le premier projet ou créer un projet temporaire
-  const activeProject = project || (projects?.[0]) || {
-    id: 'temp',
-    name: 'Nouveau projet',
-    type: 'single-page',
-    content: { pages: [{ id: 'main', name: 'Accueil', path: '/', content: { structure: [] } }] }
-  };
 
   return (
     <DndProvider backend={MultiBackend} options={HTML5toTouch}>
