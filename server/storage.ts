@@ -195,11 +195,119 @@ export class MemStorage implements IStorage {
               ]
             },
             {
+              id: "featured-carousel",
+              type: "section",
+              tag: "section", 
+              attributes: { className: "featured-carousel" },
+              styles: { backgroundColor: "#fff", padding: "3rem 2rem" },
+              children: [
+                {
+                  id: "carousel-container",
+                  type: "container",
+                  tag: "div",
+                  styles: { maxWidth: "1200px", margin: "0 auto" },
+                  children: [
+                    {
+                      id: "carousel-title",
+                      type: "heading",
+                      tag: "h2",
+                      content: "Produits Populaires",
+                      styles: { fontSize: "2rem", textAlign: "center", marginBottom: "2rem", color: "#333" }
+                    },
+                    {
+                      id: "products-carousel",
+                      type: "carousel",
+                      tag: "div",
+                      attributes: { className: "products-carousel" },
+                      styles: { 
+                        display: "flex",
+                        gap: "1.5rem",
+                        overflowX: "auto",
+                        padding: "1rem 0",
+                        scrollBehavior: "smooth"
+                      },
+                      children: [
+                        {
+                          id: "carousel-product-1",
+                          type: "card",
+                          tag: "div",
+                          attributes: { className: "carousel-product-card" },
+                          styles: {
+                            minWidth: "280px",
+                            backgroundColor: "white",
+                            borderRadius: "0.75rem",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            overflow: "hidden",
+                            border: "1px solid #e2e8f0"
+                          },
+                          children: [
+                            {
+                              id: "carousel-product-image-1",
+                              type: "image",
+                              tag: "div",
+                              styles: { 
+                                backgroundColor: "#f59e0b",
+                                height: "200px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "3rem",
+                                color: "white"
+                              },
+                              content: "⭐"
+                            },
+                            {
+                              id: "carousel-product-info-1",
+                              type: "container",
+                              tag: "div",
+                              styles: { padding: "1.5rem" },
+                              children: [
+                                {
+                                  id: "carousel-product-title-1",
+                                  type: "heading",
+                                  tag: "h3",
+                                  content: "Produit Vedette",
+                                  styles: { fontSize: "1.25rem", marginBottom: "0.5rem", color: "#333" }
+                                },
+                                {
+                                  id: "carousel-product-price-1",
+                                  type: "text",
+                                  tag: "p",
+                                  content: "49,99 €",
+                                  styles: { fontSize: "1.25rem", fontWeight: "bold", color: "#f59e0b", marginBottom: "1rem" }
+                                },
+                                {
+                                  id: "carousel-add-to-cart-1",
+                                  type: "button",
+                                  tag: "button",
+                                  content: "Ajouter au panier",
+                                  styles: {
+                                    width: "100%",
+                                    backgroundColor: "#007bff",
+                                    color: "white",
+                                    padding: "0.75rem",
+                                    border: "none",
+                                    borderRadius: "0.5rem",
+                                    cursor: "pointer",
+                                    fontWeight: "500"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
               id: "products-section",
               type: "section",
               tag: "section",
               attributes: { className: "products" },
-              styles: { padding: "3rem 2rem" },
+              styles: { padding: "3rem 2rem", backgroundColor: "#f8f9fa" },
               children: [
                 {
                   id: "products-grid",
@@ -273,6 +381,10 @@ export class MemStorage implements IStorage {
           styles: `
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+            .products-carousel::-webkit-scrollbar { height: 8px; }
+            .products-carousel::-webkit-scrollbar-track { background: #f1f5f9; }
+            .products-carousel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+            .carousel-product-card:hover { transform: translateY(-4px); transition: transform 0.3s ease; }
           `,
           meta: {
             title: "Boutique en ligne",
@@ -408,12 +520,109 @@ export class MemStorage implements IStorage {
                   ]
                 }
               ]
+            },
+            {
+              id: "skills-section",
+              type: "section", 
+              tag: "section",
+              attributes: { className: "skills-section" },
+              styles: { backgroundColor: "#f8fafc", padding: "4rem 2rem" },
+              children: [
+                {
+                  id: "skills-container",
+                  type: "container",
+                  tag: "div",
+                  styles: { maxWidth: "800px", margin: "0 auto", textAlign: "center" },
+                  children: [
+                    {
+                      id: "skills-title",
+                      type: "heading",
+                      tag: "h2",
+                      content: "Mes Compétences",
+                      styles: { fontSize: "2.5rem", marginBottom: "3rem", color: "#1a202c" }
+                    },
+                    {
+                      id: "skills-carousel",
+                      type: "carousel",
+                      tag: "div",
+                      attributes: { className: "skills-carousel" },
+                      styles: { 
+                        display: "flex",
+                        gap: "2rem",
+                        overflowX: "auto",
+                        padding: "1rem",
+                        scrollBehavior: "smooth"
+                      },
+                      children: [
+                        {
+                          id: "skill-react",
+                          type: "card",
+                          tag: "div",
+                          attributes: { className: "skill-card" },
+                          styles: {
+                            minWidth: "200px",
+                            backgroundColor: "white",
+                            borderRadius: "1rem",
+                            padding: "2rem",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            textAlign: "center"
+                          },
+                          children: [
+                            {
+                              id: "skill-icon",
+                              type: "text",
+                              tag: "div",
+                              content: "⚛️",
+                              styles: { fontSize: "3rem", marginBottom: "1rem" }
+                            },
+                            {
+                              id: "skill-name",
+                              type: "heading",
+                              tag: "h3",
+                              content: "React",
+                              styles: { fontSize: "1.25rem", marginBottom: "0.5rem" }
+                            },
+                            {
+                              id: "skill-progress",
+                              type: "progress",
+                              tag: "div",
+                              styles: {
+                                width: "100%",
+                                height: "6px",
+                                backgroundColor: "#e2e8f0",
+                                borderRadius: "3px",
+                                overflow: "hidden"
+                              },
+                              children: [
+                                {
+                                  id: "progress-bar",
+                                  type: "div",
+                                  tag: "div",
+                                  styles: {
+                                    width: "90%",
+                                    height: "100%",
+                                    backgroundColor: "#3b82f6",
+                                    borderRadius: "3px"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ],
           styles: `
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Inter', sans-serif; }
             .project-card:hover { transform: translateY(-4px); }
+            .skills-carousel::-webkit-scrollbar { height: 6px; }
+            .skills-carousel::-webkit-scrollbar-track { background: #f1f5f9; }
+            .skills-carousel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
           `,
           meta: {
             title: "Portfolio créatif",
@@ -517,6 +726,75 @@ export class MemStorage implements IStorage {
                       }
                     }
                   ]
+                },
+                {
+                  id: "blog-faq",
+                  type: "section",
+                  tag: "section",
+                  attributes: { className: "blog-faq" },
+                  styles: { backgroundColor: "#f8fafc", padding: "4rem 2rem", marginTop: "3rem" },
+                  children: [
+                    {
+                      id: "faq-container",
+                      type: "container",
+                      tag: "div",
+                      styles: { maxWidth: "800px", margin: "0 auto" },
+                      children: [
+                        {
+                          id: "faq-title",
+                          type: "heading",
+                          tag: "h2",
+                          content: "Questions Fréquentes",
+                          styles: { fontSize: "2rem", marginBottom: "2rem", textAlign: "center" }
+                        },
+                        {
+                          id: "faq-accordion",
+                          type: "accordion",
+                          tag: "div",
+                          attributes: { className: "faq-accordion" },
+                          styles: { backgroundColor: "white", borderRadius: "0.75rem", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" },
+                          children: [
+                            {
+                              id: "faq-item-1",
+                              type: "accordion-item",
+                              tag: "div",
+                              attributes: { className: "faq-item" },
+                              styles: { borderBottom: "1px solid #e2e8f0" },
+                              children: [
+                                {
+                                  id: "faq-question-1",
+                                  type: "button",
+                                  tag: "button",
+                                  content: "Comment publier un nouvel article ?",
+                                  styles: { 
+                                    width: "100%",
+                                    textAlign: "left",
+                                    padding: "1.5rem",
+                                    fontSize: "1.1rem",
+                                    fontWeight: "600",
+                                    backgroundColor: "transparent",
+                                    border: "none",
+                                    cursor: "pointer"
+                                  }
+                                },
+                                {
+                                  id: "faq-answer-1",
+                                  type: "text",
+                                  tag: "div",
+                                  content: "Utilisez l'éditeur intégré pour créer vos articles. Vous avez accès à tous les outils de formatage nécessaires.",
+                                  styles: { 
+                                    padding: "0 1.5rem 1.5rem",
+                                    color: "#64748b",
+                                    lineHeight: "1.6"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -525,6 +803,7 @@ export class MemStorage implements IStorage {
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
             .article-card:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
+            .faq-item button:hover { background-color: #f8fafc; }
           `,
           meta: {
             title: "Blog moderne",
@@ -669,6 +948,114 @@ export class MemStorage implements IStorage {
                       ]
                     }
                   ]
+                },
+                {
+                  id: "charts-section",
+                  type: "section",
+                  tag: "div",
+                  attributes: { className: "charts-section" },
+                  styles: { 
+                    display: "grid",
+                    gridTemplateColumns: "2fr 1fr",
+                    gap: "1.5rem",
+                    marginBottom: "2rem"
+                  },
+                  children: [
+                    {
+                      id: "main-chart",
+                      type: "chart",
+                      tag: "div",
+                      attributes: { className: "main-chart" },
+                      styles: { 
+                        backgroundColor: "white",
+                        padding: "1.5rem",
+                        borderRadius: "0.75rem",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        border: "1px solid #e2e8f0"
+                      },
+                      children: [
+                        {
+                          id: "chart-title",
+                          type: "heading",
+                          tag: "h3",
+                          content: "Évolution des Visiteurs",
+                          styles: { fontSize: "1.25rem", marginBottom: "1rem", color: "#2d3748" }
+                        },
+                        {
+                          id: "chart-placeholder",
+                          type: "div",
+                          tag: "div",
+                          styles: { 
+                            height: "300px",
+                            backgroundColor: "#f8fafc",
+                            borderRadius: "0.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#718096",
+                            fontSize: "3rem"
+                          },
+                          content: "📊"
+                        }
+                      ]
+                    },
+                    {
+                      id: "side-stats",
+                      type: "container",
+                      tag: "div",
+                      attributes: { className: "side-stats" },
+                      styles: { 
+                        backgroundColor: "white",
+                        padding: "1.5rem",
+                        borderRadius: "0.75rem",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        border: "1px solid #e2e8f0"
+                      },
+                      children: [
+                        {
+                          id: "stats-title",
+                          type: "heading",
+                          tag: "h3",
+                          content: "Top Pages",
+                          styles: { fontSize: "1.25rem", marginBottom: "1rem", color: "#2d3748" }
+                        },
+                        {
+                          id: "page-stats",
+                          type: "list",
+                          tag: "div",
+                          children: [
+                            {
+                              id: "page-item-1",
+                              type: "div",
+                              tag: "div",
+                              styles: { 
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.75rem 0",
+                                borderBottom: "1px solid #e2e8f0"
+                              },
+                              children: [
+                                {
+                                  id: "page-name-1",
+                                  type: "text",
+                                  tag: "span", 
+                                  content: "/accueil",
+                                  styles: { color: "#4a5568" }
+                                },
+                                {
+                                  id: "page-views-1",
+                                  type: "text",
+                                  tag: "span",
+                                  content: "2,456",
+                                  styles: { fontWeight: "600", color: "#2d3748" }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -677,6 +1064,7 @@ export class MemStorage implements IStorage {
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Inter', sans-serif; }
             .metric-card:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
+            @media (max-width: 768px) { .charts-section { grid-template-columns: 1fr; } }
           `,
           meta: {
             title: "Dashboard analytiques",
