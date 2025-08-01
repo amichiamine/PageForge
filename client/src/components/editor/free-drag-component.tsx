@@ -76,16 +76,20 @@ export default function FreeDragComponent({
     const touch = e.touches[0];
     const containerRect = containerRef?.current?.getBoundingClientRect();
     
-    if (containerRect) {
+    if (containerRect && componentRef.current) {
+      const componentWidth = componentRef.current.offsetWidth;
+      const componentHeight = componentRef.current.offsetHeight;
+      
       const newX = Math.max(0, Math.min(
-        containerRect.width - 200,
+        containerRect.width - componentWidth,
         touch.clientX - containerRect.left - dragStartPos.x
       ));
       const newY = Math.max(0, Math.min(
-        containerRect.height - 100,
+        containerRect.height - componentHeight,
         touch.clientY - containerRect.top - dragStartPos.y
       ));
       
+      // Mise à jour immédiate de la position
       onMove(component.id, { x: newX, y: newY });
     }
   }, [isDragActive, dragStartPos, component.id, onMove, containerRef, isLocked]);

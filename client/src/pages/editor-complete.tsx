@@ -359,6 +359,7 @@ export default function EditorComplete() {
   const [rightPanelVisible, setRightPanelVisible] = useState(false);
   const [pageBackgroundType, setPageBackgroundType] = useState<'solid' | 'gradient' | 'image'>('solid');
   const [pageBackground, setPageBackground] = useState('#ffffff');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Sidebar context
   const { setHideMainSidebar } = useSidebarContext();
@@ -581,35 +582,74 @@ export default function EditorComplete() {
           subtitle={`${project.type} • ${components.length} composant(s)`}
           actions={
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setLocation("/projects")}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Projets
-              </Button>
+              {/* Desktop actions - always visible */}
+              {!isMobile && (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setLocation("/projects")}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Projets
+                  </Button>
 
-              <Badge variant="secondary">
-                {project.type === 'single-page' && 'Page unique'}
-                {project.type === 'multi-page' && 'Multi-pages'}
-                {project.type === 'ftp-sync' && 'Sync FTP'}
-                {project.type === 'ftp-upload' && 'Upload FTP'}
-              </Badge>
+                  <Badge variant="secondary">
+                    {project.type === 'single-page' && 'Page unique'}
+                    {project.type === 'multi-page' && 'Multi-pages'}
+                    {project.type === 'ftp-sync' && 'Sync FTP'}
+                    {project.type === 'ftp-upload' && 'Upload FTP'}
+                  </Badge>
 
-              <Separator orientation="vertical" className="h-6" />
+                  <Separator orientation="vertical" className="h-6" />
 
-              {/* Contrôles des volets - déplacés du mobile */}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowCollaborationPanel(!showCollaborationPanel)}
+                  >
+                    <Wifi className="w-4 h-4 mr-2" />
+                    {collaboration.isConnected ? 'Connecté' : 'Déconnecté'}
+                  </Button>
+
+                  <Button variant="outline" size="sm" onClick={() => setShowCodePreview(true)}>
+                    <Code className="w-4 h-4 mr-2" />
+                    Code
+                  </Button>
+
+                  <Button variant="outline" size="sm">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Aperçu
+                  </Button>
+
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={saveProjectMutation.isPending || !isDirty}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {saveProjectMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
+                  </Button>
+
+                  <Button variant="outline" size="sm">
+                    <Download className="w-4 h-4 mr-2" />
+                    Exporter
+                  </Button>
+                </>
+              )}
+
+              {/* Mobile burger menu */}
               {isMobile && (
                 <>
+                  {/* Essential controls - always visible on mobile */}
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setLeftPanelVisible(!leftPanelVisible)}
                     title="Basculer palette composants"
                   >
-                    <Menu className="w-4 h-4 mr-2" />
-                    Palette
+                    <Menu className="w-4 h-4" />
                   </Button>
                   <Button 
                     variant="outline" 
@@ -617,53 +657,28 @@ export default function EditorComplete() {
                     onClick={() => setRightPanelVisible(!rightPanelVisible)}
                     title="Basculer propriétés"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Props
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                  
+                  {/* Burger menu for other actions */}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    title="Menu principal"
+                  >
+                    <Menu className="w-4 h-4" />
                   </Button>
                 </>
               )}
-
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowCollaborationPanel(!showCollaborationPanel)}
-              >
-                <Wifi className="w-4 h-4 mr-2" />
-                {collaboration.isConnected ? 'Connecté' : 'Déconnecté'}
-              </Button>
-
-              <Button variant="outline" size="sm" onClick={() => setShowCodePreview(true)}>
-                <Code className="w-4 h-4 mr-2" />
-                Code
-              </Button>
-
-              <Button variant="outline" size="sm">
-                <Eye className="w-4 h-4 mr-2" />
-                Aperçu
-              </Button>
-
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleSave}
-                disabled={saveProjectMutation.isPending || !isDirty}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {saveProjectMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
-              </Button>
-
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Exporter
-              </Button>
             </div>
           }
         />
 
         {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left sidebar - Component palette (responsive width) */}
-          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-28'} border-r bg-white flex-shrink-0 overflow-y-auto md:block`}>
+          {/* Left sidebar - Component palette (RÉDUIT 28px mobile/tablette) */}
+          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-28'} border-r bg-white flex-shrink-0 overflow-y-auto md:w-28`}>
             <div className="p-1">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xs font-semibold">Composants</h2>
@@ -766,8 +781,8 @@ export default function EditorComplete() {
             )}
           </div>
 
-          {/* Right sidebar - Properties panel (responsive width) */}
-          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-32'} border-l bg-white flex-shrink-0 overflow-y-auto lg:block`}>
+          {/* Right sidebar - Properties panel (RÉDUIT 32px mobile/tablette) */}
+          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-32'} border-l bg-white flex-shrink-0 overflow-y-auto md:w-32`}>
             <div className="p-2">
               <Tabs defaultValue="component" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-6">
@@ -1245,6 +1260,94 @@ export default function EditorComplete() {
                 className="mt-2"
                 onClick={() => setShowCollaborationPanel(false)}
               >
+                Fermer
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Mobile Burger Menu */}
+        {showMobileMenu && (
+          <Card className="fixed top-16 right-4 w-64 bg-white border shadow-lg z-50">
+            <div className="p-3 space-y-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  setLocation("/projects");
+                  setShowMobileMenu(false);
+                }}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour aux projets
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  setShowCollaborationPanel(!showCollaborationPanel);
+                  setShowMobileMenu(false);
+                }}
+              >
+                <Wifi className="w-4 h-4 mr-2" />
+                {collaboration.isConnected ? 'Connecté' : 'Déconnecté'}
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  setShowCodePreview(true);
+                  setShowMobileMenu(false);
+                }}
+              >
+                <Code className="w-4 h-4 mr-2" />
+                Voir le code
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Aperçu
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  handleSave();
+                  setShowMobileMenu(false);
+                }}
+                disabled={saveProjectMutation.isPending || !isDirty}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveProjectMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Exporter
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start text-gray-500"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <X className="w-4 h-4 mr-2" />
                 Fermer
               </Button>
             </div>
