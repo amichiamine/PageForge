@@ -280,11 +280,14 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
 
   // Component renderer for different component types
   const ComponentRenderer = ({ component }: { component: ComponentDefinition }) => {
+    // Extraire les styles de positionnement qui sont gérés par ResizableComponent
+    const { position, left, top, zIndex, ...componentStyles } = component.styles || {};
+    
     const style = {
-      ...component.styles,
-      position: 'relative' as const,
+      ...componentStyles,
       width: '100%',
       height: '100%',
+      position: 'relative' as const,
     };
 
     switch (component.type) {
@@ -472,6 +475,79 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
                 <div>Lecteur Vidéo</div>
               </div>
             )}
+          </div>
+        );
+
+      case 'map':
+        return (
+          <div style={{...style, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center'}} className={component.attributes?.className}>
+            <div style={{ textAlign: 'center', color: '#64748b' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🗺️</div>
+              <div style={{ fontSize: '14px' }}>Carte Interactive</div>
+            </div>
+          </div>
+        );
+
+      case 'calendar':
+        return (
+          <div style={{...style, backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px'}} className={component.attributes?.className}>
+            <div style={{ fontWeight: '600', marginBottom: '12px', fontSize: '16px' }}>📅 Calendrier</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', fontSize: '12px' }}>
+              {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                <div key={i} style={{ textAlign: 'center', fontWeight: '500', padding: '4px' }}>{day}</div>
+              ))}
+              {Array.from({length: 30}, (_, i) => (
+                <div key={i} style={{ textAlign: 'center', padding: '4px', backgroundColor: i === 14 ? '#3b82f6' : 'transparent', color: i === 14 ? 'white' : '#374151', borderRadius: '4px' }}>
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'contact':
+        return (
+          <div style={{...style, backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px'}} className={component.attributes?.className}>
+            <div style={{ fontWeight: '600', marginBottom: '16px', fontSize: '18px' }}>📞 Contact</div>
+            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+              <div style={{ marginBottom: '8px' }}>📧 contact@exemple.com</div>
+              <div style={{ marginBottom: '8px' }}>📱 +33 1 23 45 67 89</div>
+              <div>📍 123 Rue Exemple, Paris</div>
+            </div>
+          </div>
+        );
+
+      case 'testimonial':
+        return (
+          <div style={{...style, backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px'}} className={component.attributes?.className}>
+            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px', color: '#374151' }}>
+              "Un service exceptionnel qui a dépassé toutes nos attentes..."
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '40px', height: '40px', backgroundColor: '#f3f4f6', borderRadius: '50%', marginRight: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                👤
+              </div>
+              <div>
+                <div style={{ fontWeight: '500', fontSize: '14px' }}>Jean Dupont</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>Client satisfait</div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'pricing':
+        return (
+          <div style={{...style, backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', textAlign: 'center'}} className={component.attributes?.className}>
+            <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Plan Standard</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '16px' }}>29€<span style={{ fontSize: '14px', fontWeight: 'normal' }}>/mois</span></div>
+            <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
+              ✓ Fonctionnalités essentielles<br/>
+              ✓ Support par email<br/>
+              ✓ Mises à jour incluses
+            </div>
+            <button style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', padding: '8px 16px', fontSize: '14px' }}>
+              Choisir ce plan
+            </button>
           </div>
         );
         
