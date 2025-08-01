@@ -2,60 +2,119 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertProjectSchema } from "@shared/schema";
 import type { InsertProject, Template } from "@shared/schema";
 import { useLocation } from "wouter";
+import { 
+  Plus, 
+  Smartphone, 
+  Monitor, 
+  Cloud, 
+  Upload,
+  Globe,
+  Server,
+  Database,
+  Layers,
+  Code,
+  Palette,
+  Star,
+  Crown,
+  Sparkles
+} from "lucide-react";
+import { enhancedTemplates, templateCategories, getFeaturedTemplates } from "@/lib/enhanced-templates";
 
 interface CreateProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  triggerButton?: React.ReactNode;
 }
 
-export default function CreateProjectModal({ open, onOpenChange }: CreateProjectModalProps) {
+const projectTypes = [
+  {
+    id: "single-page",
+    name: "Page Unique",
+    description: "Une seule page avec tous les contenus",
+    icon: Monitor,
+    recommended: true
+  },
+  {
+    id: "multi-page",
+    name: "Multi-Pages",
+    description: "Site avec plusieurs pages et navigation",
+    icon: Layers,
+    popular: true
+  },
+  {
+    id: "ftp-sync",
+    name: "Sync FTP",
+    description: "Synchronisation automatique avec serveur FTP",
+    icon: Cloud,
+    premium: true
+  },
+  {
+    id: "ftp-upload",
+    name: "Upload FTP",
+    description: "Upload manuel vers serveur FTP",
+    icon: Upload,
+    premium: true
+  }
+];
+
+export default function CreateProjectModal({ open, onOpenChange, triggerButton }: CreateProjectModalProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState<'type' | 'template' | 'details'>('type');
 
-  const { data: templates = [] } = useQuery<Template[]>({
+  const { data: apiTemplates = [] } = useQuery({
     queryKey: ["/api/templates"],
+    staleTime: 5 * 60 * 1000,
   });
+
+  const allTemplates = [...enhancedTemplates, ...apiTemplates];
+  const featuredTemplates = getFeaturedTemplates();
 
   const form = useForm<InsertProject>({
     resolver: zodResolver(insertProjectSchema),
     defaultValues: {
       name: "",
       description: "",
-      type: "standalone",
+      type: "single-page",
       template: "",
     },
   });
 
   const createProjectMutation = useMutation({
-    mutationFn: async (data: InsertProject) => {
-      const response = await fetch("/api/projects", {
+    mutationFn: async (data: InsertProject & { templateContent?: any }) => {
+      const { templateContent, ...projectData } = data;
+      
+      const response = await apiRequest("/api/projects", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
+        body: JSON.stringify(projectData)
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create project");
+
+      // Si un template est sélectionné, mettre à jour le contenu
+      if (templateContent && response.id) {
+        await apiRequest(`/api/projects/${response.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            content: templateContent
+          })
+        });
       }
-      
-      return response.json();
+
+      return response;
     },
     onSuccess: (project) => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
@@ -66,7 +125,7 @@ export default function CreateProjectModal({ open, onOpenChange }: CreateProject
       onOpenChange(false);
       form.reset();
       setSelectedTemplate("");
-      // Navigate to editor
+      setCurrentStep('type');
       setLocation(`/editor/${project.id}`);
     },
     onError: (error: any) => {
@@ -78,42 +137,287 @@ export default function CreateProjectModal({ open, onOpenChange }: CreateProject
     },
   });
 
-  const onSubmit = (data: InsertProject) => {
+  const handleSubmit = (data: InsertProject) => {
+    const selectedTemplateData = allTemplates.find(t => t.id === selectedTemplate);
+    
     createProjectMutation.mutate({
       ...data,
       template: selectedTemplate || undefined,
+      templateContent: selectedTemplateData?.content
     });
   };
 
-  const handleTemplateSelect = (templateId: string) => {
-    setSelectedTemplate(templateId);
-    form.setValue("template", templateId);
+  const handleNext = () => {
+    if (currentStep === 'type') {
+      setCurrentStep('template');
+    } else if (currentStep === 'template') {
+      setCurrentStep('details');
+    }
   };
 
-  const featuredTemplates = templates.filter(t => t.isBuiltIn).slice(0, 3);
+  const handleBack = () => {
+    if (currentStep === 'details') {
+      setCurrentStep('template');
+    } else if (currentStep === 'template') {
+      setCurrentStep('type');
+    }
+  };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Créer une Nouvelle Page</DialogTitle>
-          <DialogDescription>
-            Créez un nouveau projet web en choisissant un template et en configurant les options de base.
-          </DialogDescription>
-        </DialogHeader>
+  const resetModal = () => {
+    setCurrentStep('type');
+    setSelectedTemplate("");
+    form.reset();
+  };
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Project Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  const ModalContent = () => (
+    <div className="max-h-[80vh] overflow-y-auto">
+      {/* Étape 1: Type de projet */}
+      {currentStep === 'type' && (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-theme-text mb-2">
+              Quel type de projet voulez-vous créer ?
+            </h3>
+            <p className="text-sm text-theme-text-secondary">
+              Choisissez le type qui correspond le mieux à vos besoins
+            </p>
+          </div>
+
+          <Form {...form}>
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {projectTypes.map((type) => {
+                        const IconComponent = type.icon;
+                        const isSelected = field.value === type.id;
+                        
+                        return (
+                          <Card
+                            key={type.id}
+                            className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
+                              isSelected 
+                                ? 'border-theme-primary bg-theme-primary/5' 
+                                : 'border-theme-border hover:border-theme-primary/50'
+                            }`}
+                            onClick={() => field.onChange(type.id)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start gap-3">
+                                <div className={`
+                                  p-2 rounded-lg 
+                                  ${isSelected ? 'bg-theme-primary text-white' : 'bg-theme-background text-theme-text-secondary'}
+                                `}>
+                                  <IconComponent className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="font-semibold text-theme-text text-sm">
+                                      {type.name}
+                                    </h4>
+                                    {type.recommended && (
+                                      <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                        <Star className="w-3 h-3 mr-1" />
+                                        Recommandé
+                                      </Badge>
+                                    )}
+                                    {type.popular && (
+                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                        Populaire
+                                      </Badge>
+                                    )}
+                                    {type.premium && (
+                                      <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200">
+                                        <Crown className="w-3 h-3 mr-1" />
+                                        Premium
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-theme-text-secondary leading-relaxed">
+                                    {type.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Form>
+
+          <div className="flex justify-end">
+            <Button onClick={handleNext} className="min-w-24">
+              Continuer
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Étape 2: Template */}
+      {currentStep === 'template' && (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-theme-text mb-2">
+              Choisir un template (optionnel)
+            </h3>
+            <p className="text-sm text-theme-text-secondary">
+              Commencez avec un design professionnel ou créez depuis zéro
+            </p>
+          </div>
+
+          {/* Template vide */}
+          <Card
+            className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
+              selectedTemplate === '' 
+                ? 'border-theme-primary bg-theme-primary/5' 
+                : 'border-theme-border hover:border-theme-primary/50'
+            }`}
+            onClick={() => setSelectedTemplate('')}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className={`
+                  p-2 rounded-lg 
+                  ${selectedTemplate === '' ? 'bg-theme-primary text-white' : 'bg-theme-background text-theme-text-secondary'}
+                `}>
+                  <Code className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-theme-text text-sm mb-1">
+                    Projet vide
+                  </h4>
+                  <p className="text-xs text-theme-text-secondary">
+                    Commencer avec une page blanche
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Templates en vedette */}
+          {featuredTemplates.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-theme-text mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-blue-500" />
+                Templates en vedette
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                {featuredTemplates.slice(0, 6).map((template) => (
+                  <Card
+                    key={template.id}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
+                      selectedTemplate === template.id 
+                        ? 'border-theme-primary bg-theme-primary/5' 
+                        : 'border-theme-border hover:border-theme-primary/50'
+                    }`}
+                    onClick={() => setSelectedTemplate(template.id)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={template.thumbnail}
+                          alt={template.name}
+                          className="w-12 h-9 object-cover rounded border"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/api/placeholder/80/60';
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-theme-text text-xs truncate">
+                              {template.name}
+                            </h4>
+                            {template.isPremium && (
+                              <Crown className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                            )}
+                            {template.isNew && (
+                              <Sparkles className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-xs text-theme-text-secondary line-clamp-2">
+                            {template.description}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Categories */}
+          <div>
+            <h4 className="text-sm font-semibold text-theme-text mb-3">
+              Par catégorie
+            </h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {templateCategories.slice(0, 6).map((category) => (
+                <Button
+                  key={category.id}
+                  variant="outline"
+                  size="sm"
+                  className="h-auto p-2 text-xs justify-start"
+                  onClick={() => {
+                    // Ouvrir la page templates avec cette catégorie
+                    onOpenChange(false);
+                    setLocation(`/templates?category=${category.id}`);
+                  }}
+                >
+                  <Palette className="w-3 h-3 mr-2" />
+                  {category.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={handleBack} className="min-w-24">
+              Retour
+            </Button>
+            <Button onClick={handleNext} className="min-w-24">
+              Continuer
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Étape 3: Détails */}
+      {currentStep === 'details' && (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-theme-text mb-2">
+              Détails du projet
+            </h3>
+            <p className="text-sm text-theme-text-secondary">
+              Donnez un nom et une description à votre projet
+            </p>
+          </div>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nom de la page</FormLabel>
+                    <FormLabel className="text-sm font-medium text-theme-text">
+                      Nom du projet *
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="ex: index, about, contact" {...field} />
+                      <Input 
+                        placeholder="Mon super projet" 
+                        {...field}
+                        className="bg-theme-background border-theme-border"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,120 +426,107 @@ export default function CreateProjectModal({ open, onOpenChange }: CreateProject
 
               <FormField
                 control={form.control}
-                name="type"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Type de projet</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="standalone">Nouveau projet standalone</SelectItem>
-                        <SelectItem value="vscode-integration">Intégration à projet VS Code existant</SelectItem>
-                        <SelectItem value="existing-project">Page pour projet web existant</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel className="text-sm font-medium text-theme-text">
+                      Description (optionnel)
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Décrivez votre projet..."
+                        className="resize-none h-20 bg-theme-background border-theme-border"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs text-theme-text-secondary">
+                      Une courte description pour vous aider à identifier votre projet.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (optionnelle)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Décrivez votre projet..."
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Template Selection */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Choisir un Template</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Blank Template */}
-                <Card 
-                  className={`cursor-pointer transition-all duration-200 ${
-                    selectedTemplate === "" ? "border-primary ring-2 ring-primary/20" : "hover:border-gray-300"
-                  }`}
-                  onClick={() => handleTemplateSelect("")}
-                >
-                  <CardContent className="p-4">
-                    <div className="h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
-                      <div className="text-4xl text-gray-400">+</div>
+              {/* Résumé */}
+              <Card className="bg-theme-background border-theme-border">
+                <CardContent className="p-4">
+                  <h4 className="text-sm font-semibold text-theme-text mb-3">
+                    Résumé
+                  </h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-theme-text-secondary">Type:</span>
+                      <span className="text-theme-text font-medium">
+                        {projectTypes.find(t => t.id === form.watch('type'))?.name}
+                      </span>
                     </div>
-                    <h4 className="font-medium text-gray-900 text-sm mb-1">Page vierge</h4>
-                    <p className="text-xs text-gray-600">Commencer avec une page vide</p>
-                  </CardContent>
-                </Card>
+                    <div className="flex justify-between">
+                      <span className="text-theme-text-secondary">Template:</span>
+                      <span className="text-theme-text font-medium">
+                        {selectedTemplate ? 
+                          allTemplates.find(t => t.id === selectedTemplate)?.name || 'Template sélectionné'
+                          : 'Projet vide'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                {/* Featured Templates */}
-                {featuredTemplates.map((template) => (
-                  <Card 
-                    key={template.id}
-                    className={`cursor-pointer transition-all duration-200 ${
-                      selectedTemplate === template.id ? "border-primary ring-2 ring-primary/20" : "hover:border-gray-300"
-                    }`}
-                    onClick={() => handleTemplateSelect(template.id)}
-                  >
-                    <CardContent className="p-4">
-                      <div className={`h-32 bg-gradient-to-br ${
-                        template.category === "landing" ? "from-blue-400 to-blue-600" :
-                        template.category === "ecommerce" ? "from-green-400 to-green-600" :
-                        "from-purple-400 to-purple-600"
-                      } rounded-lg relative mb-3`}>
-                        <div className="absolute inset-0 bg-black bg-opacity-10 rounded-lg"></div>
-                        <div className="absolute bottom-2 left-2 text-white text-xs">
-                          {template.category}
-                        </div>
-                      </div>
-                      <h4 className="font-medium text-gray-900 text-sm mb-1">{template.name}</h4>
-                      <p className="text-xs text-gray-600 line-clamp-2">{template.description}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="flex justify-between pt-4">
+                <Button type="button" variant="outline" onClick={handleBack} className="min-w-24">
+                  Retour
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createProjectMutation.isPending}
+                  className="min-w-24"
+                >
+                  {createProjectMutation.isPending ? "Création..." : "Créer le projet"}
+                </Button>
               </div>
+            </form>
+          </Form>
+        </div>
+      )}
+    </div>
+  );
 
-              {templates.length > 3 && (
-                <div className="mt-4 text-center">
-                  <Button variant="outline" size="sm" onClick={() => setLocation("/templates")}>
-                    Voir tous les templates
-                  </Button>
-                </div>
-              )}
-            </div>
+  if (triggerButton) {
+    return (
+      <Dialog open={open} onOpenChange={(newOpen) => {
+        onOpenChange(newOpen);
+        if (!newOpen) resetModal();
+      }}>
+        <DialogTrigger asChild>
+          {triggerButton}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] bg-theme-surface border-theme-border">
+          <DialogHeader>
+            <DialogTitle className="text-theme-text">Créer un nouveau projet</DialogTitle>
+            <DialogDescription className="text-theme-text-secondary">
+              Créez votre site web en quelques étapes simples
+            </DialogDescription>
+          </DialogHeader>
+          <ModalContent />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-              >
-                Annuler
-              </Button>
-              <Button 
-                type="submit"
-                disabled={createProjectMutation.isPending}
-              >
-                {createProjectMutation.isPending ? "Création..." : "Créer la Page"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+  return (
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      onOpenChange(newOpen);
+      if (!newOpen) resetModal();
+    }}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] bg-theme-surface border-theme-border">
+        <DialogHeader>
+          <DialogTitle className="text-theme-text">Créer un nouveau projet</DialogTitle>
+          <DialogDescription className="text-theme-text-secondary">
+            Créez votre site web en quelques étapes simples
+          </DialogDescription>
+        </DialogHeader>
+        <ModalContent />
       </DialogContent>
     </Dialog>
   );

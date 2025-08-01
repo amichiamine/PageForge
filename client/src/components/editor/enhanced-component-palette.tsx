@@ -62,17 +62,27 @@ function DraggableComponent({ component, onDoubleClick, viewMode }: DraggableCom
       <div
         ref={drag}
         className={`
-          group flex items-center p-2 rounded-md border border-gray-200 bg-white hover:bg-gray-50 
-          hover:border-gray-300 cursor-grab active:cursor-grabbing transition-all duration-200 
-          hover:shadow-sm ${isDragging ? 'opacity-50 scale-95' : ''}
+          group flex items-center spacing-responsive-compact rounded-lg border border-theme-border 
+          bg-theme-surface hover:bg-theme-surface-elevated hover:border-theme-primary/50 
+          cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-sm 
+          touch-friendly component-item-mobile ${isDragging ? 'opacity-50 scale-95' : ''}
         `}
-        style={{ opacity: isDragging ? 0.5 : 1, borderLeftColor: component.color, borderLeftWidth: '3px' }}
+        style={{ 
+          opacity: isDragging ? 0.5 : 1, 
+          borderLeftColor: component.color, 
+          borderLeftWidth: '3px' 
+        }}
         onDoubleClick={handleDoubleClick}
-        title={`${component.description} (Double-clic pour ajouter)`}
+        title={`${component.description} (Appui long ou double-clic pour ajouter)`}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <IconComponent className="component-icon-small flex-shrink-0" style={{ color: component.color }} />
-          <span className="text-xs font-medium text-gray-700 truncate">{component.label}</span>
+          <IconComponent 
+            className="w-4 h-4 flex-shrink-0" 
+            style={{ color: component.color }} 
+          />
+          <span className="text-responsive-xs font-medium text-theme-text truncate">
+            {component.label}
+          </span>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           {component.isPremium && (
@@ -90,19 +100,23 @@ function DraggableComponent({ component, onDoubleClick, viewMode }: DraggableCom
     <div
       ref={drag}
       className={`
-        group relative flex flex-col items-center p-2 rounded-md border border-gray-200 
-        bg-white hover:bg-gray-50 hover:border-gray-300 cursor-grab active:cursor-grabbing
+        group relative flex flex-col items-center spacing-responsive-compact rounded-lg 
+        border border-theme-border bg-theme-surface hover:bg-theme-surface-elevated 
+        hover:border-theme-primary/50 cursor-grab active:cursor-grabbing
         transition-all duration-200 hover:scale-102 hover:shadow-sm
-        ${isDragging ? 'opacity-50 scale-95' : ''}
+        touch-friendly component-item-mobile ${isDragging ? 'opacity-50 scale-95' : ''}
       `}
       style={{ opacity: isDragging ? 0.5 : 1, borderColor: component.color }}
       onDoubleClick={handleDoubleClick}
-      title={`${component.description} (Double-clic pour ajouter)`}
+      title={`${component.description} (Appui long ou double-clic pour ajouter)`}
     >
-      <div className="flex items-center justify-center w-8 h-8 mb-1">
-        <IconComponent className="component-icon-small" style={{ color: component.color }} />
+      <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 mb-1">
+        <IconComponent 
+          className="w-4 h-4 sm:w-5 sm:h-5" 
+          style={{ color: component.color }} 
+        />
       </div>
-      <span className="text-xs font-medium text-gray-700 text-center leading-tight">
+      <span className="text-responsive-xs font-medium text-theme-text text-center leading-tight line-clamp-2">
         {component.label}
       </span>
       
@@ -110,10 +124,10 @@ function DraggableComponent({ component, onDoubleClick, viewMode }: DraggableCom
       {(component.isPremium || component.isNew) && (
         <div className="absolute -top-1 -right-1 flex gap-1">
           {component.isPremium && (
-            <Crown className="w-3 h-3 text-yellow-500 bg-white rounded-full p-0.5" />
+            <Crown className="w-3 h-3 text-yellow-500 bg-theme-surface rounded-full p-0.5 shadow-sm" />
           )}
           {component.isNew && (
-            <Sparkles className="w-3 h-3 text-blue-500 bg-white rounded-full p-0.5" />
+            <Sparkles className="w-3 h-3 text-blue-500 bg-theme-surface rounded-full p-0.5 shadow-sm" />
           )}
         </div>
       )}
@@ -229,9 +243,9 @@ export default function EnhancedComponentPalette({ onDoubleClick, className }: E
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="flex-1 h-7 text-xs border border-theme-border rounded px-2 bg-theme-background text-theme-text"
+            className="flex-1 h-7 text-xs border border-theme-border rounded px-2 bg-theme-background text-theme-text touch-friendly-compact"
           >
-            <option value="all">Toutes catégories</option>
+            <option value="all">Toutes</option>
             {componentCategories.map(category => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -239,13 +253,25 @@ export default function EnhancedComponentPalette({ onDoubleClick, className }: E
             ))}
           </select>
 
+          {/* Toggle Premium */}
+          <Button
+            variant={showPremiumOnly ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowPremiumOnly(!showPremiumOnly)}
+            className="h-7 px-2 text-xs touch-friendly-compact"
+            title="Afficher uniquement les composants premium"
+          >
+            <Crown className="w-3 h-3" />
+          </Button>
+
           {/* Boutons d'affichage */}
           <div className="flex border border-theme-border rounded overflow-hidden">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 touch-friendly-compact"
+              title="Affichage en grille"
             >
               <Grid className="w-3 h-3" />
             </Button>
@@ -253,25 +279,12 @@ export default function EnhancedComponentPalette({ onDoubleClick, className }: E
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 touch-friendly-compact"
+              title="Affichage en liste"
             >
               <List className="w-3 h-3" />
             </Button>
           </div>
-        </div>
-
-        {/* Filtre Premium */}
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-2 text-xs text-theme-text cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showPremiumOnly}
-              onChange={(e) => setShowPremiumOnly(e.target.checked)}
-              className="w-3 h-3"
-            />
-            <Crown className="w-3 h-3 text-yellow-500" />
-            Premium uniquement
-          </label>
         </div>
       </div>
 
@@ -308,7 +321,7 @@ export default function EnhancedComponentPalette({ onDoubleClick, className }: E
                   {isExpanded && (
                     <div className={`
                       ${viewMode === 'grid' 
-                        ? 'grid grid-cols-3 gap-1.5' 
+                        ? 'grid grid-cols-2 sm:grid-cols-3 gap-responsive-compact' 
                         : 'space-y-1'
                       }
                     `}>
@@ -331,7 +344,7 @@ export default function EnhancedComponentPalette({ onDoubleClick, className }: E
           <div className="p-2">
             <div className={`
               ${viewMode === 'grid' 
-                ? 'grid grid-cols-3 gap-1.5' 
+                ? 'grid grid-cols-2 sm:grid-cols-3 gap-responsive-compact' 
                 : 'space-y-1'
               }
             `}>

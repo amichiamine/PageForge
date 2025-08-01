@@ -25,7 +25,10 @@ import {
   Box,
   Settings,
   Zap,
-  RotateCcw
+  RotateCcw,
+  Smartphone,
+  Tablet,
+  Monitor
 } from 'lucide-react';
 import type { ComponentDefinition, Project } from '@shared/schema';
 import { 
@@ -46,182 +49,91 @@ interface EnhancedPropertiesPanelProps {
 interface PropertyGroup {
   id: string;
   name: string;
+  shortName: string; // Nom court pour mobile
   icon: any;
   properties: string[];
 }
 
 const propertyGroups: PropertyGroup[] = [
   {
+    id: 'content',
+    name: 'Contenu',
+    shortName: 'Contenu',
+    icon: Type,
+    properties: ['text', 'placeholder', 'alt', 'src', 'href', 'title', 'value']
+  },
+  {
     id: 'layout',
     name: 'Disposition',
+    shortName: 'Layout',
     icon: Layout,
     properties: ['display', 'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear', 'overflow', 'visibility']
   },
   {
     id: 'boxModel',
     name: 'Modèle de boîte',
+    shortName: 'Tailles',
     icon: Box,
     properties: ['width', 'height', 'max-width', 'max-height', 'min-width', 'min-height', 'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left']
   },
   {
-    id: 'border',
-    name: 'Bordures & Ombres',
-    icon: Settings,
-    properties: ['border', 'border-width', 'border-style', 'border-color', 'border-radius', 'border-top', 'border-right', 'border-bottom', 'border-left', 'box-shadow', 'outline']
+    id: 'typography',
+    name: 'Typographie',
+    shortName: 'Typo',
+    icon: Type,
+    properties: ['font-family', 'font-size', 'font-weight', 'font-style', 'text-align', 'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'word-spacing', 'color']
   },
   {
     id: 'background',
     name: 'Arrière-plan',
+    shortName: 'Fond',
     icon: Palette,
-    properties: ['background', 'background-color', 'background-image', 'background-repeat', 'background-position', 'background-size', 'background-attachment']
+    properties: ['background-color', 'background-image', 'background-size', 'background-position', 'background-repeat', 'background-attachment', 'opacity']
   },
   {
-    id: 'typography',
-    name: 'Typographie',
-    icon: Type,
-    properties: ['color', 'font-family', 'font-size', 'font-weight', 'font-style', 'text-align', 'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'word-spacing']
+    id: 'border',
+    name: 'Bordures & Ombres',
+    shortName: 'Bordures',
+    icon: Settings,
+    properties: ['border', 'border-width', 'border-style', 'border-color', 'border-radius', 'border-top', 'border-right', 'border-bottom', 'border-left', 'box-shadow', 'outline']
   },
   {
-    id: 'flexbox',
-    name: 'Flexbox',
-    icon: Layout,
-    properties: ['flex-direction', 'flex-wrap', 'justify-content', 'align-items', 'align-content', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-self', 'order', 'gap']
-  },
-  {
-    id: 'grid',
-    name: 'Grid',
-    icon: Layout,
-    properties: ['grid-template-columns', 'grid-template-rows', 'grid-template-areas', 'grid-column', 'grid-row', 'grid-area', 'grid-gap']
-  },
-  {
-    id: 'transform',
-    name: 'Transformations',
+    id: 'animation',
+    name: 'Animations & Effets',
+    shortName: 'Effets',
     icon: Zap,
-    properties: ['transform', 'transform-origin', 'transition', 'animation', 'opacity', 'filter', 'backdrop-filter']
+    properties: ['transition', 'transform', 'animation', 'filter', 'cursor', 'pointer-events']
   }
 ];
 
-// Propriétés avec des valeurs prédéfinies
-const propertyPresets: Record<string, string[]> = {
-  'display': ['none', 'block', 'inline', 'inline-block', 'flex', 'grid', 'table', 'table-cell'],
-  'position': ['static', 'relative', 'absolute', 'fixed', 'sticky'],
-  'text-align': ['left', 'center', 'right', 'justify'],
-  'font-weight': ['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  'font-style': ['normal', 'italic', 'oblique'],
-  'text-decoration': ['none', 'underline', 'overline', 'line-through'],
-  'text-transform': ['none', 'uppercase', 'lowercase', 'capitalize'],
-  'flex-direction': ['row', 'column', 'row-reverse', 'column-reverse'],
-  'flex-wrap': ['nowrap', 'wrap', 'wrap-reverse'],
-  'justify-content': ['flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly'],
-  'align-items': ['stretch', 'flex-start', 'flex-end', 'center', 'baseline'],
-  'align-content': ['stretch', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around'],
-  'overflow': ['visible', 'hidden', 'scroll', 'auto'],
-  'cursor': ['auto', 'pointer', 'grab', 'text', 'move', 'not-allowed', 'help'],
-  'border-style': ['none', 'solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset']
-};
-
-// Propriétés numériques avec sliders
-const numericProperties = [
-  'font-size', 'line-height', 'letter-spacing', 'word-spacing', 'border-width', 
-  'border-radius', 'opacity', 'z-index', 'flex-grow', 'flex-shrink', 'order'
+const responsiveBreakpoints = [
+  { id: 'mobile', name: 'Mobile', icon: Smartphone, width: '320px-767px' },
+  { id: 'tablet', name: 'Tablette', icon: Tablet, width: '768px-1023px' },
+  { id: 'desktop', name: 'Bureau', icon: Monitor, width: '1024px+' }
 ];
 
-export default function EnhancedPropertiesPanel({
-  component,
-  onComponentUpdate,
-  project,
-  onComponentSelect,
+export default function EnhancedPropertiesPanel({ 
+  component, 
+  onComponentUpdate, 
+  project, 
+  onComponentSelect, 
   onComponentDelete,
-  className
+  className 
 }: EnhancedPropertiesPanelProps) {
-  const [localComponent, setLocalComponent] = useState<ComponentDefinition | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(['layout', 'boxModel', 'typography'])
+    new Set(['content', 'layout', 'boxModel'])
   );
-  const [activeTab, setActiveTab] = useState<'properties' | 'attributes' | 'advanced'>('properties');
+  const [selectedBreakpoint, setSelectedBreakpoint] = useState('desktop');
+  const [isCompactMode, setIsCompactMode] = useState(window.innerWidth < 1024);
 
   useEffect(() => {
-    if (component) {
-      setLocalComponent(component);
-    } else {
-      setLocalComponent(null);
-    }
-  }, [component]);
-
-  const componentDefinition = useMemo(() => {
-    return localComponent ? getComponentDefinition(localComponent.type) : null;
-  }, [localComponent]);
-
-  const availableProperties = useMemo(() => {
-    if (!localComponent) return [];
-    return getAllCSSPropertiesForComponent(localComponent.type);
-  }, [localComponent]);
-
-  const filteredProperties = useMemo(() => {
-    if (!searchTerm) return availableProperties;
-    return availableProperties.filter(prop =>
-      prop.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [availableProperties, searchTerm]);
-
-  const updateProperty = (path: string, value: any) => {
-    if (!localComponent) return;
-
-    const updatedComponent = { ...localComponent };
-
-    if (path.startsWith('styles.')) {
-      const styleProp = path.replace('styles.', '');
-      updatedComponent.styles = {
-        ...updatedComponent.styles,
-        [styleProp]: value
-      };
-    } else if (path.startsWith('attributes.')) {
-      const attrProp = path.replace('attributes.', '');
-      updatedComponent.attributes = {
-        ...updatedComponent.attributes,
-        [attrProp]: value
-      };
-    } else {
-      (updatedComponent as any)[path] = value;
-    }
-
-    setLocalComponent(updatedComponent);
-    onComponentUpdate(updatedComponent);
-  };
-
-  const resetProperty = (property: string) => {
-    if (!localComponent) return;
-    const updatedComponent = { ...localComponent };
-    if (updatedComponent.styles) {
-      delete updatedComponent.styles[property];
-    }
-    setLocalComponent(updatedComponent);
-    onComponentUpdate(updatedComponent);
-  };
-
-  const duplicateComponent = () => {
-    if (!localComponent) return;
-
-    const duplicated = {
-      ...localComponent,
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      styles: {
-        ...localComponent.styles,
-        left: `${parseInt(localComponent.styles?.left?.replace('px', '') || '0') + 20}px`,
-        top: `${parseInt(localComponent.styles?.top?.replace('px', '') || '0') + 20}px`
-      }
+    const handleResize = () => {
+      setIsCompactMode(window.innerWidth < 1024);
     };
-
-    onComponentUpdate(duplicated);
-  };
-
-  const toggleVisibility = () => {
-    if (!localComponent) return;
-    const currentDisplay = localComponent.styles?.display || 'block';
-    const newDisplay = currentDisplay === 'none' ? 'block' : 'none';
-    updateProperty('styles.display', newDisplay);
-  };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleGroup = (groupId: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -233,21 +145,318 @@ export default function EnhancedPropertiesPanel({
     setExpandedGroups(newExpanded);
   };
 
-  const renderPropertyInput = (property: string) => {
-    const currentValue = localComponent?.styles?.[property] || '';
-    const presets = propertyPresets[property];
-    const isNumeric = numericProperties.includes(property);
+  const getPropertyValue = (propertyName: string) => {
+    if (!component) return '';
+    return component.props?.[propertyName] || component.style?.[propertyName] || '';
+  };
 
-    if (presets) {
+  const updateProperty = (propertyName: string, value: any) => {
+    if (!component) return;
+    
+    const isStyleProperty = commonCSSProperties.includes(propertyName);
+    const updatedComponent = { ...component };
+    
+    if (isStyleProperty) {
+      updatedComponent.style = { ...updatedComponent.style, [propertyName]: value };
+    } else {
+      updatedComponent.props = { ...updatedComponent.props, [propertyName]: value };
+    }
+    
+    onComponentUpdate(updatedComponent);
+  };
+
+  const resetProperty = (propertyName: string) => {
+    updateProperty(propertyName, '');
+  };
+
+  const handleComponentDelete = () => {
+    if (component?.id) {
+      onComponentDelete(component.id);
+      onComponentSelect(null);
+    }
+  };
+
+  const availableProperties = useMemo(() => {
+    if (!component) return [];
+    return getAllCSSPropertiesForComponent(component.type);
+  }, [component]);
+
+  const filteredGroups = useMemo(() => {
+    if (!searchTerm) return propertyGroups;
+    
+    return propertyGroups.map(group => ({
+      ...group,
+      properties: group.properties.filter(prop => 
+        prop.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        availableProperties.includes(prop)
+      )
+    })).filter(group => group.properties.length > 0);
+  }, [searchTerm, availableProperties]);
+
+  if (!component) {
+    return (
+      <div className={`h-full flex items-center justify-center bg-theme-surface border-l border-theme-border ${className}`}>
+        <div className="text-center spacing-responsive">
+          <Settings className="w-8 h-8 sm:w-12 sm:h-12 text-theme-text-secondary mx-auto mb-2 sm:mb-4" />
+          <h3 className="text-responsive-base font-medium text-theme-text mb-1 sm:mb-2">
+            Aucun composant sélectionné
+          </h3>
+          <p className="text-responsive-sm text-theme-text-secondary">
+            Sélectionnez un composant pour modifier ses propriétés
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const componentDef = getComponentDefinition(component.type);
+
+  return (
+    <div className={`h-full flex flex-col bg-theme-surface border-l border-theme-border ${className}`}>
+      {/* En-tête avec informations du composant */}
+      <div className="panel-header-compact border-b border-theme-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {componentDef?.icon && (
+              <componentDef.icon className="w-4 h-4 flex-shrink-0" style={{ color: componentDef.color }} />
+            )}
+            <div className="min-w-0 flex-1">
+              <h3 className="compact-title text-theme-text truncate">
+                {componentDef?.label || component.type}
+              </h3>
+              <p className="text-xs text-theme-text-secondary truncate">
+                ID: {component.id}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {/* Toggle visibility */}}
+              className="h-6 w-6 p-0 touch-friendly-compact"
+              title="Masquer/Afficher"
+            >
+              <Eye className="w-3 h-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleComponentDelete}
+              className="h-6 w-6 p-0 touch-friendly-compact text-red-600 hover:text-red-700"
+              title="Supprimer"
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sélecteur de breakpoint responsive */}
+      {!isCompactMode && (
+        <div className="p-2 border-b border-theme-border">
+          <div className="flex gap-1">
+            {responsiveBreakpoints.map(breakpoint => {
+              const Icon = breakpoint.icon;
+              return (
+                <Button
+                  key={breakpoint.id}
+                  variant={selectedBreakpoint === breakpoint.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedBreakpoint(breakpoint.id)}
+                  className="flex-1 h-7 text-xs touch-friendly-compact"
+                  title={`${breakpoint.name} (${breakpoint.width})`}
+                >
+                  <Icon className="w-3 h-3 mr-1" />
+                  <span className="hidden sm:inline">{breakpoint.name}</span>
+                  <span className="sm:hidden">{breakpoint.name.charAt(0)}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Barre de recherche */}
+      <div className="p-2 border-b border-theme-border">
+        <div className="relative">
+          <Search className="absolute left-2 top-2 w-3 h-3 text-theme-text-secondary" />
+          <Input
+            placeholder="Rechercher une propriété..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-7 h-7 text-xs bg-theme-background border-theme-border input-responsive"
+          />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-1 top-1 h-5 w-5 p-0 hover:bg-theme-surface touch-friendly-compact"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Propriétés organisées par groupes */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-2 space-y-2">
+          {filteredGroups.map(group => {
+            if (group.properties.length === 0) return null;
+            
+            const Icon = group.icon;
+            const isExpanded = expandedGroups.has(group.id);
+            const groupName = isCompactMode ? group.shortName : group.name;
+
+            return (
+              <div key={group.id} className="space-y-1">
+                <button
+                  onClick={() => toggleGroup(group.id)}
+                  className="flex items-center gap-2 w-full text-left p-1 rounded hover:bg-theme-background transition-colors touch-friendly-compact"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="w-3 h-3 text-theme-text-secondary" />
+                  ) : (
+                    <ChevronRight className="w-3 h-3 text-theme-text-secondary" />
+                  )}
+                  <Icon className="w-3 h-3 text-theme-primary" />
+                  <span className="text-xs font-medium text-theme-text">{groupName}</span>
+                  <Badge variant="secondary" className="h-4 text-xs px-1">
+                    {group.properties.filter(prop => availableProperties.includes(prop)).length}
+                  </Badge>
+                </button>
+
+                {isExpanded && (
+                  <div className="space-y-2 pl-2">
+                    {group.properties
+                      .filter(prop => availableProperties.includes(prop))
+                      .map(propertyName => (
+                        <PropertyField
+                          key={propertyName}
+                          propertyName={propertyName}
+                          value={getPropertyValue(propertyName)}
+                          onChange={(value) => updateProperty(propertyName, value)}
+                          onReset={() => resetProperty(propertyName)}
+                          isCompact={isCompactMode}
+                        />
+                      ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Actions rapides */}
+      <div className="p-2 border-t border-theme-border">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs touch-friendly-compact"
+            onClick={() => {/* Copy component */}}
+          >
+            <Copy className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Dupliquer</span>
+            <span className="sm:hidden">Copy</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs touch-friendly-compact"
+            onClick={() => {/* Reset all styles */}}
+          >
+            <RotateCcw className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Réinitialiser</span>
+            <span className="sm:hidden">Reset</span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface PropertyFieldProps {
+  propertyName: string;
+  value: any;
+  onChange: (value: any) => void;
+  onReset: () => void;
+  isCompact: boolean;
+}
+
+function PropertyField({ propertyName, value, onChange, onReset, isCompact }: PropertyFieldProps) {
+  const renderInput = () => {
+    // Propriétés de couleur
+    if (propertyName.includes('color') || propertyName === 'background-color') {
       return (
-        <Select value={currentValue} onValueChange={(value) => updateProperty(`styles.${property}`, value)}>
-          <SelectTrigger className="h-7 text-xs">
-            <SelectValue placeholder="Valeur" />
+        <div className="flex gap-1">
+          <Input
+            type="color"
+            value={value || '#000000'}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-8 h-6 p-0 border rounded input-responsive"
+          />
+          <Input
+            type="text"
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="#000000"
+            className="flex-1 h-6 text-xs input-responsive"
+          />
+        </div>
+      );
+    }
+
+    // Propriétés numériques avec slider
+    if (['opacity', 'z-index', 'font-weight'].includes(propertyName)) {
+      const max = propertyName === 'opacity' ? 1 : propertyName === 'z-index' ? 1000 : 900;
+      const step = propertyName === 'opacity' ? 0.1 : 1;
+      
+      return (
+        <div className="space-y-1">
+          <div className="flex gap-1">
+            <Slider
+              value={[parseFloat(value) || 0]}
+              onValueChange={(values) => onChange(values[0].toString())}
+              max={max}
+              step={step}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              value={value || ''}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-16 h-6 text-xs input-responsive"
+              step={step}
+              min="0"
+              max={max}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // Sélecteur pour certaines propriétés
+    if (['display', 'position', 'text-align', 'font-weight'].includes(propertyName)) {
+      const options = {
+        'display': ['block', 'inline', 'flex', 'grid', 'none'],
+        'position': ['static', 'relative', 'absolute', 'fixed', 'sticky'],
+        'text-align': ['left', 'center', 'right', 'justify'],
+        'font-weight': ['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900']
+      };
+
+      return (
+        <Select value={value || ''} onValueChange={onChange}>
+          <SelectTrigger className="h-6 text-xs">
+            <SelectValue placeholder="Sélectionner..." />
           </SelectTrigger>
           <SelectContent>
-            {presets.map(preset => (
-              <SelectItem key={preset} value={preset}>
-                {preset}
+            {options[propertyName as keyof typeof options]?.map(option => (
+              <SelectItem key={option} value={option} className="text-xs">
+                {option}
               </SelectItem>
             ))}
           </SelectContent>
@@ -255,377 +464,50 @@ export default function EnhancedPropertiesPanel({
       );
     }
 
-    if (property === 'color' || property === 'background-color' || property.includes('color')) {
+    // Textarea pour les propriétés longues
+    if (['text', 'content'].includes(propertyName)) {
       return (
-        <div className="flex items-center gap-1">
-          <input
-            type="color"
-            value={currentValue || '#000000'}
-            onChange={(e) => updateProperty(`styles.${property}`, e.target.value)}
-            className="w-6 h-6 rounded border border-theme-border cursor-pointer"
-          />
-          <Input
-            value={currentValue}
-            onChange={(e) => updateProperty(`styles.${property}`, e.target.value)}
-            placeholder="#000000"
-            className="h-7 text-xs flex-1"
-          />
-        </div>
+        <Textarea
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Entrez le texte..."
+          className="min-h-16 text-xs resize-none"
+          rows={3}
+        />
       );
     }
 
-    if (isNumeric) {
-      const numValue = parseFloat(currentValue) || 0;
-      const maxValue = property === 'opacity' ? 1 : property === 'z-index' ? 999 : 100;
-      
-      return (
-        <div className="flex items-center gap-2">
-          <Slider
-            value={[numValue]}
-            onValueChange={([value]) => updateProperty(`styles.${property}`, value.toString())}
-            max={maxValue}
-            step={property === 'opacity' ? 0.1 : 1}
-            className="flex-1"
-          />
-          <Input
-            value={currentValue}
-            onChange={(e) => updateProperty(`styles.${property}`, e.target.value)}
-            className="w-16 h-7 text-xs"
-            placeholder="0"
-          />
-        </div>
-      );
-    }
-
+    // Input par défaut
     return (
       <Input
-        value={currentValue}
-        onChange={(e) => updateProperty(`styles.${property}`, e.target.value)}
-        placeholder="Valeur"
-        className="h-7 text-xs"
+        type="text"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Valeur..."
+        className="h-6 text-xs input-responsive"
       />
     );
   };
 
-  const getAllComponents = (components: ComponentDefinition[]): ComponentDefinition[] => {
-    const allComponents: ComponentDefinition[] = [];
-    const traverse = (comps: ComponentDefinition[]) => {
-      comps.forEach(comp => {
-        allComponents.push(comp);
-        if (comp.children && comp.children.length > 0) {
-          traverse(comp.children);
-        }
-      });
-    };
-    traverse(components);
-    return allComponents;
-  };
-
-  const allComponents = project?.content?.pages?.[0]?.content?.structure ? 
-    getAllComponents(project.content.pages[0].content.structure) : [];
-
-  if (!localComponent) {
-    return (
-      <div className={`h-full overflow-y-auto bg-theme-surface ${className}`}>
-        <div className="panel-header-compact">
-          <h3 className="compact-title text-theme-text">Propriétés</h3>
-          <p className="text-xs text-theme-text-secondary">Sélectionnez un composant</p>
-        </div>
-
-        <div className="p-3 space-y-3">
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-theme-text">Composants sur la page ({allComponents.length})</h4>
-            {allComponents.length > 0 ? (
-              <div className="space-y-1">
-                {allComponents.map((comp) => (
-                  <div
-                    key={comp.id}
-                    onClick={() => onComponentSelect(comp)}
-                    className="flex items-center justify-between p-2 rounded-md border border-theme-border bg-theme-background hover:bg-theme-surface cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getComponentDefinition(comp.type)?.color || '#6b7280' }} />
-                      <span className="text-xs font-medium text-theme-text truncate">
-                        {getComponentDefinition(comp.type)?.label || comp.type}
-                      </span>
-                    </div>
-                    <Badge variant="outline" className="h-4 text-xs px-1">
-                      {comp.type}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-theme-text-secondary text-center py-4">
-                Aucun composant sur la page
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`h-full flex flex-col bg-theme-surface ${className}`}>
-      {/* En-tête avec informations du composant */}
-      <div className="panel-header-compact">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: componentDefinition?.color || '#6b7280' }} />
-            <h3 className="compact-title text-theme-text truncate">
-              {componentDefinition?.label || localComponent.type}
-            </h3>
-          </div>
-          <div className="flex items-center gap-1">
-            {componentDefinition?.isPremium && (
-              <Badge variant="outline" className="h-4 text-xs px-1">Premium</Badge>
-            )}
-          </div>
-        </div>
-        <p className="text-xs text-theme-text-secondary mt-1">{componentDefinition?.description}</p>
-      </div>
-
-      {/* Actions rapides */}
-      <div className="p-2 border-b border-theme-border">
-        <div className="flex items-center gap-1">
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-theme-text truncate flex-1">
+          {isCompact ? propertyName.split('-').pop() : propertyName}
+        </Label>
+        {value && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={duplicateComponent}
-            className="h-6 px-2 text-xs"
+            onClick={onReset}
+            className="h-4 w-4 p-0 text-theme-text-secondary hover:text-theme-text touch-friendly-compact"
+            title="Réinitialiser"
           >
-            <Copy className="w-3 h-3 mr-1" />
-            Dupliquer
+            <X className="w-2 h-2" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleVisibility}
-            className="h-6 px-2 text-xs"
-          >
-            {localComponent.styles?.display === 'none' ? (
-              <>
-                <EyeOff className="w-3 h-3 mr-1" />
-                Masqué
-              </>
-            ) : (
-              <>
-                <Eye className="w-3 h-3 mr-1" />
-                Visible
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onComponentDelete(localComponent.id)}
-            className="h-6 px-2 text-xs text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="w-3 h-3" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Onglets */}
-      <div className="flex border-b border-theme-border">
-        <button
-          onClick={() => setActiveTab('properties')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'properties' 
-              ? 'text-theme-primary border-b-2 border-theme-primary bg-theme-background' 
-              : 'text-theme-text-secondary hover:text-theme-text'
-          }`}
-        >
-          Styles CSS
-        </button>
-        <button
-          onClick={() => setActiveTab('attributes')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'attributes' 
-              ? 'text-theme-primary border-b-2 border-theme-primary bg-theme-background' 
-              : 'text-theme-text-secondary hover:text-theme-text'
-          }`}
-        >
-          Attributs
-        </button>
-        <button
-          onClick={() => setActiveTab('advanced')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'advanced' 
-              ? 'text-theme-primary border-b-2 border-theme-primary bg-theme-background' 
-              : 'text-theme-text-secondary hover:text-theme-text'
-          }`}
-        >
-          Avancé
-        </button>
-      </div>
-
-      {/* Contenu des onglets */}
-      <div className="flex-1 overflow-y-auto">
-        {activeTab === 'properties' && (
-          <div className="p-2 space-y-3">
-            {/* Barre de recherche */}
-            <div className="relative">
-              <Search className="absolute left-2 top-2 w-3 h-3 text-theme-text-secondary" />
-              <Input
-                placeholder="Rechercher une propriété..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-7 h-7 text-xs"
-              />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-1 top-1 h-5 w-5 p-0"
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              )}
-            </div>
-
-            {/* Groupes de propriétés */}
-            {searchTerm ? (
-              // Affichage filtré
-              <div className="space-y-2">
-                {filteredProperties.map(property => (
-                  <div key={property} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs text-theme-text">{property}</Label>
-                      {localComponent.styles?.[property] && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => resetProperty(property)}
-                          className="h-4 w-4 p-0 text-theme-text-secondary hover:text-theme-text"
-                        >
-                          <RotateCcw className="w-3 h-3" />
-                        </Button>
-                      )}
-                    </div>
-                    {renderPropertyInput(property)}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              // Affichage par groupes
-              <div className="space-y-2">
-                {propertyGroups.map(group => {
-                  const groupProperties = group.properties.filter(prop => availableProperties.includes(prop));
-                  if (groupProperties.length === 0) return null;
-
-                  const GroupIcon = group.icon;
-                  const isExpanded = expandedGroups.has(group.id);
-
-                  return (
-                    <div key={group.id} className="space-y-1">
-                      <button
-                        onClick={() => toggleGroup(group.id)}
-                        className="flex items-center gap-2 w-full text-left p-1 rounded hover:bg-theme-background transition-colors"
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className="w-3 h-3 text-theme-text-secondary" />
-                        ) : (
-                          <ChevronRight className="w-3 h-3 text-theme-text-secondary" />
-                        )}
-                        <GroupIcon className="w-3 h-3 text-theme-primary" />
-                        <span className="text-xs font-medium text-theme-text">{group.name}</span>
-                        <Badge variant="secondary" className="h-4 text-xs px-1 ml-auto">
-                          {groupProperties.length}
-                        </Badge>
-                      </button>
-
-                      {isExpanded && (
-                        <div className="space-y-2 pl-6">
-                          {groupProperties.map(property => (
-                            <div key={property} className="space-y-1">
-                              <div className="flex items-center justify-between">
-                                <Label className="text-xs text-theme-text">{property}</Label>
-                                {localComponent.styles?.[property] && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => resetProperty(property)}
-                                    className="h-4 w-4 p-0 text-theme-text-secondary hover:text-theme-text"
-                                  >
-                                    <RotateCcw className="w-3 h-3" />
-                                  </Button>
-                                )}
-                              </div>
-                              {renderPropertyInput(property)}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'attributes' && (
-          <div className="p-2 space-y-3">
-            <div className="space-y-2">
-              <Label className="text-xs text-theme-text">Contenu</Label>
-              <Textarea
-                value={localComponent.content || ''}
-                onChange={(e) => updateProperty('content', e.target.value)}
-                placeholder="Contenu du composant"
-                className="h-20 text-xs resize-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs text-theme-text">Attributs personnalisés</Label>
-              {Object.entries(localComponent.attributes || {}).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <Label className="text-xs text-theme-text">{key}</Label>
-                  <Input
-                    value={value as string}
-                    onChange={(e) => updateProperty(`attributes.${key}`, e.target.value)}
-                    className="h-7 text-xs"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'advanced' && (
-          <div className="p-2 space-y-3">
-            <div className="space-y-2">
-              <Label className="text-xs text-theme-text">ID du composant</Label>
-              <Input
-                value={localComponent.id}
-                disabled
-                className="h-7 text-xs bg-theme-background"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs text-theme-text">Type</Label>
-              <Input
-                value={localComponent.type}
-                disabled
-                className="h-7 text-xs bg-theme-background"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs text-theme-text">Balise HTML</Label>
-              <Input
-                value={localComponent.tag || 'div'}
-                onChange={(e) => updateProperty('tag', e.target.value)}
-                className="h-7 text-xs"
-              />
-            </div>
-          </div>
         )}
       </div>
+      {renderInput()}
     </div>
   );
 }

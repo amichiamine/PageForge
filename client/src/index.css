@@ -123,6 +123,253 @@
   align-items: center;
   justify-content: center;
   color: white;
+  transition: all 0.2s ease;
+}
+
+.floating-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Classes responsives pour l'éditeur et l'interface */
+@layer utilities {
+  /* Panneaux responsifs */
+  .editor-panel-mobile {
+    @apply fixed inset-x-0 bottom-0 z-50 max-h-[60vh] rounded-t-lg;
+    @apply sm:relative sm:inset-auto sm:max-h-none sm:rounded-none sm:z-auto;
+  }
+  
+  .editor-panel-tablet {
+    width: 240px;
+  }
+  
+  /* Layout responsive pour mobile */
+  @media (max-width: 768px) {
+    .editor-panel-compact {
+      width: 100% !important;
+      min-width: 100% !important;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 60vh;
+      border-radius: 1rem 1rem 0 0;
+      z-index: 50;
+    }
+    
+    .floating-button {
+      width: 48px !important;
+      height: 48px !important;
+    }
+    
+    .nav-toggle-floating {
+      top: 1rem;
+      left: 1rem;
+    }
+    
+    .panel-toggle-left {
+      bottom: 6rem;
+      left: 1rem;
+    }
+    
+    .panel-toggle-right {
+      bottom: 6rem;
+      right: 1rem;
+    }
+    
+    .responsive-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+    
+    .responsive-text-compact {
+      font-size: 0.75rem;
+    }
+    
+    .responsive-padding-compact {
+      padding: 0.5rem;
+    }
+    
+    .header-mobile {
+      padding: 0.75rem 1rem;
+    }
+    
+    .sidebar-mobile {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .sidebar-content-mobile {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: var(--color-surface);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar-content-mobile.open {
+      transform: translateX(0);
+    }
+  }
+  
+  /* Layout pour tablettes */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .editor-panel-compact {
+      width: 240px !important;
+      min-width: 240px !important;
+    }
+    
+    .responsive-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+  }
+  
+  /* Layout pour desktop */
+  @media (min-width: 1025px) {
+    .editor-panel-compact {
+      width: 280px !important;
+      min-width: 280px !important;
+    }
+    
+    .responsive-grid {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+  }
+  
+  /* Grilles responsives spécialisées */
+  .component-grid-mobile {
+    @apply grid grid-cols-2 gap-2;
+  }
+  
+  .component-grid-tablet {
+    @apply grid grid-cols-3 gap-3;
+  }
+  
+  .component-grid-desktop {
+    @apply grid grid-cols-4 gap-4;
+  }
+  
+  .template-grid-mobile {
+    @apply grid grid-cols-1 gap-4;
+  }
+  
+  .template-grid-tablet {
+    @apply grid grid-cols-2 gap-4;
+  }
+  
+  .template-grid-desktop {
+    @apply grid grid-cols-3 gap-6;
+  }
+  
+  /* Texte responsif */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  /* Espacements responsifs */
+  .spacing-responsive {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
+  
+  .spacing-responsive-compact {
+    @apply p-2 sm:p-3 lg:p-4;
+  }
+  
+  .gap-responsive {
+    @apply gap-2 sm:gap-3 lg:gap-4;
+  }
+  
+  /* Boutons responsifs */
+  .button-responsive {
+    @apply px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base;
+  }
+  
+  .button-responsive-compact {
+    @apply px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm;
+  }
+  
+  /* Cards responsives */
+  .card-responsive {
+    @apply rounded-lg p-3 sm:p-4 lg:p-6;
+  }
+  
+  .card-responsive-compact {
+    @apply rounded-md p-2 sm:p-3 lg:p-4;
+  }
+  
+  /* Inputs responsifs */
+  .input-responsive {
+    @apply text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2.5;
+  }
+  
+  /* Modales responsives */
+  .modal-responsive {
+    @apply w-full max-w-sm mx-auto sm:max-w-md lg:max-w-lg xl:max-w-xl;
+  }
+  
+  .modal-responsive-large {
+    @apply w-full max-w-md mx-auto sm:max-w-lg lg:max-w-2xl xl:max-w-4xl;
+  }
+  
+  /* Navigation mobile */
+  .nav-mobile {
+    @apply fixed bottom-0 left-0 right-0 z-50 bg-theme-surface border-t border-theme-border;
+    @apply flex justify-around items-center h-16 px-4;
+  }
+  
+  /* Toolbar responsive */
+  .toolbar-responsive {
+    @apply flex flex-wrap items-center gap-1 sm:gap-2 p-2 sm:p-3;
+    @apply bg-theme-surface border-b border-theme-border;
+  }
+  
+  /* Animations pour mobile */
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .slide-down {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  
+  @keyframes slideDown {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+  
+  /* Classes utilitaires pour les breakpoints */
+  .mobile-only { @apply block sm:hidden; }
+  .tablet-up { @apply hidden sm:block; }
+  .desktop-only { @apply hidden lg:block; }
+  .not-mobile { @apply hidden sm:block; }
+  
+  /* Touch-friendly pour mobile */
+  .touch-friendly { @apply min-h-[44px] min-w-[44px]; }
+  .touch-friendly-compact { @apply min-h-[36px] min-w-[36px]; }
   transition: all 0.3s ease;
   cursor: pointer;
 }
