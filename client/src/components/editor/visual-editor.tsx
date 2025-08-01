@@ -271,23 +271,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
               onSelect={() => onComponentSelect(component)}
               showGuides={true}
             >
-              <div style={{ 
-                width: '100%', 
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
-                               component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start',
-                padding: '4px',
-                boxSizing: 'border-box',
-                fontSize: component.styles?.fontSize || '16px',
-                fontFamily: component.styles?.fontFamily || 'Arial, sans-serif',
-                fontWeight: component.styles?.fontWeight || 'normal',
-                color: component.styles?.color || '#000000',
-                textAlign: component.styles?.textAlign as any || 'left'
-              }}>
-                {component.content || (component.type === 'button' ? 'Bouton' : component.type === 'heading' ? 'Titre' : 'Contenu')}
-              </div>
+              <ComponentRenderer component={component} />
             </ResizableComponent>
     );
   }, [selectedComponent, onComponentSelect, handleComponentUpdate, handleComponentDelete, showAlignmentGuides, project, onComponentUpdate]);
@@ -303,17 +287,28 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
 
     switch (component.type) {
       case 'text':
+      case 'paragraph':
         return (
           <div style={style} className={component.attributes?.className}>
             {component.content || 'Texte'}
           </div>
         );
+        
+      case 'heading':
+        const HeadingTag = (component.attributes?.level ? `h${component.attributes.level}` : 'h1') as keyof JSX.IntrinsicElements;
+        return (
+          <HeadingTag style={style} className={component.attributes?.className}>
+            {component.content || 'Titre'}
+          </HeadingTag>
+        );
+        
       case 'button':
         return (
           <button style={style} className={component.attributes?.className}>
             {component.content || 'Bouton'}
           </button>
         );
+        
       case 'image':
         return (
           <div style={style} className={component.attributes?.className}>
@@ -325,19 +320,159 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
               />
             ) : (
               <div className="flex items-center justify-center bg-gray-200 text-gray-500 w-full h-full">
-                Image
+                📷 Image
               </div>
             )}
           </div>
         );
+        
       case 'container':
+      case 'section':
         return (
           <div style={style} className={component.attributes?.className}>
             {component.children?.map(child => (
               <ComponentRenderer key={child.id} component={child} />
-            ))}
+            )) || component.content || 'Container'}
           </div>
         );
+        
+      case 'header':
+        return (
+          <header style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || 'Header'}
+          </header>
+        );
+        
+      case 'footer':
+        return (
+          <footer style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || 'Footer'}
+          </footer>
+        );
+        
+      case 'list':
+        return (
+          <ul style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || <li>Élément de liste</li>}
+          </ul>
+        );
+        
+      case 'form':
+        return (
+          <form style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || 'Formulaire'}
+          </form>
+        );
+        
+      case 'input':
+        return (
+          <input 
+            style={style} 
+            className={component.attributes?.className}
+            type={component.attributes?.type || 'text'}
+            placeholder={component.attributes?.placeholder || ''}
+          />
+        );
+        
+      case 'textarea':
+        return (
+          <textarea 
+            style={style} 
+            className={component.attributes?.className}
+            placeholder={component.attributes?.placeholder || ''}
+            rows={component.attributes?.rows || 3}
+          >
+            {component.content || ''}
+          </textarea>
+        );
+        
+      case 'card':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || (
+              <>
+                <div style={{ height: '50%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  🖼️
+                </div>
+                <div style={{ height: '50%', padding: '12px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Titre de la carte</div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>Description...</div>
+                </div>
+              </>
+            )}
+          </div>
+        );
+        
+      case 'carousel':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: '#3b82f6', color: 'white', fontSize: '24px' }}>
+                🎠 Carousel
+              </div>
+            )}
+          </div>
+        );
+        
+      case 'accordion':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || (
+              <div>
+                <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb', fontWeight: '500' }}>▼ Question 1</div>
+                <div style={{ padding: '12px 16px', fontSize: '14px', color: '#666' }}>Réponse à la première question...</div>
+              </div>
+            )}
+          </div>
+        );
+        
+      case 'chart':
+        return (
+          <div style={style} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || (
+              <div style={{ padding: '20px' }}>
+                <div style={{ fontWeight: '600', marginBottom: '16px' }}>📊 Statistiques</div>
+                <div style={{ display: 'flex', alignItems: 'end', height: '120px', gap: '8px' }}>
+                  <div style={{ width: '40px', height: '75%', backgroundColor: '#3b82f6', borderRadius: '4px 4px 0 0' }}></div>
+                  <div style={{ width: '40px', height: '60%', backgroundColor: '#10b981', borderRadius: '4px 4px 0 0' }}></div>
+                  <div style={{ width: '40px', height: '90%', backgroundColor: '#f59e0b', borderRadius: '4px 4px 0 0' }}></div>
+                  <div style={{ width: '40px', height: '45%', backgroundColor: '#ef4444', borderRadius: '4px 4px 0 0' }}></div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+        
+      case 'video':
+        return (
+          <div style={{...style, backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center'}} className={component.attributes?.className}>
+            {component.children?.map(child => (
+              <ComponentRenderer key={child.id} component={child} />
+            )) || (
+              <div style={{ color: 'white', textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '8px' }}>▶️</div>
+                <div>Lecteur Vidéo</div>
+              </div>
+            )}
+          </div>
+        );
+        
       default:
         return (
           <div style={style} className={component.attributes?.className}>
