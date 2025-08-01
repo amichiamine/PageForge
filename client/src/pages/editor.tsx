@@ -8,6 +8,10 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { MultiBackend, MultiBackendOptions } from 'react-dnd-multi-backend';
+import { useCollaboration } from '@/hooks/useCollaboration';
+import { CollaborationButton } from '@/components/collaboration/collaboration-button';
+import { CollaborationPanel } from '@/components/collaboration/collaboration-panel';
+import { UserCursors, ComponentHighlight } from '@/components/collaboration/user-cursors';
 import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
@@ -128,9 +132,22 @@ export default function Editor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [undoStack, setUndoStack] = useState<Project[]>([]);
   const [redoStack, setRedoStack] = useState<Project[]>([]);
+  const [showCollaborationPanel, setShowCollaborationPanel] = useState(false);
+  const [collaborationEnabled, setCollaborationEnabled] = useState(true);
 
   // Mobile detection
   const { isMobile, isTablet, isMobileOrTablet } = useIsMobile();
+
+  // Collaboration
+  const collaboration = useCollaboration({
+    projectId: projectId || '',
+    userId: 'user-' + Math.random().toString(36).substr(2, 9), // TODO: Use real user ID
+    userName: 'Utilisateur', // TODO: Use real user name
+    enabled: collaborationEnabled && !!projectId
+  });
+
+  // Refs pour la détection de curseur
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   // Local state for editor changes before saving
   const [localProject, setLocalProject] = useState<Project | null>(null);
@@ -143,6 +160,43 @@ export default function Editor() {
       setHideRightPanel(true);
     }
   }, [isMobile, isMobileOrTablet]);
+
+  // Gestion des événements de curseur pour la collaboration
+  useEffect(() => {
+    if (!collaborationEnabled || !collaboration.isConnected) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (editorContainerRef.current) {
+        const rect = editorContainerRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        collaboration.updateCursor(x, y);
+      }
+    };
+
+    const container = editorContainerRef.current;
+    if (container) {
+      container.addEventListener('mousemove', handleMouseMove);
+      return () => container.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [collaboration, collaborationEnabled]);
+
+  // Synchroniser la sélection de composant avec la collaboration
+  useEffect(() => {
+    if (selectedComponent && collaboration.isConnected) {
+      collaboration.selectComponent(selectedComponent.id);
+    }
+  }, [selectedComponent, collaboration]);
+
+  // Gestion des changements collaboratifs
+  const handleCollaborativeChange = useCallback((type: string, data: any) => {
+    if (!collaboration.isConnected) return;
+
+    collaboration.sendEvent({
+      type: type as any,
+      data
+    });
+  }, [collaboration]);
 
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
@@ -466,6 +520,17 @@ export default function Editor() {
                   </Button>
                 </div>
 
+                {/* Collaboration Button */}
+                <CollaborationButton
+                  isConnected={collaboration.isConnected}
+                  isConnecting={collaboration.isConnecting}
+                  users={collaboration.users}
+                  stats={collaboration.stats}
+                  onToggle={() => setCollaborationEnabled(!collaborationEnabled)}
+                  onOpenPanel={() => setShowCollaborationPanel(!showCollaborationPanel)}
+                  error={collaboration.error}
+                />
+
                 {/* Editor Modes */}
                 <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
                   <Button
@@ -593,15 +658,38 @@ export default function Editor() {
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 overflow-auto bg-gray-100 p-6">
+                <div 
+                  className="flex-1 overflow-auto bg-gray-100 p-6" 
+                  ref={editorContainerRef}
+                >
                   <div className={`mx-auto bg-white shadow-xl rounded-xl border border-gray-200 transition-all duration-300 ${getViewportClass()}`}>
                     <div className="relative overflow-hidden rounded-xl">
                       <VisualEditor
                         project={localProject}
                         selectedComponent={selectedComponent}
-                        onComponentSelect={setSelectedComponent}
-                        onComponentUpdate={handleComponentUpdate}
+                        onComponentSelect={(component) => {
+                          setSelectedComponent(component);
+                          if (component && collaboration.isConnected) {
+                            collaboration.selectComponent(component.id);
+                          }
+                        }}
+                        onComponentUpdate={(component) => {
+                          handleComponentUpdate(component);
+                          handleCollaborativeChange('component_update', { component });
+                        }}
                         showAlignmentGuides={showAlignmentGuides}
+                      />
+
+                      {/* Curseurs collaboratifs */}
+                      <UserCursors 
+                        users={collaboration.users} 
+                        containerRef={editorContainerRef} 
+                      />
+
+                      {/* Surbrillance des composants sélectionnés par d'autres utilisateurs */}
+                      <ComponentHighlight 
+                        users={collaboration.users}
+                        selectedComponentId={selectedComponent?.id}
                       />
 
                       {/* Alignment guides overlay */}
@@ -720,6 +808,27 @@ export default function Editor() {
             )}
           </div>
         </div>
+
+        {/* Panneau de collaboration */}
+        {showCollaborationPanel && (
+          <>
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+              onClick={() => setShowCollaborationPanel(false)}
+            />
+            <div className="fixed top-0 right-0 z-50 h-full shadow-2xl animate-slide-in-right">
+              <CollaborationPanel
+                isConnected={collaboration.isConnected}
+                isConnecting={collaboration.isConnecting}
+                users={collaboration.users}
+                currentUser={collaboration.currentUser}
+                error={collaboration.error}
+                stats={collaboration.stats}
+                onToggleCollaboration={() => setCollaborationEnabled(!collaborationEnabled)}
+              />
+            </div>
+          </>
+        )}
       </div>
     </DndProvider>
   );

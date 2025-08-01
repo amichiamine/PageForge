@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState, createContext, useContext, useEffect } from "react";
+import { ThemeProvider } from "@/contexts/theme-context";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
@@ -82,10 +83,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
