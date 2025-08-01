@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/contexts/theme-context";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
-import EditorComplete from "@/pages/editor-complete";
+import EditorAdvanced from "@/pages/editor-advanced";
 import Templates from "@/pages/templates";
 import Documentation from "@/pages/documentation";
 import VSCode from "@/pages/vscode";
@@ -66,7 +66,7 @@ function Router() {
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/projects" component={Projects} />
-            <Route path="/editor/:projectId?" component={EditorComplete} />
+            <Route path="/editor/:projectId?" component={EditorAdvanced} />
             <Route path="/templates" component={Templates} />
             <Route path="/vscode" component={VSCode} />
             <Route path="/deployment" component={Deployment} />
