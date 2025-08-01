@@ -42,11 +42,9 @@ import {
 import type { ComponentDefinition, Project } from '@shared/schema';
 import { 
   massiveCSSProperties,
-  cssPropertyGroups,
+  massivePropertyGroups,
   getCSSPropertyDefinition,
-  getAllCategories,
-  searchCSSProperties,
-  type CSSProperty
+  type CSSPropertyDefinition
 } from '@/lib/massive-css-properties';
 
 interface EnhancedPropertiesPanelProps {
@@ -285,8 +283,8 @@ export default function EnhancedPropertiesPanel({
       properties: group.properties.filter(prop => {
         const cssProperty = getCSSPropertyDefinition(prop);
         return prop.toLowerCase().includes(searchResults) ||
-               cssProperty?.label.toLowerCase().includes(searchResults) ||
-               cssProperty?.category.toLowerCase().includes(searchResults);
+               (cssProperty?.label && cssProperty.label.toLowerCase().includes(searchResults)) ||
+               (cssProperty?.category && cssProperty.category.toLowerCase().includes(searchResults));
       })
     })).filter(group => group.properties.length > 0);
   }, [searchTerm]);
@@ -527,30 +525,6 @@ export default function EnhancedPropertiesPanel({
           </div>
         )}
       </div>
-    </div>
-  );
-}
-  };
-
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between">
-        <Label className="text-xs font-medium text-theme-text truncate flex-1">
-          {isCompact ? propertyName.split('-').pop() : propertyName}
-        </Label>
-        {value && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            className="h-4 w-4 p-0 text-theme-text-secondary hover:text-theme-text touch-friendly-compact"
-            title="Réinitialiser"
-          >
-            <X className="w-2 h-2" />
-          </Button>
-        )}
-      </div>
-      {renderInput()}
     </div>
   );
 }

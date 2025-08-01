@@ -34,6 +34,7 @@ import TouchComponentPalette from "@/components/editor/touch-component-palette";
 import EnhancedTouchPalette from "@/components/editor/enhanced-touch-palette";
 import FreeDragComponent from "@/components/editor/free-drag-component";
 import { EnhancedImageSelector } from "@/components/editor/enhanced-image-selector";
+import EnhancedPropertiesPanel from "@/components/editor/enhanced-properties-panel";
 
 // Configuration multi-backend pour drag and drop
 const HTML5toTouch = {
@@ -702,10 +703,17 @@ export default function EditorComplete() {
                   <TabsTrigger value="page" className="text-xs sm:text-sm">Page</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="component" className="mt-2 space-y-2">
-                  <h2 className="text-xs sm:text-sm font-semibold">Propriétés</h2>
-                  {selectedComponent ? (
-                <div className="space-y-4">
+                <TabsContent value="component" className="mt-2 h-full">
+                  {/* Nouveau panneau de propriétés CSS massif */}
+                  <EnhancedPropertiesPanel
+                    component={selectedComponent}
+                    onComponentUpdate={handleComponentUpdate}
+                    project={project}
+                    onComponentSelect={setSelectedComponent}
+                    onComponentDelete={handleComponentDelete}
+                    className="h-full"
+                  />
+                </TabsContent>
                   <Card className="p-3">
                     <h3 className="font-medium mb-3">Composant sélectionné</h3>
                     <p className="text-sm text-gray-600 mb-3">
@@ -1059,23 +1067,7 @@ export default function EditorComplete() {
                         </div>
                       </TabsContent>
                     </Tabs>
-
-                    {/* Delete button */}
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      className="mt-4 w-full"
-                      onClick={() => handleComponentDelete(selectedComponent.id)}
-                    >
-                      Supprimer le composant
-                    </Button>
                   </Card>
-                </div>
-              ) : (
-                <Card className="p-3">
-                  <p className="text-xs text-gray-500">Aucun composant sélectionné</p>
-                </Card>
-              )}
                 </TabsContent>
                 
                 <TabsContent value="page" className="mt-2 space-y-3">
