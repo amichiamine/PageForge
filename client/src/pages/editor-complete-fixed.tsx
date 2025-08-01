@@ -311,10 +311,44 @@ export default function EditorComplete() {
     setIsDirty(true);
   }, [selectedComponent]);
 
-  const handleSave = useCallback(() => {
-    if (!activeProject) return;
+  const handleSave = useCallback(async () => {
+    if (!activeProject || !activeProject.id || activeProject.id === 'temp') return;
+    
     console.log('Sauvegarde des composants:', components);
-    setIsDirty(false);
+    
+    try {
+      // Mettre à jour le contenu du projet
+      const updatedContent = {
+        ...activeProject.content,
+        pages: [{
+          ...activeProject.content.pages[0],
+          content: {
+            ...activeProject.content.pages[0].content,
+            structure: components
+          }
+        }]
+      };
+
+      // Utiliser l'API pour sauvegarder
+      const response = await fetch(`/api/projects/${activeProject.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: updatedContent
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Projet sauvegardé avec succès');
+        setIsDirty(false);
+      } else {
+        console.error('Erreur lors de la sauvegarde:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
   }, [activeProject, components]);
 
   // Loading and error states
