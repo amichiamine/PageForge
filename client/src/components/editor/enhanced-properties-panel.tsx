@@ -147,7 +147,7 @@ export default function EnhancedPropertiesPanel({
 
   const getPropertyValue = (propertyName: string) => {
     if (!component) return '';
-    return component.props?.[propertyName] || component.style?.[propertyName] || '';
+    return component.attributes?.[propertyName] || component.styles?.[propertyName] || '';
   };
 
   const updateProperty = (propertyName: string, value: any) => {
@@ -157,9 +157,9 @@ export default function EnhancedPropertiesPanel({
     const updatedComponent = { ...component };
     
     if (isStyleProperty) {
-      updatedComponent.style = { ...updatedComponent.style, [propertyName]: value };
+      updatedComponent.styles = { ...updatedComponent.styles, [propertyName]: value };
     } else {
-      updatedComponent.props = { ...updatedComponent.props, [propertyName]: value };
+      updatedComponent.attributes = { ...updatedComponent.attributes, [propertyName]: value };
     }
     
     onComponentUpdate(updatedComponent);

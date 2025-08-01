@@ -11,7 +11,6 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { insertProjectSchema } from "@shared/schema";
 import type { InsertProject, Template } from "@shared/schema";
 import { useLocation } from "wouter";
@@ -29,7 +28,10 @@ import {
   Palette,
   Star,
   Crown,
-  Sparkles
+  Sparkles,
+  ArrowLeft,
+  ArrowRight,
+  Check
 } from "lucide-react";
 import { enhancedTemplates, templateCategories, getFeaturedTemplates } from "@/lib/enhanced-templates";
 
@@ -77,7 +79,7 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [currentStep, setCurrentStep] = useState<'type' | 'template' | 'details'>('type');
 
-  const { data: apiTemplates = [] } = useQuery({
+  const { data: apiTemplates = [] } = useQuery<Template[]>({
     queryKey: ["/api/templates"],
     staleTime: 5 * 60 * 1000,
   });
@@ -91,7 +93,7 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
       name: "",
       description: "",
       type: "single-page",
-      template: "",
+      template: undefined,
     },
   });
 
@@ -99,24 +101,45 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
     mutationFn: async (data: InsertProject & { templateContent?: any }) => {
       const { templateContent, ...projectData } = data;
       
-      const response = await apiRequest("/api/projects", {
+      const response = await fetch("/api/projects", {
         method: "POST",
-        body: JSON.stringify(projectData)
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(projectData),
       });
 
-      // Si un template est sélectionné, mettre à jour le contenu
-      if (templateContent && response.id) {
-        await apiRequest(`/api/projects/${response.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({
-            content: templateContent
-          })
-        });
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Erreur ${response.status}: ${errorData}`);
       }
 
-      return response;
+      const project = await response.json();
+
+      // Si un template est sélectionné, mettre à jour le contenu
+      if (templateContent && project.id) {
+        try {
+          const updateResponse = await fetch(`/api/projects/${project.id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: templateContent
+            }),
+          });
+
+          if (!updateResponse.ok) {
+            console.warn("Failed to update project content with template");
+          }
+        } catch (error) {
+          console.warn("Error updating project with template:", error);
+        }
+      }
+
+      return project;
     },
-    onSuccess: (project) => {
+    onSuccess: (project: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
       toast({
         title: "Projet créé",
@@ -129,6 +152,7 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
       setLocation(`/editor/${project.id}`);
     },
     onError: (error: any) => {
+      console.error("Project creation error:", error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de créer le projet.",
@@ -155,7 +179,7 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
     }
   };
 
-  const handleBack = () => {
+  const handlePrevious = () => {
     if (currentStep === 'details') {
       setCurrentStep('template');
     } else if (currentStep === 'template') {
@@ -163,308 +187,256 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
     }
   };
 
-  const resetModal = () => {
-    setCurrentStep('type');
-    setSelectedTemplate("");
-    form.reset();
-  };
+  const selectedProjectType = projectTypes.find(type => type.id === form.watch('type'));
 
-  const ModalContent = () => (
-    <div className="max-h-[80vh] overflow-y-auto">
-      {/* Étape 1: Type de projet */}
-      {currentStep === 'type' && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-theme-text mb-2">
-              Quel type de projet voulez-vous créer ?
-            </h3>
-            <p className="text-sm text-theme-text-secondary">
-              Choisissez le type qui correspond le mieux à vos besoins
-            </p>
-          </div>
-
-          <Form {...form}>
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {projectTypes.map((type) => {
-                        const IconComponent = type.icon;
-                        const isSelected = field.value === type.id;
-                        
-                        return (
-                          <Card
-                            key={type.id}
-                            className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
-                              isSelected 
-                                ? 'border-theme-primary bg-theme-primary/5' 
-                                : 'border-theme-border hover:border-theme-primary/50'
-                            }`}
-                            onClick={() => field.onChange(type.id)}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex items-start gap-3">
-                                <div className={`
-                                  p-2 rounded-lg 
-                                  ${isSelected ? 'bg-theme-primary text-white' : 'bg-theme-background text-theme-text-secondary'}
-                                `}>
-                                  <IconComponent className="w-5 h-5" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-semibold text-theme-text text-sm">
-                                      {type.name}
-                                    </h4>
-                                    {type.recommended && (
-                                      <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                                        <Star className="w-3 h-3 mr-1" />
-                                        Recommandé
-                                      </Badge>
-                                    )}
-                                    {type.popular && (
-                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                                        Populaire
-                                      </Badge>
-                                    )}
-                                    {type.premium && (
-                                      <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200">
-                                        <Crown className="w-3 h-3 mr-1" />
-                                        Premium
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-xs text-theme-text-secondary leading-relaxed">
-                                    {type.description}
-                                  </p>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </Form>
-
-          <div className="flex justify-end">
-            <Button onClick={handleNext} className="min-w-24">
-              Continuer
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Étape 2: Template */}
-      {currentStep === 'template' && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-theme-text mb-2">
-              Choisir un template (optionnel)
-            </h3>
-            <p className="text-sm text-theme-text-secondary">
-              Commencez avec un design professionnel ou créez depuis zéro
-            </p>
-          </div>
-
-          {/* Template vide */}
-          <Card
-            className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
-              selectedTemplate === '' 
-                ? 'border-theme-primary bg-theme-primary/5' 
-                : 'border-theme-border hover:border-theme-primary/50'
-            }`}
-            onClick={() => setSelectedTemplate('')}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={`
-                  p-2 rounded-lg 
-                  ${selectedTemplate === '' ? 'bg-theme-primary text-white' : 'bg-theme-background text-theme-text-secondary'}
-                `}>
-                  <Code className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-theme-text text-sm mb-1">
-                    Projet vide
-                  </h4>
-                  <p className="text-xs text-theme-text-secondary">
-                    Commencer avec une page blanche
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Templates en vedette */}
-          {featuredTemplates.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-theme-text mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-500" />
-                Templates en vedette
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-                {featuredTemplates.slice(0, 6).map((template) => (
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 'type':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-responsive-base font-semibold text-theme-text">
+                Choisissez le type de projet
+              </h3>
+              <p className="text-responsive-sm text-theme-text-secondary">
+                Sélectionnez le type qui correspond le mieux à vos besoins
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {projectTypes.map((type) => {
+                const Icon = type.icon;
+                const isSelected = form.watch('type') === type.id;
+                
+                return (
                   <Card
-                    key={template.id}
-                    className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
-                      selectedTemplate === template.id 
-                        ? 'border-theme-primary bg-theme-primary/5' 
-                        : 'border-theme-border hover:border-theme-primary/50'
+                    key={type.id}
+                    className={`cursor-pointer transition-all duration-200 card-responsive touch-friendly ${
+                      isSelected
+                        ? 'ring-2 ring-theme-primary bg-theme-primary/5 border-theme-primary'
+                        : 'hover:bg-theme-surface-elevated border-theme-border'
                     }`}
-                    onClick={() => setSelectedTemplate(template.id)}
+                    onClick={() => form.setValue('type', type.id as any)}
                   >
-                    <CardContent className="p-3">
+                    <CardContent className="spacing-responsive-compact">
                       <div className="flex items-start gap-3">
-                        <img
-                          src={template.thumbnail}
-                          alt={template.name}
-                          className="w-12 h-9 object-cover rounded border"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/api/placeholder/80/60';
-                          }}
-                        />
+                        <div className={`p-2 rounded-lg ${
+                          isSelected ? 'bg-theme-primary text-white' : 'bg-theme-background'
+                        }`}>
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold text-theme-text text-xs truncate">
-                              {template.name}
+                            <h4 className="text-responsive-sm font-semibold text-theme-text">
+                              {type.name}
                             </h4>
-                            {template.isPremium && (
-                              <Crown className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                            {type.recommended && (
+                              <Badge variant="secondary" className="text-xs">
+                                <Star className="w-2 h-2 mr-1" />
+                                Recommandé
+                              </Badge>
                             )}
-                            {template.isNew && (
-                              <Sparkles className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                            {type.popular && (
+                              <Badge variant="secondary" className="text-xs">
+                                Populaire
+                              </Badge>
+                            )}
+                            {type.premium && (
+                              <Badge variant="secondary" className="text-xs">
+                                <Crown className="w-2 h-2 mr-1" />
+                                Premium
+                              </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-theme-text-secondary line-clamp-2">
-                            {template.description}
+                          <p className="text-xs text-theme-text-secondary">
+                            {type.description}
                           </p>
                         </div>
+                        {isSelected && (
+                          <Check className="w-4 h-4 text-theme-primary" />
+                        )}
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      case 'template':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-responsive-base font-semibold text-theme-text">
+                Choisissez un template (optionnel)
+              </h3>
+              <p className="text-responsive-sm text-theme-text-secondary">
+                Commencez avec un design pré-conçu ou créez à partir de zéro
+              </p>
+            </div>
+
+            {/* Option pour commencer vide */}
+            <Card
+              className={`cursor-pointer transition-all duration-200 card-responsive touch-friendly ${
+                selectedTemplate === ""
+                  ? 'ring-2 ring-theme-primary bg-theme-primary/5 border-theme-primary'
+                  : 'hover:bg-theme-surface-elevated border-theme-border'
+              }`}
+              onClick={() => setSelectedTemplate("")}
+            >
+              <CardContent className="spacing-responsive-compact">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${
+                    selectedTemplate === "" ? 'bg-theme-primary text-white' : 'bg-theme-background'
+                  }`}>
+                    <Plus className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-responsive-sm font-semibold text-theme-text">
+                      Commencer vide
+                    </h4>
+                    <p className="text-xs text-theme-text-secondary">
+                      Créer un projet sans template pré-défini
+                    </p>
+                  </div>
+                  {selectedTemplate === "" && (
+                    <Check className="w-4 h-4 text-theme-primary" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Templates disponibles */}
+            {featuredTemplates.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-responsive-sm font-medium text-theme-text">
+                  Templates recommandés
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+                  {featuredTemplates.slice(0, 6).map((template) => {
+                    const isSelected = selectedTemplate === template.id;
+                    
+                    return (
+                      <Card
+                        key={template.id}
+                        className={`cursor-pointer transition-all duration-200 card-responsive touch-friendly ${
+                          isSelected
+                            ? 'ring-2 ring-theme-primary bg-theme-primary/5 border-theme-primary'
+                            : 'hover:bg-theme-surface-elevated border-theme-border'
+                        }`}
+                        onClick={() => setSelectedTemplate(template.id)}
+                      >
+                        <CardContent className="spacing-responsive-compact">
+                          <div className="space-y-2">
+                            <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg relative overflow-hidden">
+                              <div className="absolute inset-0 bg-black/20"></div>
+                              <div className="absolute bottom-2 left-2 right-2">
+                                <div className="h-2 bg-white/30 rounded mb-1"></div>
+                                <div className="h-1 bg-white/30 rounded w-3/4"></div>
+                              </div>
+                            </div>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <h5 className="text-xs font-semibold text-theme-text truncate">
+                                  {template.name}
+                                </h5>
+                                <p className="text-xs text-theme-text-secondary line-clamp-2">
+                                  {template.description}
+                                </p>
+                              </div>
+                              {isSelected && (
+                                <Check className="w-3 h-3 text-theme-primary ml-2 flex-shrink-0" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {template.isPremium && (
+                                <Badge variant="secondary" className="text-xs">
+                                  <Crown className="w-2 h-2 mr-1" />
+                                  Premium
+                                </Badge>
+                              )}
+                              {template.isNew && (
+                                <Badge variant="secondary" className="text-xs">
+                                  <Sparkles className="w-2 h-2 mr-1" />
+                                  Nouveau
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Categories */}
-          <div>
-            <h4 className="text-sm font-semibold text-theme-text mb-3">
-              Par catégorie
-            </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {templateCategories.slice(0, 6).map((category) => (
-                <Button
-                  key={category.id}
-                  variant="outline"
-                  size="sm"
-                  className="h-auto p-2 text-xs justify-start"
-                  onClick={() => {
-                    // Ouvrir la page templates avec cette catégorie
-                    onOpenChange(false);
-                    setLocation(`/templates?category=${category.id}`);
-                  }}
-                >
-                  <Palette className="w-3 h-3 mr-2" />
-                  {category.name}
-                </Button>
-              ))}
-            </div>
+            )}
           </div>
+        );
 
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={handleBack} className="min-w-24">
-              Retour
-            </Button>
-            <Button onClick={handleNext} className="min-w-24">
-              Continuer
-            </Button>
-          </div>
-        </div>
-      )}
+      case 'details':
+        return (
+          <div className="space-y-4">
+              <div className="space-y-2">
+                <h3 className="text-responsive-base font-semibold text-theme-text">
+                  Détails du projet
+                </h3>
+                <p className="text-responsive-sm text-theme-text-secondary">
+                  Ajoutez les informations de base pour votre projet
+                </p>
+              </div>
 
-      {/* Étape 3: Détails */}
-      {currentStep === 'details' && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-theme-text mb-2">
-              Détails du projet
-            </h3>
-            <p className="text-sm text-theme-text-secondary">
-              Donnez un nom et une description à votre projet
-            </p>
-          </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-theme-text">
-                      Nom du projet *
-                    </FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Mon super projet" 
-                        {...field}
-                        className="bg-theme-background border-theme-border"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <div className="space-y-2">
+                <label className="text-responsive-sm font-medium text-theme-text">
+                  Nom du projet
+                </label>
+                <Input
+                  placeholder="Mon super site web"
+                  value={form.watch('name')}
+                  onChange={(e) => form.setValue('name', e.target.value)}
+                  className="input-responsive bg-theme-background border-theme-border"
+                />
+                {form.formState.errors.name && (
+                  <p className="text-xs text-red-500">{form.formState.errors.name.message}</p>
                 )}
-              />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-theme-text">
-                      Description (optionnel)
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Décrivez votre projet..."
-                        className="resize-none h-20 bg-theme-background border-theme-border"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs text-theme-text-secondary">
-                      Une courte description pour vous aider à identifier votre projet.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+              <div className="space-y-2">
+                <label className="text-responsive-sm font-medium text-theme-text">
+                  Description (optionnel)
+                </label>
+                <Textarea
+                  placeholder="Décrivez votre projet..."
+                  value={form.watch('description') || ''}
+                  onChange={(e) => form.setValue('description', e.target.value)}
+                  className="resize-none bg-theme-background border-theme-border"
+                  rows={3}
+                />
+                {form.formState.errors.description && (
+                  <p className="text-xs text-red-500">{form.formState.errors.description.message}</p>
                 )}
-              />
+              </div>
 
-              {/* Résumé */}
+              {/* Résumé de la sélection */}
               <Card className="bg-theme-background border-theme-border">
-                <CardContent className="p-4">
-                  <h4 className="text-sm font-semibold text-theme-text mb-3">
-                    Résumé
+                <CardContent className="spacing-responsive-compact">
+                  <h4 className="text-responsive-sm font-medium text-theme-text mb-2">
+                    Résumé de votre sélection
                   </h4>
                   <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-theme-text-secondary">Type:</span>
-                      <span className="text-theme-text font-medium">
-                        {projectTypes.find(t => t.id === form.watch('type'))?.name}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      {selectedProjectType && (
+                        <>
+                          <selectedProjectType.icon className="w-3 h-3" />
+                          <span className="text-theme-text">Type: {selectedProjectType.name}</span>
+                        </>
+                      )}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-theme-text-secondary">Template:</span>
-                      <span className="text-theme-text font-medium">
-                        {selectedTemplate ? 
-                          allTemplates.find(t => t.id === selectedTemplate)?.name || 'Template sélectionné'
+                    <div className="flex items-center gap-2">
+                      <Palette className="w-3 h-3" />
+                      <span className="text-theme-text">
+                        Template: {selectedTemplate 
+                          ? allTemplates.find(t => t.id === selectedTemplate)?.name || 'Template sélectionné'
                           : 'Projet vide'
                         }
                       </span>
@@ -472,61 +444,123 @@ export default function CreateProjectModal({ open, onOpenChange, triggerButton }
                   </div>
                 </CardContent>
               </Card>
+          </div>
+        );
 
-              <div className="flex justify-between pt-4">
-                <Button type="button" variant="outline" onClick={handleBack} className="min-w-24">
-                  Retour
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={createProjectMutation.isPending}
-                  className="min-w-24"
-                >
-                  {createProjectMutation.isPending ? "Création..." : "Créer le projet"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      )}
-    </div>
-  );
-
-  if (triggerButton) {
-    return (
-      <Dialog open={open} onOpenChange={(newOpen) => {
-        onOpenChange(newOpen);
-        if (!newOpen) resetModal();
-      }}>
-        <DialogTrigger asChild>
-          {triggerButton}
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] bg-theme-surface border-theme-border">
-          <DialogHeader>
-            <DialogTitle className="text-theme-text">Créer un nouveau projet</DialogTitle>
-            <DialogDescription className="text-theme-text-secondary">
-              Créez votre site web en quelques étapes simples
-            </DialogDescription>
-          </DialogHeader>
-          <ModalContent />
-        </DialogContent>
-      </Dialog>
-    );
-  }
+      default:
+        return null;
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      onOpenChange(newOpen);
-      if (!newOpen) resetModal();
-    }}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] bg-theme-surface border-theme-border">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {triggerButton && <DialogTrigger asChild>{triggerButton}</DialogTrigger>}
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden bg-theme-surface border-theme-border">
         <DialogHeader>
-          <DialogTitle className="text-theme-text">Créer un nouveau projet</DialogTitle>
-          <DialogDescription className="text-theme-text-secondary">
-            Créez votre site web en quelques étapes simples
+          <DialogTitle className="text-responsive-lg text-theme-text">
+            Créer un nouveau projet
+          </DialogTitle>
+          <DialogDescription className="text-responsive-sm text-theme-text-secondary">
+            Suivez les étapes pour configurer votre nouveau projet web
           </DialogDescription>
         </DialogHeader>
-        <ModalContent />
+
+        {/* Indicateur d'étapes */}
+        <div className="flex items-center gap-2 py-2">
+          {['type', 'template', 'details'].map((step, index) => {
+            const stepNames = { type: 'Type', template: 'Template', details: 'Détails' };
+            const isActive = currentStep === step;
+            const isCompleted = ['type', 'template', 'details'].indexOf(currentStep) > index;
+            
+            return (
+              <div key={step} className="flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                  isActive
+                    ? 'bg-theme-primary text-white'
+                    : isCompleted
+                    ? 'bg-green-500 text-white'
+                    : 'bg-theme-background text-theme-text-secondary border border-theme-border'
+                }`}>
+                  {isCompleted ? <Check className="w-3 h-3" /> : index + 1}
+                </div>
+                <span className={`text-xs ${
+                  isActive ? 'text-theme-text font-medium' : 'text-theme-text-secondary'
+                }`}>
+                  {stepNames[step as keyof typeof stepNames]}
+                </span>
+                {index < 2 && (
+                  <div className={`w-8 h-px ${
+                    isCompleted ? 'bg-green-500' : 'bg-theme-border'
+                  }`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Contenu de l'étape */}
+        <div className="flex-1 overflow-y-auto max-h-96">
+          {renderStepContent()}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between pt-4 border-t border-theme-border">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 'type'}
+            className="button-responsive touch-friendly"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Précédent
+          </Button>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="button-responsive touch-friendly"
+            >
+              Annuler
+            </Button>
+
+            {currentStep === 'details' ? (
+              <Button
+                onClick={() => {
+                  const formData = {
+                    name: form.watch('name'),
+                    description: form.watch('description'),
+                    type: form.watch('type'),
+                    template: form.watch('template')
+                  };
+                  handleSubmit(formData);
+                }}
+                disabled={createProjectMutation.isPending || !form.watch('name')}
+                className="button-responsive touch-friendly"
+              >
+                {createProjectMutation.isPending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Création...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Créer le projet
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                className="button-responsive touch-friendly"
+              >
+                Suivant
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
