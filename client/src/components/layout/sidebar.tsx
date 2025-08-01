@@ -36,14 +36,14 @@ export default function Sidebar() {
   const [location] = useLocation();
 
   return (
-    <div className="flex-shrink-0 w-full bg-gray-900 border-r border-gray-800">
+    <div className="flex-shrink-0 w-64 bg-gray-900 border-r border-gray-800">
       {/* Header */}
-      <div className="flex items-center px-3 py-3 border-b border-gray-800">
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
-            <Code className="w-3 h-3 text-white" />
+      <div className="flex items-center px-6 py-4 border-b border-gray-800">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <Code className="w-4 h-4 text-white" />
           </div>
-          <span className="text-white font-semibold text-sm">PageForge</span>
+          <span className="text-white font-semibold text-lg">PageForge</span>
         </div>
       </div>
 
@@ -57,39 +57,39 @@ export default function Sidebar() {
               <Link key={item.name} href={item.href}>
                 <div
                   className={cn(
-                    "flex items-center px-2 py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer",
+                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                     isActive
                       ? "text-white bg-gray-800"
                       : "text-gray-300 hover:text-white hover:bg-gray-800"
                   )}
                 >
-                  <item.icon className="w-3 h-3 mr-2" />
-                  <span className="truncate">{item.name}</span>
+                  <item.icon className="w-4 h-4 mr-3" />
+                  <span>{item.name}</span>
                 </div>
               </Link>
             );
           })}
         </div>
 
-        <div className="mt-6 px-2">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <div className="mt-8 px-3">
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
             Intégration
           </h3>
-          <div className="space-y-1">
+          <div className="space-y-2">
             {integration.map((item) => {
               const isActive = location === item.href;
               return (
                 <Link key={item.name} href={item.href}>
                   <div
                     className={cn(
-                      "flex items-center px-2 py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer",
+                      "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                       isActive
                         ? "text-white bg-gray-800"
                         : "text-gray-300 hover:text-white hover:bg-gray-800"
                     )}
                   >
-                    <item.icon className="w-3 h-3 mr-2" />
-                    <span className="truncate">{item.name}</span>
+                    <item.icon className="w-4 h-4 mr-3" />
+                    <span>{item.name}</span>
                   </div>
                 </Link>
               );
@@ -97,25 +97,25 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <div className="mt-6 px-2">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <div className="mt-8 px-3">
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
             Documentation
           </h3>
-          <div className="space-y-1">
+          <div className="space-y-2">
             {documentation.map((item) => {
               const isActive = location === item.href;
               return (
                 <Link key={item.name} href={item.href}>
                   <div
                     className={cn(
-                      "flex items-center px-2 py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer",
+                      "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                       isActive
                         ? "text-white bg-gray-800"
                         : "text-gray-300 hover:text-white hover:bg-gray-800"
                     )}
                   >
-                    <item.icon className="w-3 h-3 mr-2" />
-                    <span className="truncate">{item.name}</span>
+                    <item.icon className="w-4 h-4 mr-3" />
+                    <span>{item.name}</span>
                   </div>
                 </Link>
               );
@@ -125,17 +125,17 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="absolute bottom-0 w-full p-2 border-t border-gray-800">
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-            <User className="w-3 h-3 text-white" />
+      <div className="absolute bottom-0 w-64 p-4 border-t border-gray-800">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-white truncate">Développeur</p>
+            <p className="text-sm font-medium text-white">Développeur</p>
             <p className="text-xs text-gray-400">Admin</p>
           </div>
-          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-6 w-6 p-0">
-            <MoreHorizontal className="w-3 h-3" />
+          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+            <MoreHorizontal className="w-4 h-4" />
           </Button>
         </div>
       </div>

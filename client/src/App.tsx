@@ -3,13 +3,11 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useState, createContext, useContext } from "react";
-import { ThemeProvider } from "@/contexts/theme-context";
+import { useState, createContext, useContext, useEffect } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
-import EditorComplete from "@/pages/editor-complete";
-import EditorCompleteFixed from "@/pages/editor-complete-fixed";
+import Editor from "@/pages/editor";
 import Templates from "@/pages/templates";
 import Documentation from "@/pages/documentation";
 import VSCode from "@/pages/vscode";
@@ -42,7 +40,7 @@ function Router() {
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
-        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-40 sm:w-40' : 'w-8'} bg-theme-surface border-r border-theme-border flex flex-col`}>
+        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-theme-surface border-r border-theme-border flex flex-col`}>
           {/* Toggle button for main navigation */}
           <div className="p-2 border-b border-gray-700">
             <button
@@ -67,7 +65,7 @@ function Router() {
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/projects" component={Projects} />
-            <Route path="/editor/:projectId?" component={EditorCompleteFixed} />
+            <Route path="/editor/:projectId?" component={Editor} />
             <Route path="/templates" component={Templates} />
             <Route path="/vscode" component={VSCode} />
             <Route path="/deployment" component={Deployment} />
@@ -84,12 +82,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

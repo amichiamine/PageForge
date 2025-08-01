@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema, insertTemplateSchema, insertPageSchema, updateProjectSchema, updatePageSchema, updateProjectContentSchema } from "@shared/schema";
-import { CollaborationManager } from "./collaboration";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -215,14 +214,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
-  
-  // Initialiser le gestionnaire de collaboration
-  const collaborationManager = new CollaborationManager(httpServer);
-  
-  // API pour les statistiques de collaboration
-  app.get("/api/collaboration/stats", (req, res) => {
-    res.json(collaborationManager.getProjectStats());
-  });
-  
   return httpServer;
 }
