@@ -18,6 +18,7 @@ import { useLocation } from "wouter";
 import { useSidebarContext } from "@/App";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FloatingButton } from "@/components/ui/floating-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,6 +31,9 @@ import { Switch } from "@/components/ui/switch";
 import ColorPicker from "@/components/editor/color-picker";
 import ImageSelector from "@/components/editor/image-selector";
 import TouchComponentPalette from "@/components/editor/touch-component-palette";
+import EnhancedTouchPalette from "@/components/editor/enhanced-touch-palette";
+import FreeDragComponent from "@/components/editor/free-drag-component";
+import { EnhancedImageSelector } from "@/components/editor/enhanced-image-selector";
 
 // Configuration multi-backend pour drag and drop
 const HTML5toTouch = {
@@ -124,6 +128,7 @@ function DropZone({
   onComponentMove 
 }: DropZoneProps) {
   const dropRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const [{ isOver }, drop] = useDrop({
     accept: ['component', 'existing-component'],
@@ -187,15 +192,26 @@ function DropZone({
         </div>
       )}
 
-      {/* Rendered components */}
+      {/* Rendered components with enhanced touch support */}
       {components.map((component) => (
-        <DraggableRenderedComponent
-          key={component.id}
-          component={component}
-          isSelected={selectedComponent?.id === component.id}
-          onSelect={onComponentSelect}
-          onMove={onComponentMove}
-        />
+        isMobile ? (
+          <FreeDragComponent
+            key={component.id}
+            component={component}
+            isSelected={selectedComponent?.id === component.id}
+            onSelect={onComponentSelect}
+            onMove={onComponentMove}
+            containerRef={dropRef}
+          />
+        ) : (
+          <DraggableRenderedComponent
+            key={component.id}
+            component={component}
+            isSelected={selectedComponent?.id === component.id}
+            onSelect={onComponentSelect}
+            onMove={onComponentMove}
+          />
+        )
       ))}
     </div>
   );
@@ -337,6 +353,8 @@ export default function EditorComplete() {
   const [showCodePreview, setShowCodePreview] = useState(false);
   const [showCollaborationPanel, setShowCollaborationPanel] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [showTouchPalette, setShowTouchPalette] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState(false);
 
   // Sidebar context
   const { setHideMainSidebar } = useSidebarContext();
@@ -374,6 +392,36 @@ export default function EditorComplete() {
       setComponents([]);
     }
   }, [project]);
+
+  // Save project mutation
+  const saveProjectMutation = useMutation({
+    mutationFn: async (updatedProject: Partial<Project>) => {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedProject),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save project");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
+      setIsDirty(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur de sauvegarde",
+        description: error.message || "Impossible de sauvegarder le projet",
+        variant: "destructive"
+      });
+    }
+  });
 
   // Component handlers
   const handleComponentAdd = useCallback((type: string, position?: { x: number; y: number }) => {
@@ -423,40 +471,6 @@ export default function EditorComplete() {
       window.removeEventListener('addComponentByDoubleClick', handleDoubleClickAdd);
     };
   }, [handleComponentAdd]);
-
-  // Save project mutation
-  const saveProjectMutation = useMutation({
-    mutationFn: async (updatedProject: Partial<Project>) => {
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedProject),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save project");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
-      setIsDirty(false);
-      toast({
-        title: "Projet sauvegardé",
-        description: "Les modifications ont été enregistrées avec succès.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Impossible de sauvegarder le projet.",
-        variant: "destructive",
-      });
-    },
-  });
 
 
 
@@ -609,14 +623,25 @@ export default function EditorComplete() {
           }
         />
 
-        {/* Main editor content */}
+        {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left sidebar - Component palette */}
-          <div className="w-40 border-r bg-white flex-shrink-0 overflow-y-auto">
+          {/* Left sidebar - Component palette (responsive width) */}
+          <div className={`${isMobile ? 'hidden' : 'w-36'} border-r bg-white flex-shrink-0 overflow-y-auto md:block`}>
             <div className="p-1">
-              <h2 className="text-xs font-semibold mb-2">Composants</h2>
-              <div className="space-y-1">
-                {componentTypes.map((component) => (
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xs font-semibold">Composants</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowTouchPalette(true)}
+                  className="h-5 w-5 p-0"
+                  title="Ouvrir palette complète"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {componentTypes.slice(0, 8).map((component) => (
                   <DraggableComponent
                     key={component.type}
                     component={component}
@@ -625,18 +650,17 @@ export default function EditorComplete() {
               </div>
               
               {isMobile && (
-                <div className="mt-4 p-2 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-blue-700 mb-2">Sur mobile :</p>
-                  <p className="text-xs text-blue-600">Double-cliquez pour ajouter</p>
+                <div className="mt-2 p-2 bg-blue-50 rounded text-center">
+                  <p className="text-xs text-blue-600">Appuyez 2× pour ajouter</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Center - Visual editor */}
+          {/* Center - Visual editor (responsive padding) */}
           <div className="flex-1 flex flex-col relative">
-            <div className="flex-1 overflow-auto p-4">
-              <Card className="h-full">
+            <div className={`flex-1 overflow-auto ${isMobile ? 'p-1' : 'p-4'}`}>
+              <Card className="h-full min-h-[600px]">
                 <DropZone
                   components={components}
                   selectedComponent={selectedComponent}
@@ -646,10 +670,67 @@ export default function EditorComplete() {
                 />
               </Card>
             </div>
+
+            {/* Enhanced Mobile Floating Controls */}
+            {isMobile && (
+              <>
+                {/* Main action button - always visible */}
+                <div className="absolute bottom-6 right-6">
+                  <FloatingButton
+                    onClick={() => setShowTouchPalette(true)}
+                    size="lg"
+                    title="Ajouter un composant"
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    <Plus className="w-6 h-6" />
+                  </FloatingButton>
+                </div>
+
+                {/* Secondary controls when component is selected */}
+                {selectedComponent && (
+                  <div className="absolute bottom-6 left-6 flex flex-col gap-3">
+                    <FloatingButton
+                      onClick={() => setShowImageSelector(true)}
+                      size="md"
+                      variant="secondary"
+                      title="Propriétés"
+                      className="bg-white/90 hover:bg-white"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </FloatingButton>
+                    <FloatingButton
+                      onClick={() => handleComponentDelete(selectedComponent.id)}
+                      size="md"
+                      variant="destructive"
+                      title="Supprimer"
+                      className="bg-red-500/90 hover:bg-red-600 text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </FloatingButton>
+                  </div>
+                )}
+
+                {/* Save button when changes exist */}
+                {isDirty && (
+                  <div className="absolute top-4 right-4">
+                    <FloatingButton
+                      onClick={handleSave}
+                      disabled={saveProjectMutation.isPending}
+                      size="md"
+                      variant="outline"
+                      title="Sauvegarder"
+                      className="bg-green-500/90 hover:bg-green-600 text-white border-green-400"
+                    >
+                      <Save className="w-4 h-4" />
+                    </FloatingButton>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
-          {/* Right sidebar - Properties panel */}
-          <div className="w-44 border-l bg-white flex-shrink-0 overflow-y-auto">
+          {/* Right sidebar - Properties panel (responsive width) */}
+          <div className={`${isMobile ? 'hidden' : 'w-40'} border-l bg-white flex-shrink-0 overflow-y-auto lg:block`}>
             <div className="p-2">
               <h2 className="text-xs font-semibold mb-2">Propriétés</h2>
               {selectedComponent ? (
@@ -719,23 +800,63 @@ export default function EditorComplete() {
                       </TabsList>
                       
                       <TabsContent value="style" className="space-y-3 mt-3">
-                        {/* Text Color */}
+                        {/* Enhanced Text Color */}
                         <div className="space-y-1">
                           <Label className="text-xs">Couleur du texte</Label>
-                          <input
-                            type="color"
+                          <ColorPicker
                             value={selectedComponent.styles?.color || '#000000'}
-                            onChange={(e) => handleComponentUpdate({
+                            onChange={(color) => handleComponentUpdate({
                               ...selectedComponent,
-                              styles: { ...selectedComponent.styles, color: e.target.value }
+                              styles: { ...selectedComponent.styles, color }
                             })}
-                            className="w-full h-8 rounded border cursor-pointer"
+                            showBackgroundTypes={false}
                           />
                         </div>
 
-                        {/* Background Types */}
+                        {/* Enhanced Background with ColorPicker */}
                         <div className="space-y-1">
                           <Label className="text-xs">Arrière-plan</Label>
+                          <ColorPicker
+                            value={
+                              selectedComponent.styles?.background || 
+                              selectedComponent.styles?.backgroundColor || 
+                              '#ffffff'
+                            }
+                            onChange={(background) => {
+                              const isGradient = background.includes('gradient');
+                              const isImage = background.includes('url(');
+                              
+                              if (isGradient || isImage) {
+                                handleComponentUpdate({
+                                  ...selectedComponent,
+                                  styles: { 
+                                    ...selectedComponent.styles, 
+                                    background,
+                                    backgroundColor: undefined
+                                  }
+                                });
+                              } else {
+                                handleComponentUpdate({
+                                  ...selectedComponent,
+                                  styles: { 
+                                    ...selectedComponent.styles, 
+                                    backgroundColor: background,
+                                    background: undefined
+                                  }
+                                });
+                              }
+                            }}
+                            type={
+                              selectedComponent.styles?.background?.includes('gradient') ? 'gradient' :
+                              selectedComponent.styles?.background?.includes('url(') ? 'image' : 'solid'
+                            }
+                            showBackgroundTypes={true}
+                          />
+                        </div>
+
+                        {/* Keep original tabs for comparison */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Arrière-plan (Ancien)</Label>
                           <Tabs defaultValue="solid" className="w-full">
                             <TabsList className="grid w-full grid-cols-3 h-6">
                               <TabsTrigger value="solid" className="text-xs">Uni</TabsTrigger>
@@ -855,45 +976,28 @@ export default function EditorComplete() {
                           </div>
                         </div>
 
-                        {/* Image selector for image components */}
+                        {/* Enhanced Image Selector for image components */}
                         {selectedComponent.type === 'image' && (
                           <div className="space-y-1">
                             <Label className="text-xs">Image</Label>
                             <div className="flex flex-col gap-2">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      const imageSrc = event.target?.result as string;
-                                      handleComponentUpdate({
-                                        ...selectedComponent,
-                                        attributes: { ...selectedComponent.attributes, src: imageSrc }
-                                      });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }}
-                                className="hidden"
-                                id="image-upload"
-                              />
                               <Button
                                 variant="outline"
                                 size="sm"
                                 className="h-7 text-xs"
-                                onClick={() => document.getElementById('image-upload')?.click()}
+                                onClick={() => setShowImageSelector(true)}
                               >
-                                Choisir une image
+                                {selectedComponent.attributes?.src ? 'Changer l\'image' : 'Sélectionner une image'}
                               </Button>
                               {selectedComponent.attributes?.src && (
                                 <div className="w-full h-16 bg-gray-100 rounded overflow-hidden">
                                   <img
                                     src={selectedComponent.attributes.src}
-                                    alt="Preview"
+                                    alt={selectedComponent.attributes?.alt || "Image sélectionnée"}
                                     className="w-full h-full object-cover"
+                                    style={{
+                                      filter: selectedComponent.attributes?.filter
+                                    }}
                                   />
                                 </div>
                               )}
@@ -1045,6 +1149,39 @@ export default function EditorComplete() {
             </div>
           </Card>
         )}
+
+        {/* Enhanced Touch Palette */}
+        <EnhancedTouchPalette
+          isOpen={showTouchPalette}
+          onClose={() => setShowTouchPalette(false)}
+          onComponentAdd={handleComponentAdd}
+        />
+
+        {/* Enhanced Image Selector */}
+        <EnhancedImageSelector
+          isOpen={showImageSelector}
+          onClose={() => setShowImageSelector(false)}
+          onImageSelect={(imageData) => {
+            if (selectedComponent?.type === 'image') {
+              handleComponentUpdate({
+                ...selectedComponent,
+                attributes: {
+                  ...selectedComponent.attributes,
+                  src: imageData.src,
+                  alt: imageData.alt,
+                  title: imageData.title,
+                  filter: imageData.filter
+                },
+                position: {
+                  ...selectedComponent.position,
+                  width: imageData.size?.width || selectedComponent.position?.width || 400,
+                  height: imageData.size?.height || selectedComponent.position?.height || 300
+                }
+              });
+            }
+          }}
+          currentImage={selectedComponent?.attributes?.src}
+        />
       </div>
     </DndProvider>
   );

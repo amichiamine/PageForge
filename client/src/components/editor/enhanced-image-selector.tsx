@@ -1,263 +1,466 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Upload, Link, Search, Image as ImageIcon, Star } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import {
+  Upload,
+  Link,
+  Image as ImageIcon,
+  Search,
+  X,
+  Download,
+  Eye,
+  Settings,
+  Grid3X3,
+  Square,
+  Maximize2,
+  RotateCw,
+  Crop,
+  Filter,
+  Palette
+} from 'lucide-react';
 
-interface ImageSelectorProps {
-  currentSrc?: string;
-  onImageSelect: (src: string, alt?: string) => void;
+interface EnhancedImageSelectorProps {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+  onImageSelect: (imageData: {
+    src: string;
+    type: 'file' | 'url' | 'gallery';
+    alt?: string;
+    title?: string;
+    size?: { width?: number; height?: number };
+    filter?: string;
+  }) => void;
+  currentImage?: string;
 }
 
-// Collection d'images par défaut (unsplash, placeholder, etc.)
 const stockImages = [
-  { src: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', alt: 'Bureau moderne', category: 'business' },
-  { src: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400', alt: 'Ordinateur portable', category: 'technology' },
-  { src: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400', alt: 'Équipe travail', category: 'business' },
-  { src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400', alt: 'Graphiques analytics', category: 'business' },
-  { src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400', alt: 'Nature paysage', category: 'nature' },
-  { src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400', alt: 'Montagnes', category: 'nature' },
-  { src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', alt: 'Restaurant', category: 'food' },
-  { src: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', alt: 'Café', category: 'food' },
-  { src: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400', alt: 'Bureau design', category: 'workspace' },
-  { src: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400', alt: 'Espace travail', category: 'workspace' },
-  { src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400', alt: 'Équipe startup', category: 'people' },
-  { src: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400', alt: 'Portrait professionnel', category: 'people' }
+  { id: 1, src: '/api/placeholder/400/300', title: 'Paysage montagneux', category: 'nature' },
+  { id: 2, src: '/api/placeholder/400/300', title: 'Bureau moderne', category: 'business' },
+  { id: 3, src: '/api/placeholder/400/300', title: 'Équipe collaborative', category: 'business' },
+  { id: 4, src: '/api/placeholder/400/300', title: 'Code source', category: 'tech' },
+  { id: 5, src: '/api/placeholder/400/300', title: 'Interface mobile', category: 'tech' },
+  { id: 6, src: '/api/placeholder/400/300', title: 'Coucher de soleil', category: 'nature' },
+  { id: 7, src: '/api/placeholder/400/300', title: 'Réunion d\'équipe', category: 'business' },
+  { id: 8, src: '/api/placeholder/400/300', title: 'Développeur au travail', category: 'tech' },
 ];
 
-const placeholderImages = [
-  { src: 'https://via.placeholder.com/400x300/3b82f6/ffffff?text=Image+1', alt: 'Placeholder 1', category: 'placeholder' },
-  { src: 'https://via.placeholder.com/400x300/ef4444/ffffff?text=Image+2', alt: 'Placeholder 2', category: 'placeholder' },
-  { src: 'https://via.placeholder.com/400x300/10b981/ffffff?text=Image+3', alt: 'Placeholder 3', category: 'placeholder' },
-  { src: 'https://via.placeholder.com/400x300/f59e0b/ffffff?text=Image+4', alt: 'Placeholder 4', category: 'placeholder' },
-  { src: 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Image+5', alt: 'Placeholder 5', category: 'placeholder' },
-  { src: 'https://via.placeholder.com/400x300/ec4899/ffffff?text=Image+6', alt: 'Placeholder 6', category: 'placeholder' }
+const categories = [
+  { id: 'all', name: 'Tout', count: stockImages.length },
+  { id: 'business', name: 'Business', count: stockImages.filter(img => img.category === 'business').length },
+  { id: 'tech', name: 'Technologie', count: stockImages.filter(img => img.category === 'tech').length },
+  { id: 'nature', name: 'Nature', count: stockImages.filter(img => img.category === 'nature').length },
 ];
 
-export default function EnhancedImageSelector({ 
-  currentSrc, 
-  onImageSelect, 
-  isOpen, 
-  onOpenChange 
-}: ImageSelectorProps) {
-  const [activeTab, setActiveTab] = useState<'stock' | 'upload' | 'url'>('stock');
-  const [imageUrl, setImageUrl] = useState('');
-  const [altText, setAltText] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+const imageFilters = [
+  { id: 'none', name: 'Aucun', filter: 'none' },
+  { id: 'grayscale', name: 'Noir & Blanc', filter: 'grayscale(100%)' },
+  { id: 'sepia', name: 'Sépia', filter: 'sepia(100%)' },
+  { id: 'blur', name: 'Flou', filter: 'blur(2px)' },
+  { id: 'brightness', name: 'Lumineux', filter: 'brightness(1.2)' },
+  { id: 'contrast', name: 'Contraste', filter: 'contrast(1.2)' },
+  { id: 'saturate', name: 'Saturé', filter: 'saturate(1.5)' },
+];
+
+export function EnhancedImageSelector({ isOpen, onClose, onImageSelect, currentImage }: EnhancedImageSelectorProps) {
+  const [activeTab, setActiveTab] = useState<'upload' | 'url' | 'gallery'>('upload');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [urlInput, setUrlInput] = useState('');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [imageSettings, setImageSettings] = useState({
+    width: 400,
+    height: 300,
+    filter: 'none',
+    alt: '',
+    title: ''
+  });
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const categories = ['all', 'business', 'technology', 'nature', 'food', 'workspace', 'people', 'placeholder'];
-
-  const filteredImages = [...stockImages, ...placeholderImages].filter(img => {
-    const matchesSearch = img.alt.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredImages = stockImages.filter(img => {
     const matchesCategory = selectedCategory === 'all' || img.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesSearch = img.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        onImageSelect(result, file.name);
-        onOpenChange(false);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          setUploadedImages(prev => [...prev, result]);
+          setPreviewImage(result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }, []);
 
   const handleUrlSubmit = () => {
-    if (imageUrl.trim()) {
-      onImageSelect(imageUrl.trim(), altText.trim() || 'Image');
-      setImageUrl('');
-      setAltText('');
-      onOpenChange(false);
+    if (urlInput.trim()) {
+      setPreviewImage(urlInput.trim());
     }
   };
 
-  const handleStockImageSelect = (src: string, alt: string) => {
-    onImageSelect(src, alt);
-    onOpenChange(false);
+  const handleImageSelect = (src: string, type: 'file' | 'url' | 'gallery') => {
+    const selectedFilter = imageFilters.find(f => f.id === imageSettings.filter);
+    
+    onImageSelect({
+      src,
+      type,
+      alt: imageSettings.alt || 'Image sélectionnée',
+      title: imageSettings.title,
+      size: {
+        width: imageSettings.width,
+        height: imageSettings.height
+      },
+      filter: selectedFilter?.filter !== 'none' ? selectedFilter?.filter : undefined
+    });
+    onClose();
+  };
+
+  const resetImageSettings = () => {
+    setImageSettings({
+      width: 400,
+      height: 300,
+      filter: 'none',
+      alt: '',
+      title: ''
+    });
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="w-5 h-5" />
             Sélectionner une image
+            {previewImage && (
+              <Badge variant="secondary" className="ml-2">
+                Image prévisualisée
+              </Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="h-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="stock" className="flex items-center gap-2">
-              <Star className="w-4 h-4" />
-              Images stock
-            </TabsTrigger>
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Upload className="w-4 h-4" />
-              Upload
-            </TabsTrigger>
-            <TabsTrigger value="url" className="flex items-center gap-2">
-              <Link className="w-4 h-4" />
-              URL
-            </TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[70vh]">
+          {/* Left panel - Image sources */}
+          <div className="lg:col-span-2 flex flex-col">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="flex-1">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="upload" className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
+                  Télécharger
+                </TabsTrigger>
+                <TabsTrigger value="url" className="flex items-center gap-2">
+                  <Link className="w-4 h-4" />
+                  URL
+                </TabsTrigger>
+                <TabsTrigger value="gallery" className="flex items-center gap-2">
+                  <Grid3X3 className="w-4 h-4" />
+                  Galerie
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="stock" className="space-y-4 overflow-auto max-h-[60vh]">
-            {/* Search and filters */}
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Rechercher des images..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <Button variant="outline">
-                  <Search className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Category filters */}
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className="capitalize"
-                  >
-                    {category === 'all' ? 'Toutes' : category}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Image grid */}
-            <div className="grid grid-cols-3 gap-3 pb-4">
-              {filteredImages.map((image, index) => (
-                <Card
-                  key={index}
-                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all"
-                  onClick={() => handleStockImageSelect(image.src, image.alt)}
-                >
-                  <div className="aspect-video relative">
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+              <TabsContent value="upload" className="flex-1 mt-4">
+                <div className="space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileUpload}
+                      className="hidden"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity flex items-center justify-center">
+                    <div className="space-y-3">
+                      <Upload className="w-12 h-12 mx-auto text-gray-400" />
+                      <div>
+                        <h3 className="text-lg font-medium">Télécharger des images</h3>
+                        <p className="text-sm text-gray-500">
+                          Glissez-déposez vos images ou cliquez pour les sélectionner
+                        </p>
+                      </div>
                       <Button
-                        size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => fileInputRef.current?.click()}
+                        variant="outline"
+                        className="mt-4"
                       >
-                        Sélectionner
+                        Choisir des fichiers
                       </Button>
                     </div>
                   </div>
-                  <div className="p-2">
-                    <p className="text-xs text-gray-600 truncate">{image.alt}</p>
+
+                  {uploadedImages.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-3">Images téléchargées ({uploadedImages.length})</h4>
+                      <div className="grid grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+                        {uploadedImages.map((src, index) => (
+                          <Card
+                            key={index}
+                            className="p-2 cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+                            onClick={() => setPreviewImage(src)}
+                          >
+                            <img
+                              src={src}
+                              alt={`Téléchargé ${index + 1}`}
+                              className="w-full h-20 object-cover rounded"
+                            />
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="url" className="flex-1 mt-4">
+                <div className="space-y-4">
+                  <div>
+                    <Label>URL de l'image</Label>
+                    <div className="flex gap-2 mt-1">
+                      <Input
+                        type="url"
+                        placeholder="https://exemple.com/image.jpg"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                      />
+                      <Button onClick={handleUrlSubmit} variant="outline">
+                        <Eye className="w-4 h-4 mr-2" />
+                        Aperçu
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Entrez l'URL complète d'une image accessible publiquement
+                    </p>
                   </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
 
-          <TabsContent value="upload" className="space-y-4">
-            <div className="text-center py-8">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
+                  {urlInput && (
+                    <Card className="p-4">
+                      <h4 className="font-medium mb-2">Aperçu de l'URL</h4>
+                      <img
+                        src={urlInput}
+                        alt="Aperçu URL"
+                        className="max-w-full h-32 object-contain rounded border"
+                        onLoad={() => setPreviewImage(urlInput)}
+                        onError={() => alert('Impossible de charger l\'image depuis cette URL')}
+                      />
+                    </Card>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="gallery" className="flex-1 mt-4">
+                <div className="space-y-4">
+                  {/* Search and filters */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <div className="relative">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Input
+                          placeholder="Rechercher des images..."
+                          className="pl-10"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-1 flex-wrap">
+                      {categories.map(category => (
+                        <Button
+                          key={category.id}
+                          variant={selectedCategory === category.id ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setSelectedCategory(category.id)}
+                          className="text-xs"
+                        >
+                          {category.name} ({category.count})
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stock images grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+                    {filteredImages.map(image => (
+                      <Card
+                        key={image.id}
+                        className="p-2 cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+                        onClick={() => setPreviewImage(image.src)}
+                      >
+                        <img
+                          src={image.src}
+                          alt={image.title}
+                          className="w-full h-24 object-cover rounded"
+                        />
+                        <p className="text-xs text-center mt-1 truncate">{image.title}</p>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {filteredImages.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>Aucune image trouvée</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Right panel - Preview and settings */}
+          <div className="space-y-4">
+            {/* Image preview */}
+            <Card className="p-3">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Eye className="w-4 h-4" />
+                  Aperçu
+                </h4>
+                {previewImage && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPreviewImage(null)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
               
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-gray-400 transition-colors">
-                <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium mb-2">Télécharger une image</h3>
-                <p className="text-gray-600 mb-4">
-                  Glissez-déposez votre image ici ou cliquez pour parcourir
-                </p>
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mx-auto"
-                >
-                  Choisir un fichier
-                </Button>
-              </div>
-
-              <p className="text-xs text-gray-500 mt-4">
-                Formats supportés: JPG, PNG, GIF, WEBP (max 10MB)
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="url" className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="image-url">URL de l'image</Label>
-                <Input
-                  id="image-url"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="alt-text">Texte alternatif (optionnel)</Label>
-                <Input
-                  id="alt-text"
-                  placeholder="Description de l'image"
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                />
-              </div>
-
-              {/* Preview */}
-              {imageUrl && (
-                <div className="border rounded-lg p-4">
-                  <Label className="text-sm font-medium mb-2 block">Aperçu</Label>
-                  <div className="aspect-video bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+              {previewImage ? (
+                <div className="space-y-3">
+                  <div 
+                    className="relative border rounded overflow-hidden bg-gray-50"
+                    style={{ height: '200px' }}
+                  >
                     <img
-                      src={imageUrl}
-                      alt={altText || 'Preview'}
-                      className="max-w-full max-h-full object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
+                      src={previewImage}
+                      alt="Aperçu"
+                      className="w-full h-full object-contain"
+                      style={{
+                        filter: imageFilters.find(f => f.id === imageSettings.filter)?.filter
                       }}
                     />
                   </div>
+                  
+                  <Button
+                    onClick={() => handleImageSelect(previewImage, activeTab === 'upload' ? 'file' : activeTab)}
+                    className="w-full"
+                    size="sm"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Utiliser cette image
+                  </Button>
+                </div>
+              ) : (
+                <div className="h-48 border-2 border-dashed border-gray-200 rounded flex items-center justify-center">
+                  <div className="text-center text-gray-400">
+                    <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                    <p className="text-sm">Aucune image sélectionnée</p>
+                  </div>
                 </div>
               )}
+            </Card>
 
-              <Button
-                onClick={handleUrlSubmit}
-                disabled={!imageUrl.trim()}
-                className="w-full"
-              >
-                Utiliser cette image
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+            {/* Image settings */}
+            <Card className="p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Settings className="w-4 h-4" />
+                <h4 className="font-medium">Paramètres</h4>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetImageSettings}
+                  className="ml-auto h-6 text-xs"
+                >
+                  Réinitialiser
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                {/* Dimensions */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Largeur (px)</Label>
+                    <Input
+                      type="number"
+                      value={imageSettings.width}
+                      onChange={(e) => setImageSettings(s => ({ ...s, width: parseInt(e.target.value) || 400 }))}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Hauteur (px)</Label>
+                    <Input
+                      type="number"
+                      value={imageSettings.height}
+                      onChange={(e) => setImageSettings(s => ({ ...s, height: parseInt(e.target.value) || 300 }))}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Filter */}
+                <div>
+                  <Label className="text-xs">Filtre</Label>
+                  <div className="grid grid-cols-2 gap-1 mt-1">
+                    {imageFilters.map(filter => (
+                      <Button
+                        key={filter.id}
+                        variant={imageSettings.filter === filter.id ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setImageSettings(s => ({ ...s, filter: filter.id }))}
+                        className="h-6 text-xs"
+                      >
+                        {filter.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Alt text */}
+                <div>
+                  <Label className="text-xs">Texte alternatif</Label>
+                  <Input
+                    placeholder="Description de l'image"
+                    value={imageSettings.alt}
+                    onChange={(e) => setImageSettings(s => ({ ...s, alt: e.target.value }))}
+                    className="h-7 text-xs"
+                  />
+                </div>
+
+                {/* Title */}
+                <div>
+                  <Label className="text-xs">Titre (optionnel)</Label>
+                  <Input
+                    placeholder="Titre de l'image"
+                    value={imageSettings.title}
+                    onChange={(e) => setImageSettings(s => ({ ...s, title: e.target.value }))}
+                    className="h-7 text-xs"
+                  />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

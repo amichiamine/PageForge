@@ -289,7 +289,7 @@ ${pageContent}
                     <Star className="w-5 h-5 text-yellow-500" />
                     <h2 className="text-2xl font-bold text-theme-text">Templates en vedette</h2>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                     {featuredTemplates.map((template) => (
                       <Card key={template.id} className="group hover:shadow-lg transition-all duration-300 border-theme-border bg-theme-surface">
                         <div className="relative">
@@ -460,7 +460,7 @@ ${pageContent}
                 ) : (
                   <div className={
                     viewMode === 'grid'
-                      ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                      ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6'
                       : 'space-y-4'
                   }>
                     {filteredTemplates.map((template) => (
