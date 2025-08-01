@@ -10,7 +10,7 @@ import { MultiBackend } from 'react-dnd-multi-backend';
 import { useCollaboration } from '@/hooks/useCollaboration';
 import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/header";
-import { Save, Eye, Download, Code, ArrowLeft, Wifi, Undo, Redo, Grid, Settings } from "lucide-react";
+import { Save, Eye, Download, Code, ArrowLeft, Wifi, Undo, Redo, Grid, Settings, Plus, X, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Project, ComponentDefinition } from "@shared/schema";
 import { createComponent } from "@/lib/editor-utils";
@@ -355,6 +355,10 @@ export default function EditorComplete() {
   const [isDirty, setIsDirty] = useState(false);
   const [showTouchPalette, setShowTouchPalette] = useState(false);
   const [showImageSelector, setShowImageSelector] = useState(false);
+  const [leftPanelVisible, setLeftPanelVisible] = useState(false);
+  const [rightPanelVisible, setRightPanelVisible] = useState(false);
+  const [pageBackgroundType, setPageBackgroundType] = useState<'solid' | 'gradient' | 'image'>('solid');
+  const [pageBackground, setPageBackground] = useState('#ffffff');
 
   // Sidebar context
   const { setHideMainSidebar } = useSidebarContext();
@@ -428,7 +432,16 @@ export default function EditorComplete() {
     if (!project) return;
 
     const defaultPosition = position || { x: 100, y: 100 };
-    const newComponent = createComponent(type, defaultPosition);
+    const newComponent = createComponent(type);
+    // Set position for drag components
+    if (defaultPosition) {
+      newComponent.position = {
+        x: defaultPosition.x,
+        y: defaultPosition.y,
+        width: 200,
+        height: 100
+      };
+    }
     const updatedComponents = [...components, newComponent];
     setComponents(updatedComponents);
     setSelectedComponent(newComponent);
@@ -586,6 +599,30 @@ export default function EditorComplete() {
 
               <Separator orientation="vertical" className="h-6" />
 
+              {/* Contrôles des volets - déplacés du mobile */}
+              {isMobile && (
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setLeftPanelVisible(!leftPanelVisible)}
+                    title="Basculer palette composants"
+                  >
+                    <Menu className="w-4 h-4 mr-2" />
+                    Palette
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setRightPanelVisible(!rightPanelVisible)}
+                    title="Basculer propriétés"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Props
+                  </Button>
+                </>
+              )}
+
               <Button 
                 variant="outline" 
                 size="sm"
@@ -626,7 +663,7 @@ export default function EditorComplete() {
         {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left sidebar - Component palette (responsive width) */}
-          <div className={`${isMobile ? 'hidden' : 'w-36'} border-r bg-white flex-shrink-0 overflow-y-auto md:block`}>
+          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-28'} border-r bg-white flex-shrink-0 overflow-y-auto md:block`}>
             <div className="p-1">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xs font-semibold">Composants</h2>
@@ -730,10 +767,17 @@ export default function EditorComplete() {
           </div>
 
           {/* Right sidebar - Properties panel (responsive width) */}
-          <div className={`${isMobile ? 'hidden' : 'w-40'} border-l bg-white flex-shrink-0 overflow-y-auto lg:block`}>
+          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-32'} border-l bg-white flex-shrink-0 overflow-y-auto lg:block`}>
             <div className="p-2">
-              <h2 className="text-xs font-semibold mb-2">Propriétés</h2>
-              {selectedComponent ? (
+              <Tabs defaultValue="component" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 h-6">
+                  <TabsTrigger value="component" className="text-xs">Composant</TabsTrigger>
+                  <TabsTrigger value="page" className="text-xs">Page</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="component" className="mt-2 space-y-2">
+                  <h2 className="text-xs font-semibold">Propriétés</h2>
+                  {selectedComponent ? (
                 <div className="space-y-4">
                   <Card className="p-3">
                     <h3 className="font-medium mb-3">Composant sélectionné</h3>
@@ -1102,11 +1146,68 @@ export default function EditorComplete() {
                 </div>
               ) : (
                 <Card className="p-3">
-                  <p className="text-sm text-gray-600">
-                    Sélectionnez un composant pour modifier ses propriétés.
-                  </p>
+                  <p className="text-xs text-gray-500">Aucun composant sélectionné</p>
                 </Card>
               )}
+                </TabsContent>
+                
+                <TabsContent value="page" className="mt-2 space-y-3">
+                  <h2 className="text-xs font-semibold">Propriétés de la page</h2>
+                  
+                  {/* Page Background */}
+                  <div className="space-y-2">
+                    <Label className="text-xs">Arrière-plan de la page</Label>
+                    <ColorPicker
+                      value={pageBackground}
+                      onChange={setPageBackground}
+                      type={pageBackgroundType}
+                      showBackgroundTypes={true}
+                    />
+                  </div>
+
+                  {/* Page Settings */}
+                  <div className="space-y-2">
+                    <Label className="text-xs">Nom de la page</Label>
+                    <Input
+                      value={project?.content?.pages?.[0]?.name || 'Accueil'}
+                      onChange={(e) => {
+                        // Update page name logic here
+                      }}
+                      className="h-6 text-xs"
+                      placeholder="Nom de la page"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Description</Label>
+                    <Textarea
+                      value={project?.description || ''}
+                      onChange={(e) => {
+                        // Update description logic here
+                      }}
+                      className="text-xs resize-none"
+                      rows={2}
+                      placeholder="Description de la page"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Largeur max</Label>
+                    <Select defaultValue="1200">
+                      <SelectTrigger className="h-6 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="800">800px</SelectItem>
+                        <SelectItem value="1000">1000px</SelectItem>
+                        <SelectItem value="1200">1200px</SelectItem>
+                        <SelectItem value="1440">1440px</SelectItem>
+                        <SelectItem value="full">Pleine largeur</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>
@@ -1173,7 +1274,8 @@ export default function EditorComplete() {
                   filter: imageData.filter
                 },
                 position: {
-                  ...selectedComponent.position,
+                  x: selectedComponent.position?.x || 0,
+                  y: selectedComponent.position?.y || 0,
                   width: imageData.size?.width || selectedComponent.position?.width || 400,
                   height: imageData.size?.height || selectedComponent.position?.height || 300
                 }

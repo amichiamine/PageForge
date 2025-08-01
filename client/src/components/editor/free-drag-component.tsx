@@ -78,6 +78,21 @@ export default function FreeDragComponent({
     
     if (containerRect) {
       const newX = Math.max(0, Math.min(
+        containerRect.width - 200,
+        touch.clientX - containerRect.left - dragStartPos.x
+      ));
+      const newY = Math.max(0, Math.min(
+        containerRect.height - 100,
+        touch.clientY - containerRect.top - dragStartPos.y
+      ));
+      
+      onMove(component.id, { x: newX, y: newY });
+    }
+    const touch = e.touches[0];
+    const containerRect = containerRef?.current?.getBoundingClientRect();
+    
+    if (containerRect) {
+      const newX = Math.max(0, Math.min(
         containerRect.width - (componentRef.current?.offsetWidth || 0),
         touch.clientX - containerRect.left - dragStartPos.x
       ));
