@@ -642,11 +642,11 @@ export default function EditorComplete() {
 
         {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left sidebar - Component palette (RÉDUIT 20px TOUS écrans) */}
-          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-20'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
-            <div className="p-1">
+          {/* Left sidebar - Component palette (AGRANDI 32px TOUS écrans) */}
+          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-32'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
+            <div className="p-2">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xs font-semibold">Cmpts</h2>
+                <h2 className="text-sm font-semibold">Composants</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -657,7 +657,7 @@ export default function EditorComplete() {
                   <Plus className="w-3 h-3" />
                 </Button>
               </div>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="grid grid-cols-2 gap-1">
                 {componentTypes.slice(0, 6).map((component) => (
                   <DraggableComponent
                     key={component.type}
@@ -693,17 +693,17 @@ export default function EditorComplete() {
             {/* Point 4 CORRIGÉ - Plus de boutons flottants, tout dans le header */}
           </div>
 
-          {/* Right sidebar - Properties panel (RÉDUIT 24px TOUS écrans) */}
-          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-24'} border-l bg-white flex-shrink-0 overflow-y-auto`}>
-            <div className="p-1">
+          {/* Right sidebar - Properties panel (AGRANDI 36px TOUS écrans) */}
+          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-36'} border-l bg-white flex-shrink-0 overflow-y-auto`}>
+            <div className="p-2">
               <Tabs defaultValue="component" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 h-6">
-                  <TabsTrigger value="component" className="text-xs">Composant</TabsTrigger>
-                  <TabsTrigger value="page" className="text-xs">Page</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 h-8">
+                  <TabsTrigger value="component" className="text-sm">Composant</TabsTrigger>
+                  <TabsTrigger value="page" className="text-sm">Page</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="component" className="mt-2 space-y-2">
-                  <h2 className="text-xs font-semibold">Propriétés</h2>
+                  <h2 className="text-sm font-semibold">Propriétés</h2>
                   {selectedComponent ? (
                 <div className="space-y-4">
                   <Card className="p-3">
