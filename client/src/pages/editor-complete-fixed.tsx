@@ -135,27 +135,39 @@ export default function EditorComplete() {
     onComponentUpdate: (component: ComponentDefinition) => void;
     onComponentDelete: (id: string) => void;
   }) {
+    const dropRef = useRef<HTMLDivElement>(null);
+    
     const [{ isOver }, drop] = useDrop({
       accept: ['new-component', 'existing-component'],
       drop: (item: any, monitor) => {
-        const offset = monitor.getDropResult();
         const clientOffset = monitor.getClientOffset();
+        const dropRect = dropRef.current?.getBoundingClientRect();
+        
+        if (!clientOffset || !dropRect) return;
+        
+        const x = Math.max(0, clientOffset.x - dropRect.left);
+        const y = Math.max(0, clientOffset.y - dropRect.top);
 
-        if (clientOffset && item.componentType) {
-          onComponentAdd(item.componentType, {
-            x: clientOffset.x - 250,
-            y: clientOffset.y - 150,
-          });
+        if (item.id) {
+          // Déplacement d'un composant existant
+          console.log('Déplacement composant:', item.id, 'vers', { x, y });
+          onComponentMove(item.id, { x, y });
+        } else if (item.componentType) {
+          // Ajout d'un nouveau composant
+          console.log('Ajout nouveau composant:', item.componentType, 'à', { x, y });
+          onComponentAdd(item.componentType, { x, y });
         }
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
       }),
     });
+    
+    drop(dropRef);
 
     return (
       <div
-        ref={drop}
+        ref={dropRef}
         className={`relative w-full h-full min-h-[600px] bg-white ${
           isOver ? 'bg-blue-50' : ''
         }`}
@@ -600,7 +612,7 @@ export default function EditorComplete() {
         <EnhancedTouchPalette
           isOpen={showTouchPalette}
           onClose={() => setShowTouchPalette(false)}
-          onComponentAdd={handleComponentAdd}
+          onComponentAdd={(type: string) => handleComponentAdd(type, { x: 100, y: 100 })}
         />
       </div>
     </DndProvider>
