@@ -44,7 +44,7 @@ export default function Templates() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { sidebarOpen } = useSidebarContext();
+  const { hideMainSidebar } = useSidebarContext();
 
   // États locaux
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,7 +75,7 @@ export default function Templates() {
       isNew: template.isNew
     }));
     
-    return [...localTemplates, ...(apiTemplates || [])];
+    return [...localTemplates, ...Array.isArray(apiTemplates) ? apiTemplates : []];
   }, [apiTemplates]);
 
   // Filtrer les templates

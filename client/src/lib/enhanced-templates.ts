@@ -209,7 +209,7 @@ export const enhancedTemplates: EnhancedTemplate[] = [
 
   // Portfolio Templates
   {
-    id: 'creative-portfolio',
+    id: 'creative-portfolio-main',
     name: 'Portfolio Créatif',
     description: 'Portfolio moderne pour designers, artistes et créatifs avec galerie interactive',
     category: 'portfolio',
@@ -757,9 +757,9 @@ export const enhancedTemplates: EnhancedTemplate[] = [
     }
   },
 
-  // Portfolio Templates
+  // Portfolio Templates - Alternative
   {
-    id: 'creative-portfolio',
+    id: 'creative-portfolio-alternative',
     name: 'Portfolio Créatif',
     description: 'Portfolio moderne pour créatifs, designers et artistes avec galerie interactive',
     category: 'portfolio',

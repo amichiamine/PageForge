@@ -91,7 +91,7 @@ function DraggableComponent({ component }: DraggableComponentProps) {
   return (
     <div
       ref={drag}
-      className={`p-2 border rounded-lg cursor-move transition-all hover:shadow-md active:scale-95 ${
+      className={`component-item p-2 border rounded-lg cursor-move transition-all hover:shadow-md touch-feedback ${
         isDragging ? 'opacity-50' : ''
       }`}
       onDoubleClick={handleDoubleClick}
@@ -155,8 +155,8 @@ function DropZone({
   return (
     <div
       ref={dropRef}
-      className={`relative w-full h-full min-h-96 bg-white border-2 border-dashed transition-all ${
-        isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'
+      className={`drop-zone relative w-full h-full min-h-96 bg-white border-2 border-dashed transition-all ${
+        isOver ? 'drag-over border-blue-400 bg-blue-50' : 'border-gray-300'
       }`}
     >
       {/* Grid background */}
@@ -171,13 +171,19 @@ function DropZone({
         }}
       />
 
-      {/* Drop hint */}
+      {/* Drop hint with touch support */}
       {components.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500">
           <div className="text-center">
             <div className="text-4xl mb-4">🎨</div>
             <p className="text-lg font-medium">Glissez des composants ici</p>
-            <p className="text-sm">Commencez par faire glisser un composant depuis la palette</p>
+            <p className="text-sm">Ou double-cliquez sur un composant pour l'ajouter</p>
+            {isMobile && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs text-blue-600 font-medium">Mode tactile détecté</p>
+                <p className="text-xs text-blue-500">Double-cliquez pour ajouter des composants</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -327,6 +333,42 @@ export default function EditorComplete() {
     }
   }, [project]);
 
+  // Component handlers
+  const handleComponentAdd = useCallback((type: string, position?: { x: number; y: number }) => {
+    if (!project) return;
+
+    const defaultPosition = position || { x: 100, y: 100 };
+    const newComponent = createComponent(type, defaultPosition);
+    const updatedComponents = [...components, newComponent];
+    setComponents(updatedComponents);
+    setSelectedComponent(newComponent);
+    setIsDirty(true);
+
+    // Update project in database
+    const updatedProject = { 
+      ...project,
+      content: {
+        ...project.content,
+        pages: [{
+          ...project.content?.pages?.[0],
+          id: project.content?.pages?.[0]?.id || 'main',
+          name: project.content?.pages?.[0]?.name || 'Accueil',
+          path: project.content?.pages?.[0]?.path || '/',
+          content: {
+            structure: updatedComponents
+          }
+        }]
+      }
+    };
+
+    saveProjectMutation.mutate({ content: updatedProject.content });
+
+    toast({
+      title: "Composant ajouté",
+      description: `${type} ajouté à la page`,
+    });
+  }, [components, project, saveProjectMutation, toast]);
+
   // Double-click event listener for adding components
   useEffect(() => {
     const handleDoubleClickAdd = (event: any) => {
@@ -374,40 +416,7 @@ export default function EditorComplete() {
     },
   });
 
-  // Component handlers
-  const handleComponentAdd = useCallback((type: string, position: { x: number; y: number }) => {
-    if (!project) return;
 
-    const newComponent = createComponent(type, { x: position.x, y: position.y });
-    const updatedComponents = [...components, newComponent];
-    setComponents(updatedComponents);
-    setSelectedComponent(newComponent);
-    setIsDirty(true);
-
-    // Update project in database
-    const updatedProject = { 
-      ...project,
-      content: {
-        ...project.content,
-        pages: [{
-          ...project.content?.pages?.[0],
-          id: project.content?.pages?.[0]?.id || 'main',
-          name: project.content?.pages?.[0]?.name || 'Accueil',
-          path: project.content?.pages?.[0]?.path || '/',
-          content: {
-            structure: updatedComponents
-          }
-        }]
-      }
-    };
-
-    saveProjectMutation.mutate({ content: updatedProject.content });
-
-    toast({
-      title: "Composant ajouté",
-      description: `${type} ajouté à la page`,
-    });
-  }, [components, project, saveProjectMutation, toast]);
 
   const handleComponentUpdate = useCallback((updatedComponent: ComponentDefinition) => {
     const updatedComponents = components.map(comp =>
@@ -741,8 +750,10 @@ export default function EditorComplete() {
                               onChange={(e) => handleComponentUpdate({
                                 ...selectedComponent,
                                 position: { 
-                                  ...selectedComponent.position,
-                                  width: parseInt(e.target.value) || 200
+                                  x: selectedComponent.position?.x || 0,
+                                  y: selectedComponent.position?.y || 0,
+                                  width: parseInt(e.target.value) || 200,
+                                  height: selectedComponent.position?.height || 100
                                 }
                               })}
                             />
@@ -756,7 +767,9 @@ export default function EditorComplete() {
                               onChange={(e) => handleComponentUpdate({
                                 ...selectedComponent,
                                 position: { 
-                                  ...selectedComponent.position,
+                                  x: selectedComponent.position?.x || 0,
+                                  y: selectedComponent.position?.y || 0,
+                                  width: selectedComponent.position?.width || 200,
                                   height: parseInt(e.target.value) || 100
                                 }
                               })}
