@@ -642,8 +642,8 @@ export default function EditorComplete() {
 
         {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left sidebar - Component palette (RESPONSIVE) */}
-          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-20 sm:w-32'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
+          {/* Left sidebar - Component palette (AGRANDI 32px TOUS écrans) */}
+          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-32'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
             <div className="p-2">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-semibold">Composants</h2>
