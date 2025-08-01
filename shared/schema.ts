@@ -13,7 +13,7 @@ export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description"),
-  type: text("type").notNull().default("standalone"), // standalone, vscode-integration, existing-project
+  type: text("type").notNull().default("standalone"), // standalone, vscode-integration, existing-project, single-page, multi-page, ftp-integration
   template: text("template"),
   content: json("content").$type<ProjectContent>().notNull().default({}),
   settings: json("settings").$type<ProjectSettings>().notNull().default({}),
@@ -66,6 +66,15 @@ export interface ProjectContent {
 }
 
 export interface ProjectSettings {
+  projectType?: "single-page" | "multi-page" | "ftp-integration";
+  ftp?: {
+    host?: string;
+    username?: string;
+    password?: string;
+    port?: number;
+    directory?: string;
+    autoUpload?: boolean;
+  };
   responsive?: {
     breakpoints: Record<string, number>;
   };

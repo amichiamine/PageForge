@@ -422,6 +422,432 @@ export class MemStorage implements IStorage {
         },
         tags: ["portfolio", "creative", "projects", "personal"],
         isBuiltIn: true
+      },
+      {
+        name: "Blog moderne",
+        description: "Template de blog avec système d'articles et catégories",
+        category: "blog",
+        thumbnail: "blog-modern",
+        content: {
+          structure: [
+            {
+              id: "blog-header",
+              type: "header",
+              tag: "header",
+              attributes: { className: "blog-header" },
+              styles: { 
+                backgroundColor: "#2d3748",
+                color: "white",
+                padding: "3rem 2rem",
+                textAlign: "center"
+              },
+              children: [
+                {
+                  id: "blog-title",
+                  type: "heading",
+                  tag: "h1",
+                  content: "Mon Blog",
+                  styles: { fontSize: "3rem", marginBottom: "1rem", fontWeight: "bold" }
+                },
+                {
+                  id: "blog-subtitle",
+                  type: "text",
+                  tag: "p",
+                  content: "Mes réflexions et découvertes",
+                  styles: { fontSize: "1.25rem", opacity: "0.9" }
+                }
+              ]
+            },
+            {
+              id: "blog-content",
+              type: "section",
+              tag: "main",
+              attributes: { className: "blog-content" },
+              styles: { padding: "4rem 2rem", maxWidth: "800px", margin: "0 auto" },
+              children: [
+                {
+                  id: "article-card",
+                  type: "card",
+                  tag: "article",
+                  attributes: { className: "article-card" },
+                  styles: { 
+                    backgroundColor: "white",
+                    borderRadius: "0.75rem",
+                    padding: "2rem",
+                    marginBottom: "2rem",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    border: "1px solid #e2e8f0"
+                  },
+                  children: [
+                    {
+                      id: "article-title",
+                      type: "heading",
+                      tag: "h2",
+                      content: "Premier article de blog",
+                      styles: { fontSize: "1.75rem", marginBottom: "0.5rem", color: "#2d3748" }
+                    },
+                    {
+                      id: "article-meta",
+                      type: "text",
+                      tag: "p",
+                      content: "Publié le 30 juillet 2025 • 5 min de lecture",
+                      styles: { color: "#718096", fontSize: "0.9rem", marginBottom: "1rem" }
+                    },
+                    {
+                      id: "article-content",
+                      type: "text",
+                      tag: "p",
+                      content: "Bienvenue sur mon blog ! Ici je partage mes réflexions sur le développement web, les nouvelles technologies et mes projets personnels. N'hésitez pas à laisser des commentaires et à partager vos propres expériences.",
+                      styles: { lineHeight: "1.7", color: "#4a5568", marginBottom: "1rem" }
+                    },
+                    {
+                      id: "read-more",
+                      type: "button",
+                      tag: "button",
+                      content: "Lire la suite",
+                      styles: { 
+                        backgroundColor: "#4299e1",
+                        color: "white",
+                        padding: "0.75rem 1.5rem",
+                        border: "none",
+                        borderRadius: "0.5rem",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                        fontWeight: "500"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          styles: `
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+            .article-card:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
+          `,
+          meta: {
+            title: "Blog moderne",
+            description: "Template de blog moderne et responsive"
+          }
+        },
+        tags: ["blog", "articles", "content", "modern"],
+        isBuiltIn: true
+      },
+      {
+        name: "Dashboard analytiques",
+        description: "Interface de tableau de bord avec graphiques et métriques",
+        category: "dashboard",
+        thumbnail: "dashboard-analytics",
+        content: {
+          structure: [
+            {
+              id: "dashboard-container",
+              type: "container",
+              tag: "div",
+              attributes: { className: "dashboard-container" },
+              styles: { 
+                minHeight: "100vh",
+                backgroundColor: "#f8fafc",
+                padding: "2rem"
+              },
+              children: [
+                {
+                  id: "dashboard-header",
+                  type: "header",
+                  tag: "div",
+                  attributes: { className: "dashboard-header" },
+                  styles: { 
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "2rem",
+                    backgroundColor: "white",
+                    padding: "1.5rem",
+                    borderRadius: "0.75rem",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+                  },
+                  children: [
+                    {
+                      id: "dashboard-title",
+                      type: "heading",
+                      tag: "h1",
+                      content: "Tableau de bord",
+                      styles: { fontSize: "1.75rem", fontWeight: "bold", color: "#1a202c" }
+                    },
+                    {
+                      id: "dashboard-date",
+                      type: "text",
+                      tag: "p",
+                      content: "30 juillet 2025",
+                      styles: { color: "#718096" }
+                    }
+                  ]
+                },
+                {
+                  id: "metrics-grid",
+                  type: "container",
+                  tag: "div",
+                  attributes: { className: "metrics-grid" },
+                  styles: { 
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                    gap: "1.5rem",
+                    marginBottom: "2rem"
+                  },
+                  children: [
+                    {
+                      id: "metric-card-1",
+                      type: "card",
+                      tag: "div",
+                      attributes: { className: "metric-card" },
+                      styles: { 
+                        backgroundColor: "white",
+                        padding: "1.5rem",
+                        borderRadius: "0.75rem",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        border: "1px solid #e2e8f0"
+                      },
+                      children: [
+                        {
+                          id: "metric-title-1",
+                          type: "text",
+                          tag: "p",
+                          content: "Visiteurs totaux",
+                          styles: { color: "#718096", fontSize: "0.9rem", marginBottom: "0.5rem" }
+                        },
+                        {
+                          id: "metric-value-1",
+                          type: "text",
+                          tag: "p",
+                          content: "12,456",
+                          styles: { fontSize: "2rem", fontWeight: "bold", color: "#2d3748" }
+                        },
+                        {
+                          id: "metric-change-1",
+                          type: "text",
+                          tag: "p",
+                          content: "+12% ce mois",
+                          styles: { color: "#38a169", fontSize: "0.85rem" }
+                        }
+                      ]
+                    },
+                    {
+                      id: "metric-card-2",
+                      type: "card",
+                      tag: "div",
+                      attributes: { className: "metric-card" },
+                      styles: { 
+                        backgroundColor: "white",
+                        padding: "1.5rem",
+                        borderRadius: "0.75rem",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        border: "1px solid #e2e8f0"
+                      },
+                      children: [
+                        {
+                          id: "metric-title-2",
+                          type: "text",
+                          tag: "p",
+                          content: "Revenus",
+                          styles: { color: "#718096", fontSize: "0.9rem", marginBottom: "0.5rem" }
+                        },
+                        {
+                          id: "metric-value-2",
+                          type: "text",
+                          tag: "p",
+                          content: "€8,250",
+                          styles: { fontSize: "2rem", fontWeight: "bold", color: "#2d3748" }
+                        },
+                        {
+                          id: "metric-change-2",
+                          type: "text",
+                          tag: "p",
+                          content: "+8% ce mois",
+                          styles: { color: "#38a169", fontSize: "0.85rem" }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          styles: `
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; }
+            .metric-card:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
+          `,
+          meta: {
+            title: "Dashboard analytiques",
+            description: "Interface de tableau de bord moderne avec métriques"
+          }
+        },
+        tags: ["dashboard", "analytics", "metrics", "admin"],
+        isBuiltIn: true
+      },
+      {
+        name: "Page contact",
+        description: "Formulaire de contact professionnel avec informations",
+        category: "contact",
+        thumbnail: "contact-form",
+        content: {
+          structure: [
+            {
+              id: "contact-section",
+              type: "section",
+              tag: "section",
+              attributes: { className: "contact-section" },
+              styles: { 
+                minHeight: "100vh",
+                backgroundColor: "#f7fafc",
+                padding: "4rem 2rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              },
+              children: [
+                {
+                  id: "contact-container",
+                  type: "container",
+                  tag: "div",
+                  attributes: { className: "contact-container" },
+                  styles: { 
+                    maxWidth: "800px",
+                    backgroundColor: "white",
+                    borderRadius: "1rem",
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+                    overflow: "hidden"
+                  },
+                  children: [
+                    {
+                      id: "contact-header",
+                      type: "header",
+                      tag: "div",
+                      attributes: { className: "contact-header" },
+                      styles: { 
+                        backgroundColor: "#4299e1",
+                        color: "white",
+                        padding: "3rem",
+                        textAlign: "center"
+                      },
+                      children: [
+                        {
+                          id: "contact-title",
+                          type: "heading",
+                          tag: "h1",
+                          content: "Contactez-nous",
+                          styles: { fontSize: "2.5rem", marginBottom: "1rem", fontWeight: "bold" }
+                        },
+                        {
+                          id: "contact-subtitle",
+                          type: "text",
+                          tag: "p",
+                          content: "Nous sommes là pour répondre à toutes vos questions",
+                          styles: { fontSize: "1.1rem", opacity: "0.9" }
+                        }
+                      ]
+                    },
+                    {
+                      id: "contact-form",
+                      type: "form",
+                      tag: "form",
+                      attributes: { className: "contact-form" },
+                      styles: { 
+                        padding: "3rem",
+                        display: "grid",
+                        gap: "1.5rem"
+                      },
+                      children: [
+                        {
+                          id: "form-grid",
+                          type: "container",
+                          tag: "div",
+                          styles: { 
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "1rem"
+                          },
+                          children: [
+                            {
+                              id: "name-input",
+                              type: "input",
+                              tag: "input",
+                              attributes: { type: "text", placeholder: "Votre nom" },
+                              styles: { 
+                                padding: "0.75rem",
+                                border: "2px solid #e2e8f0",
+                                borderRadius: "0.5rem",
+                                fontSize: "1rem"
+                              }
+                            },
+                            {
+                              id: "email-input",
+                              type: "input",
+                              tag: "input",
+                              attributes: { type: "email", placeholder: "Votre email" },
+                              styles: { 
+                                padding: "0.75rem",
+                                border: "2px solid #e2e8f0",
+                                borderRadius: "0.5rem",
+                                fontSize: "1rem"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          id: "message-textarea",
+                          type: "textarea",
+                          tag: "textarea",
+                          attributes: { placeholder: "Votre message", rows: "5" },
+                          styles: { 
+                            padding: "0.75rem",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "0.5rem",
+                            fontSize: "1rem",
+                            resize: "vertical"
+                          }
+                        },
+                        {
+                          id: "submit-button",
+                          type: "button",
+                          tag: "button",
+                          content: "Envoyer le message",
+                          styles: { 
+                            backgroundColor: "#4299e1",
+                            color: "white",
+                            padding: "1rem 2rem",
+                            border: "none",
+                            borderRadius: "0.5rem",
+                            fontSize: "1.1rem",
+                            fontWeight: "600",
+                            cursor: "pointer"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          styles: `
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; }
+            .contact-form input:focus, .contact-form textarea:focus { 
+              outline: none; 
+              border-color: #4299e1; 
+              box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1); 
+            }
+            .submit-button:hover { background-color: #3182ce; }
+          `,
+          meta: {
+            title: "Contact",
+            description: "Formulaire de contact professionnel"
+          }
+        },
+        tags: ["contact", "form", "business", "professional"],
+        isBuiltIn: true
       }
     ];
 

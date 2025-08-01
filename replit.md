@@ -98,7 +98,28 @@ Preferred communication style: Simple, everyday language.
 - **Path Resolution**: TypeScript path mapping for clean imports
 - **Asset Handling**: Vite-managed assets with proper resolution
 
-## Recent Changes (July 31, 2025)
+## Recent Changes (August 1, 2025)
+
+### Major Feature Implementations ✅
+- **Floating Buttons System**: Added mobile/tablet optimized floating buttons in editor for component palette, properties panel, save, and preview toggle
+- **Enhanced Component Library**: Expanded from 17 to 48+ components across 7 categories (Layout, Content, Media, Interactive, Forms, Business, Premium)
+- **Project Types Extended**: Added single-page, multi-page, and FTP integration project types with database schema updates
+- **Template Library Expanded**: Added 4 new professional templates (Blog moderne, Dashboard analytiques, Page contact) bringing total to 6 templates
+- **Database Schema Enhanced**: Extended ProjectSettings interface with FTP configuration options and project type specifications
+
+### User Experience Improvements ✅
+- **Mobile-First Navigation**: Floating buttons automatically appear on mobile/tablet devices for optimal touch experience
+- **Advanced Component Palette**: 7 organized categories with 48+ components including premium features (charts, carousels, timelines)
+- **Professional Templates**: Modern templates covering landing pages, e-commerce, portfolios, blogs, dashboards, and contact forms
+- **Project Type Selection**: Users can now choose between single-page sites, multi-page applications, or FTP-integrated workflows
+
+### Technical Architecture ✅
+- **PostgreSQL Integration**: All project types and settings stored in database with proper schema validation
+- **Component System**: Comprehensive component library with drag-and-drop functionality and touch optimization
+- **Template Engine**: Built-in template system with categories and metadata for easy project initialization
+- **Responsive Design**: Floating UI elements that adapt to device size with proper z-index management
+
+## Previous Changes (July 31, 2025)
 
 ### Bug Fixes and Code Quality ✅
 - **TypeScript Errors Fixed**: Resolved all major TypeScript compilation errors

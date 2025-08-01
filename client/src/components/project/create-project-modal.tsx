@@ -133,6 +133,9 @@ export default function CreateProjectModal({ open, onOpenChange }: CreateProject
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="single-page">Page unique</SelectItem>
+                        <SelectItem value="multi-page">Site multi-pages</SelectItem>
+                        <SelectItem value="ftp-integration">Intégration FTP</SelectItem>
                         <SelectItem value="standalone">Nouveau projet standalone</SelectItem>
                         <SelectItem value="vscode-integration">Intégration à projet VS Code existant</SelectItem>
                         <SelectItem value="existing-project">Page pour projet web existant</SelectItem>

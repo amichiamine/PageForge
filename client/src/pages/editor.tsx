@@ -25,6 +25,7 @@ import ErrorNotification from "@/components/ui/error-notification";
 import AlignmentGuides from "@/components/editor/alignment-guides";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FloatingButton } from "@/components/ui/floating-button";
 
 // Fonction utilitaire pour générer le HTML de prévisualisation
 function generatePreviewHTML(project: Project): string {
@@ -386,6 +387,49 @@ export default function Editor() {
             error={errorMessage} 
             onDismiss={() => setErrorMessage(null)} 
           />
+        )}
+
+        {/* Floating Buttons for Mobile/Tablet */}
+        {(isMobile || isTablet) && (
+          <>
+            {hideComponentPanel && (
+              <FloatingButton
+                onClick={() => setHideComponentPanel(false)}
+                icon={<Layers className="h-5 w-5" />}
+                label="Composants"
+                position="bottom-left"
+                size="md"
+                variant="default"
+              />
+            )}
+            {hideRightPanel && (
+              <FloatingButton
+                onClick={() => setHideRightPanel(false)}
+                icon={<Settings className="h-5 w-5" />}
+                label="Propriétés"
+                position="bottom-right"
+                size="md"
+                variant="default"
+              />
+            )}
+            <FloatingButton
+              onClick={handleSave}
+              icon={<Save className="h-5 w-5" />}
+              label="Sauvegarder"
+              position="top-right"
+              size="lg"
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+            />
+            <FloatingButton
+              onClick={() => setShowPreview(!showPreview)}
+              icon={showPreview ? <Grid className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              label={showPreview ? "Éditer" : "Aperçu"}
+              position="top-left"
+              size="md"
+              variant="secondary"
+            />
+          </>
         )}
 
         
