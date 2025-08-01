@@ -36,7 +36,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // Configuration multi-backend pour drag and drop
-const HTML5toTouch: MultiBackendOptions = {
+const HTML5toTouch = {
   backends: [
     {
       id: 'html5',
