@@ -15,9 +15,10 @@ import { UserCursors, ComponentHighlight } from '@/components/collaboration/user
 import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
-import ComponentPalette from "@/components/editor/component-palette";
-import PropertiesPanel from "@/components/editor/properties-panel";
-import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Grid, Layers, Settings, Undo, Redo, Play, Pause } from "lucide-react";
+import EnhancedComponentPalette from "@/components/editor/enhanced-component-palette";
+import EnhancedPropertiesPanel from "@/components/editor/enhanced-properties-panel";
+import FloatingControls from "@/components/editor/floating-controls";
+import { Save, Eye, Download, Code, Upload, Globe, Database, Server, Wifi } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
@@ -29,6 +30,28 @@ import ErrorNotification from "@/components/ui/error-notification";
 import AlignmentGuides from "@/components/editor/alignment-guides";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
+// Configuration multi-backend pour drag and drop
+const HTML5toTouch: MultiBackendOptions = {
+  backends: [
+    {
+      id: 'html5',
+      backend: HTML5Backend,
+      transition: (event: any) => !event.nativeEvent?.touches?.length
+    },
+    {
+      id: 'touch',
+      backend: TouchBackend,
+      options: { enableMouseEvents: true },
+      preview: true,
+      transition: (event: any) => event.nativeEvent?.touches?.length > 0
+    }
+  ]
+};
 
 // Fonction utilitaire pour générer le HTML de prévisualisation
 function generatePreviewHTML(project: Project): string {
@@ -73,763 +96,738 @@ function generatePreviewHTML(project: Project): string {
       }
     }
 
-    // Contenu et enfants avec formatage amélioré
-    const content = component.content || '';
-    const children = component.children?.map(child => renderComponent(child, indent + 2)).join('\n') || '';
-
-    if (content && children) {
-      return `${indentStr}${openingTag}\n${childIndentStr}${content}\n${children}\n${indentStr}</${tag}>`;
-    } else if (content) {
-      return `${indentStr}${openingTag}\n${childIndentStr}${content}\n${indentStr}</${tag}>`;
-    } else if (children) {
-      return `${indentStr}${openingTag}\n${children}\n${indentStr}</${tag}>`;
+    if (component.children && component.children.length > 0) {
+      const childrenHTML = component.children
+        .map(child => renderComponent(child, indent + 2))
+        .join('\n');
+      return `${indentStr}${openingTag}\n${childrenHTML}\n${indentStr}</${tag}>`;
     } else {
-      return `${indentStr}${openingTag}</${tag}>`;
+      const content = component.content || '';
+      if (content) {
+        return `${indentStr}${openingTag}${content}</${tag}>`;
+      } else {
+        return `${indentStr}${openingTag}</${tag}>`;
+      }
     }
   };
 
-  return `
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${currentPage?.content?.meta?.title || project.name}</title>
-      <style>
-        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
-        ${currentPage?.content?.styles || ''}
-      </style>
-    </head>
-    <body>
-      <div class="container">
-${pageStructure.map(component => renderComponent(component, 4)).join('\n')}
-      </div>
-      <script>${currentPage?.content?.scripts || ''}</script>
-    </body>
-    </html>
-  `;
+  const pageContent = pageStructure.map(component => renderComponent(component)).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${project.content?.meta?.title || project.name}</title>
+  <meta name="description" content="${project.content?.meta?.description || project.description || ''}">
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+    ${currentPage?.content?.styles || ''}
+  </style>
+</head>
+<body>
+${pageContent}
+  <script>
+    ${currentPage?.content?.scripts || ''}
+  </script>
+</body>
+</html>`;
+}
+
+// Configuration FTP
+interface FTPConfig {
+  host: string;
+  username: string;
+  password: string;
+  port: number;
+  directory: string;
+  autoUpload: boolean;
 }
 
 export default function Editor() {
-  const { projectId } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [, setLocation] = useLocation();
-  const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
+  const isMobile = useIsMobile();
+  const { sidebarOpen, setSidebarOpen } = useSidebarContext();
 
+  // États de l'interface
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
-  const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
-  const [showCode, setShowCode] = useState(false);
+  const [showLeftPanel, setShowLeftPanel] = useState(!isMobile);
+  const [showRightPanel, setShowRightPanel] = useState(!isMobile);
+  const [showMainNav, setShowMainNav] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
-  const [hideComponentPanel, setHideComponentPanel] = useState(false);
-  const [hideRightPanel, setHideRightPanel] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
-  const [touchMode, setTouchMode] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [undoStack, setUndoStack] = useState<Project[]>([]);
-  const [redoStack, setRedoStack] = useState<Project[]>([]);
-  const [showCollaborationPanel, setShowCollaborationPanel] = useState(false);
-  const [collaborationEnabled, setCollaborationEnabled] = useState(true);
+  const [showCode, setShowCode] = useState(false);
+  const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [showFTPDialog, setShowFTPDialog] = useState(false);
+  const [ftpConfig, setFtpConfig] = useState<FTPConfig>({
+    host: '',
+    username: '',
+    password: '',
+    port: 21,
+    directory: '/',
+    autoUpload: false
+  });
 
-  // Mobile detection
-  const { isMobile, isTablet, isMobileOrTablet } = useIsMobile();
+  // États de l'éditeur
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [isLivePreview, setIsLivePreview] = useState(true);
 
   // Collaboration
-  const collaboration = useCollaboration({
-    projectId: projectId || '',
-    userId: 'user-' + Math.random().toString(36).substr(2, 9), // TODO: Use real user ID
-    userName: 'Utilisateur', // TODO: Use real user name
-    enabled: collaborationEnabled && !!projectId
+  const {
+    users,
+    currentUser,
+    userCursor,
+    componentHighlight,
+    isConnected,
+    updateCursor,
+    updateComponentHighlight,
+    broadcastChange,
+    onUserJoin,
+    onUserLeave
+  } = useCollaboration(id || '', selectedComponent?.id);
+
+  // Requête pour charger le projet
+  const { data: project, isLoading, error, refetch } = useQuery({
+    queryKey: [`/api/projects/${id}`],
+    enabled: !!id,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
   });
 
-  // Refs pour la détection de curseur
-  const editorContainerRef = useRef<HTMLDivElement>(null);
-
-  // Local state for editor changes before saving
-  const [localProject, setLocalProject] = useState<Project | null>(null);
-
-  // Auto-hide panels on mobile and set touch mode
-  useEffect(() => {
-    setTouchMode(isMobileOrTablet);
-    if (isMobile) {
-      setHideComponentPanel(true);
-      setHideRightPanel(true);
-    }
-  }, [isMobile, isMobileOrTablet]);
-
-  // Gestion des événements de curseur pour la collaboration
-  useEffect(() => {
-    if (!collaborationEnabled || !collaboration.isConnected) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (editorContainerRef.current) {
-        const rect = editorContainerRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        collaboration.updateCursor(x, y);
-      }
-    };
-
-    const container = editorContainerRef.current;
-    if (container) {
-      container.addEventListener('mousemove', handleMouseMove);
-      return () => container.removeEventListener('mousemove', handleMouseMove);
-    }
-  }, [collaboration, collaborationEnabled]);
-
-  // Synchroniser la sélection de composant avec la collaboration
-  useEffect(() => {
-    if (selectedComponent && collaboration.isConnected) {
-      collaboration.selectComponent(selectedComponent.id);
-    }
-  }, [selectedComponent, collaboration]);
-
-  // Gestion des changements collaboratifs
-  const handleCollaborativeChange = useCallback((type: string, data: any) => {
-    if (!collaboration.isConnected) return;
-
-    collaboration.sendEvent({
-      type: type as any,
-      data
-    });
-  }, [collaboration]);
-
-  const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
-    queryKey: ["/api/projects", projectId],
-    enabled: !!projectId,
-  });
-
-  // Synchronize server project with local state
-  useEffect(() => {
-    if (project && (!localProject || project.id !== localProject.id)) {
-      setLocalProject(project);
-      setHasUnsavedChanges(false);
-      setUndoStack([]);
-      setRedoStack([]);
-    }
-  }, [project, localProject]);
-
-  const saveMutation = useMutation({
-    mutationFn: async (projectData: Project) => {
-      // Ensure description is never null and clean up the data
-      const cleanedProjectData = {
-        ...projectData,
-        description: projectData.description || "",
-        // Ensure all required fields are present
-        name: projectData.name || "Untitled Project",
-        type: projectData.type || "standalone",
-        content: projectData.content || {},
-        settings: projectData.settings || {}
-      };
-      return apiRequest("PATCH", `/api/projects/${projectData.id}`, cleanedProjectData);
+  // Mutation pour sauvegarder le projet
+  const updateProjectMutation = useMutation({
+    mutationFn: async (updatedProject: Partial<Project>) => {
+      if (!id) throw new Error("No project ID");
+      return apiRequest(`/api/projects/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(updatedProject)
+      });
     },
     onSuccess: () => {
-      setHasUnsavedChanges(false);
-      toast({
-        title: "Projet sauvegardé",
-        description: "Vos modifications ont été enregistrées avec succès.",
-      });
-
-      // Refresh queries after successful save
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
-      }, 100);
+      toast({ title: "Projet sauvegardé", description: "Vos modifications ont été sauvegardées." });
+      queryClient.invalidateQueries({ queryKey: [`/api/projects/${id}`] });
     },
-    onError: (error) => {
-      console.error("Save failed:", error);
-      setErrorMessage("Erreur lors de la sauvegarde du projet");
+    onError: (error: any) => {
       toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder le projet.",
-        variant: "destructive",
+        title: "Erreur de sauvegarde",
+        description: error.message || "Impossible de sauvegarder le projet",
+        variant: "destructive"
       });
-    },
+    }
   });
 
-  const handleSave = useCallback(async () => {
-    if (!localProject) return;
+  // Sauvegarde automatique avec gestion de l'historique
+  const saveProject = useCallback(async (projectData?: Partial<Project>) => {
+    if (!project || !id) return;
 
-    await saveMutation.mutateAsync(localProject);
-  }, [localProject, saveMutation]);
+    const updatedProject = projectData || project;
 
-  // Auto-save functionality (disabled by default)
-  useEffect(() => {
-    if (!autoSaveEnabled || !hasUnsavedChanges || !localProject) return;
+    // Ajouter à l'historique
+    setHistory(prev => {
+      const newHistory = [...prev.slice(0, historyIndex + 1), { ...updatedProject }];
+      if (newHistory.length > 50) { // Limiter l'historique
+        newHistory.shift();
+        return newHistory;
+      }
+      return newHistory;
+    });
+    setHistoryIndex(prev => prev + 1);
 
-    const autoSaveTimer = setTimeout(() => {
-      saveMutation.mutate(localProject);
-    }, 3000); // Auto-save after 3 seconds of inactivity
+    // Sauvegarder
+    updateProjectMutation.mutate(updatedProject);
 
-    return () => clearTimeout(autoSaveTimer);
-  }, [localProject, hasUnsavedChanges, autoSaveEnabled, saveMutation]);
-
-  const handleComponentUpdate = useCallback((updatedProject: Project) => {
-    // Add current state to undo stack
-    if (localProject) {
-      setUndoStack(prev => [...prev.slice(-19), localProject]); // Keep last 20 states
-      setRedoStack([]); // Clear redo stack on new change
+    // Broadcast les changements pour la collaboration
+    if (broadcastChange) {
+      broadcastChange('project:update', updatedProject);
     }
+  }, [project, id, updateProjectMutation, broadcastChange, historyIndex]);
 
-    setLocalProject(updatedProject);
-    setHasUnsavedChanges(true);
-  }, [localProject]);
+  // Fonction pour ajouter un composant
+  const handleAddComponent = useCallback((componentType: string, position?: { x: number; y: number }) => {
+    if (!project || !id) return;
 
-  const handleUndo = useCallback(() => {
-    if (undoStack.length === 0 || !localProject) return;
+    const newComponent = createComponent(componentType, position);
+    const currentPage = project.content?.pages?.[0];
 
-    const previousState = undoStack[undoStack.length - 1];
-    setRedoStack(prev => [...prev, localProject]);
-    setUndoStack(prev => prev.slice(0, -1));
-    setLocalProject(previousState);
-    setHasUnsavedChanges(true);
-  }, [undoStack, localProject]);
+    if (!currentPage?.content?.structure) return;
 
-  const handleRedo = useCallback(() => {
-    if (redoStack.length === 0) return;
-
-    const nextState = redoStack[redoStack.length - 1];
-    if (localProject) {
-      setUndoStack(prev => [...prev, localProject]);
-    }
-    setRedoStack(prev => prev.slice(0, -1));
-    setLocalProject(nextState);
-    setHasUnsavedChanges(true);
-  }, [redoStack, localProject]);
-
-  // Gestion du double-clic pour ajouter des composants
-  const handleComponentDoubleClick = useCallback((componentType: string) => {
-    if (!localProject) return;
-
-    // Ajouter le composant au centre de l'éditeur
-    const centerX = 200;
-    const centerY = 100;
-    
-    const newComponent = createComponent(componentType);
-    const baseWidths: Record<string, string> = {
-      'container': '250px', 'section': '280px', 'header': '300px', 'footer': '300px',
-      'heading': '200px', 'paragraph': '220px', 'image': '180px', 'button': '120px',
-      'link': '100px', 'form': '240px', 'list': '180px', 'video': '200px',
-      'audio': '200px', 'calendar': '200px', 'contact': '200px', 'testimonial': '220px', 'pricing': '200px'
-    };
-    const baseHeights: Record<string, string> = {
-      'container': '120px', 'section': '150px', 'header': '80px', 'footer': '80px',
-      'heading': '40px', 'paragraph': '60px', 'image': '120px', 'button': '36px',
-      'link': '24px', 'form': '200px', 'list': '100px', 'video': '120px',
-      'audio': '50px', 'calendar': '200px', 'contact': '150px', 'testimonial': '120px', 'pricing': '200px'
-    };
-
-    newComponent.styles = {
-      ...newComponent.styles,
-      position: 'absolute',
-      left: `${centerX}px`,
-      top: `${centerY}px`,
-      width: baseWidths[componentType] || '180px',
-      height: baseHeights[componentType] || '80px',
-      backgroundColor: newComponent.styles?.backgroundColor || 'transparent',
-      color: newComponent.styles?.color || '#000000',
-      fontSize: newComponent.styles?.fontSize || '14px',
-      fontFamily: newComponent.styles?.fontFamily || 'Inter, sans-serif',
-      padding: newComponent.styles?.padding || '8px',
-      margin: newComponent.styles?.margin || '0px',
-      border: newComponent.styles?.border || '1px solid #e5e7eb',
-      borderRadius: newComponent.styles?.borderRadius || '6px',
-      zIndex: '1000'
-    };
-
-    const updatedStructure = [...(localProject.content?.pages?.[0]?.content?.structure || []), newComponent];
     const updatedProject = {
-      ...localProject,
+      ...project,
       content: {
-        ...localProject.content,
+        ...project.content,
         pages: [{
-          ...localProject.content?.pages?.[0],
+          ...currentPage,
           content: {
-            ...localProject.content?.pages?.[0]?.content,
-            structure: updatedStructure
+            ...currentPage.content,
+            structure: [...currentPage.content.structure, newComponent]
           }
         }]
       }
     };
 
-    handleComponentUpdate(updatedProject);
+    saveProject(updatedProject);
     setSelectedComponent(newComponent);
+
+    if ('vibrate' in navigator) {
+      navigator.vibrate([30, 10, 30]);
+    }
 
     toast({
       title: "Composant ajouté",
-      description: `${componentType} ajouté au centre de l'éditeur`,
+      description: `${componentType} a été ajouté à la page.`
     });
-  }, [localProject, handleComponentUpdate, setSelectedComponent, toast]);
+  }, [project, id, saveProject, toast]);
+
+  // Fonction pour mettre à jour un composant
+  const handleComponentUpdate = useCallback((updatedComponent: ComponentDefinition) => {
+    if (!project || !id) return;
+
+    const updateComponentInStructure = (components: ComponentDefinition[]): ComponentDefinition[] => {
+      return components.map(comp => {
+        if (comp.id === updatedComponent.id) {
+          return updatedComponent;
+        }
+        if (comp.children) {
+          return {
+            ...comp,
+            children: updateComponentInStructure(comp.children)
+          };
+        }
+        return comp;
+      });
+    };
+
+    const currentPage = project.content?.pages?.[0];
+    if (!currentPage?.content?.structure) return;
+
+    const updatedProject = {
+      ...project,
+      content: {
+        ...project.content,
+        pages: [{
+          ...currentPage,
+          content: {
+            ...currentPage.content,
+            structure: updateComponentInStructure(currentPage.content.structure)
+          }
+        }]
+      }
+    };
+
+    saveProject(updatedProject);
+    setSelectedComponent(updatedComponent);
+  }, [project, id, saveProject]);
+
+  // Fonction pour supprimer un composant
+  const handleComponentDelete = useCallback((componentId: string) => {
+    if (!project || !id) return;
+
+    const removeComponentFromStructure = (components: ComponentDefinition[]): ComponentDefinition[] => {
+      return components.filter(comp => {
+        if (comp.id === componentId) {
+          return false;
+        }
+        if (comp.children) {
+          comp.children = removeComponentFromStructure(comp.children);
+        }
+        return true;
+      });
+    };
+
+    const currentPage = project.content?.pages?.[0];
+    if (!currentPage?.content?.structure) return;
+
+    const updatedProject = {
+      ...project,
+      content: {
+        ...project.content,
+        pages: [{
+          ...currentPage,
+          content: {
+            ...currentPage.content,
+            structure: removeComponentFromStructure(currentPage.content.structure)
+          }
+        }]
+      }
+    };
+
+    saveProject(updatedProject);
+    setSelectedComponent(null);
+
+    toast({
+      title: "Composant supprimé",
+      description: "Le composant a été supprimé de la page."
+    });
+  }, [project, id, saveProject, toast]);
+
+  // Fonction d'export
+  const handleExport = useCallback(() => {
+    if (!project) return;
+
+    const html = generatePreviewHTML(project);
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${project.name}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export réussi",
+      description: "Le fichier HTML a été téléchargé."
+    });
+  }, [project, toast]);
+
+  // Fonction FTP Upload
+  const handleFTPUpload = useCallback(async () => {
+    if (!project) return;
+
+    // Vérifier la configuration FTP
+    const projectFTPConfig = project.settings?.ftp || ftpConfig;
+    if (!projectFTPConfig.host || !projectFTPConfig.username) {
+      setShowFTPDialog(true);
+      return;
+    }
+
+    try {
+      const html = generatePreviewHTML(project);
+      
+      // Simuler l'upload FTP (dans un vrai projet, cela appellerait un endpoint backend)
+      const response = await apiRequest('/api/ftp/upload', {
+        method: 'POST',
+        body: JSON.stringify({
+          config: projectFTPConfig,
+          content: html,
+          filename: `${project.name}.html`
+        })
+      });
+
+      toast({
+        title: "Upload FTP réussi",
+        description: "Le site a été mis en ligne avec succès."
+      });
+
+    } catch (error: any) {
+      toast({
+        title: "Erreur FTP",
+        description: error.message || "Impossible d'uploader le fichier",
+        variant: "destructive"
+      });
+    }
+  }, [project, ftpConfig, toast]);
+
+  // Sauvegarde de la configuration FTP
+  const saveFTPConfig = useCallback(() => {
+    if (!project || !id) return;
+
+    const updatedProject = {
+      ...project,
+      settings: {
+        ...project.settings,
+        ftp: ftpConfig
+      }
+    };
+
+    saveProject(updatedProject);
+    setShowFTPDialog(false);
+
+    toast({
+      title: "Configuration FTP sauvegardée",
+      description: "Les paramètres FTP ont été mis à jour."
+    });
+  }, [project, id, ftpConfig, saveProject, toast]);
+
+  // Gestion des raccourcis clavier
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 's':
+            e.preventDefault();
+            saveProject();
+            break;
+          case 'z':
+            e.preventDefault();
+            if (e.shiftKey) {
+              // Redo
+              if (historyIndex < history.length - 1) {
+                const nextState = history[historyIndex + 1];
+                setHistoryIndex(historyIndex + 1);
+                saveProject(nextState);
+              }
+            } else {
+              // Undo
+              if (historyIndex > 0) {
+                const prevState = history[historyIndex - 1];
+                setHistoryIndex(historyIndex - 1);
+                saveProject(prevState);
+              }
+            }
+            break;
+          case 'e':
+            e.preventDefault();
+            handleExport();
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saveProject, handleExport, history, historyIndex]);
+
+  // Adaptation mobile
+  useEffect(() => {
+    if (isMobile) {
+      setShowLeftPanel(false);
+      setShowRightPanel(false);
+      setShowMainNav(false);
+    }
+  }, [isMobile]);
+
+  // Chargement du projet
+  useEffect(() => {
+    if (project && history.length === 0) {
+      setHistory([{ ...project }]);
+      setHistoryIndex(0);
+    }
+  }, [project, history.length]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-theme-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary mx-auto mb-4"></div>
+          <p className="text-theme-text">Chargement du projet...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !project) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-theme-background">
+        <ErrorNotification 
+          title="Erreur de chargement"
+          message="Impossible de charger le projet"
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
 
   const getViewportClass = () => {
-    switch (viewMode) {
-      case "mobile": return "w-full max-w-sm";
-      case "tablet": return "w-full max-w-2xl";
-      default: return "w-full";
+    switch (viewport) {
+      case 'mobile': return 'w-80 min-h-screen border border-gray-300 mx-auto';
+      case 'tablet': return 'w-4/5 max-w-4xl min-h-screen border border-gray-300 mx-auto';
+      default: return 'w-full min-h-screen';
     }
   };
 
-  if (isProjectLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">Chargement de l'éditeur...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!localProject) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <Card className="p-8 text-center shadow-xl">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Projet introuvable</h2>
-          <p className="text-gray-600 mb-4">Le projet demandé n'existe pas ou a été supprimé.</p>
-          <Button onClick={() => setLocation("/projects")} className="rounded-lg">
-            Retour aux projets
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  // Configuration du multi-backend pour le drag and drop
-  const backendOptions: MultiBackendOptions = {
-    backends: [
-      {
-        id: 'html5',
-        backend: HTML5Backend,
-        transition: { 
-          event: 'pointer'
-        }
-      },
-      {
-        id: 'touch',
-        backend: TouchBackend,
-        options: {
-          enableMouseEvents: true,
-          delayTouchStart: isMobileOrTablet ? 100 : 150,
-          delayMouseStart: 0,
-          touchSlop: isMobileOrTablet ? 15 : 20,
-          enableTouchEvents: true,
-          enableKeyboardEvents: false,
-          scrollAngleRanges: [
-            { start: 30, end: 150 },
-            { start: 210, end: 330 }
-          ],
-          ignoreContextMenu: true,
-          enableHoverOutsideTarget: false
-        },
-        preview: true,
-        transition: {
-          event: 'pointer'
-        }
-      }
-    ]
-  };
-
   return (
-    <DndProvider backend={MultiBackend} options={backendOptions}>
-      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        {errorMessage && (
-          <ErrorNotification 
-            error={errorMessage} 
-            onDismiss={() => setErrorMessage(null)} 
+    <DndProvider backend={MultiBackend} options={HTML5toTouch}>
+      <div className="h-screen bg-theme-background flex flex-col relative overflow-hidden">
+        {/* Navigation principale conditionnelle */}
+        {showMainNav && (
+          <Header 
+            title={project.name}
+            subtitle={`Projet ${project.type} - ${project.content?.pages?.length || 0} page(s)`}
+            actions={
+              <div className="flex items-center gap-2">
+                {/* Badge de statut */}
+                <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+                  {isConnected ? `${users.length} en ligne` : 'Hors ligne'}
+                </Badge>
+
+                {/* Type de projet */}
+                <Badge variant="outline" className="text-xs">
+                  {project.type === 'single-page' && 'Page unique'}
+                  {project.type === 'multi-page' && 'Multi-pages'}
+                  {project.type === 'ftp-sync' && 'Sync FTP'}
+                  {project.type === 'ftp-upload' && 'Upload FTP'}
+                </Badge>
+
+                {/* Indicateur de sauvegarde */}
+                {updateProjectMutation.isPending && (
+                  <Badge variant="secondary" className="text-xs animate-pulse">
+                    Sauvegarde...
+                  </Badge>
+                )}
+
+                {/* Bouton de collaboration */}
+                <CollaborationButton isConnected={isConnected} userCount={users.length} />
+              </div>
+            }
           />
         )}
 
-        
-
-        {/* Enhanced Header */}
-        <div className="flex flex-col w-full">
-          <div className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-3 space-y-3 lg:space-y-0">
-              {/* Project Info */}
-              <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
-                <div className="flex items-center space-x-2 min-w-0">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{localProject.name}</h1>
-                  {hasUnsavedChanges && (
-                    <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs flex-shrink-0">
-                      Non sauvegardé
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2 justify-end">
-                {/* Undo/Redo */}
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleUndo}
-                    disabled={undoStack.length === 0}
-                    className="rounded-lg"
-                    title="Annuler"
-                  >
-                    <Undo className="h-4 w-4" />
-                    <span className="sr-only sm:not-sr-only sm:ml-2 hidden md:inline">Annuler</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRedo}
-                    disabled={redoStack.length === 0}
-                    className="rounded-lg"
-                    title="Refaire"
-                  >
-                    <Redo className="h-4 w-4" />
-                    <span className="sr-only sm:not-sr-only sm:ml-2 hidden md:inline">Refaire</span>
-                  </Button>
-                </div>
-
-                {/* View Mode Toggles */}
-                <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
-                  <Button
-                    variant={viewMode === "desktop" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("desktop")}
-                    className="rounded-md"
-                    title="Vue bureau"
-                  >
-                    <Monitor className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "tablet" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("tablet")}
-                    className="rounded-md"
-                    title="Vue tablette"
-                  >
-                    <Tablet className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "mobile" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("mobile")}
-                    className="rounded-md"
-                    title="Vue mobile"
-                  >
-                    <Smartphone className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Collaboration Button */}
-                <CollaborationButton
-                  isConnected={collaboration.isConnected}
-                  isConnecting={collaboration.isConnecting}
-                  users={collaboration.users}
-                  stats={collaboration.stats}
-                  onToggle={() => setCollaborationEnabled(!collaborationEnabled)}
-                  onOpenPanel={() => setShowCollaborationPanel(!showCollaborationPanel)}
-                  error={collaboration.error}
-                />
-
-                {/* Editor Modes */}
-                <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
-                  <Button
-                    variant={!showCode && !showPreview ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => { setShowCode(false); setShowPreview(false); }}
-                    className="rounded-md"
-                    title="Mode éditeur"
-                  >
-                    <Layers className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={showCode ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => { setShowCode(!showCode); setShowPreview(false); }}
-                    className="rounded-md"
-                    title="Voir le code"
-                  >
-                    <Code className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={showPreview ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => { setShowPreview(!showPreview); setShowCode(false); }}
-                    className="rounded-md"
-                    title="Prévisualiser"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Settings and Auto-save - Hidden on small screens */}
-                <div className="hidden lg:flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowAlignmentGuides(!showAlignmentGuides)}
-                    className={`rounded-lg ${showAlignmentGuides ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
-                    title="Guides d'alignement"
-                  >
-                    <Grid className="h-4 w-4" />
-                  </Button>
-
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="autoSave"
-                      checked={autoSaveEnabled}
-                      onChange={(e) => setAutoSaveEnabled(e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                    <label htmlFor="autoSave" className="text-sm text-gray-600 whitespace-nowrap">Auto-save</label>
-                  </div>
-                </div>
-
-                {/* Save Button */}
-                <Button 
-                  onClick={handleSave}
-                  disabled={!hasUnsavedChanges || saveMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
-                >
-                  <Save className="h-4 w-4" />
-                  <span className="ml-2 hidden sm:inline">
-                    {saveMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
-                  </span>
-                </Button>
-              </div>
-            </div>
+        {/* Zone principale avec panneaux */}
+        <div className="flex-1 flex relative">
+          {/* Panneau gauche - Composants */}
+          <div className={`
+            ${showLeftPanel ? 'editor-panel-compact' : 'w-0'}
+            transition-all duration-300 border-r border-theme-border bg-theme-surface z-10
+            ${showLeftPanel ? '' : 'overflow-hidden'}
+          `}>
+            {showLeftPanel && (
+              <EnhancedComponentPalette
+                onDoubleClick={handleAddComponent}
+                className="h-full"
+              />
+            )}
           </div>
 
-          {/* Main Content */}
-          <div className="flex flex-1 overflow-hidden">
-            {/* Component Palette */}
-            {!hideComponentPanel && (
-              <>
-                {/* Overlay for mobile/tablet */}
-                {isMobileOrTablet && (
-                  <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
-                    onClick={() => setHideComponentPanel(true)}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
-                )}
-                <div className={`
-                  ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 bg-white shadow-2xl' : 'w-40 md:w-44 lg:w-48'} 
-                  ${isMobile ? 'w-64 max-w-[75vw]' : isTablet ? 'w-72 max-w-[50vw]' : ''} 
-                  bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300
-                  ${isMobileOrTablet ? 'animate-slide-in-left' : ''}
-                `}>
-                  <div className="p-3 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-base font-semibold text-gray-900">Composants</h2>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setHideComponentPanel(true)}
-                        className="rounded-lg"
-                      >
-                        <PanelLeftClose className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <ComponentPalette onComponentDoubleClick={handleComponentDoubleClick} />
-                </div>
-              </>
-            )}
+          {/* Zone centrale - Éditeur */}
+          <div className="flex-1 flex flex-col relative">
+            {/* Barre d'outils de l'éditeur */}
+            <div className="bg-theme-surface border-b border-theme-border p-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={showPreview ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  {showPreview ? 'Édition' : 'Aperçu'}
+                </Button>
+                
+                <Button
+                  variant={showCode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowCode(!showCode)}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Code className="w-3 h-3 mr-1" />
+                  Code
+                </Button>
 
-            {/* Editor Area */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {showPreview ? (
-                <div className="flex-1 overflow-auto bg-gray-100 p-6">
-                  <div className={`mx-auto bg-white shadow-xl rounded-xl border border-gray-200 transition-all duration-300 ${getViewportClass()}`}>
+                <Separator orientation="vertical" className="h-4" />
+
+                <div className="flex items-center gap-1 text-xs text-theme-text-secondary">
+                  <span>Viewport:</span>
+                  <Button
+                    variant={viewport === 'desktop' ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewport('desktop')}
+                    className="h-6 w-6 p-0"
+                  >
+                    💻
+                  </Button>
+                  <Button
+                    variant={viewport === 'tablet' ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewport('tablet')}
+                    className="h-6 w-6 p-0"
+                  >
+                    📱
+                  </Button>
+                  <Button
+                    variant={viewport === 'mobile' ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewport('mobile')}
+                    className="h-6 w-6 p-0"
+                  >
+                    📱
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => saveProject()}
+                  disabled={updateProjectMutation.isPending}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Save className="w-3 h-3 mr-1" />
+                  Sauver
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExport}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Export
+                </Button>
+
+                {(project.type === 'ftp-sync' || project.type === 'ftp-upload') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFTPUpload}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Upload className="w-3 h-3 mr-1" />
+                    FTP
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Zone d'édition */}
+            <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 p-4">
+              <div className={getViewportClass()}>
+                {showCode ? (
+                  <CodePreview project={project} />
+                ) : showPreview ? (
+                  <div className="bg-white min-h-full">
                     <iframe
+                      srcDoc={generatePreviewHTML(project)}
+                      className="w-full h-full border-0"
                       title="Preview"
-                      className="w-full h-full border-0 rounded-xl"
-                      srcDoc={generatePreviewHTML(localProject)}
                       style={{ minHeight: '600px' }}
                     />
                   </div>
-                </div>
-              ) : showCode ? (
-                <div className="flex-1 overflow-auto bg-gray-900 text-white p-6">
-                  <div className="bg-gray-800 rounded-xl shadow-xl border border-gray-700 overflow-hidden">
-                    <CodePreview project={localProject} />
+                ) : (
+                  <div className="relative bg-white min-h-full">
+                    <VisualEditor
+                      project={project}
+                      selectedComponent={selectedComponent}
+                      onComponentSelect={setSelectedComponent}
+                      onComponentUpdate={handleComponentUpdate}
+                      onComponentDelete={handleComponentDelete}
+                      onComponentAdd={handleAddComponent}
+                      isLivePreview={isLivePreview}
+                    />
+                    <AlignmentGuides />
                   </div>
-                </div>
-              ) : (
-                <div 
-                  className="flex-1 overflow-auto bg-gray-100 p-6" 
-                  ref={editorContainerRef}
-                >
-                  <div className={`mx-auto bg-white shadow-xl rounded-xl border border-gray-200 transition-all duration-300 ${getViewportClass()}`}>
-                    <div className="relative overflow-hidden rounded-xl">
-                      <VisualEditor
-                        project={localProject}
-                        selectedComponent={selectedComponent}
-                        onComponentSelect={(component) => {
-                          setSelectedComponent(component);
-                          if (component && collaboration.isConnected) {
-                            collaboration.selectComponent(component.id);
-                          }
-                        }}
-                        onComponentUpdate={(component) => {
-                          handleComponentUpdate(component);
-                          handleCollaborativeChange('component_update', { component });
-                        }}
-                        showAlignmentGuides={showAlignmentGuides}
-                      />
-
-                      {/* Curseurs collaboratifs */}
-                      <UserCursors 
-                        users={collaboration.users} 
-                        containerRef={editorContainerRef} 
-                      />
-
-                      {/* Surbrillance des composants sélectionnés par d'autres utilisateurs */}
-                      <ComponentHighlight 
-                        users={collaboration.users}
-                        selectedComponentId={selectedComponent?.id}
-                      />
-
-                      {/* Alignment guides overlay */}
-                      <AlignmentGuides
-                        showGuides={showAlignmentGuides}
-                        selectedComponent={selectedComponent ? {
-                          x: parseInt(selectedComponent.styles?.left?.replace('px', '') || '0'),
-                          y: parseInt(selectedComponent.styles?.top?.replace('px', '') || '0'),
-                          width: parseInt(selectedComponent.styles?.width?.replace('px', '') || '100'),
-                          height: parseInt(selectedComponent.styles?.height?.replace('px', '') || '50')
-                        } : null}
-                        containerBounds={{ width: 800, height: 600 }}
-                        allComponents={localProject.content?.pages?.[0]?.content?.structure?.map(comp => ({
-                          id: comp.id,
-                          x: parseInt(comp.styles?.left?.replace('px', '') || '0'),
-                          y: parseInt(comp.styles?.top?.replace('px', '') || '0'),
-                          width: parseInt(comp.styles?.width?.replace('px', '') || '100'),
-                          height: parseInt(comp.styles?.height?.replace('px', '') || '50')
-                        })) || []}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Properties Panel */}
-            {!hideRightPanel && (
-              <>
-                {/* Overlay for mobile/tablet */}
-                {isMobileOrTablet && (
-                  <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
-                    onClick={() => setHideRightPanel(true)}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
                 )}
-                <div className={`
-                  ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 bg-white shadow-2xl' : 'w-40 md:w-44 lg:w-48'} 
-                  ${isMobile ? 'w-64 max-w-[75vw]' : isTablet ? 'w-72 max-w-[50vw]' : ''} 
-                  bg-white border-l border-gray-200 overflow-y-auto transition-all duration-300
-                  ${isMobileOrTablet ? 'animate-slide-in-right' : ''}
-                `}>
-                  <div className="p-3 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-base font-semibold text-gray-900">Propriétés</h2>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setHideRightPanel(true)}
-                        className="rounded-lg"
-                      >
-                        <PanelRightClose className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <PropertiesPanel
-                    component={selectedComponent}
-                    onComponentUpdate={(component) => {
-                      const updatedProject = { ...localProject };
-                      if (updatedProject.content?.pages?.[0]?.content?.structure) {
-                        const structure = updatedProject.content.pages[0].content.structure;
-                        const index = structure.findIndex(c => c.id === component.id);
-                        if (index !== -1) {
-                          structure[index] = component;
-                          handleComponentUpdate(updatedProject);
-                        }
-                      }
-                    }}
-                    project={localProject}
-                    onComponentSelect={setSelectedComponent}
-                    onComponentDelete={(componentId) => {
-                      const updatedProject = { ...localProject };
-                      if (updatedProject.content?.pages?.[0]?.content?.structure) {
-                        updatedProject.content.pages[0].content.structure = 
-                          updatedProject.content.pages[0].content.structure.filter(c => c.id !== componentId);
-                        handleComponentUpdate(updatedProject);
-                        setSelectedComponent(null);
-                      }
-                    }}
-                    hideMainSidebar={hideMainSidebar}
-                    setHideMainSidebar={setHideMainSidebar}
-                  />
-                </div>
-              </>
-            )}
+              </div>
+            </div>
           </div>
 
-          {/* Panel Toggle Buttons - Positioned differently for mobile */}
-          <div className={`fixed flex space-x-2 z-30 ${
-            isMobileOrTablet ? 'bottom-4 left-1/2 transform -translate-x-1/2' : 'bottom-6 left-6'
-          }`}>
-            {hideComponentPanel && (
-              <Button
-                variant="outline"
-                size={isMobileOrTablet ? "default" : "sm"}
-                onClick={() => setHideComponentPanel(false)}
-                className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
-                title="Afficher les composants"
-              >
-                <PanelLeftOpen className="h-4 w-4" />
-                {isMobileOrTablet && <span className="ml-2">Composants</span>}
-              </Button>
-            )}
-            {hideRightPanel && (
-              <Button
-                variant="outline"
-                size={isMobileOrTablet ? "default" : "sm"}
-                onClick={() => setHideRightPanel(false)}
-                className="bg-white/90 backdrop-blur-sm shadow-lg rounded-xl"
-                title="Afficher les propriétés"
-              >
-                <PanelRightOpen className="h-4 w-4" />
-                {isMobileOrTablet && <span className="ml-2">Propriétés</span>}
-              </Button>
+          {/* Panneau droit - Propriétés */}
+          <div className={`
+            ${showRightPanel ? 'editor-panel-compact' : 'w-0'}
+            transition-all duration-300 border-l border-theme-border bg-theme-surface z-10
+            ${showRightPanel ? '' : 'overflow-hidden'}
+          `}>
+            {showRightPanel && (
+              <EnhancedPropertiesPanel
+                component={selectedComponent}
+                onComponentUpdate={handleComponentUpdate}
+                onComponentSelect={setSelectedComponent}
+                onComponentDelete={handleComponentDelete}
+                project={project}
+                className="h-full"
+              />
             )}
           </div>
         </div>
 
+        {/* Contrôles flottants */}
+        <FloatingControls
+          showLeftPanel={showLeftPanel}
+          showRightPanel={showRightPanel}
+          showMainNav={showMainNav}
+          showPreview={showPreview}
+          showCode={showCode}
+          viewport={viewport}
+          onToggleLeftPanel={() => setShowLeftPanel(!showLeftPanel)}
+          onToggleRightPanel={() => setShowRightPanel(!showRightPanel)}
+          onToggleMainNav={() => setShowMainNav(!showMainNav)}
+          onTogglePreview={() => setShowPreview(!showPreview)}
+          onToggleCode={() => setShowCode(!showCode)}
+          onViewportChange={setViewport}
+          onSave={() => saveProject()}
+          onExport={handleExport}
+          onUpload={(project.type === 'ftp-sync' || project.type === 'ftp-upload') ? handleFTPUpload : undefined}
+        />
+
+        {/* Curseurs des utilisateurs collaboratifs */}
+        <UserCursors users={users} currentUserId={currentUser?.id} />
+        {componentHighlight && (
+          <ComponentHighlight 
+            componentId={componentHighlight.componentId}
+            userId={componentHighlight.userId}
+          />
+        )}
+
         {/* Panneau de collaboration */}
-        {showCollaborationPanel && (
-          <>
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
-              onClick={() => setShowCollaborationPanel(false)}
-            />
-            <div className="fixed top-0 right-0 z-50 h-full shadow-2xl animate-slide-in-right">
-              <CollaborationPanel
-                isConnected={collaboration.isConnected}
-                isConnecting={collaboration.isConnecting}
-                users={collaboration.users}
-                currentUser={collaboration.currentUser}
-                error={collaboration.error}
-                stats={collaboration.stats}
-                onToggleCollaboration={() => setCollaborationEnabled(!collaborationEnabled)}
+        <CollaborationPanel 
+          users={users}
+          isConnected={isConnected}
+          onUserJoin={onUserJoin}
+          onUserLeave={onUserLeave}
+        />
+      </div>
+
+      {/* Dialog de configuration FTP */}
+      <Dialog open={showFTPDialog} onOpenChange={setShowFTPDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configuration FTP</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="ftp-host">Serveur FTP</Label>
+              <Input
+                id="ftp-host"
+                value={ftpConfig.host}
+                onChange={(e) => setFtpConfig(prev => ({ ...prev, host: e.target.value }))}
+                placeholder="ftp.exemple.com"
               />
             </div>
-          </>
-        )}
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="ftp-username">Nom d'utilisateur</Label>
+              <Input
+                id="ftp-username"
+                value={ftpConfig.username}
+                onChange={(e) => setFtpConfig(prev => ({ ...prev, username: e.target.value }))}
+                placeholder="utilisateur"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ftp-password">Mot de passe</Label>
+              <Input
+                id="ftp-password"
+                type="password"
+                value={ftpConfig.password}
+                onChange={(e) => setFtpConfig(prev => ({ ...prev, password: e.target.value }))}
+                placeholder="••••••••"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="ftp-port">Port</Label>
+                <Input
+                  id="ftp-port"
+                  type="number"
+                  value={ftpConfig.port}
+                  onChange={(e) => setFtpConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 21 }))}
+                  placeholder="21"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ftp-directory">Répertoire</Label>
+                <Input
+                  id="ftp-directory"
+                  value={ftpConfig.directory}
+                  onChange={(e) => setFtpConfig(prev => ({ ...prev, directory: e.target.value }))}
+                  placeholder="/public_html"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-4">
+              <Button variant="outline" onClick={() => setShowFTPDialog(false)}>
+                Annuler
+              </Button>
+              <Button onClick={saveFTPConfig}>
+                Sauvegarder et uploader
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DndProvider>
   );
 }

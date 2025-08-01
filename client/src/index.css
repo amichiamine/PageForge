@@ -4,43 +4,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Variables CSS pour les thèmes */
+/* Variables CSS pour les thèmes modernes avec couleurs pastelles */
 :root {
-  --color-primary: #6366f1;
+  /* Couleurs principales pastelles et sobres */
+  --color-primary: #a78bfa;
   --color-secondary: #8b5cf6;
-  --color-accent: #10b981;
-  --color-background: #ffffff;
+  --color-accent: #34d399;
+  --color-background: #fefefe;
   --color-surface: #f8fafc;
-  --color-text: #1f2937;
-  --color-text-secondary: #6b7280;
-  --color-border: #e5e7eb;
+  --color-text: #2d3748;
+  --color-text-secondary: #718096;
+  --color-border: #e2e8f0;
   
   /* Couleurs pastelles pour le thème moderne */
-  --pastel-pink: #fce7f3;
-  --pastel-blue: #dbeafe;
-  --pastel-green: #d1fae5;
-  --pastel-yellow: #fef3c7;
-  --pastel-purple: #e9d5ff;
-  --pastel-orange: #fed7aa;
+  --pastel-pink: #fef1f7;
+  --pastel-blue: #ebf4ff;
+  --pastel-green: #f0fff4;
+  --pastel-yellow: #fffbeb;
+  --pastel-purple: #f7f0ff;
+  --pastel-orange: #fffaf0;
+  --pastel-gray: #f7fafc;
+  --pastel-indigo: #f0f5ff;
+  --pastel-teal: #f0fdfa;
+  --pastel-red: #fef2f2;
+  
+  /* Couleurs de gradients pastels */
+  --gradient-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-blue: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  --gradient-green: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+  --gradient-pink: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
 }
 
 .dark {
-  --color-primary: #818cf8;
+  /* Mode sombre avec couleurs pastelles douces */
+  --color-primary: #c4b5fd;
   --color-secondary: #a78bfa;
-  --color-accent: #34d399;
+  --color-accent: #6ee7b7;
   --color-background: #0f172a;
   --color-surface: #1e293b;
   --color-text: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-border: #334155;
+  --color-text-secondary: #cbd5e0;
+  --color-border: #4a5568;
   
   /* Couleurs pastelles pour le mode sombre */
-  --pastel-pink: #374151;
-  --pastel-blue: #1e293b;
-  --pastel-green: #064e3b;
-  --pastel-yellow: #451a03;
-  --pastel-purple: #2e1065;
-  --pastel-orange: #431407;
+  --pastel-pink: #2d3748;
+  --pastel-blue: #2a4365;
+  --pastel-green: #22543d;
+  --pastel-yellow: #744210;
+  --pastel-purple: #553c9a;
+  --pastel-orange: #c05621;
+  --pastel-gray: #2d3748;
+  --pastel-indigo: #3c366b;
+  --pastel-teal: #234e52;
+  --pastel-red: #742a2a;
+  
+  /* Couleurs de gradients en mode sombre */
+  --gradient-purple: linear-gradient(135deg, #553c9a 0%, #6b46c1 100%);
+  --gradient-blue: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+  --gradient-green: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+  --gradient-pink: linear-gradient(135deg, #d53f8c 0%, #b83280 100%);
 }
 
 /* Classes utilitaires pour les couleurs personnalisées */
@@ -65,6 +87,97 @@
 .bg-pastel-yellow { background-color: var(--pastel-yellow); }
 .bg-pastel-purple { background-color: var(--pastel-purple); }
 .bg-pastel-orange { background-color: var(--pastel-orange); }
+.bg-pastel-gray { background-color: var(--pastel-gray); }
+.bg-pastel-indigo { background-color: var(--pastel-indigo); }
+.bg-pastel-teal { background-color: var(--pastel-teal); }
+.bg-pastel-red { background-color: var(--pastel-red); }
+
+/* Gradients pastels */
+.bg-gradient-purple { background: var(--gradient-purple); }
+.bg-gradient-blue { background: var(--gradient-blue); }
+.bg-gradient-green { background: var(--gradient-green); }
+.bg-gradient-pink { background: var(--gradient-pink); }
+
+/* Styles pour panneaux compacts */
+.editor-panel-compact {
+  width: 220px !important;
+  min-width: 220px !important;
+}
+
+.editor-panel-mini {
+  width: 180px !important;
+  min-width: 180px !important;
+}
+
+/* Boutons flottants */
+.floating-button {
+  position: fixed;
+  z-index: 1000;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--gradient-purple);
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.floating-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.floating-button:active {
+  transform: scale(0.95);
+}
+
+/* Navigation toggle button flottant */
+.nav-toggle-floating {
+  top: 20px;
+  left: 20px;
+  background: var(--gradient-blue);
+}
+
+/* Panel toggle buttons flottants */
+.panel-toggle-left {
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  background: var(--gradient-green);
+}
+
+.panel-toggle-right {
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: var(--gradient-pink);
+}
+
+/* Petites icônes pour composants */
+.component-icon-small {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* Titre compact */
+.compact-title {
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  margin: 0 !important;
+  padding: 0.25rem 0 !important;
+}
+
+/* Panel headers compacts */
+.panel-header-compact {
+  padding: 0.5rem !important;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
 
 /* Custom animations for responsive panels */
 @keyframes slide-in-left {

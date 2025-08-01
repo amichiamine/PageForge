@@ -13,7 +13,7 @@ export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description"),
-  type: text("type").notNull().default("standalone"), // standalone, vscode-integration, existing-project
+  type: text("type").notNull().default("single-page"), // single-page, multi-page, ftp-sync, ftp-upload
   template: text("template"),
   content: json("content").$type<ProjectContent>().notNull().default({}),
   settings: json("settings").$type<ProjectSettings>().notNull().default({}),
@@ -77,6 +77,14 @@ export interface ProjectSettings {
   deployment?: {
     type?: "cpanel" | "ftp" | "manual";
     config?: Record<string, any>;
+  };
+  ftp?: {
+    host?: string;
+    username?: string;
+    password?: string;
+    port?: number;
+    directory?: string;
+    autoUpload?: boolean;
   };
   vscode?: {
     workspacePath?: string;
@@ -151,7 +159,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
-  type: z.enum(["standalone", "vscode-integration", "existing-project"]),
+  type: z.enum(["single-page", "multi-page", "ftp-sync", "ftp-upload"]),
   template: z.string().optional(),
 });
 
