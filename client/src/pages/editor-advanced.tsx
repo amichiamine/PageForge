@@ -13,7 +13,7 @@ import Header from "@/components/layout/header";
 import { 
   Save, Eye, Download, Code, ArrowLeft, Wifi, Undo, Redo, Grid, Settings,
   PanelLeft, PanelRight, ChevronLeft, ChevronRight, Maximize2, Minimize2,
-  MousePointer, Square, Type, Image as ImageIcon, Layers
+  MousePointer, Square, Type, Image as ImageIcon, Layers, X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Project, ComponentDefinition } from "@shared/schema";
@@ -397,6 +397,9 @@ export default function EditorAdvanced() {
   // Panel states
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
+  const [leftPanelVisible, setLeftPanelVisible] = useState(true);
+  const [rightPanelVisible, setRightPanelVisible] = useState(true);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('Texte');
   
   // Page styles
@@ -670,47 +673,37 @@ export default function EditorAdvanced() {
 
               <Separator orientation="vertical" className="h-6" />
 
-              {/* View controls */}
-              <Button 
-                variant={showGrid ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowGrid(!showGrid)}
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-
+              {/* Point 4&5 - Contrôles des volets et menu burger POUR TOUS */}
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setShowCollaborationPanel(!showCollaborationPanel)}
+                onClick={() => setLeftPanelVisible(!leftPanelVisible)}
+                title="Basculer palette composants"
               >
-                <Wifi className="w-4 h-4 mr-2" />
-                {collaboration.isConnected ? 'Connecté' : 'Déconnecté'}
+                <PanelLeft className="w-4 h-4 mr-2" />
+                Palette
               </Button>
-
-              <Button variant="outline" size="sm" onClick={() => setShowCodePreview(true)}>
-                <Code className="w-4 h-4 mr-2" />
-                Code
-              </Button>
-
-              <Button variant="outline" size="sm">
-                <Eye className="w-4 h-4 mr-2" />
-                Aperçu
-              </Button>
-
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={handleSave}
-                disabled={saveProjectMutation.isPending || !isDirty}
+                onClick={() => setRightPanelVisible(!rightPanelVisible)}
+                title="Basculer propriétés"
               >
-                <Save className="w-4 h-4 mr-2" />
-                {saveProjectMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
+                <PanelRight className="w-4 h-4 mr-2" />
+                Props
               </Button>
 
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Exporter
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Menu burger POUR TOUS */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                title="Menu principal"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Menu
               </Button>
             </div>
           }
@@ -737,44 +730,30 @@ export default function EditorAdvanced() {
             {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </Button>
 
-          {/* Left sidebar - Component palette */}
+          {/* Left sidebar - Component palette (RÉDUIT 16px TOUS écrans) */}
           <div className={`bg-white border-r flex-shrink-0 transition-all duration-300 ${
-            leftPanelCollapsed ? 'w-0 overflow-hidden' : 'w-80'
+            leftPanelCollapsed || !leftPanelVisible ? 'w-0 overflow-hidden' : 'w-16'
           }`}>
-            <div className="p-4 h-full overflow-y-auto">
-              <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <Layers className="w-4 h-4" />
-                Palette de composants
+            <div className="p-1 h-full overflow-y-auto">
+              <h2 className="text-xs font-semibold mb-2 text-center">
+                Cmpts
               </h2>
               
-              {/* Category filter */}
-              <div className="mb-4">
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Tous">Toutes catégories</SelectItem>
-                    {componentCategories.map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                {filteredComponents.map((component) => (
-                  <DraggableComponent
+              {/* Composants optimisés pour volet étroit */}
+              <div className="space-y-1">
+                {filteredComponents.slice(0, 8).map((component) => (
+                  <div
                     key={component.type}
-                    component={component}
-                    onDoubleClick={(type) => {
+                    className="w-full h-8 flex items-center justify-center border rounded cursor-pointer hover:bg-blue-50 text-xs"
+                    title={component.name}
+                    onDoubleClick={() => {
                       const centerX = 400;
                       const centerY = 200;
-                      handleComponentAdd(type, { x: centerX, y: centerY });
+                      handleComponentAdd(component.type, { x: centerX, y: centerY });
                     }}
-                  />
+                  >
+                    {component.icon}
+                  </div>
                 ))}
               </div>
             </div>
@@ -795,15 +774,14 @@ export default function EditorAdvanced() {
             </div>
           </div>
 
-          {/* Right sidebar - Properties panel */}
+          {/* Right sidebar - Properties panel (RÉDUIT 20px TOUS écrans) */}
           <div className={`bg-white border-l flex-shrink-0 transition-all duration-300 ${
-            rightPanelCollapsed ? 'w-0 overflow-hidden' : 'w-80'
+            rightPanelCollapsed || !rightPanelVisible ? 'w-0 overflow-hidden' : 'w-20'
           }`}>
-            <div className="p-4 h-full overflow-y-auto">
+            <div className="p-1 h-full overflow-y-auto">
               <Tabs defaultValue="component" className="h-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="component">Composant</TabsTrigger>
-                  <TabsTrigger value="page">Page</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-1 h-8">
+                  <TabsTrigger value="component" className="text-xs">C</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="component" className="space-y-4 mt-4">
@@ -1214,6 +1192,104 @@ ${Object.entries(comp.styles || {}).map(([k,v]) => `  ${k.replace(/([A-Z])/g, '-
                 className="mt-3 w-full"
                 onClick={() => setShowCollaborationPanel(false)}
               >
+                Fermer
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Menu burger POUR TOUS - Point 5 */}
+        {showMobileMenu && (
+          <Card className="fixed top-16 right-4 w-64 bg-white border shadow-lg z-50">
+            <div className="p-3 space-y-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  setLocation("/projects");
+                  setShowMobileMenu(false);
+                }}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour aux projets
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  setShowCollaborationPanel(!showCollaborationPanel);
+                  setShowMobileMenu(false);
+                }}
+              >
+                <Wifi className="w-4 h-4 mr-2" />
+                {collaboration.isConnected ? 'Connecté' : 'Déconnecté'}
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  setShowCodePreview(true);
+                  setShowMobileMenu(false);
+                }}
+              >
+                <Code className="w-4 h-4 mr-2" />
+                Voir le code
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Aperçu
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  handleSave();
+                  setShowMobileMenu(false);
+                }}
+                disabled={saveProjectMutation.isPending || !isDirty}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveProjectMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Exporter
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => setShowGrid(!showGrid)}
+              >
+                <Grid className="w-4 h-4 mr-2" />
+                {showGrid ? 'Masquer grille' : 'Afficher grille'}
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start text-gray-500"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <X className="w-4 h-4 mr-2" />
                 Fermer
               </Button>
             </div>
