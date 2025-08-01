@@ -465,3 +465,5 @@ export function EnhancedImageSelector({ isOpen, onClose, onImageSelect, currentI
     </Dialog>
   );
 }
+
+export default EnhancedImageSelector;
