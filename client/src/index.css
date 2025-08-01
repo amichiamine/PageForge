@@ -4,6 +4,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Variables CSS pour les thèmes */
+:root {
+  --color-primary: #6366f1;
+  --color-secondary: #8b5cf6;
+  --color-accent: #10b981;
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  
+  /* Couleurs pastelles pour le thème moderne */
+  --pastel-pink: #fce7f3;
+  --pastel-blue: #dbeafe;
+  --pastel-green: #d1fae5;
+  --pastel-yellow: #fef3c7;
+  --pastel-purple: #e9d5ff;
+  --pastel-orange: #fed7aa;
+}
+
+.dark {
+  --color-primary: #818cf8;
+  --color-secondary: #a78bfa;
+  --color-accent: #34d399;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-border: #334155;
+  
+  /* Couleurs pastelles pour le mode sombre */
+  --pastel-pink: #374151;
+  --pastel-blue: #1e293b;
+  --pastel-green: #064e3b;
+  --pastel-yellow: #451a03;
+  --pastel-purple: #2e1065;
+  --pastel-orange: #431407;
+}
+
+/* Classes utilitaires pour les couleurs personnalisées */
+.bg-theme-primary { background-color: var(--color-primary); }
+.bg-theme-secondary { background-color: var(--color-secondary); }
+.bg-theme-accent { background-color: var(--color-accent); }
+.bg-theme-background { background-color: var(--color-background); }
+.bg-theme-surface { background-color: var(--color-surface); }
+
+.text-theme-primary { color: var(--color-primary); }
+.text-theme-secondary { color: var(--color-secondary); }
+.text-theme-accent { color: var(--color-accent); }
+.text-theme-text { color: var(--color-text); }
+.text-theme-text-secondary { color: var(--color-text-secondary); }
+
+.border-theme-border { border-color: var(--color-border); }
+
+/* Styles pastels modernes */
+.bg-pastel-pink { background-color: var(--pastel-pink); }
+.bg-pastel-blue { background-color: var(--pastel-blue); }
+.bg-pastel-green { background-color: var(--pastel-green); }
+.bg-pastel-yellow { background-color: var(--pastel-yellow); }
+.bg-pastel-purple { background-color: var(--pastel-purple); }
+.bg-pastel-orange { background-color: var(--pastel-orange); }
+
 /* Custom animations for responsive panels */
 @keyframes slide-in-left {
   from {

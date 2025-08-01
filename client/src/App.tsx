@@ -40,7 +40,7 @@ function Router() {
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
-        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-64 sm:w-64' : 'w-12'} bg-gray-900 border-r border-gray-700 flex flex-col`}>
+        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-theme-surface border-r border-theme-border flex flex-col`}>
           {/* Toggle button for main navigation */}
           <div className="p-2 border-b border-gray-700">
             <button
@@ -60,7 +60,7 @@ function Router() {
           {showMainSidebar && <Sidebar />}
         </div>
         
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-theme-background transition-colors duration-300">
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />

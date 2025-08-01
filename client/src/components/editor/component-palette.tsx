@@ -25,7 +25,23 @@ import {
   Menu,
   User,
   Lock,
-  Trash2
+  Trash2,
+  Grid,
+  Package,
+  Users,
+  TrendingUp,
+  CheckCircle,
+  Zap,
+  Navigation,
+  MoreHorizontal,
+  Folder,
+  Plus,
+  HelpCircle,
+  Edit,
+  CreditCard,
+  Filter,
+  ExternalLink,
+  Code
 } from 'lucide-react';
 
 interface DraggableComponentProps {
@@ -98,7 +114,7 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
       style={{ 
         opacity: isDragging ? 0.5 : 1,
         borderColor: color,
-        minHeight: '45px',
+        minHeight: '40px',
         userSelect: 'none',
         touchAction: 'manipulation'
       }}
@@ -109,7 +125,7 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
       title={`${description || label} (Double-clic pour ajouter)`}
     >
       <div className={`text-${color} mb-0.5`} style={{ color }}>
-        {React.cloneElement(icon, { size: 14 })}
+        {React.cloneElement(icon, { size: 12 })}
       </div>
       <span className="text-xs font-medium text-gray-700 text-center leading-tight">
         {label}
@@ -132,49 +148,100 @@ function DraggableComponent({ type, label, icon, color, description, onDelete, s
 const componentCategories = [
   {
     name: "Layout",
-    icon: <Layout size={16} />,
+    icon: <Layout size={12} />,
     components: [
       { type: 'container', label: 'Container', icon: <Square />, color: '#6366f1', description: 'Conteneur de base' },
       { type: 'section', label: 'Section', icon: <Layout />, color: '#8b5cf6', description: 'Section de page' },
       { type: 'header', label: 'Header', icon: <Layers />, color: '#06b6d4', description: 'En-tête de page' },
       { type: 'footer', label: 'Footer', icon: <Layers />, color: '#84cc16', description: 'Pied de page' },
+      { type: 'sidebar', label: 'Sidebar', icon: <Square />, color: '#f59e0b', description: 'Panneau latéral' },
+      { type: 'navbar', label: 'Navbar', icon: <Navigation />, color: '#3b82f6', description: 'Barre de navigation' },
+      { type: 'grid', label: 'Grid', icon: <Grid />, color: '#8b5cf6', description: 'Grille flexible' },
+      { type: 'flexbox', label: 'Flexbox', icon: <Square />, color: '#06b6d4', description: 'Container flexible' },
     ]
   },
   {
     name: "Texte",
-    icon: <Type size={16} />,
+    icon: <Type size={12} />,
     components: [
       { type: 'heading', label: 'Titre', icon: <Type />, color: '#dc2626', description: 'Titre (H1-H6)' },
       { type: 'paragraph', label: 'Paragraphe', icon: <FileText />, color: '#059669', description: 'Texte de paragraphe' },
       { type: 'list', label: 'Liste', icon: <Menu />, color: '#d97706', description: 'Liste à puces ou numérotée' },
+      { type: 'quote', label: 'Citation', icon: <Type />, color: '#7c3aed', description: 'Citation ou témoignage' },
+      { type: 'code', label: 'Code', icon: <Code />, color: '#374151', description: 'Bloc de code' },
+      { type: 'table', label: 'Tableau', icon: <Grid />, color: '#059669', description: 'Tableau de données' },
     ]
   },
   {
     name: "Média",
-    icon: <Image size={16} />,
+    icon: <Image size={12} />,
     components: [
       { type: 'image', label: 'Image', icon: <Image />, color: '#7c3aed', description: 'Image ou photo' },
       { type: 'video', label: 'Vidéo', icon: <Video />, color: '#be185d', description: 'Lecteur vidéo' },
       { type: 'audio', label: 'Audio', icon: <Music />, color: '#0891b2', description: 'Lecteur audio' },
+      { type: 'gallery', label: 'Galerie', icon: <Image />, color: '#ec4899', description: 'Galerie d\'images' },
+      { type: 'carousel', label: 'Carrousel', icon: <Image />, color: '#f59e0b', description: 'Carrousel d\'images' },
+      { type: 'icon', label: 'Icône', icon: <Star />, color: '#8b5cf6', description: 'Icône décorative' },
     ]
   },
   {
     name: "Interactif",
-    icon: <MousePointer size={16} />,
+    icon: <MousePointer size={12} />,
     components: [
       { type: 'button', label: 'Bouton', icon: <MousePointer />, color: '#ea580c', description: 'Bouton cliquable' },
-      { type: 'link', label: 'Lien', icon: <Download />, color: '#0d9488', description: 'Lien hypertexte' },
-      { type: 'form', label: 'Formulaire', icon: <Upload />, color: '#7c2d12', description: 'Formulaire de contact' },
+      { type: 'link', label: 'Lien', icon: <ExternalLink />, color: '#0d9488', description: 'Lien hypertexte' },
+      { type: 'form', label: 'Formulaire', icon: <Mail />, color: '#7c2d12', description: 'Formulaire de contact' },
+      { type: 'input', label: 'Champ', icon: <Edit />, color: '#374151', description: 'Champ de saisie' },
+      { type: 'modal', label: 'Modal', icon: <Square />, color: '#6366f1', description: 'Fenêtre modale' },
+      { type: 'dropdown', label: 'Menu', icon: <Menu />, color: '#059669', description: 'Menu déroulant' },
+    ]
+  },
+  {
+    name: "Business",
+    icon: <TrendingUp size={12} />,
+    components: [
+      { type: 'pricing', label: 'Tarifs', icon: <Star />, color: '#059669', description: 'Tableau des prix' },
+      { type: 'testimonial', label: 'Témoignage', icon: <Heart />, color: '#dc2626', description: 'Avis client' },
+      { type: 'team', label: 'Équipe', icon: <Users />, color: '#2563eb', description: 'Présentation équipe' },
+      { type: 'stats', label: 'Statistics', icon: <TrendingUp />, color: '#8b5cf6', description: 'Statistiques' },
+      { type: 'features', label: 'Features', icon: <CheckCircle />, color: '#10b981', description: 'Liste d\'avantages' },
+      { type: 'cta', label: 'CTA', icon: <Zap />, color: '#f59e0b', description: 'Call-to-action' },
+    ]
+  },
+  {
+    name: "Navigation",
+    icon: <Navigation size={12} />,
+    components: [
+      { type: 'menu', label: 'Menu', icon: <Menu />, color: '#374151', description: 'Menu de navigation' },
+      { type: 'breadcrumb', label: 'Breadcrumb', icon: <Navigation />, color: '#6b7280', description: 'Fil d\'Ariane' },
+      { type: 'pagination', label: 'Pagination', icon: <MoreHorizontal />, color: '#059669', description: 'Navigation pages' },
+      { type: 'tabs', label: 'Onglets', icon: <Folder />, color: '#3b82f6', description: 'Système d\'onglets' },
+      { type: 'accordion', label: 'Accordéon', icon: <Plus />, color: '#8b5cf6', description: 'Contenu repliable' },
+      { type: 'search', label: 'Recherche', icon: <Search />, color: '#6366f1', description: 'Barre de recherche' },
     ]
   },
   {
     name: "Contenu",
-    icon: <Star size={16} />,
+    icon: <FileText size={12} />,
     components: [
       { type: 'calendar', label: 'Calendrier', icon: <Calendar />, color: '#16a34a', description: 'Calendrier d\'événements' },
-      { type: 'contact', label: 'Contact', icon: <Mail />, color: '#2563eb', description: 'Informations de contact' },
-      { type: 'testimonial', label: 'Témoignage', icon: <Heart />, color: '#dc2626', description: 'Avis client' },
-      { type: 'pricing', label: 'Tarifs', icon: <ShoppingCart />, color: '#059669', description: 'Tableau des prix' },
+      { type: 'contact', label: 'Contact', icon: <Phone />, color: '#2563eb', description: 'Informations de contact' },
+      { type: 'map', label: 'Carte', icon: <MapPin />, color: '#dc2626', description: 'Carte interactive' },
+      { type: 'social', label: 'Social', icon: <Heart />, color: '#1da1f2', description: 'Réseaux sociaux' },
+      { type: 'faq', label: 'FAQ', icon: <HelpCircle />, color: '#059669', description: 'Questions fréquentes' },
+      { type: 'blog', label: 'Blog', icon: <FileText />, color: '#7c3aed', description: 'Article de blog' },
+    ]
+  },
+  {
+    name: "E-commerce",
+    icon: <ShoppingCart size={12} />,
+    components: [
+      { type: 'product', label: 'Produit', icon: <Package />, color: '#ea580c', description: 'Fiche produit' },
+      { type: 'cart', label: 'Panier', icon: <ShoppingCart />, color: '#16a34a', description: 'Panier d\'achat' },
+      { type: 'checkout', label: 'Commande', icon: <CreditCard />, color: '#dc2626', description: 'Processus commande' },
+      { type: 'reviews', label: 'Avis', icon: <Star />, color: '#f59e0b', description: 'Avis produits' },
+      { type: 'wishlist', label: 'Favoris', icon: <Heart />, color: '#ec4899', description: 'Liste de souhaits' },
+      { type: 'filters', label: 'Filtres', icon: <Filter />, color: '#6366f1', description: 'Filtres de produits' },
     ]
   }
 ];
