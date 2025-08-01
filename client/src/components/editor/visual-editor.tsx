@@ -167,7 +167,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
       }
     };
 
-    
+    console.log('Updating component:', updatedComponent);
 
     const updatedStructure = updateComponentInTree(currentStructure, componentId, updatedComponent);
 
