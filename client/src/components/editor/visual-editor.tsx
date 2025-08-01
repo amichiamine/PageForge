@@ -69,7 +69,9 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
   const handleComponentAdd = useCallback((componentType: string, x: number, y: number) => {
     if (!project || !project.content?.pages?.[0]) return;
 
+    console.log('Adding component of type:', componentType);
     const newComponent = createComponent(componentType);
+    console.log('Created component:', newComponent);
     
     // Tailles réduites pour tous les composants
     const baseWidths: Record<string, string> = {
