@@ -16,6 +16,7 @@ import { Slider } from '@/components/ui/slider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ColorPicker from '@/components/editor/color-picker';
 import Header from '@/components/layout/header';
+import EnhancedTouchPalette from '@/components/editor/enhanced-touch-palette';
 import { 
   Menu, Settings, Plus, Save, Code, Users, Download, 
   Eye, Upload, Trash2, X, Zap 
@@ -39,7 +40,11 @@ const componentTypes = [
 export default function EditorComplete() {
   const { id } = useParams();
   const isMobile = useIsMobile();
-  const collaboration = useCollaboration({ projectId: id || '' });
+  const collaboration = useCollaboration({ 
+    projectId: id || '', 
+    userId: 'user-1', 
+    userName: 'Utilisateur' 
+  });
   
   // Project data
   const { 
@@ -590,6 +595,13 @@ export default function EditorComplete() {
             </div>
           </div>
         </div>
+
+        {/* Enhanced Touch Palette */}
+        <EnhancedTouchPalette
+          isOpen={showTouchPalette}
+          onClose={() => setShowTouchPalette(false)}
+          onComponentAdd={handleComponentAdd}
+        />
       </div>
     </DndProvider>
   );
