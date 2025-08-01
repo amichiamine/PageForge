@@ -46,7 +46,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
   const handlePreview = () => {
     // TODO: Implement preview functionality
-    console.log("Preview project:", project.id);
+    
   };
 
   return (

@@ -40,9 +40,9 @@ function Router() {
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
-        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-theme-surface border-r border-theme-border flex flex-col`}>
+        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-gray-900 dark:bg-gray-800 border-r border-gray-700 dark:border-gray-600 flex flex-col`}>
           {/* Toggle button for main navigation */}
-          <div className="p-2 border-b border-gray-700">
+          <div className="p-2 border-b border-gray-700 dark:border-gray-600">
             <button
               onClick={() => setHideMainSidebar(!hideMainSidebar)}
               className="w-full h-10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
@@ -60,7 +60,7 @@ function Router() {
           {showMainSidebar && <Sidebar />}
         </div>
         
-        <div className="flex-1 flex flex-col overflow-hidden bg-theme-background transition-colors duration-300">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-900 transition-colors duration-300">
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />
@@ -83,8 +83,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
         <Router />
+        <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
   );
