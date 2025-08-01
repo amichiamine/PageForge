@@ -50,6 +50,11 @@ export default function EditorComplete() {
   } = useProjects();
   const project = projects?.find(p => p.id === id);
   
+  // Debugging pour voir le problème
+  console.log('ID recherché:', id);
+  console.log('Projets disponibles:', projects);
+  console.log('Projet trouvé:', project);
+  
   // Editor state
   const [components, setComponents] = useState<ComponentDefinition[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
@@ -69,10 +74,11 @@ export default function EditorComplete() {
 
   // Initialize components from project
   useEffect(() => {
-    if (project?.content?.pages?.[0]?.content?.structure) {
-      setComponents(project.content.pages[0].content.structure);
+    const structure = activeProject?.content?.pages?.[0]?.content?.structure;
+    if (structure && Array.isArray(structure)) {
+      setComponents(structure);
     }
-  }, [project]);
+  }, [activeProject]);
 
   // Draggable component for palette
   function DraggableComponent({ component }: { component: typeof componentTypes[0] }) {
@@ -280,10 +286,10 @@ export default function EditorComplete() {
   }, [selectedComponent]);
 
   const handleSave = useCallback(() => {
-    if (!project) return;
+    if (!activeProject) return;
     console.log('Sauvegarde des composants:', components);
     setIsDirty(false);
-  }, [project, components]);
+  }, [activeProject, components]);
 
   // Loading and error states
   if (isLoading) {
@@ -297,11 +303,11 @@ export default function EditorComplete() {
     );
   }
 
-  if (error || !project) {
+  if (error) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center p-6">
-          <p className="text-red-500 mb-4">Impossible de charger le projet</p>
+          <p className="text-red-500 mb-4">Erreur lors du chargement des projets</p>
           <Button onClick={() => refetch()} variant="outline">
             Réessayer
           </Button>
@@ -310,20 +316,44 @@ export default function EditorComplete() {
     );
   }
 
+  if (!isLoading && !project && id) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center p-6">
+          <p className="text-orange-500 mb-4">Projet non trouvé (ID: {id})</p>
+          <p className="text-sm text-gray-500 mb-4">
+            Projets disponibles: {projects?.map(p => p.id).join(', ') || 'aucun'}
+          </p>
+          <Button onClick={() => window.history.back()} variant="outline">
+            Retour
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Si pas d'ID spécifié, utiliser le premier projet ou créer un projet temporaire
+  const activeProject = project || (projects?.[0]) || {
+    id: 'temp',
+    name: 'Nouveau projet',
+    type: 'single-page',
+    content: { pages: [{ id: 'main', name: 'Accueil', path: '/', content: { structure: [] } }] }
+  };
+
   return (
     <DndProvider backend={MultiBackend} options={HTML5toTouch}>
       <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
         {/* Header */}
         <Header 
-          title={project.name}
-          subtitle={`${project.type} • ${components.length} composant(s)`}
+          title={activeProject.name}
+          subtitle={`${activeProject.type} • ${components.length} composant(s)`}
           actions={
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
-                {project.type === 'single-page' && 'Page unique'}
-                {project.type === 'multi-page' && 'Multi-pages'}
-                {project.type === 'ftp-sync' && 'Sync FTP'}
-                {project.type === 'ftp-upload' && 'Upload FTP'}
+                {activeProject.type === 'single-page' && 'Page unique'}
+                {activeProject.type === 'multi-page' && 'Multi-pages'}
+                {activeProject.type === 'ftp-sync' && 'Sync FTP'}
+                {activeProject.type === 'ftp-upload' && 'Upload FTP'}
               </Badge>
 
               <Separator orientation="vertical" className="h-6" />
