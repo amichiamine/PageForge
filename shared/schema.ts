@@ -63,6 +63,7 @@ export interface ProjectContent {
     global: string;
     components: Record<string, string>;
   };
+  meta?: PageMeta;
 }
 
 export interface ProjectSettings {
