@@ -192,26 +192,32 @@ function DropZone({
         </div>
       )}
 
-      {/* Rendered components with enhanced touch support */}
+      {/* Point 1 CORRIGÉ - FreeDragComponent pour TOUS les écrans */}
       {components.map((component) => (
-        isMobile ? (
-          <FreeDragComponent
-            key={component.id}
-            component={component}
-            isSelected={selectedComponent?.id === component.id}
-            onSelect={onComponentSelect}
-            onMove={onComponentMove}
-            containerRef={dropRef}
-          />
-        ) : (
-          <DraggableRenderedComponent
-            key={component.id}
-            component={component}
-            isSelected={selectedComponent?.id === component.id}
-            onSelect={onComponentSelect}
-            onMove={onComponentMove}
-          />
-        )
+        <FreeDragComponent
+          key={component.id}
+          component={component}
+          isSelected={selectedComponent?.id === component.id}
+          onSelect={onComponentSelect}
+          onMove={onComponentMove}
+          onUpdate={handleComponentUpdate}
+          onDelete={handleComponentDelete}
+          onDuplicate={(comp) => {
+            const duplicatedComponent = {
+              ...comp,
+              id: `${comp.type}-${Date.now()}`,
+              position: {
+                x: (comp.position?.x || 0) + 20,
+                y: (comp.position?.y || 0) + 20,
+                width: comp.position?.width || 200,
+                height: comp.position?.height || 100
+              }
+            };
+            setComponents([...components, duplicatedComponent]);
+            setIsDirty(true);
+          }}
+          containerRef={dropRef}
+        />
       ))}
     </div>
   );
@@ -582,103 +588,59 @@ export default function EditorComplete() {
           subtitle={`${project.type} • ${components.length} composant(s)`}
           actions={
             <div className="flex items-center gap-2">
-              {/* Desktop actions - always visible */}
-              {!isMobile && (
-                <>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setLocation("/projects")}
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Projets
-                  </Button>
+              {/* Point 5 - Menu burger POUR TOUS les écrans */}
+              {/* Badge toujours visible */}
+              <Badge variant="secondary">
+                {project.type === 'single-page' && 'Page unique'}
+                {project.type === 'multi-page' && 'Multi-pages'}
+                {project.type === 'ftp-sync' && 'Sync FTP'}
+                {project.type === 'ftp-upload' && 'Upload FTP'}
+              </Badge>
 
-                  <Badge variant="secondary">
-                    {project.type === 'single-page' && 'Page unique'}
-                    {project.type === 'multi-page' && 'Multi-pages'}
-                    {project.type === 'ftp-sync' && 'Sync FTP'}
-                    {project.type === 'ftp-upload' && 'Upload FTP'}
-                  </Badge>
+              <Separator orientation="vertical" className="h-6" />
 
-                  <Separator orientation="vertical" className="h-6" />
+              {/* Contrôles des volets POUR TOUS - Point 4 */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setLeftPanelVisible(!leftPanelVisible)}
+                title="Basculer palette composants"
+              >
+                <Menu className="w-4 h-4 mr-2" />
+                Palette
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setRightPanelVisible(!rightPanelVisible)}
+                title="Basculer propriétés"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Props
+              </Button>
 
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setShowCollaborationPanel(!showCollaborationPanel)}
-                  >
-                    <Wifi className="w-4 h-4 mr-2" />
-                    {collaboration.isConnected ? 'Connecté' : 'Déconnecté'}
-                  </Button>
+              <Separator orientation="vertical" className="h-6" />
 
-                  <Button variant="outline" size="sm" onClick={() => setShowCodePreview(true)}>
-                    <Code className="w-4 h-4 mr-2" />
-                    Code
-                  </Button>
+              {/* Menu burger POUR TOUS - Point 5 */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                title="Menu principal"
+              >
+                <Menu className="w-4 h-4 mr-2" />
+                Menu
+              </Button>
 
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-2" />
-                    Aperçu
-                  </Button>
 
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={saveProjectMutation.isPending || !isDirty}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {saveProjectMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
-                  </Button>
-
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Exporter
-                  </Button>
-                </>
-              )}
-
-              {/* Mobile burger menu */}
-              {isMobile && (
-                <>
-                  {/* Essential controls - always visible on mobile */}
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setLeftPanelVisible(!leftPanelVisible)}
-                    title="Basculer palette composants"
-                  >
-                    <Menu className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setRightPanelVisible(!rightPanelVisible)}
-                    title="Basculer propriétés"
-                  >
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                  
-                  {/* Burger menu for other actions */}
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setShowMobileMenu(!showMobileMenu)}
-                    title="Menu principal"
-                  >
-                    <Menu className="w-4 h-4" />
-                  </Button>
-                </>
-              )}
             </div>
           }
         />
 
         {/* Main editor content - Responsive layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left sidebar - Component palette (RÉDUIT 28px mobile/tablette) */}
-          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-28'} border-r bg-white flex-shrink-0 overflow-y-auto md:w-28`}>
+          {/* Left sidebar - Component palette (RÉDUIT 28px TOUS écrans) */}
+          <div className={`${isMobile && !leftPanelVisible ? 'hidden' : 'w-28'} border-r bg-white flex-shrink-0 overflow-y-auto`}>
             <div className="p-1">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xs font-semibold">Composants</h2>
@@ -723,66 +685,11 @@ export default function EditorComplete() {
               </Card>
             </div>
 
-            {/* Enhanced Mobile Floating Controls */}
-            {isMobile && (
-              <>
-                {/* Main action button - always visible */}
-                <div className="absolute bottom-6 right-6">
-                  <FloatingButton
-                    onClick={() => setShowTouchPalette(true)}
-                    size="lg"
-                    title="Ajouter un composant"
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    <Plus className="w-6 h-6" />
-                  </FloatingButton>
-                </div>
-
-                {/* Secondary controls when component is selected */}
-                {selectedComponent && (
-                  <div className="absolute bottom-6 left-6 flex flex-col gap-3">
-                    <FloatingButton
-                      onClick={() => setShowImageSelector(true)}
-                      size="md"
-                      variant="secondary"
-                      title="Propriétés"
-                      className="bg-white/90 hover:bg-white"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </FloatingButton>
-                    <FloatingButton
-                      onClick={() => handleComponentDelete(selectedComponent.id)}
-                      size="md"
-                      variant="destructive"
-                      title="Supprimer"
-                      className="bg-red-500/90 hover:bg-red-600 text-white"
-                    >
-                      <X className="w-4 h-4" />
-                    </FloatingButton>
-                  </div>
-                )}
-
-                {/* Save button when changes exist */}
-                {isDirty && (
-                  <div className="absolute top-4 right-4">
-                    <FloatingButton
-                      onClick={handleSave}
-                      disabled={saveProjectMutation.isPending}
-                      size="md"
-                      variant="outline"
-                      title="Sauvegarder"
-                      className="bg-green-500/90 hover:bg-green-600 text-white border-green-400"
-                    >
-                      <Save className="w-4 h-4" />
-                    </FloatingButton>
-                  </div>
-                )}
-              </>
-            )}
+            {/* Point 4 CORRIGÉ - Plus de boutons flottants, tout dans le header */}
           </div>
 
-          {/* Right sidebar - Properties panel (RÉDUIT 32px mobile/tablette) */}
-          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-32'} border-l bg-white flex-shrink-0 overflow-y-auto md:w-32`}>
+          {/* Right sidebar - Properties panel (RÉDUIT 32px TOUS écrans) */}
+          <div className={`${isMobile && !rightPanelVisible ? 'hidden' : 'w-32'} border-l bg-white flex-shrink-0 overflow-y-auto`}>
             <div className="p-2">
               <Tabs defaultValue="component" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-6">
@@ -1169,15 +1076,52 @@ export default function EditorComplete() {
                 <TabsContent value="page" className="mt-2 space-y-3">
                   <h2 className="text-xs font-semibold">Propriétés de la page</h2>
                   
-                  {/* Page Background */}
+                  {/* Point 3 - Page Background COMPLET avec ColorPicker amélioré */}
                   <div className="space-y-2">
                     <Label className="text-xs">Arrière-plan de la page</Label>
                     <ColorPicker
                       value={pageBackground}
-                      onChange={setPageBackground}
+                      onChange={(color) => {
+                        setPageBackground(color);
+                        // Appliquer immédiatement au style de la page
+                        document.body.style.background = color;
+                      }}
                       type={pageBackgroundType}
                       showBackgroundTypes={true}
                     />
+                    
+                    {/* Sélecteur de type d'arrière-plan */}
+                    <div className="space-y-1">
+                      <Label className="text-xs">Type d'arrière-plan</Label>
+                      <Select 
+                        value={pageBackgroundType} 
+                        onValueChange={(value: 'solid' | 'gradient' | 'image') => setPageBackgroundType(value)}
+                      >
+                        <SelectTrigger className="h-6 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="solid">Couleur unie</SelectItem>
+                          <SelectItem value="gradient">Dégradé</SelectItem>
+                          <SelectItem value="image">Image</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Sélecteur d'image si type = image */}
+                    {pageBackgroundType === 'image' && (
+                      <div className="space-y-1">
+                        <Label className="text-xs">Image d'arrière-plan</Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowImageSelector(true)}
+                          className="w-full h-6 text-xs"
+                        >
+                          Choisir une image
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Page Settings */}
