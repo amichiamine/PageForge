@@ -160,7 +160,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
-  type: z.enum(["standalone", "vscode-integration", "existing-project"]),
+  type: z.enum(["standalone", "vscode-integration", "existing-project", "single-page", "multi-page", "ftp-integration"]),
   template: z.string().optional(),
 });
 
