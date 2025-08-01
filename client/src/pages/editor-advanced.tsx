@@ -394,12 +394,14 @@ export default function EditorAdvanced() {
   const [showGrid, setShowGrid] = useState(true);
   const [showImageSelector, setShowImageSelector] = useState(false);
   
-  // Panel states
+  // Panel states avec largeurs ajustables
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [rightPanelVisible, setRightPanelVisible] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(200); // Largeur par défaut 200px
+  const [rightPanelWidth, setRightPanelWidth] = useState(280); // Largeur par défaut 280px
   const [selectedCategory, setSelectedCategory] = useState<string>('Texte');
   
   // Page styles
@@ -709,54 +711,80 @@ export default function EditorAdvanced() {
           }
         />
 
-        {/* Main editor content */}
+        {/* Main editor content - SANS boutons flottants */}
         <div className="flex-1 flex overflow-hidden relative">
-          {/* Floating panel toggle buttons */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="absolute top-4 left-4 z-50 bg-white shadow-md"
-            onClick={() => setLeftPanelCollapsed(!leftPanelCollapsed)}
-          >
-            {leftPanelCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="absolute top-4 right-4 z-50 bg-white shadow-md"
-            onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
+          {/* Left sidebar - Component palette (LARGEUR AJUSTABLE) */}
+          <div 
+            className={`bg-white border-r flex-shrink-0 transition-all duration-300 ${
+              leftPanelCollapsed || !leftPanelVisible ? 'w-0 overflow-hidden' : ''
+            }`}
+            style={{ 
+              width: leftPanelCollapsed || !leftPanelVisible ? '0px' : `${leftPanelWidth}px` 
+            }}
           >
-            {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </Button>
-
-          {/* Left sidebar - Component palette (RÉDUIT 16px TOUS écrans) */}
-          <div className={`bg-white border-r flex-shrink-0 transition-all duration-300 ${
-            leftPanelCollapsed || !leftPanelVisible ? 'w-0 overflow-hidden' : 'w-16'
-          }`}>
-            <div className="p-1 h-full overflow-y-auto">
-              <h2 className="text-xs font-semibold mb-2 text-center">
-                Cmpts
+            <div className="p-3 h-full overflow-y-auto">
+              <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                <Layers className="w-4 h-4" />
+                Palette de composants
               </h2>
               
-              {/* Composants optimisés pour volet étroit */}
-              <div className="space-y-1">
-                {filteredComponents.slice(0, 8).map((component) => (
-                  <div
+              {/* Category filter */}
+              <div className="mb-4">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Tous">Toutes catégories</SelectItem>
+                    {componentCategories.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                {filteredComponents.map((component) => (
+                  <DraggableComponent
                     key={component.type}
-                    className="w-full h-8 flex items-center justify-center border rounded cursor-pointer hover:bg-blue-50 text-xs"
-                    title={component.name}
-                    onDoubleClick={() => {
+                    component={component}
+                    onDoubleClick={(type) => {
                       const centerX = 400;
                       const centerY = 200;
-                      handleComponentAdd(component.type, { x: centerX, y: centerY });
+                      handleComponentAdd(type, { x: centerX, y: centerY });
                     }}
-                  >
-                    {component.icon}
-                  </div>
+                  />
                 ))}
               </div>
             </div>
+            
+            {/* Resize handle pour volet gauche */}
+            {leftPanelVisible && !leftPanelCollapsed && (
+              <div 
+                className="w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startX = e.clientX;
+                  const startWidth = leftPanelWidth;
+                  
+                  const handleMouseMove = (e: MouseEvent) => {
+                    const newWidth = Math.max(150, Math.min(400, startWidth + (e.clientX - startX)));
+                    setLeftPanelWidth(newWidth);
+                  };
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }}
+              />
+            )}
           </div>
 
           {/* Center - Visual editor */}
@@ -774,14 +802,45 @@ export default function EditorAdvanced() {
             </div>
           </div>
 
-          {/* Right sidebar - Properties panel (RÉDUIT 20px TOUS écrans) */}
-          <div className={`bg-white border-l flex-shrink-0 transition-all duration-300 ${
-            rightPanelCollapsed || !rightPanelVisible ? 'w-0 overflow-hidden' : 'w-20'
-          }`}>
-            <div className="p-1 h-full overflow-y-auto">
+          {/* Resize handle pour volet droit */}
+          {rightPanelVisible && !rightPanelCollapsed && (
+            <div 
+              className="w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = rightPanelWidth;
+                
+                const handleMouseMove = (e: MouseEvent) => {
+                  const newWidth = Math.max(200, Math.min(400, startWidth - (e.clientX - startX)));
+                  setRightPanelWidth(newWidth);
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            />
+          )}
+
+          {/* Right sidebar - Properties panel (LARGEUR AJUSTABLE) */}
+          <div 
+            className={`bg-white border-l flex-shrink-0 transition-all duration-300 ${
+              rightPanelCollapsed || !rightPanelVisible ? 'w-0 overflow-hidden' : ''
+            }`}
+            style={{ 
+              width: rightPanelCollapsed || !rightPanelVisible ? '0px' : `${rightPanelWidth}px` 
+            }}
+          >
+            <div className="p-3 h-full overflow-y-auto">
               <Tabs defaultValue="component" className="h-full">
-                <TabsList className="grid w-full grid-cols-1 h-8">
-                  <TabsTrigger value="component" className="text-xs">C</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="component">Composant</TabsTrigger>
+                  <TabsTrigger value="page">Page</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="component" className="space-y-4 mt-4">
