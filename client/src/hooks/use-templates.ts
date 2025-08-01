@@ -52,6 +52,40 @@ export function useTemplatesByCategory(category?: string) {
   return templates.filter(template => template.category === category);
 }
 
+export function useCreateProjectFromTemplate() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ templateId, projectName, projectDescription }: {
+      templateId: string;
+      projectName: string;
+      projectDescription?: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/projects/from-template', {
+        templateId,
+        name: projectName,
+        description: projectDescription,
+      });
+      return response.json();
+    },
+    onSuccess: (project) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: "Projet créé",
+        description: `Le projet "${project.name}" a été créé avec succès.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de créer le projet depuis le template.",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
 export function useBuiltInTemplates() {
   const { data: templates = [] } = useTemplates();
   return templates.filter(template => template.isBuiltIn);

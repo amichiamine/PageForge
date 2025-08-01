@@ -111,6 +111,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create project from template
+  app.post("/api/projects/from-template", async (req, res) => {
+    try {
+      const { templateId, name, description } = req.body;
+      
+      if (!templateId || !name) {
+        return res.status(400).json({ error: "Template ID and project name are required" });
+      }
+
+      const template = await storage.getTemplate(templateId);
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+
+      const projectData = {
+        name: name,
+        type: "standalone" as const,
+        description: description || template.description,
+        template: template.name,
+        content: template.content,
+        settings: {
+          theme: "modern",
+          responsive: true,
+          seo: true
+        }
+      };
+
+      const project = await storage.createProject(projectData);
+      res.status(201).json(project);
+    } catch (error) {
+      console.error("Error creating project from template:", error);
+      res.status(500).json({ error: "Failed to create project from template" });
+    }
+  });
+
   app.post("/api/templates", async (req, res) => {
     try {
       const validatedData = insertTemplateSchema.parse(req.body);

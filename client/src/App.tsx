@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/contexts/theme-context";
 import { useState, createContext, useContext, useEffect } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
@@ -42,10 +43,10 @@ function Router() {
         {/* Left sidebar for navigation with collapsible functionality */}
         <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-theme-surface border-r border-theme-border flex flex-col`}>
           {/* Toggle button for main navigation */}
-          <div className="p-2 border-b border-gray-700">
+          <div className="p-2 border-b border-theme-border">
             <button
               onClick={() => setHideMainSidebar(!hideMainSidebar)}
-              className="w-full h-10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              className="w-full h-10 flex items-center justify-center text-theme-text-secondary hover:text-theme-text hover:bg-theme-background rounded-lg transition-colors"
               title={showMainSidebar ? "Masquer la navigation" : "Afficher la navigation"}
             >
               {showMainSidebar ? (
@@ -82,10 +83,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
