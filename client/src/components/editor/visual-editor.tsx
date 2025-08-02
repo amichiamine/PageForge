@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { nanoid } from 'nanoid';
 import ResizableComponent from './resizable-component';
@@ -431,13 +431,33 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
           );
         }
         
+        // Effet pour forcer la responsivité après changement de structure
+        useEffect(() => {
+          const container = document.querySelector(`[data-component-id="${component.id}"]`);
+          if (container) {
+            const images = container.querySelectorAll('img');
+            images.forEach((img: HTMLImageElement) => {
+              img.style.cssText = `
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center !important;
+                display: block !important;
+              `;
+            });
+          }
+        }, [slides.length, component.id]);
+        
         return (
-          <div style={{
-            ...style,
-            overflow: 'hidden',
-            position: 'relative',
-            boxSizing: 'border-box'
-          }} className={`carousel-container ${component.attributes?.className || ''}`}>
+          <div 
+            style={{
+              ...style,
+              overflow: 'hidden',
+              position: 'relative',
+              boxSizing: 'border-box'
+            }} 
+            className={`carousel-container ${component.attributes?.className || ''}`}
+            data-component-id={component.id}>
             <div style={{
               position: 'absolute',
               top: 0,
@@ -471,16 +491,19 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
                   >
                     {/* Image responsive avec contraintes strictes */}
                     {slide.image && (
-                      <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        overflow: 'hidden',
-                        zIndex: 1
-                      }}>
+                      <div 
+                        className="carousel-image-container"
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          overflow: 'hidden',
+                          zIndex: 1
+                        }}>
                         <img
+                          className="carousel-responsive-image"
                           src={slide.image}
                           alt={slide.title || `Slide ${index + 1}`}
                           style={{
@@ -493,15 +516,26 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
                             outline: 'none'
                           }}
                           onLoad={(e) => {
-                            // Forcer le recalcul responsif après chargement
+                            // Forcer la responsivité immédiatement et après délai
                             const img = e.target as HTMLImageElement;
-                            img.style.cssText = `
-                              width: 100% !important;
-                              height: 100% !important;
-                              object-fit: cover !important;
-                              object-position: center !important;
-                              display: block !important;
-                            `;
+                            const applyResponsiveStyles = () => {
+                              img.style.cssText = `
+                                width: 100% !important;
+                                height: 100% !important;
+                                object-fit: cover !important;
+                                object-position: center !important;
+                                display: block !important;
+                                max-width: none !important;
+                                max-height: none !important;
+                                min-width: 100% !important;
+                                min-height: 100% !important;
+                                border: none !important;
+                                outline: none !important;
+                              `;
+                            };
+                            applyResponsiveStyles();
+                            setTimeout(applyResponsiveStyles, 50);
+                            setTimeout(applyResponsiveStyles, 200);
                           }}
                         />
                       </div>

@@ -20,10 +20,30 @@
   max-height: none !important;
   min-width: 100% !important;
   min-height: 100% !important;
+  border: none !important;
+  outline: none !important;
 }
 
-.carousel-container > div {
+.carousel-container > div,
+.carousel-container div {
   box-sizing: border-box !important;
+}
+
+/* Force l'application des styles même avec changements dynamiques */
+.carousel-container div[style*="width"][style*="height"] img,
+.carousel-responsive-image,
+.carousel-image-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  border: none !important;
+  outline: none !important;
 }
 
 /* Animations pour les panneaux coulissants */
