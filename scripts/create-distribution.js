@@ -117,8 +117,44 @@ async function createDistribution() {
 }
 
 async function createInstallationScripts() {
-    // Script Windows
-    const windowsScript = `@echo off
+    // Script PowerShell Windows
+    const windowsScript = `# SiteJet Installation Script
+# Utilise PowerShell pour une meilleure compatibilité
+
+Write-Host "SiteJet Installation" -ForegroundColor Green
+Write-Host "===================" -ForegroundColor Green
+Write-Host ""
+
+# Test Node.js
+try {
+    $nodeVersion = & node --version 2>$null
+    Write-Host "Node.js: $nodeVersion" -ForegroundColor Green
+} catch {
+    Write-Host "ERREUR: Node.js non trouvé" -ForegroundColor Red
+    Write-Host "Installez depuis: https://nodejs.org"
+    exit 1
+}
+
+# Installation
+Write-Host "Installation des dépendances..." -ForegroundColor Cyan
+cd app
+npm install
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Installation réussie !" -ForegroundColor Green
+    "DATABASE_URL=sqlite:./database.db" | Out-File .env -Encoding UTF8
+    npm run db:push 2>$null
+    Write-Host ""
+    Write-Host "Démarrage: npm run dev" -ForegroundColor Yellow
+    Write-Host "URL: http://localhost:3000" -ForegroundColor Yellow
+} else {
+    Write-Host "Erreur d'installation" -ForegroundColor Red
+}`
+
+    // Script batch de redirection (pour compatibilité)
+    const batchRedirect = `@echo off
+echo Redirection vers PowerShell...
+powershell -ExecutionPolicy Bypass -File "%~dp0install-windows.ps1"
+pause
 echo ================================
 echo Installation de SiteJet Windows
 echo ================================
@@ -170,7 +206,8 @@ echo.
 pause
 `;
     
-    fs.writeFileSync('SiteJet-Distribution/scripts/install-windows.bat', windowsScript);
+    fs.writeFileSync('SiteJet-Distribution/scripts/install-windows.ps1', windowsScript);
+    fs.writeFileSync('SiteJet-Distribution/scripts/install-windows.bat', batchRedirect);
     
     // Script Linux
     const linuxScript = `#!/bin/bash

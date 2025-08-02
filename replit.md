@@ -107,12 +107,12 @@ Preferred communication style: Simple, everyday language.
 - **Scripts d'Installation Automatique**: Créés pour Windows (.bat) et Linux (.sh) avec détection automatique des prérequis
 - **Manuel Utilisateur Final**: Documentation d'utilisation complète avec guides de dépannage et support
 
-### Scripts d'Installation Windows Robustes ✅
-- **Correction Script Principal**: Résolution du blocage à la vérification npm avec timeouts et gestion d'erreurs améliorée
-- **Scripts de Diagnostic**: Ajout de test-installer-windows.bat et install-debug.bat pour diagnostic complet
-- **Installation Alternative**: Création de install-simple.bat et install-minimal.bat pour contourner les problèmes
-- **Documentation Distribution**: README_DISTRIBUTION.md complet avec toutes les méthodes d'installation disponibles
-- **Système de Distribution Validé**: Package fonctionnel de 437KB avec build compilé et documentation intégrée
+### Migration vers Scripts PowerShell Windows ✅
+- **Résolution Problème VMware**: Remplacement des scripts .bat par des scripts PowerShell (.ps1) pour éviter les conflits VMware
+- **Scripts PowerShell Robustes**: Install-SiteJet.ps1 (complet), Quick-Install.ps1 (rapide), Test-SiteJet.ps1 (diagnostic)
+- **Interface Moderne**: Scripts PowerShell avec couleurs, icônes, gestion d'erreurs avancée et interface utilisateur améliorée
+- **Suppression Scripts .bat**: Elimination de tous les scripts batch problématiques pour environnements Windows modernes
+- **Documentation Mise à Jour**: README_DISTRIBUTION.md actualisé avec les nouvelles méthodes d'installation PowerShell
 
 ### Critical Bug Fixes - Component Alignment ✅
 - **Component Rendering Fixed**: Resolved major visual offset issues where components displayed content misaligned from their positioned frames
