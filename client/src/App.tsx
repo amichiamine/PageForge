@@ -33,6 +33,11 @@ function Router() {
   const [hideMainSidebar, setHideMainSidebar] = useState(false);
   const [location] = useLocation();
   
+  // Debug effect pour observer les changements d'état
+  useEffect(() => {
+    console.log('🔍 EFFET - hideMainSidebar changé:', hideMainSidebar);
+  }, [hideMainSidebar]);
+  
   // Validation automatique des composants en mode développement
   useEffect(() => {
     runDevelopmentValidation();
@@ -54,8 +59,13 @@ function Router() {
   // Test direct pour debug
   const directSetHideMainSidebar = useCallback((hide) => {
     console.log('🚀 DIRECT SET appelé avec:', hide);
-    setHideMainSidebar(hide);
-  }, []);
+    console.log('🚀 Avant setState - hideMainSidebar:', hideMainSidebar);
+    setHideMainSidebar((prevState) => {
+      console.log('🚀 DANS setState - prevState:', prevState, 'newValue:', hide);
+      return hide;
+    });
+    console.log('🚀 Après setState appelé');
+  }, [hideMainSidebar]);
   
   // Debug logs removed for production
 
