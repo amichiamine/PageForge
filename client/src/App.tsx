@@ -41,20 +41,13 @@ function Router() {
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;
   
-  // Debug function
-  const handleToggleSidebar = (hide: boolean) => {
-    console.log('handleToggleSidebar appelée avec:', hide, 'État actuel:', hideMainSidebar);
-    setHideMainSidebar(hide);
-    console.log('setHideMainSidebar appelée avec:', hide);
-  };
-  
-  // Debug render
-  console.log('🔄 RENDER App - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
+  // Debug logs (can be removed in production)
+  console.log('🔄 App render - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
   
   // Debug logs removed for production
 
   return (
-    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar: handleToggleSidebar }}>
+    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
         {showMainSidebar ? (
@@ -68,7 +61,7 @@ function Router() {
               <button
                 onClick={() => {
                   console.log('Bouton ouverture cliqué');
-                  handleToggleSidebar(false);
+                  setHideMainSidebar(false);
                 }}
                 className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                 title="Afficher la navigation"

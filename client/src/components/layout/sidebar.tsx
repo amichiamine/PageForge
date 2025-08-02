@@ -52,10 +52,8 @@ export default function Sidebar() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('Logo cliqué - masquage du sidebar, état actuel:', hideMainSidebar);
-              console.log('Fonction setHideMainSidebar:', typeof setHideMainSidebar);
+              console.log('🎯 Logo cliqué - masquage du sidebar');
               setHideMainSidebar(true);
-              console.log('Appelé setHideMainSidebar(true)');
             }}
             className="flex items-center space-x-2 min-w-0 w-full hover:bg-gray-50 rounded-md p-1 transition-colors group cursor-pointer"
             title="Cliquer pour masquer la navigation"
