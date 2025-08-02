@@ -150,8 +150,21 @@ function generateHTML(project: Project, page: any, options: ExportOptions): stri
     const openingTag = `<${openingTagParts.join(' ')}>`;
 
     // Gestion spéciale pour les composants complexes avec componentData
-    if (component.type === 'carousel' && component.componentData?.slides) {
-      const slides = component.componentData.slides;
+    if (component.type === 'carousel') {
+      const slides = component.componentData?.slides || [];
+      
+      // Si pas de slides configurés, afficher un placeholder
+      if (slides.length === 0) {
+        return `${indentStr}${openingTag}
+${childIndentStr}<div class="carousel-slide" style="width: 100%; height: 100%; background-color: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; position: relative;">
+${childIndentStr}  <div style="text-align: center; padding: 20px;">
+${childIndentStr}    <h3 style="font-size: 24px; margin: 0 0 8px 0;">Carousel</h3>
+${childIndentStr}    <p style="margin: 0; font-size: 16px;">Configurez vos slides dans l'éditeur</p>
+${childIndentStr}  </div>
+${childIndentStr}</div>
+${indentStr}</${tag}>`;
+      }
+      
       const slidesHTML = slides.map((slide: any, index: number) => {
         const slideStyle = `
           width: 100%;
@@ -229,11 +242,42 @@ ${itemsHTML}
 ${indentStr}</${tag}>`;
     }
 
+    // Gestion spécifique pour les images
     if (component.type === 'image') {
       if (attributes.src) {
         return `${indentStr}<img src="${attributes.src}" alt="${attributes.alt || ''}" ${idAttr} ${classAttr} ${attributeString} />`;
       } else {
-        return `${indentStr}<div ${idAttr} ${classAttr}>\n${childIndentStr}Image\n${indentStr}</div>`;
+        return `${indentStr}<div ${idAttr} ${classAttr} style="background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; color: #6b7280; padding: 20px;">
+${childIndentStr}📷 Image non configurée
+${indentStr}</div>`;
+      }
+    }
+
+    // Gestion spécifique pour l'audio
+    if (component.type === 'audio') {
+      if (attributes.src) {
+        return `${indentStr}<audio controls ${idAttr} ${classAttr} ${attributeString}>
+${childIndentStr}<source src="${attributes.src}" type="audio/mpeg">
+${childIndentStr}Votre navigateur ne supporte pas l'élément audio.
+${indentStr}</audio>`;
+      } else {
+        return `${indentStr}<div ${idAttr} ${classAttr} style="background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; color: #6b7280; padding: 20px;">
+${childIndentStr}🎵 Fichier audio non configuré
+${indentStr}</div>`;
+      }
+    }
+
+    // Gestion spécifique pour la vidéo
+    if (component.type === 'video') {
+      if (attributes.src) {
+        return `${indentStr}<video controls ${idAttr} ${classAttr} ${attributeString}>
+${childIndentStr}<source src="${attributes.src}" type="video/mp4">
+${childIndentStr}Votre navigateur ne supporte pas l'élément vidéo.
+${indentStr}</video>`;
+      } else {
+        return `${indentStr}<div ${idAttr} ${classAttr} style="background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; color: #6b7280; padding: 20px;">
+${childIndentStr}🎬 Vidéo non configurée
+${indentStr}</div>`;
       }
     }
 
