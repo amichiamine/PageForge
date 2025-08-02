@@ -89,13 +89,20 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
   // Cas spéciaux pour certains types de composants
   switch (component.type) {
     case 'image':
+      const imageFontSize = Math.max(containerWidth / 20, 10);
       if (attributes.src) {
         return (
           <img
             src={attributes.src as string}
             alt={attributes.alt as string || ''}
             className={className as string}
-            style={inlineStyles}
+            style={{
+              ...inlineStyles,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              overflow: 'hidden'
+            }}
             onClick={onClick}
             {...otherAttributes}
           />
@@ -104,7 +111,17 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       return (
         <div
           className={className as string}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#f3f4f6',
+            border: '2px dashed #d1d5db',
+            fontSize: `${imageFontSize}px`,
+            color: '#6b7280',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
@@ -113,49 +130,192 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'carousel':
+      const carouselFontSize = Math.max(containerWidth / 20, 12);
+      const carouselDotSize = Math.max(containerHeight / 15, 6);
       return (
         <div
           className={`carousel-container ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden',
+            position: 'relative'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div className="carousel-track" style={{ display: 'flex', width: '300%', height: '100%', transition: 'transform 0.3s ease-in-out' }}>
-            <div className="carousel-slide" style={{ width: '33.333%', height: '100%', backgroundColor: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
+          <div className="carousel-track" style={{ 
+            display: 'flex', 
+            width: '300%', 
+            height: '100%', 
+            transition: 'transform 0.3s ease-in-out' 
+          }}>
+            <div className="carousel-slide" style={{ 
+              width: '33.333%', 
+              height: '100%', 
+              backgroundColor: '#3b82f6', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: 'white', 
+              fontSize: `${carouselFontSize}px`, 
+              fontWeight: 'bold',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
               Slide 1
             </div>
-            <div className="carousel-slide" style={{ width: '33.333%', height: '100%', backgroundColor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
+            <div className="carousel-slide" style={{ 
+              width: '33.333%', 
+              height: '100%', 
+              backgroundColor: '#10b981', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: 'white', 
+              fontSize: `${carouselFontSize}px`, 
+              fontWeight: 'bold',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
               Slide 2
             </div>
-            <div className="carousel-slide" style={{ width: '33.333%', height: '100%', backgroundColor: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
+            <div className="carousel-slide" style={{ 
+              width: '33.333%', 
+              height: '100%', 
+              backgroundColor: '#f59e0b', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: 'white', 
+              fontSize: `${carouselFontSize}px`, 
+              fontWeight: 'bold',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
               Slide 3
             </div>
           </div>
-          <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'white', opacity: 0.8 }}></div>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'white', opacity: 0.5 }}></div>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'white', opacity: 0.5 }}></div>
+          <div style={{ 
+            position: 'absolute', 
+            bottom: `${Math.max(containerHeight / 20, 8)}px`, 
+            left: '50%', 
+            transform: 'translateX(-50%)', 
+            display: 'flex', 
+            gap: `${Math.max(carouselDotSize / 2, 4)}px` 
+          }}>
+            <div style={{ 
+              width: `${carouselDotSize}px`, 
+              height: `${carouselDotSize}px`, 
+              borderRadius: '50%', 
+              backgroundColor: 'white', 
+              opacity: 0.8 
+            }}></div>
+            <div style={{ 
+              width: `${carouselDotSize}px`, 
+              height: `${carouselDotSize}px`, 
+              borderRadius: '50%', 
+              backgroundColor: 'white', 
+              opacity: 0.5 
+            }}></div>
+            <div style={{ 
+              width: `${carouselDotSize}px`, 
+              height: `${carouselDotSize}px`, 
+              borderRadius: '50%', 
+              backgroundColor: 'white', 
+              opacity: 0.5 
+            }}></div>
           </div>
         </div>
       );
 
     case 'pricing':
+      const pricingTitleSize = Math.max(containerWidth / 15, 12);
+      const pricingPriceSize = Math.max(containerWidth / 10, 16);
+      const pricingTextSize = Math.max(containerWidth / 25, 9);
+      const pricingButtonSize = Math.max(containerWidth / 30, 8);
+      const pricingPadding = Math.max(containerHeight / 15, 10);
+      const pricingSpacing = Math.max(containerHeight / 25, 6);
       return (
         <div
           className={`pricing-card ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px', color: '#1f2937' }}>Plan Standard</h3>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '10px' }}>29€<span style={{ fontSize: '16px', color: '#6b7280' }}>/mois</span></div>
-            <ul style={{ listStyle: 'none', padding: '0', margin: '0', fontSize: '14px', color: '#4b5563' }}>
-              <li style={{ padding: '5px 0' }}>✓ 10 projets inclus</li>
-              <li style={{ padding: '5px 0' }}>✓ Support prioritaire</li>
-              <li style={{ padding: '5px 0' }}>✓ Analytics avancées</li>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: `${pricingPadding}px`,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <h3 style={{ 
+              fontSize: `${pricingTitleSize}px`, 
+              fontWeight: 'bold', 
+              marginBottom: `${pricingSpacing}px`, 
+              color: '#1f2937',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              margin: `0 0 ${pricingSpacing}px 0`
+            }}>Plan Standard</h3>
+            <div style={{ 
+              fontSize: `${pricingPriceSize}px`, 
+              fontWeight: 'bold', 
+              color: '#3b82f6', 
+              marginBottom: `${pricingSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>29€<span style={{ fontSize: `${Math.max(pricingPriceSize / 2, 10)}px`, color: '#6b7280' }}>/mois</span></div>
+            <ul style={{ 
+              listStyle: 'none', 
+              padding: '0', 
+              margin: '0', 
+              fontSize: `${pricingTextSize}px`, 
+              color: '#4b5563',
+              flex: 1,
+              overflow: 'hidden'
+            }}>
+              <li style={{ 
+                padding: `${Math.max(pricingSpacing / 2, 2)}px 0`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>✓ 10 projets inclus</li>
+              <li style={{ 
+                padding: `${Math.max(pricingSpacing / 2, 2)}px 0`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>✓ Support prioritaire</li>
+              <li style={{ 
+                padding: `${Math.max(pricingSpacing / 2, 2)}px 0`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>✓ Analytics avancées</li>
             </ul>
-            <button style={{ marginTop: '15px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', padding: '10px 20px', cursor: 'pointer' }}>
+            <button style={{ 
+              marginTop: `${pricingSpacing}px`, 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              padding: `${Math.max(pricingSpacing / 2, 4)}px ${pricingSpacing}px`, 
+              cursor: 'pointer',
+              fontSize: `${pricingButtonSize}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
               Choisir ce plan
             </button>
           </div>
@@ -163,23 +323,83 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'testimonial':
+      const testQuoteSize = Math.max(containerWidth / 12, 16);
+      const testTextSize = Math.max(containerWidth / 22, 10);
+      const testNameSize = Math.max(containerWidth / 28, 9);
+      const testTitleSize = Math.max(containerWidth / 32, 8);
+      const testPadding = Math.max(containerHeight / 15, 10);
+      const testSpacing = Math.max(containerHeight / 20, 6);
+      const testAvatarSize = Math.max(containerHeight / 8, 24);
       return (
         <div
           className={`testimonial ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '20px', textAlign: 'center' }}>
-            <div style={{ fontSize: '32px', color: '#d1d5db', marginBottom: '10px' }}>"</div>
-            <p style={{ fontSize: '16px', color: '#4b5563', marginBottom: '15px', fontStyle: 'italic' }}>
+          <div style={{ 
+            padding: `${testPadding}px`, 
+            textAlign: 'center',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              fontSize: `${testQuoteSize}px`, 
+              color: '#d1d5db', 
+              marginBottom: `${testSpacing}px` 
+            }}>"</div>
+            <p style={{ 
+              fontSize: `${testTextSize}px`, 
+              color: '#4b5563', 
+              marginBottom: `${testSpacing}px`, 
+              fontStyle: 'italic',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: Math.max(Math.floor((containerHeight - testQuoteSize - testAvatarSize - testPadding * 2 - testSpacing * 3) / (testTextSize * 1.4)), 1),
+              WebkitBoxOrient: 'vertical' as any,
+              flex: 1
+            }}>
               Ce service a transformé notre façon de travailler. Vraiment exceptionnel !
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e5e7eb' }}></div>
-              <div>
-                <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#1f2937' }}>Marie Dubois</div>
-                <div style={{ fontSize: '12px', color: '#6b7280' }}>Directrice Marketing</div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: `${Math.max(testSpacing / 2, 4)}px`,
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                width: `${testAvatarSize}px`, 
+                height: `${testAvatarSize}px`, 
+                borderRadius: '50%', 
+                backgroundColor: '#e5e7eb',
+                flexShrink: 0
+              }}></div>
+              <div style={{ 
+                overflow: 'hidden',
+                minWidth: 0
+              }}>
+                <div style={{ 
+                  fontWeight: 'bold', 
+                  fontSize: `${testNameSize}px`, 
+                  color: '#1f2937',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Marie Dubois</div>
+                <div style={{ 
+                  fontSize: `${testTitleSize}px`, 
+                  color: '#6b7280',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Directrice Marketing</div>
               </div>
             </div>
           </div>
@@ -187,20 +407,75 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'team':
+      const teamAvatarSize = Math.max(containerHeight / 6, 40);
+      const teamNameSize = Math.max(containerWidth / 18, 12);
+      const teamRoleSize = Math.max(containerWidth / 25, 10);
+      const teamDescSize = Math.max(containerWidth / 30, 8);
+      const teamPadding = Math.max(containerHeight / 15, 10);
+      const teamSpacing = Math.max(containerHeight / 25, 6);
+      const teamIconSize = Math.max(teamAvatarSize / 3.5, 14);
       return (
         <div
           className={`team-member ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#e5e7eb', margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', color: '#9ca3af' }}>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: `${teamPadding}px`,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              width: `${teamAvatarSize}px`, 
+              height: `${teamAvatarSize}px`, 
+              borderRadius: '50%', 
+              backgroundColor: '#e5e7eb', 
+              margin: `0 auto ${teamSpacing}px`, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${teamIconSize}px`, 
+              color: '#9ca3af',
+              flexShrink: 0
+            }}>
               👤
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px', color: '#1f2937' }}>Jean Martin</h3>
-            <p style={{ fontSize: '14px', color: '#3b82f6', marginBottom: '10px' }}>Développeur Senior</p>
-            <p style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.4' }}>
+            <h3 style={{ 
+              fontSize: `${teamNameSize}px`, 
+              fontWeight: 'bold', 
+              marginBottom: `${Math.max(teamSpacing / 2, 3)}px`, 
+              color: '#1f2937',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              margin: `0 0 ${Math.max(teamSpacing / 2, 3)}px 0`
+            }}>Jean Martin</h3>
+            <p style={{ 
+              fontSize: `${teamRoleSize}px`, 
+              color: '#3b82f6', 
+              marginBottom: `${teamSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Développeur Senior</p>
+            <p style={{ 
+              fontSize: `${teamDescSize}px`, 
+              color: '#6b7280', 
+              lineHeight: '1.4',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: Math.max(Math.floor((containerHeight - teamAvatarSize - teamPadding * 2 - teamSpacing * 2 - teamNameSize - teamRoleSize) / (teamDescSize * 1.4)), 1),
+              WebkitBoxOrient: 'vertical' as any,
+              flex: 1
+            }}>
               Expert en développement web avec 8 ans d'expérience en React et Node.js.
             </p>
           </div>
@@ -208,35 +483,116 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'stats':
+      const statsIconSize = Math.max(containerWidth / 8, 20);
+      const statsNumberSize = Math.max(containerWidth / 8, 16);
+      const statsLabelSize = Math.max(containerWidth / 25, 10);
+      const statsPadding = Math.max(containerHeight / 12, 10);
+      const statsSpacing = Math.max(containerHeight / 20, 6);
       return (
         <div
           className={`stats-card ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <div style={{ fontSize: '36px', marginBottom: '10px' }}>📊</div>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '5px' }}>1,247</div>
-            <div style={{ fontSize: '14px', color: '#6b7280' }}>Projets créés</div>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: `${statsPadding}px`,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              fontSize: `${statsIconSize}px`, 
+              marginBottom: `${statsSpacing}px` 
+            }}>📊</div>
+            <div style={{ 
+              fontSize: `${statsNumberSize}px`, 
+              fontWeight: 'bold', 
+              color: '#3b82f6', 
+              marginBottom: `${Math.max(statsSpacing / 2, 3)}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>1,247</div>
+            <div style={{ 
+              fontSize: `${statsLabelSize}px`, 
+              color: '#6b7280',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Projets créés</div>
           </div>
         </div>
       );
 
     case 'faq':
+      const faqTitleSize = Math.max(containerWidth / 20, 11);
+      const faqTextSize = Math.max(containerWidth / 26, 9);
+      const faqIconSize = Math.max(containerWidth / 18, 12);
+      const faqPadding = Math.max(containerHeight / 15, 8);
+      const faqSpacing = Math.max(containerHeight / 25, 6);
       return (
         <div
           className={`faq-item ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '15px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>Comment ça fonctionne ?</h4>
-              <span style={{ fontSize: '20px', color: '#6b7280' }}>+</span>
+          <div style={{ 
+            padding: `${faqPadding}px`, 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: `${faqSpacing}px`,
+              overflow: 'hidden'
+            }}>
+              <h4 style={{ 
+                fontSize: `${faqTitleSize}px`, 
+                fontWeight: '600', 
+                color: '#1f2937',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1,
+                margin: 0
+              }}>Comment ça fonctionne ?</h4>
+              <span style={{ 
+                fontSize: `${faqIconSize}px`, 
+                color: '#6b7280',
+                flexShrink: 0,
+                marginLeft: '8px'
+              }}>+</span>
             </div>
-            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
+            <p style={{ 
+              fontSize: `${faqTextSize}px`, 
+              color: '#6b7280', 
+              lineHeight: '1.4',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: Math.max(Math.floor((containerHeight - faqTitleSize - faqPadding * 2 - faqSpacing) / (faqTextSize * 1.4)), 1),
+              WebkitBoxOrient: 'vertical' as any,
+              flex: 1,
+              margin: 0
+            }}>
               Notre plateforme vous permet de créer des sites web professionnels en quelques clics grâce à notre éditeur visuel intuitif.
             </p>
           </div>
@@ -244,96 +600,356 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'weather':
+      const weatherIconSize = Math.max(containerWidth / 8, 24);
+      const weatherTempSize = Math.max(containerWidth / 12, 16);
+      const weatherCitySize = Math.max(containerWidth / 25, 10);
+      const weatherDescSize = Math.max(containerWidth / 30, 8);
+      const weatherPadding = Math.max(containerHeight / 12, 10);
+      const weatherSpacing = Math.max(containerHeight / 20, 6);
       return (
         <div
           className={`weather-widget ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '20px', textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>☀️</div>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '5px' }}>22°C</div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '10px' }}>Paris, France</div>
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>Ensoleillé</div>
+          <div style={{ 
+            padding: `${weatherPadding}px`, 
+            textAlign: 'center',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              fontSize: `${weatherIconSize}px`, 
+              marginBottom: `${weatherSpacing}px` 
+            }}>☀️</div>
+            <div style={{ 
+              fontSize: `${weatherTempSize}px`, 
+              fontWeight: 'bold', 
+              color: '#1f2937', 
+              marginBottom: `${Math.max(weatherSpacing / 2, 3)}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>22°C</div>
+            <div style={{ 
+              fontSize: `${weatherCitySize}px`, 
+              color: '#6b7280', 
+              marginBottom: `${weatherSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Paris, France</div>
+            <div style={{ 
+              fontSize: `${weatherDescSize}px`, 
+              color: '#9ca3af',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Ensoleillé</div>
           </div>
         </div>
       );
 
     case 'gallery':
+      const galleryTitleSize = Math.max(containerWidth / 18, 12);
+      const galleryIconSize = Math.max(containerWidth / 15, 16);
+      const galleryPadding = Math.max(containerHeight / 20, 8);
+      const gallerySpacing = Math.max(containerHeight / 30, 4);
+      const galleryGap = Math.max(containerWidth / 50, 4);
       return (
         <div
           className={`gallery-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#1f2937', textAlign: 'center' }}>Galerie Photos</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', height: '200px' }}>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🖼️</div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🖼️</div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🖼️</div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🖼️</div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🖼️</div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🖼️</div>
+          <h3 style={{ 
+            fontSize: `${galleryTitleSize}px`, 
+            fontWeight: '600', 
+            marginBottom: `${gallerySpacing}px`, 
+            color: '#1f2937', 
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            margin: `0 0 ${gallerySpacing}px 0`
+          }}>Galerie Photos</h3>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: `${galleryGap}px`, 
+            height: `calc(100% - ${galleryTitleSize}px - ${gallerySpacing}px)`,
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${galleryIconSize}px`,
+              overflow: 'hidden'
+            }}>🖼️</div>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${galleryIconSize}px`,
+              overflow: 'hidden'
+            }}>🖼️</div>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${galleryIconSize}px`,
+              overflow: 'hidden'
+            }}>🖼️</div>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${galleryIconSize}px`,
+              overflow: 'hidden'
+            }}>🖼️</div>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${galleryIconSize}px`,
+              overflow: 'hidden'
+            }}>🖼️</div>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '6px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: `${galleryIconSize}px`,
+              overflow: 'hidden'
+            }}>🖼️</div>
           </div>
         </div>
       );
 
     case 'chart':
+      const chartTitleSize = Math.max(containerWidth / 22, 11);
+      const chartLabelSize = Math.max(containerWidth / 32, 8);
+      const chartPadding = Math.max(containerHeight / 18, 8);
+      const chartSpacing = Math.max(containerHeight / 25, 6);
+      const chartBarWidth = Math.max(containerWidth / 20, 12);
+      const chartGap = Math.max(containerWidth / 60, 4);
+      const chartHeight = Math.max(containerHeight - chartTitleSize - chartLabelSize - chartPadding * 2 - chartSpacing * 2, 60);
       return (
         <div
           className={`chart-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '15px', color: '#1f2937' }}>Ventes mensuelles</h3>
-            <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', height: '120px', gap: '8px' }}>
-              <div style={{ backgroundColor: '#3b82f6', width: '20px', height: '60px', borderRadius: '2px' }}></div>
-              <div style={{ backgroundColor: '#10b981', width: '20px', height: '80px', borderRadius: '2px' }}></div>
-              <div style={{ backgroundColor: '#f59e0b', width: '20px', height: '100px', borderRadius: '2px' }}></div>
-              <div style={{ backgroundColor: '#ef4444', width: '20px', height: '70px', borderRadius: '2px' }}></div>
-              <div style={{ backgroundColor: '#8b5cf6', width: '20px', height: '90px', borderRadius: '2px' }}></div>
+          <div style={{ 
+            padding: `${chartPadding}px`,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <h3 style={{ 
+              fontSize: `${chartTitleSize}px`, 
+              fontWeight: '600', 
+              marginBottom: `${chartSpacing}px`, 
+              color: '#1f2937',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              margin: `0 0 ${chartSpacing}px 0`
+            }}>Ventes mensuelles</h3>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'end', 
+              justifyContent: 'space-between', 
+              height: `${chartHeight}px`, 
+              gap: `${chartGap}px`,
+              flex: 1,
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                backgroundColor: '#3b82f6', 
+                width: `${chartBarWidth}px`, 
+                height: `${Math.max(chartHeight * 0.5, 20)}px`, 
+                borderRadius: '2px',
+                flexShrink: 0
+              }}></div>
+              <div style={{ 
+                backgroundColor: '#10b981', 
+                width: `${chartBarWidth}px`, 
+                height: `${Math.max(chartHeight * 0.67, 24)}px`, 
+                borderRadius: '2px',
+                flexShrink: 0
+              }}></div>
+              <div style={{ 
+                backgroundColor: '#f59e0b', 
+                width: `${chartBarWidth}px`, 
+                height: `${Math.max(chartHeight * 0.83, 30)}px`, 
+                borderRadius: '2px',
+                flexShrink: 0
+              }}></div>
+              <div style={{ 
+                backgroundColor: '#ef4444', 
+                width: `${chartBarWidth}px`, 
+                height: `${Math.max(chartHeight * 0.58, 22)}px`, 
+                borderRadius: '2px',
+                flexShrink: 0
+              }}></div>
+              <div style={{ 
+                backgroundColor: '#8b5cf6', 
+                width: `${chartBarWidth}px`, 
+                height: `${Math.max(chartHeight * 0.75, 28)}px`, 
+                borderRadius: '2px',
+                flexShrink: 0
+              }}></div>
             </div>
-            <div style={{ marginTop: '10px', fontSize: '12px', color: '#6b7280', textAlign: 'center' }}>Jan - Mai 2024</div>
+            <div style={{ 
+              marginTop: `${chartSpacing}px`, 
+              fontSize: `${chartLabelSize}px`, 
+              color: '#6b7280', 
+              textAlign: 'center',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Jan - Mai 2024</div>
           </div>
         </div>
       );
 
     case 'video':
+      const videoPlaySize = Math.max(containerWidth / 10, 24);
+      const videoTextSize = Math.max(containerWidth / 25, 10);
       return (
         <div
           className={`video-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            height: '100%', 
+            backgroundColor: '#000', 
+            borderRadius: '8px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}>
             <div style={{ color: 'white', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '10px' }}>▶️</div>
-              <div style={{ fontSize: '14px' }}>Vidéo de démonstration</div>
+              <div style={{ 
+                fontSize: `${videoPlaySize}px`, 
+                marginBottom: `${Math.max(containerHeight / 20, 6)}px` 
+              }}>▶️</div>
+              <div style={{ 
+                fontSize: `${videoTextSize}px`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>Vidéo de démonstration</div>
             </div>
           </div>
         </div>
       );
 
     case 'audio':
+      const audioIconSize = Math.max(containerWidth / 15, 16);
+      const audioTitleSize = Math.max(containerWidth / 25, 10);
+      const audioSubtitleSize = Math.max(containerWidth / 30, 8);
+      const audioPadding = Math.max(containerHeight / 15, 8);
+      const audioButtonSize = Math.max(containerHeight / 8, 24);
       return (
         <div
           className={`audio-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '24px' }}>🎵</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>Musique d'ambiance</div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>3:45 / 5:20</div>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: `${Math.max(audioPadding / 2, 6)}px`, 
+            backgroundColor: '#f8fafc', 
+            padding: `${audioPadding}px`, 
+            borderRadius: '8px', 
+            border: '1px solid #e2e8f0',
+            height: '100%',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              fontSize: `${audioIconSize}px`,
+              flexShrink: 0
+            }}>🎵</div>
+            <div style={{ 
+              flex: 1,
+              overflow: 'hidden',
+              minWidth: 0
+            }}>
+              <div style={{ 
+                fontSize: `${audioTitleSize}px`, 
+                fontWeight: '600', 
+                color: '#1e293b',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>Musique d'ambiance</div>
+              <div style={{ 
+                fontSize: `${audioSubtitleSize}px`, 
+                color: '#64748b', 
+                marginTop: `${Math.max(audioPadding / 6, 1)}px`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>3:45 / 5:20</div>
             </div>
-            <button style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer' }}>
+            <button style={{ 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '50%', 
+              width: `${audioButtonSize}px`, 
+              height: `${audioButtonSize}px`, 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              fontSize: `${Math.max(audioButtonSize / 3, 8)}px`
+            }}>
               ▶️
             </button>
           </div>
@@ -341,25 +957,50 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'icon':
+      const iconSize = Math.max(Math.min(containerWidth, containerHeight) / 3, 16);
       return (
         <div
           className={`icon-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: '32px' }}>{content || '⭐'}</span>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            width: '100%', 
+            height: '100%',
+            overflow: 'hidden'
+          }}>
+            <span style={{ fontSize: `${iconSize}px` }}>{content || '⭐'}</span>
           </div>
         </div>
       );
 
     case 'link':
+      const linkFontSize = Math.max(containerWidth / 20, 10);
       return (
         <a
           href="#"
           className={`link-component ${className || ''}`}
-          style={{ ...inlineStyles, textDecoration: 'underline', color: '#3b82f6', cursor: 'pointer' }}
+          style={{ 
+            ...inlineStyles, 
+            textDecoration: 'underline', 
+            color: '#3b82f6', 
+            cursor: 'pointer',
+            fontSize: `${linkFontSize}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            padding: `${Math.max(containerHeight / 20, 4)}px`,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
@@ -368,17 +1009,57 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'modal':
+      const modalIconSize = Math.max(containerWidth / 15, 16);
+      const modalTextSize = Math.max(containerWidth / 25, 10);
+      const modalButtonSize = Math.max(containerWidth / 30, 8);
+      const modalPadding = Math.max(containerHeight / 12, 10);
+      const modalSpacing = Math.max(containerHeight / 20, 6);
       return (
         <div
           className={`modal-preview ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ border: '2px dashed #d1d5db', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-            <div style={{ fontSize: '24px', marginBottom: '10px' }}>🪟</div>
-            <div style={{ fontSize: '14px', color: '#6b7280' }}>Modal Dialog</div>
-            <button style={{ marginTop: '10px', padding: '6px 12px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', fontSize: '12px' }}>
+          <div style={{ 
+            border: '2px dashed #d1d5db', 
+            padding: `${modalPadding}px`, 
+            textAlign: 'center', 
+            backgroundColor: '#f9fafb', 
+            borderRadius: '8px',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              fontSize: `${modalIconSize}px`, 
+              marginBottom: `${modalSpacing}px` 
+            }}>🪟</div>
+            <div style={{ 
+              fontSize: `${modalTextSize}px`, 
+              color: '#6b7280',
+              marginBottom: `${modalSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Modal Dialog</div>
+            <button style={{ 
+              padding: `${Math.max(modalSpacing / 2, 3)}px ${modalSpacing}px`, 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              fontSize: `${modalButtonSize}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
               Ouvrir
             </button>
           </div>
@@ -386,71 +1067,223 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'dropdown':
+      const dropdownFontSize = Math.max(containerWidth / 22, 10);
+      const dropdownPadding = Math.max(containerHeight / 15, 6);
       return (
         <div
           className={`dropdown-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 12px', backgroundColor: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px' }}>Sélectionner une option</span>
-            <span style={{ fontSize: '12px', color: '#6b7280' }}>▼</span>
+          <div style={{ 
+            border: '1px solid #d1d5db', 
+            borderRadius: '6px', 
+            padding: `${dropdownPadding}px ${dropdownPadding * 1.5}px`, 
+            backgroundColor: 'white', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            height: '100%',
+            overflow: 'hidden'
+          }}>
+            <span style={{ 
+              fontSize: `${dropdownFontSize}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: 1
+            }}>Sélectionner une option</span>
+            <span style={{ 
+              fontSize: `${Math.max(dropdownFontSize * 0.8, 8)}px`, 
+              color: '#6b7280',
+              flexShrink: 0,
+              marginLeft: '8px'
+            }}>▼</span>
           </div>
         </div>
       );
 
     case 'accordion':
+      const accordionFontSize = Math.max(containerWidth / 25, 9);
+      const accordionPadding = Math.max(containerHeight / 20, 6);
+      const accordionItemHeight = Math.max(containerHeight / 3.5, 30);
       return (
         <div
           className={`accordion-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ padding: '12px 16px', backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>Section 1</span>
-              <span>+</span>
+          <div style={{ 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px', 
+            overflow: 'hidden',
+            height: '100%'
+          }}>
+            <div style={{ 
+              padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
+              backgroundColor: '#f9fafb', 
+              borderBottom: '1px solid #e5e7eb', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              height: `${accordionItemHeight}px`,
+              overflow: 'hidden'
+            }}>
+              <span style={{ 
+                fontSize: `${accordionFontSize}px`, 
+                fontWeight: '500',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1
+              }}>Section 1</span>
+              <span style={{ flexShrink: 0 }}>+</span>
             </div>
-            <div style={{ padding: '12px 16px', backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>Section 2</span>
-              <span>+</span>
+            <div style={{ 
+              padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
+              backgroundColor: '#f9fafb', 
+              borderBottom: '1px solid #e5e7eb', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              height: `${accordionItemHeight}px`,
+              overflow: 'hidden'
+            }}>
+              <span style={{ 
+                fontSize: `${accordionFontSize}px`, 
+                fontWeight: '500',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1
+              }}>Section 2</span>
+              <span style={{ flexShrink: 0 }}>+</span>
             </div>
-            <div style={{ padding: '12px 16px', backgroundColor: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>Section 3</span>
-              <span>+</span>
+            <div style={{ 
+              padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
+              backgroundColor: '#f9fafb', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              height: `${accordionItemHeight}px`,
+              overflow: 'hidden'
+            }}>
+              <span style={{ 
+                fontSize: `${accordionFontSize}px`, 
+                fontWeight: '500',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1
+              }}>Section 3</span>
+              <span style={{ flexShrink: 0 }}>+</span>
             </div>
           </div>
         </div>
       );
 
     case 'table':
+      const tableFontSize = Math.max(containerWidth / 30, 8);
+      const tablePadding = Math.max(containerHeight / 20, 3);
       return (
         <div
           className={`table-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+          <table style={{ 
+            width: '100%', 
+            height: '100%',
+            borderCollapse: 'collapse', 
+            fontSize: `${tableFontSize}px`,
+            overflow: 'hidden'
+          }}>
             <thead>
               <tr style={{ backgroundColor: '#f3f4f6' }}>
-                <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Nom</th>
-                <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Email</th>
-                <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Statut</th>
+                <th style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db', 
+                  textAlign: 'left',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Nom</th>
+                <th style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db', 
+                  textAlign: 'left',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Email</th>
+                <th style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db', 
+                  textAlign: 'left',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Statut</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style={{ padding: '8px', border: '1px solid #d1d5db' }}>Jean Dupont</td>
-                <td style={{ padding: '8px', border: '1px solid #d1d5db' }}>jean@example.com</td>
-                <td style={{ padding: '8px', border: '1px solid #d1d5db' }}>Actif</td>
+                <td style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Jean Dupont</td>
+                <td style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>jean@example.com</td>
+                <td style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Actif</td>
               </tr>
               <tr>
-                <td style={{ padding: '8px', border: '1px solid #d1d5db' }}>Marie Martin</td>
-                <td style={{ padding: '8px', border: '1px solid #d1d5db' }}>marie@example.com</td>
-                <td style={{ padding: '8px', border: '1px solid #d1d5db' }}>Inactif</td>
+                <td style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Marie Martin</td>
+                <td style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>marie@example.com</td>
+                <td style={{ 
+                  padding: `${tablePadding}px`, 
+                  border: '1px solid #d1d5db',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Inactif</td>
               </tr>
             </tbody>
           </table>
@@ -458,36 +1291,118 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'list':
+      const listFontSize = Math.max(containerWidth / 25, 9);
+      const listPadding = Math.max(containerWidth / 15, 12);
+      const listItemSpacing = Math.max(containerHeight / 25, 3);
       return (
         <div
           className={`list-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <ul style={{ margin: '0', padding: '0 0 0 20px', fontSize: '14px', color: '#374151' }}>
-            <li style={{ marginBottom: '8px' }}>Premier élément de la liste</li>
-            <li style={{ marginBottom: '8px' }}>Deuxième élément important</li>
-            <li style={{ marginBottom: '8px' }}>Troisième point à retenir</li>
-            <li>Dernier élément conclusif</li>
+          <ul style={{ 
+            margin: '0', 
+            padding: `0 0 0 ${listPadding}px`, 
+            fontSize: `${listFontSize}px`, 
+            color: '#374151',
+            height: '100%',
+            overflow: 'hidden'
+          }}>
+            <li style={{ 
+              marginBottom: `${listItemSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Premier élément de la liste</li>
+            <li style={{ 
+              marginBottom: `${listItemSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Deuxième élément important</li>
+            <li style={{ 
+              marginBottom: `${listItemSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Troisième point à retenir</li>
+            <li style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Dernier élément conclusif</li>
           </ul>
         </div>
       );
 
     case 'card':
+      const cardTitleSize = Math.max(containerWidth / 15, 12);
+      const cardTextSize = Math.max(containerWidth / 22, 10);
+      const cardButtonSize = Math.max(containerWidth / 25, 9);
+      const cardPadding = Math.max(containerHeight / 15, 10);
+      const cardSpacing = Math.max(containerHeight / 25, 6);
       return (
         <div
           className={`card-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>Titre de la carte</h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.5', marginBottom: '16px' }}>
+          <div style={{ 
+            padding: `${cardPadding}px`, 
+            backgroundColor: 'white', 
+            borderRadius: '8px', 
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', 
+            border: '1px solid #e5e7eb',
+            height: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <h3 style={{ 
+              fontSize: `${cardTitleSize}px`, 
+              fontWeight: '600', 
+              marginBottom: `${cardSpacing}px`, 
+              color: '#1f2937',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              margin: `0 0 ${cardSpacing}px 0`
+            }}>Titre de la carte</h3>
+            <p style={{ 
+              fontSize: `${cardTextSize}px`, 
+              color: '#6b7280', 
+              lineHeight: '1.4', 
+              marginBottom: `${cardSpacing}px`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: Math.max(Math.floor((containerHeight - cardTitleSize - cardButtonSize * 2 - cardPadding * 2 - cardSpacing * 3) / (cardTextSize * 1.4)), 1),
+              WebkitBoxOrient: 'vertical' as any,
+              flex: 1
+            }}>
               Description de la carte avec du contenu informatif et pertinent pour l'utilisateur.
             </p>
-            <button style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', padding: '8px 16px', fontSize: '14px', cursor: 'pointer' }}>
+            <button style={{ 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              padding: `${Math.max(cardSpacing / 2, 4)}px ${cardSpacing}px`, 
+              fontSize: `${cardButtonSize}px`, 
+              cursor: 'pointer',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              marginTop: 'auto'
+            }}>
               En savoir plus
             </button>
           </div>
