@@ -144,6 +144,47 @@ ${itemsHTML}
 ${indentStr}</${tag}>`;
     }
 
+    // Gestion des galeries avec images
+    if (component.type === 'gallery') {
+      const images = component.componentData?.images || [];
+      
+      // Si pas d'images configurées, afficher un placeholder
+      if (images.length === 0 || !images.some((img: any) => img.src)) {
+        return `${indentStr}<div ${idAttr} class="gallery-container gallery-placeholder ${classAttr ? className : ''}">
+${childIndentStr}<div class="gallery-item" style="padding: 20px; background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 8px; text-align: center; aspect-ratio: 1;">
+${childIndentStr}  <span style="font-size: 24px; margin-bottom: 8px; display: block;">🖼️</span>
+${childIndentStr}  <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 4px 0; color: #6b7280;">Galerie vide</h3>
+${childIndentStr}  <p style="font-size: 12px; color: #9ca3af; margin: 0;">Ajoutez des images via la configuration</p>
+${childIndentStr}</div>
+${indentStr}</div>`;
+      }
+      
+      const validImages = images.filter((img: any) => img.src);
+      const columnsClass = validImages.length === 1 ? 'gallery-cols-1' : 
+                          validImages.length === 2 ? 'gallery-cols-2' : 'gallery-cols-3';
+      
+      const galleryStyle = `
+        display: grid;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 8px;
+        overflow: hidden;
+        grid-template-columns: ${validImages.length === 1 ? '1fr' : 
+                                validImages.length === 2 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'};
+      `;
+      
+      const imagesHTML = validImages.map((image: any, index: number) => {
+        return `${childIndentStr}<div class="gallery-item" style="position: relative; border-radius: 6px; overflow: hidden; background-color: #f3f4f6; aspect-ratio: 1;">
+${childIndentStr}  <img src="${image.src}" alt="${image.alt || `Image ${index + 1}`}" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+${image.caption ? `${childIndentStr}  <div class="gallery-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.7); color: white; padding: 4px 8px; font-size: 10px; text-align: center;">${image.caption}</div>` : ''}
+${childIndentStr}</div>`;
+      }).join('\n');
+      
+      return `${indentStr}<div ${idAttr} class="gallery-container ${columnsClass} ${classAttr ? className : ''}" style="${galleryStyle}">
+${imagesHTML}
+${indentStr}</div>`;
+    }
+
     // Gestion des grilles avec éléments (Protocole-Component)
     if (component.type === 'grid') {
       const items = component.componentData?.gridItems || [];
