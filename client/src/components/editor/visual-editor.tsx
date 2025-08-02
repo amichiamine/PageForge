@@ -316,16 +316,32 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         );
         
       case 'image':
+        const imageSrc = component.attributes?.src || component.componentData?.src;
         return (
-          <div style={style} className={component.attributes?.className}>
-            {component.attributes?.src ? (
+          <div style={style} className={`responsive-image ${component.attributes?.className || ''}`}>
+            {imageSrc ? (
               <img 
-                src={component.attributes.src} 
-                alt={component.attributes.alt || ''} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                src={imageSrc} 
+                alt={component.attributes?.alt || component.componentData?.alt || 'Image'} 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',
+                  maxWidth: '100%'
+                }}
+                loading={component.attributes?.loading || 'lazy'}
               />
             ) : (
-              <div className="flex items-center justify-center bg-gray-200 text-gray-500 w-full h-full">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center', 
+                justifyContent: 'center',
+                backgroundColor: '#f3f4f6',
+                color: '#6b7280',
+                width: '100%',
+                height: '100%',
+                border: '2px dashed #d1d5db'
+              }}>
                 📷 Image
               </div>
             )}
@@ -641,16 +657,40 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         );
         
       case 'accordion':
+        const accordionItems = component.componentData?.items || [
+          { question: 'Question 1', answer: 'Réponse à la première question...', isOpen: false },
+          { question: 'Question 2', answer: 'Réponse à la deuxième question...', isOpen: false }
+        ];
+        
         return (
-          <div style={style} className={component.attributes?.className}>
-            {component.children?.map(child => (
-              <ComponentRenderer key={child.id} component={child} />
-            )) || (
-              <div>
-                <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb', fontWeight: '500' }}>▼ Question 1</div>
-                <div style={{ padding: '12px 16px', fontSize: '14px', color: '#666' }}>Réponse à la première question...</div>
+          <div style={style} className={`accordion-container ${component.attributes?.className || ''}`}>
+            {accordionItems.map((item: any, index: number) => (
+              <div key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <div style={{ 
+                  padding: '16px', 
+                  fontWeight: '500', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  {item.question}
+                  <span style={{ fontSize: '12px', color: '#666' }}>
+                    {item.isOpen ? '▲' : '▼'}
+                  </span>
+                </div>
+                {item.isOpen && (
+                  <div style={{ 
+                    padding: '12px 16px', 
+                    fontSize: '14px', 
+                    color: '#666',
+                    backgroundColor: '#f9fafb'
+                  }}>
+                    {item.answer}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
         );
         
@@ -723,6 +763,65 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
               <div style={{ marginBottom: '8px' }}>📱 +33 1 23 45 67 89</div>
               <div>📍 123 Rue Exemple, Paris</div>
             </div>
+          </div>
+        );
+
+      case 'gallery':
+        const galleryImages = component.componentData?.images || [];
+        return (
+          <div style={{
+            ...style,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+            gap: '8px',
+            padding: '12px'
+          }} className={`gallery-container ${component.attributes?.className || ''}`}>
+            {galleryImages.length > 0 ? (
+              galleryImages.map((image: any, index: number) => (
+                <div 
+                  key={index}
+                  style={{
+                    position: 'relative',
+                    aspectRatio: '1',
+                    overflow: 'hidden',
+                    borderRadius: '6px',
+                    backgroundColor: '#f3f4f6'
+                  }}
+                >
+                  <img 
+                    src={image.src || image} 
+                    alt={image.alt || `Image ${index + 1}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                </div>
+              ))
+            ) : (
+              // Galerie par défaut avec des placeholders
+              Array.from({ length: 4 }, (_, index) => (
+                <div 
+                  key={index}
+                  style={{
+                    position: 'relative',
+                    aspectRatio: '1',
+                    overflow: 'hidden',
+                    borderRadius: '6px',
+                    backgroundColor: '#f3f4f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px dashed #d1d5db',
+                    color: '#6b7280',
+                    fontSize: '24px'
+                  }}
+                >
+                  🖼️
+                </div>
+              ))
+            )}
           </div>
         );
 
