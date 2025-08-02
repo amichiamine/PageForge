@@ -39,7 +39,19 @@ export default function PropertiesPanel({
   // Effect pour détecter les changements de composant
   useEffect(() => {
     if (component) {
-      setLocalComponent(component);
+      // S'assurer que componentData existe pour les composants qui en ont besoin
+      const componentWithData = { ...component };
+      if (component.type === 'grid' && !component.componentData) {
+        componentWithData.componentData = {
+          gridItems: [],
+          columns: 2,
+          gap: '16px',
+          alignment: 'center',
+          itemBackground: '#f3f4f6'
+        };
+
+      }
+      setLocalComponent(componentWithData);
     } else {
       setLocalComponent(null);
     }
@@ -47,6 +59,8 @@ export default function PropertiesPanel({
 
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
+
+
 
     const updatedComponent = { ...localComponent };
 
@@ -68,6 +82,7 @@ export default function PropertiesPanel({
         ...updatedComponent.componentData,
         [dataProp]: value
       };
+
     } else {
       (updatedComponent as any)[path] = value;
     }
@@ -85,6 +100,8 @@ export default function PropertiesPanel({
 
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
+    
+
   };
 
   // Fonction pour rendre les propriétés spécifiques au type de composant
@@ -1016,7 +1033,7 @@ export default function PropertiesPanel({
                 content: 'Contenu de l\'élément' 
               };
               items.push(newItem);
-              console.log('🔍 GRID ADD ITEM:', { items, newItem, localComponent: localComponent?.componentData });
+
               updateProperty('componentData.gridItems', items);
             }}
             className="w-full text-sm"

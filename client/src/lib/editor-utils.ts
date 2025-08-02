@@ -477,8 +477,8 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          // DONNÉES MÉTIER SPÉCIFIQUES AU GRID
-          gridItems: [],              // Collection d'éléments
+          // DONNÉES MÉTIER SPÉCIFIQUES AU GRID (Architecture unifiée)
+          gridItems: [],              // Collection d'éléments - démarre vide
           columns: 2,                 // Configuration structure
           gap: '16px',               // Paramètre technique
           alignment: 'center',        // Options d'affichage

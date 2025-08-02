@@ -1725,14 +1725,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const alignment = component.componentData?.alignment || 'center';
       const itemBackground = component.componentData?.itemBackground || '#f3f4f6';
       
-      // Debug temporaire pour identifier le problème
-      console.log('🔍 GRID DEBUG:', {
-        componentId: component.id,
-        gridItems: gridItems,
-        gridItemsLength: gridItems.length,
-        componentData: component.componentData,
-        columns, gap, alignment, itemBackground
-      });
+
       
       return (
         <div
