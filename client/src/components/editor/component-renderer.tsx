@@ -803,6 +803,10 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const gallerySpacing = getResponsiveSpacing(8);
       const galleryGap = getResponsiveSpacing(6);
       
+      // Récupérer les images depuis componentData
+      const galleryImages = component.componentData?.images || [];
+      const hasImages = galleryImages.length > 0 && galleryImages.some((img: any) => img.src);
+      
       return (
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
@@ -814,33 +818,100 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <h3 style={{ 
-            ...galleryTitleStyles,
-            fontWeight: '600', 
-            marginBottom: `${gallerySpacing}px`, 
-            color: '#1f2937', 
-            textAlign: 'center',
-            margin: `0 0 ${gallerySpacing}px 0`
-          }}>Galerie Photos</h3>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(3, 1fr)', 
-            gap: `${galleryGap}px`, 
-            height: `calc(100% - ${parseInt(galleryTitleStyles.fontSize as string)}px - ${gallerySpacing}px)`,
-            overflow: 'hidden'
-          }}>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} style={{ 
-                backgroundColor: '#f3f4f6', 
-                borderRadius: '6px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                overflow: 'hidden',
-                ...galleryIconStyles
+          {hasImages ? (
+            // AFFICHAGE DES VRAIES IMAGES
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: galleryImages.length === 1 ? '1fr' : galleryImages.length === 2 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', 
+              gap: `${galleryGap}px`, 
+              height: '100%',
+              overflow: 'hidden',
+              padding: `${gallerySpacing}px`
+            }}>
+              {galleryImages.map((image: any, index: number) => (
+                image.src ? (
+                  <div key={index} style={{ 
+                    borderRadius: '6px', 
+                    overflow: 'hidden',
+                    position: 'relative',
+                    backgroundColor: '#f3f4f6'
+                  }}>
+                    <img 
+                      src={image.src} 
+                      alt={image.alt || `Image ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block'
+                      }}
+                      onError={(e) => {
+                        // En cas d'erreur de chargement, afficher un placeholder
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.parentElement) {
+                          e.currentTarget.parentElement.innerHTML = `
+                            <div style="
+                              width: 100%; 
+                              height: 100%; 
+                              display: flex; 
+                              align-items: center; 
+                              justify-content: center; 
+                              background-color: #f3f4f6; 
+                              color: #9ca3af;
+                              font-size: ${galleryIconStyles.fontSize};
+                            ">🖼️</div>
+                          `;
+                        }
+                      }}
+                    />
+                    {image.caption && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'rgba(0,0,0,0.7)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        fontSize: '10px',
+                        textAlign: 'center'
+                      }}>
+                        {image.caption}
+                      </div>
+                    )}
+                  </div>
+                ) : null
+              ))}
+            </div>
+          ) : (
+            // ÉTAT VIDE : Placeholder
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              width: '100%',
+              color: '#9ca3af',
+              textAlign: 'center',
+              padding: `${gallerySpacing}px`
+            }}>
+              <div style={{ 
+                ...galleryIconStyles,
+                marginBottom: `${gallerySpacing}px`
               }}>🖼️</div>
-            ))}
-          </div>
+              <div style={{ 
+                ...galleryTitleStyles,
+                color: '#9ca3af',
+                fontSize: '14px'
+              }}>Galerie vide</div>
+              <div style={{ 
+                fontSize: '12px',
+                color: '#d1d5db',
+                marginTop: '4px'
+              }}>Ajoutez des images via la configuration</div>
+            </div>
+          )}
         </div>
       );
 
