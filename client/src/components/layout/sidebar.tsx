@@ -31,7 +31,9 @@ const documentation = [
 
 export default function Sidebar() {
   const [location] = useLocation();
-  const { setHideMainSidebar } = useSidebarContext();
+  const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
+  
+  console.log('Sidebar render - hideMainSidebar from context:', hideMainSidebar);
 
   return (
     <ResizableSidebar

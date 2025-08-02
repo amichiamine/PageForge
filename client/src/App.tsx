@@ -43,9 +43,12 @@ function Router() {
   
   // Debug function
   const handleToggleSidebar = (hide: boolean) => {
-    console.log('Toggle sidebar:', hide ? 'hide' : 'show');
+    console.log('Toggle sidebar:', hide ? 'hide' : 'show', 'Current state:', hideMainSidebar);
     setHideMainSidebar(hide);
+    console.log('After toggle - showMainSidebar:', !hide);
   };
+  
+  console.log('Render - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
   
   // Debug logs removed for production
 
