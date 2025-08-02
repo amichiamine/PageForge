@@ -12,8 +12,8 @@ import {
   Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose, 
   Plus, Minus, ChevronDown, ChevronRight, Layers, Settings, Palette,
   AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline,
-  Pipette, FileImage, Sliders, Type, Layout, Square, Move, Flex, Grid, 
-  Border, Shadow, RotateCcw, Zap, MousePointer, Paintbrush
+  Pipette, FileImage, Sliders, Type, Layout, Square, Move, Grid, 
+  RotateCcw, Zap, MousePointer, Paintbrush
 } from 'lucide-react';
 import type { ComponentDefinition, Project } from '@shared/schema';
 
@@ -51,6 +51,7 @@ export default function PropertiesPanel({
     transparency: '100%'
   });
   const [colorType, setColorType] = useState('solid');
+  const [opacityValue, setOpacityValue] = useState(100);
 
 
 
@@ -103,6 +104,270 @@ export default function PropertiesPanel({
 
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
+  };
+
+  // Fonction utilitaire pour le système de couleur WYSIWYG complet
+  const renderAdvancedColorPicker = (
+    property: string,
+    label: string,
+    defaultValue: string = '#3b82f6',
+    includeOpacity: boolean = true
+  ) => {
+    const currentValue = property.startsWith('styles.') 
+      ? localComponent?.styles?.[property.replace('styles.', '')] 
+      : localComponent?.attributes?.[property.replace('attributes.', '')];
+    
+    return (
+      <div className="space-y-3">
+        <Label className="text-xs">{label}</Label>
+        
+        {/* Sélecteur de mode */}
+        <div className="flex items-center justify-between mb-2">
+          <Select value={colorType} onValueChange={setColorType}>
+            <SelectTrigger className="w-32 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="solid">
+                <div className="flex items-center gap-2">
+                  <Pipette className="w-3 h-3" />
+                  <span>Solide</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="gradient">
+                <div className="flex items-center gap-2">
+                  <Sliders className="w-3 h-3" />
+                  <span>Gradient</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="image">
+                <div className="flex items-center gap-2">
+                  <FileImage className="w-3 h-3" />
+                  <span>Image</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Mode Solide */}
+        {colorType === 'solid' && (
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={currentValue || defaultValue}
+                onChange={(e) => updateProperty(property, e.target.value)}
+                className="h-8 text-xs"
+                placeholder={defaultValue}
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: currentValue || defaultValue }}
+            >
+              <input
+                type="color"
+                value={currentValue || defaultValue}
+                onChange={(e) => updateProperty(property, e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Mode Gradient */}
+        {colorType === 'gradient' && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Type</Label>
+                <Select value={gradientSettings.type} onValueChange={(val) => setGradientSettings({...gradientSettings, type: val})}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="linear">Linéaire</SelectItem>
+                    <SelectItem value="radial">Radial</SelectItem>
+                    <SelectItem value="conic">Conique</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Angle</Label>
+                <Select value={gradientSettings.angle} onValueChange={(val) => setGradientSettings({...gradientSettings, angle: val})}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0deg">0°</SelectItem>
+                    <SelectItem value="45deg">45°</SelectItem>
+                    <SelectItem value="90deg">90°</SelectItem>
+                    <SelectItem value="135deg">135°</SelectItem>
+                    <SelectItem value="180deg">180°</SelectItem>
+                    <SelectItem value="225deg">225°</SelectItem>
+                    <SelectItem value="270deg">270°</SelectItem>
+                    <SelectItem value="315deg">315°</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs">Couleurs du gradient</Label>
+              {gradientSettings.colors.map((color, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div 
+                    className="w-6 h-6 rounded border border-gray-300 cursor-pointer"
+                    style={{ backgroundColor: color }}
+                  >
+                    <input
+                      type="color"
+                      value={color}
+                      onChange={(e) => {
+                        const newColors = [...gradientSettings.colors];
+                        newColors[index] = e.target.value;
+                        setGradientSettings({...gradientSettings, colors: newColors});
+                        const gradientValue = `${gradientSettings.type}-gradient(${gradientSettings.angle}, ${newColors.join(', ')})`;
+                        updateProperty(property, gradientValue);
+                      }}
+                      className="w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input 
+                    value={color}
+                    onChange={(e) => {
+                      const newColors = [...gradientSettings.colors];
+                      newColors[index] = e.target.value;
+                      setGradientSettings({...gradientSettings, colors: newColors});
+                      const gradientValue = `${gradientSettings.type}-gradient(${gradientSettings.angle}, ${newColors.join(', ')})`;
+                      updateProperty(property, gradientValue);
+                    }}
+                    className="h-6 text-xs flex-1"
+                  />
+                  {gradientSettings.colors.length > 2 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const newColors = gradientSettings.colors.filter((_, i) => i !== index);
+                        setGradientSettings({...gradientSettings, colors: newColors});
+                      }}
+                      className="h-6 w-6 p-0 text-red-600"
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const newColors = [...gradientSettings.colors, '#ffffff'];
+                  setGradientSettings({...gradientSettings, colors: newColors});
+                }}
+                className="w-full h-6 text-xs"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Ajouter couleur
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Mode Image */}
+        {colorType === 'image' && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        const imageUrl = e.target?.result as string;
+                        updateProperty(property, `url(${imageUrl})`);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  };
+                  input.click();
+                }}
+              >
+                <FileImage className="w-3 h-3 mr-1" />
+                Parcourir
+              </Button>
+              <span className="text-xs text-gray-500">ou URL :</span>
+            </div>
+            <Input
+              value={currentValue?.replace('url(', '').replace(')', '') || ''}
+              onChange={(e) => updateProperty(property, e.target.value.startsWith('url(') ? e.target.value : `url(${e.target.value})`)}
+              placeholder="https://example.com/image.jpg"
+              className="text-xs"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Répétition</Label>
+                <Select onValueChange={(val) => updateProperty(property.replace('background', 'backgroundRepeat'), val)}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="repeat" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="repeat">Répéter</SelectItem>
+                    <SelectItem value="no-repeat">Ne pas répéter</SelectItem>
+                    <SelectItem value="repeat-x">Répéter X</SelectItem>
+                    <SelectItem value="repeat-y">Répéter Y</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Taille</Label>
+                <Select onValueChange={(val) => updateProperty(property.replace('background', 'backgroundSize'), val)}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="cover" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cover">Cover</SelectItem>
+                    <SelectItem value="contain">Contain</SelectItem>
+                    <SelectItem value="auto">Auto</SelectItem>
+                    <SelectItem value="100% 100%">Étirer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Slider d'opacité */}
+        {includeOpacity && (
+          <div className="space-y-2">
+            <Label className="text-xs">Opacité</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={opacityValue}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setOpacityValue(value);
+                  updateProperty('styles.opacity', value / 100);
+                }}
+                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <span className="text-xs text-gray-500 w-12">{opacityValue}%</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -1421,6 +1686,94 @@ export default function PropertiesPanel({
         return renderPricingConfiguration();
       case 'testimonial':
         return renderTestimonialConfiguration();
+      case 'text':
+        return renderTextConfiguration();
+      case 'heading':
+        return renderHeadingConfiguration();
+      case 'paragraph':
+        return renderParagraphConfiguration();
+      case 'navbar':
+        return renderNavbarConfiguration();
+      case 'footer':
+        return renderFooterConfiguration();
+      case 'hero':
+        return renderHeroConfiguration();
+      case 'features':
+        return renderFeaturesConfiguration();
+      case 'cta':
+        return renderCtaConfiguration();
+      case 'modal':
+        return renderModalConfiguration();
+      case 'tooltip':
+        return renderTooltipConfiguration();
+      case 'accordion':
+        return renderAccordionConfiguration();
+      case 'tabs':
+        return renderTabsConfiguration();
+      case 'timeline':
+        return renderTimelineConfiguration();
+      case 'card':
+        return renderCardConfiguration();
+      case 'badge':
+        return renderBadgeConfiguration();
+      case 'alert':
+        return renderAlertConfiguration();
+      case 'breadcrumb':
+        return renderBreadcrumbConfiguration();
+      case 'progress':
+        return renderProgressConfiguration();
+      case 'spinner':
+        return renderSpinnerConfiguration();
+      case 'divider':
+        return renderDividerConfiguration();
+      case 'spacer':
+        return renderSpacerConfiguration();
+      case 'container':
+        return renderContainerConfiguration();
+      case 'grid':
+        return renderGridConfiguration();
+      case 'flex':
+        return renderFlexConfiguration();
+      case 'sidebar':
+        return renderSidebarConfiguration();
+      case 'header':
+        return renderHeaderConfiguration();
+      case 'main':
+        return renderMainConfiguration();
+      case 'section':
+        return renderSectionConfiguration();
+      case 'article':
+        return renderArticleConfiguration();
+      case 'aside':
+        return renderAsideConfiguration();
+      case 'map':
+        return renderMapConfiguration();
+      case 'chart':
+        return renderChartConfiguration();
+      case 'calendar':
+        return renderCalendarConfiguration();
+      case 'input':
+        return renderInputConfiguration();
+      case 'textarea':
+        return renderTextareaConfiguration();
+      case 'select':
+        return renderSelectConfiguration();
+      case 'checkbox':
+        return renderCheckboxConfiguration();
+      case 'radio':
+        return renderRadioConfiguration();
+      case 'slider':
+        return renderSliderConfiguration();
+      case 'toggle':
+        return renderToggleConfiguration();
+      case 'search':
+        return renderSearchConfiguration();
+      case 'pagination':
+        return renderPaginationConfiguration();
+      case 'rating':
+        return renderRatingConfiguration();
+      case 'upload':
+        return renderUploadConfiguration();
       default:
         return renderGenericConfiguration();
     }
@@ -1613,55 +1966,9 @@ export default function PropertiesPanel({
       <div className="space-y-3 pt-3 border-t">
         <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
         
-        <div>
-          <Label className="text-xs">Style des indicateurs</Label>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Input
-                value={localComponent?.styles?.['--carousel-dot-color'] || '#cbd5e0'}
-                onChange={(e) => updateProperty('styles.--carousel-dot-color', e.target.value)}
-                className="h-8 text-xs"
-                placeholder="#cbd5e0"
-              />
-            </div>
-            <div 
-              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
-              style={{ backgroundColor: localComponent?.styles?.['--carousel-dot-color'] || '#cbd5e0' }}
-            >
-              <input
-                type="color"
-                value={localComponent?.styles?.['--carousel-dot-color'] || '#cbd5e0'}
-                onChange={(e) => updateProperty('styles.--carousel-dot-color', e.target.value)}
-                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-              />
-            </div>
-          </div>
-        </div>
-        
-        <div>
-          <Label className="text-xs">Couleur des flèches</Label>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Input
-                value={localComponent?.styles?.['--carousel-arrow-color'] || '#4a5568'}
-                onChange={(e) => updateProperty('styles.--carousel-arrow-color', e.target.value)}
-                className="h-8 text-xs"
-                placeholder="#4a5568"
-              />
-            </div>
-            <div 
-              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
-              style={{ backgroundColor: localComponent?.styles?.['--carousel-arrow-color'] || '#4a5568' }}
-            >
-              <input
-                type="color"
-                value={localComponent?.styles?.['--carousel-arrow-color'] || '#4a5568'}
-                onChange={(e) => updateProperty('styles.--carousel-arrow-color', e.target.value)}
-                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-              />
-            </div>
-          </div>
-        </div>
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan du carrousel', '#ffffff')}
+        {renderAdvancedColorPicker('styles.--carousel-dot-color', 'Couleur des indicateurs', '#cbd5e0')}
+        {renderAdvancedColorPicker('styles.--carousel-arrow-color', 'Couleur des flèches', '#4a5568')}
         
         <div>
           <Label className="text-xs">Transition</Label>
@@ -1678,6 +1985,24 @@ export default function PropertiesPanel({
               <SelectItem value="all 0.8s ease">Lente (0.8s)</SelectItem>
               <SelectItem value="all 0.2s ease-in-out">Rapide</SelectItem>
               <SelectItem value="all 1s cubic-bezier(0.4, 0, 0.2, 1)">Personnalisée</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label className="text-xs">Ombre du carrousel</Label>
+          <Select 
+            value={localComponent?.styles?.boxShadow || 'none'} 
+            onValueChange={(value) => updateProperty('styles.boxShadow', value === 'none' ? '' : value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              <SelectItem value="0 2px 8px rgba(0, 0, 0, 0.1)">Légère</SelectItem>
+              <SelectItem value="0 4px 12px rgba(0, 0, 0, 0.15)">Normale</SelectItem>
+              <SelectItem value="0 8px 25px rgba(0, 0, 0, 0.15)">Forte</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -1769,54 +2094,26 @@ export default function PropertiesPanel({
       <div className="space-y-3 pt-3 border-t">
         <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
         
-        <div>
-          <Label className="text-xs">Couleur du bouton</Label>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Input
-                value={localComponent?.styles?.backgroundColor || '#3b82f6'}
-                onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
-                className="h-8 text-xs"
-                placeholder="#3b82f6"
-              />
-            </div>
-            <div 
-              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
-              style={{ backgroundColor: localComponent?.styles?.backgroundColor || '#3b82f6' }}
-            >
-              <input
-                type="color"
-                value={localComponent?.styles?.backgroundColor || '#3b82f6'}
-                onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
-                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-              />
-            </div>
-          </div>
-        </div>
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Couleur du bouton', '#3b82f6')}
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#ffffff')}
         
         <div>
-          <Label className="text-xs">Couleur du texte</Label>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Input
-                value={localComponent?.styles?.color || '#ffffff'}
-                onChange={(e) => updateProperty('styles.color', e.target.value)}
-                className="h-8 text-xs"
-                placeholder="#ffffff"
-              />
-            </div>
-            <div 
-              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
-              style={{ backgroundColor: localComponent?.styles?.color || '#ffffff' }}
-            >
-              <input
-                type="color"
-                value={localComponent?.styles?.color || '#ffffff'}
-                onChange={(e) => updateProperty('styles.color', e.target.value)}
-                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-              />
-            </div>
-          </div>
+          <Label className="text-xs">Ombre du bouton</Label>
+          <Select 
+            value={localComponent?.styles?.boxShadow || 'none'} 
+            onValueChange={(value) => updateProperty('styles.boxShadow', value === 'none' ? '' : value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              <SelectItem value="0 1px 3px rgba(0, 0, 0, 0.1)">Légère</SelectItem>
+              <SelectItem value="0 4px 12px rgba(0, 0, 0, 0.15)">Normale</SelectItem>
+              <SelectItem value="0 8px 25px rgba(0, 0, 0, 0.15)">Forte</SelectItem>
+              <SelectItem value="0 0 0 3px rgba(59, 130, 246, 0.5)">Focus</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>
@@ -1926,29 +2223,16 @@ export default function PropertiesPanel({
       <div className="space-y-3 pt-3 border-t">
         <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
         
+        {renderAdvancedColorPicker('styles.borderColor', 'Couleur de bordure', '#cccccc')}
+        
         <div>
-          <Label className="text-xs">Bordure de l'image</Label>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Input
-                value={localComponent?.styles?.border || ''}
-                onChange={(e) => updateProperty('styles.border', e.target.value)}
-                className="h-8 text-xs"
-                placeholder="1px solid #ccc"
-              />
-            </div>
-            <div 
-              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
-              style={{ backgroundColor: localComponent?.styles?.borderColor || '#cccccc' }}
-            >
-              <input
-                type="color"
-                value={localComponent?.styles?.borderColor || '#cccccc'}
-                onChange={(e) => updateProperty('styles.borderColor', e.target.value)}
-                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-              />
-            </div>
-          </div>
+          <Label className="text-xs">Style de bordure</Label>
+          <Input
+            value={localComponent?.styles?.border || ''}
+            onChange={(e) => updateProperty('styles.border', e.target.value)}
+            className="h-8 text-xs"
+            placeholder="1px solid #ccc"
+          />
         </div>
         
         <div>
@@ -1988,6 +2272,8 @@ export default function PropertiesPanel({
             </SelectContent>
           </Select>
         </div>
+        
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan de l\'image', 'transparent', false)}
       </div>
     </div>
   );
@@ -2642,8 +2928,476 @@ export default function PropertiesPanel({
           className="mt-1 text-sm"
         />
       </div>
+      
+      {/* Outils WYSIWYG complets */}
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan', 'transparent')}
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#000000')}
+        {renderAdvancedColorPicker('styles.borderColor', 'Couleur de bordure', '#cccccc', false)}
+        
+        <div>
+          <Label className="text-xs">Ombre</Label>
+          <Select 
+            value={localComponent?.styles?.boxShadow || 'none'} 
+            onValueChange={(value) => updateProperty('styles.boxShadow', value === 'none' ? '' : value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              <SelectItem value="0 1px 3px rgba(0, 0, 0, 0.1)">Légère</SelectItem>
+              <SelectItem value="0 4px 12px rgba(0, 0, 0, 0.15)">Normale</SelectItem>
+              <SelectItem value="0 8px 25px rgba(0, 0, 0, 0.15)">Forte</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
     </div>
   );
+
+  // Configuration pour tous les autres composants avec outils WYSIWYG complets
+  const renderNavbarConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de la Navbar</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Logo/Titre</Label>
+        <Input
+          value={localComponent?.componentData?.brand || 'Mon Site'}
+          onChange={(e) => updateProperty('componentData.brand', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Nom de votre site"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Items de menu (séparés par des virgules)</Label>
+        <Input
+          value={localComponent?.componentData?.menuItems?.join(', ') || 'Accueil, À propos, Services, Contact'}
+          onChange={(e) => updateProperty('componentData.menuItems', e.target.value.split(',').map(item => item.trim()))}
+          className="mt-1 text-sm"
+          placeholder="Accueil, À propos, Services, Contact"
+        />
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="sticky"
+          checked={localComponent?.componentData?.sticky !== false}
+          onCheckedChange={(checked) => updateProperty('componentData.sticky', checked)}
+        />
+        <Label htmlFor="sticky" className="text-xs">Navigation collante</Label>
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan navbar', '#ffffff')}
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#000000')}
+        {renderAdvancedColorPicker('styles.borderColor', 'Couleur de bordure', '#e5e5e5', false)}
+      </div>
+    </div>
+  );
+
+  const renderFooterConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Footer</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte de copyright</Label>
+        <Input
+          value={localComponent?.componentData?.copyright || '© 2024 Mon Site. Tous droits réservés.'}
+          onChange={(e) => updateProperty('componentData.copyright', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="© 2024 Mon Site"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Liens du footer (séparés par des virgules)</Label>
+        <Input
+          value={localComponent?.componentData?.links?.join(', ') || 'Mentions légales, Politique de confidentialité, CGU'}
+          onChange={(e) => updateProperty('componentData.links', e.target.value.split(',').map(item => item.trim()))}
+          className="mt-1 text-sm"
+          placeholder="Mentions légales, Politique"
+        />
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan footer', '#f8f9fa')}
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#6c757d')}
+      </div>
+    </div>
+  );
+
+  const renderHeroConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Hero</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre principal</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Bienvenue sur notre site'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Votre titre accrocheur"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Sous-titre</Label>
+        <Textarea
+          value={localComponent?.componentData?.subtitle || 'Description captivante de votre produit ou service'}
+          onChange={(e) => updateProperty('componentData.subtitle', e.target.value)}
+          className="mt-1 text-sm resize-none"
+          rows={2}
+          placeholder="Description de votre offre"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Texte du bouton</Label>
+          <Input
+            value={localComponent?.componentData?.buttonText || 'Commencer'}
+            onChange={(e) => updateProperty('componentData.buttonText', e.target.value)}
+            className="text-sm"
+            placeholder="Call to action"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Lien du bouton</Label>
+          <Input
+            value={localComponent?.componentData?.buttonLink || '#'}
+            onChange={(e) => updateProperty('componentData.buttonLink', e.target.value)}
+            className="text-sm"
+            placeholder="https://..."
+          />
+        </div>
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan hero', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')}
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#ffffff')}
+      </div>
+    </div>
+  );
+
+  const renderCardConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de la Carte</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de la carte</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Titre de la carte'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Titre..."
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Contenu</Label>
+        <Textarea
+          value={localComponent?.componentData?.content || 'Contenu de la carte'}
+          onChange={(e) => updateProperty('componentData.content', e.target.value)}
+          className="mt-1 text-sm resize-none"
+          rows={3}
+          placeholder="Description de la carte..."
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Image de la carte</Label>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 text-xs"
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    const imageUrl = e.target?.result as string;
+                    updateProperty('componentData.image', imageUrl);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              };
+              input.click();
+            }}
+          >
+            <FileImage className="w-3 h-3 mr-1" />
+            Parcourir
+          </Button>
+          <span className="text-xs text-gray-500">ou URL :</span>
+        </div>
+        <Input
+          value={localComponent?.componentData?.image || ''}
+          onChange={(e) => updateProperty('componentData.image', e.target.value)}
+          placeholder="https://example.com/image.jpg"
+          className="mt-1 text-xs"
+        />
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan carte', '#ffffff')}
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#333333')}
+        {renderAdvancedColorPicker('styles.borderColor', 'Couleur de bordure', '#e5e5e5', false)}
+        
+        <div>
+          <Label className="text-xs">Ombre de la carte</Label>
+          <Select 
+            value={localComponent?.styles?.boxShadow || '0 2px 8px rgba(0, 0, 0, 0.1)'} 
+            onValueChange={(value) => updateProperty('styles.boxShadow', value === 'none' ? '' : value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              <SelectItem value="0 2px 8px rgba(0, 0, 0, 0.1)">Légère</SelectItem>
+              <SelectItem value="0 4px 12px rgba(0, 0, 0, 0.15)">Normale</SelectItem>
+              <SelectItem value="0 8px 25px rgba(0, 0, 0, 0.15)">Forte</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTextConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Texte</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Contenu du texte</Label>
+        <Textarea
+          value={localComponent?.content || 'Votre texte ici...'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm resize-none"
+          rows={4}
+          placeholder="Saisissez votre texte..."
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Taille de police</Label>
+          <Select value={localComponent?.styles?.fontSize || '16px'} onValueChange={(value) => updateProperty('styles.fontSize', value)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="12px">12px</SelectItem>
+              <SelectItem value="14px">14px</SelectItem>
+              <SelectItem value="16px">16px</SelectItem>
+              <SelectItem value="18px">18px</SelectItem>
+              <SelectItem value="20px">20px</SelectItem>
+              <SelectItem value="24px">24px</SelectItem>
+              <SelectItem value="32px">32px</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select value={localComponent?.styles?.textAlign || 'left'} onValueChange={(value) => updateProperty('styles.textAlign', value)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+              <SelectItem value="justify">Justifié</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#000000')}
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan', 'transparent')}
+        
+        <div>
+          <Label className="text-xs">Style de police</Label>
+          <Select 
+            value={localComponent?.styles?.fontWeight || 'normal'} 
+            onValueChange={(value) => updateProperty('styles.fontWeight', value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="bold">Gras</SelectItem>
+              <SelectItem value="lighter">Léger</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderHeadingConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Titre</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte du titre</Label>
+        <Input
+          value={localComponent?.content || 'Votre titre'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Titre principal..."
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Niveau de titre</Label>
+          <Select value={localComponent?.attributes?.tag || 'h2'} onValueChange={(value) => updateProperty('attributes.tag', value)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="h1">H1 - Principal</SelectItem>
+              <SelectItem value="h2">H2 - Section</SelectItem>
+              <SelectItem value="h3">H3 - Sous-section</SelectItem>
+              <SelectItem value="h4">H4 - Détail</SelectItem>
+              <SelectItem value="h5">H5 - Mineur</SelectItem>
+              <SelectItem value="h6">H6 - Minimal</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select value={localComponent?.styles?.textAlign || 'left'} onValueChange={(value) => updateProperty('styles.textAlign', value)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.color', 'Couleur du titre', '#1a1a1a')}
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan', 'transparent')}
+      </div>
+    </div>
+  );
+
+  const renderParagraphConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Paragraphe</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Contenu du paragraphe</Label>
+        <Textarea
+          value={localComponent?.content || 'Votre paragraphe...'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm resize-none"
+          rows={5}
+          placeholder="Rédigez votre paragraphe ici..."
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Interligne</Label>
+          <Select value={localComponent?.styles?.lineHeight || '1.6'} onValueChange={(value) => updateProperty('styles.lineHeight', value)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Serré</SelectItem>
+              <SelectItem value="1.2">Compact</SelectItem>
+              <SelectItem value="1.4">Normal</SelectItem>
+              <SelectItem value="1.6">Aéré</SelectItem>
+              <SelectItem value="2">Large</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Justification</Label>
+          <Select value={localComponent?.styles?.textAlign || 'left'} onValueChange={(value) => updateProperty('styles.textAlign', value)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+              <SelectItem value="justify">Justifié</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#333333')}
+        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan', 'transparent')}
+      </div>
+    </div>
+  );
+
+  // Ajout de configurations pour tous les autres composants...
+  const renderFeaturesConfiguration = () => renderGenericConfiguration();
+  const renderCtaConfiguration = () => renderGenericConfiguration();
+  const renderModalConfiguration = () => renderGenericConfiguration();
+  const renderTooltipConfiguration = () => renderGenericConfiguration();
+  const renderAccordionConfiguration = () => renderGenericConfiguration();
+  const renderTabsConfiguration = () => renderGenericConfiguration();
+  const renderTimelineConfiguration = () => renderGenericConfiguration();
+  const renderBadgeConfiguration = () => renderGenericConfiguration();
+  const renderAlertConfiguration = () => renderGenericConfiguration();
+  const renderBreadcrumbConfiguration = () => renderGenericConfiguration();
+  const renderProgressConfiguration = () => renderGenericConfiguration();
+  const renderSpinnerConfiguration = () => renderGenericConfiguration();
+  const renderDividerConfiguration = () => renderGenericConfiguration();
+  const renderSpacerConfiguration = () => renderGenericConfiguration();
+  const renderContainerConfiguration = () => renderGenericConfiguration();
+  const renderGridConfiguration = () => renderGenericConfiguration();
+  const renderFlexConfiguration = () => renderGenericConfiguration();
+  const renderSidebarConfiguration = () => renderGenericConfiguration();
+  const renderHeaderConfiguration = () => renderGenericConfiguration();
+  const renderMainConfiguration = () => renderGenericConfiguration();
+  const renderSectionConfiguration = () => renderGenericConfiguration();
+  const renderArticleConfiguration = () => renderGenericConfiguration();
+  const renderAsideConfiguration = () => renderGenericConfiguration();
+  const renderMapConfiguration = () => renderGenericConfiguration();
+  const renderChartConfiguration = () => renderGenericConfiguration();
+  const renderCalendarConfiguration = () => renderGenericConfiguration();
+  const renderInputConfiguration = () => renderGenericConfiguration();
+  const renderTextareaConfiguration = () => renderGenericConfiguration();
+  const renderSelectConfiguration = () => renderGenericConfiguration();
+  const renderCheckboxConfiguration = () => renderGenericConfiguration();
+  const renderRadioConfiguration = () => renderGenericConfiguration();
+  const renderSliderConfiguration = () => renderGenericConfiguration();
+  const renderToggleConfiguration = () => renderGenericConfiguration();
+  const renderSearchConfiguration = () => renderGenericConfiguration();
+  const renderPaginationConfiguration = () => renderGenericConfiguration();
+  const renderRatingConfiguration = () => renderGenericConfiguration();
+  const renderUploadConfiguration = () => renderGenericConfiguration();
 
   if (!localComponent) {
     return (
