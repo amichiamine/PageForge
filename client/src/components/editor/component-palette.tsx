@@ -159,6 +159,9 @@ const componentCategories = [
       { type: 'navbar', label: 'Navbar', icon: <Navigation />, color: '#3b82f6', description: 'Barre de navigation' },
       { type: 'hero', label: 'Hero', icon: <Star />, color: '#7c3aed', description: 'Section hero d\'accueil' },
       { type: 'banner', label: 'Bannière', icon: <Square />, color: '#f59e0b', description: 'Bannière d\'information' },
+      { type: 'alert', label: 'Alerte', icon: <Square />, color: '#dc2626', description: 'Message d\'alerte' },
+      { type: 'divider', label: 'Séparateur', icon: <Square />, color: '#6b7280', description: 'Ligne de séparation' },
+      { type: 'spacer', label: 'Espace', icon: <Square />, color: '#9ca3af', description: 'Espace flexible' },
       { type: 'grid', label: 'Grid', icon: <Grid />, color: '#8b5cf6', description: 'Grille flexible' },
       { type: 'flexbox', label: 'Flexbox', icon: <Square />, color: '#06b6d4', description: 'Container flexible' },
     ]
@@ -185,6 +188,8 @@ const componentCategories = [
       { type: 'gallery', label: 'Galerie', icon: <Image />, color: '#ec4899', description: 'Galerie d\'images' },
       { type: 'carousel', label: 'Carrousel', icon: <Image />, color: '#f59e0b', description: 'Carrousel d\'images' },
       { type: 'icon', label: 'Icône', icon: <Star />, color: '#8b5cf6', description: 'Icône décorative' },
+      { type: 'badge', label: 'Badge', icon: <Square />, color: '#3b82f6', description: 'Badge d\'étiquetage' },
+      { type: 'tooltip', label: 'Info-bulle', icon: <Square />, color: '#6b7280', description: 'Bulle d\'information' },
     ]
   },
   {
@@ -195,14 +200,22 @@ const componentCategories = [
       { type: 'link', label: 'Lien', icon: <ExternalLink />, color: '#0d9488', description: 'Lien hypertexte' },
       { type: 'form', label: 'Formulaire', icon: <Mail />, color: '#7c2d12', description: 'Formulaire de contact' },
       { type: 'input', label: 'Champ', icon: <Edit />, color: '#374151', description: 'Champ de saisie' },
+      { type: 'textarea', label: 'Zone Texte', icon: <Edit />, color: '#6b7280', description: 'Zone de texte multiligne' },
       { type: 'modal', label: 'Modal', icon: <Square />, color: '#6366f1', description: 'Fenêtre modale' },
       { type: 'dropdown', label: 'Menu', icon: <Menu />, color: '#059669', description: 'Menu déroulant' },
+      { type: 'slider', label: 'Curseur', icon: <MousePointer />, color: '#8b5cf6', description: 'Curseur de valeur' },
+      { type: 'toggle', label: 'Bascule', icon: <Square />, color: '#10b981', description: 'Bouton bascule' },
+      { type: 'rating', label: 'Notation', icon: <Star />, color: '#f59e0b', description: 'Système de notation' },
     ]
   },
   {
     name: "Business",
     icon: <TrendingUp size={12} />,
     components: [
+      { type: 'card', label: 'Carte', icon: <Square />, color: '#3b82f6', description: 'Carte de contenu' },
+      { type: 'chart', label: 'Graphique', icon: <TrendingUp />, color: '#6366f1', description: 'Graphique statistique' },
+      { type: 'progress', label: 'Progression', icon: <TrendingUp />, color: '#10b981', description: 'Barre de progression' },
+      { type: 'stepper', label: 'Étapes', icon: <Navigation />, color: '#8b5cf6', description: 'Étapes de processus' },
       { type: 'pricing', label: 'Tarifs', icon: <Star />, color: '#059669', description: 'Tableau des prix' },
       { type: 'testimonial', label: 'Témoignage', icon: <Heart />, color: '#dc2626', description: 'Avis client' },
       { type: 'team', label: 'Équipe', icon: <Users />, color: '#2563eb', description: 'Présentation équipe' },
