@@ -60,9 +60,10 @@ export function ResizableSidebar({
       maxWidth={maxWidth}
       storageKey={storageKey}
       direction={direction}
-      className={cn('flex-shrink-0 bg-white', className)}
+      className={cn('flex-shrink-0', className)}
       disabled={disabled}
       title={title}
+      showResetButton={false}
     >
       {children}
     </ResizablePanel>
