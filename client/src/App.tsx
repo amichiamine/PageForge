@@ -56,7 +56,10 @@ function Router() {
           <div className="w-12 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
             <div className="p-2 border-b border-gray-100">
               <button
-                onClick={() => setHideMainSidebar(false)}
+                onClick={() => {
+                  console.log('Bouton ouverture cliqué');
+                  setHideMainSidebar(false);
+                }}
                 className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                 title="Afficher la navigation"
               >
