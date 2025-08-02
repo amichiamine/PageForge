@@ -157,6 +157,8 @@ const componentCategories = [
       { type: 'footer', label: 'Footer', icon: <Layers />, color: '#84cc16', description: 'Pied de page' },
       { type: 'sidebar', label: 'Sidebar', icon: <Square />, color: '#f59e0b', description: 'Panneau latéral' },
       { type: 'navbar', label: 'Navbar', icon: <Navigation />, color: '#3b82f6', description: 'Barre de navigation' },
+      { type: 'hero', label: 'Hero', icon: <Star />, color: '#7c3aed', description: 'Section hero d\'accueil' },
+      { type: 'banner', label: 'Bannière', icon: <Square />, color: '#f59e0b', description: 'Bannière d\'information' },
       { type: 'grid', label: 'Grid', icon: <Grid />, color: '#8b5cf6', description: 'Grille flexible' },
       { type: 'flexbox', label: 'Flexbox', icon: <Square />, color: '#06b6d4', description: 'Container flexible' },
     ]
