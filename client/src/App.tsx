@@ -30,8 +30,21 @@ const SidebarContext = createContext<{
 export const useSidebarContext = () => useContext(SidebarContext);
 
 function Router() {
-  const [hideMainSidebar, setHideMainSidebar] = useState(false);
+  const [hideMainSidebar, setHideMainSidebar] = useState(() => {
+    // Récupérer l'état depuis localStorage
+    try {
+      const saved = localStorage.getItem('sitejet-main-sidebar-hidden');
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
   const [location] = useLocation();
+  
+  // Sauvegarder l'état dans localStorage à chaque changement
+  useEffect(() => {
+    localStorage.setItem('sitejet-main-sidebar-hidden', JSON.stringify(hideMainSidebar));
+  }, [hideMainSidebar]);
   
   // Validation automatique des composants en mode développement
   useEffect(() => {
@@ -41,13 +54,19 @@ function Router() {
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;
   
-  // Debug logs (can be removed in production)
+  // Debug logs
   console.log('🔄 App render - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
+  
+  // Wrapper pour setHideMainSidebar avec logs
+  const handleSetHideMainSidebar = (hide) => {
+    console.log('🎯 handleSetHideMainSidebar appelé avec:', hide);
+    setHideMainSidebar(hide);
+  };
   
   // Debug logs removed for production
 
   return (
-    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
+    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar: handleSetHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
         {showMainSidebar ? (
@@ -61,7 +80,7 @@ function Router() {
               <button
                 onClick={() => {
                   console.log('Bouton ouverture cliqué');
-                  setHideMainSidebar(false);
+                  handleSetHideMainSidebar(false);
                 }}
                 className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                 title="Afficher la navigation"
