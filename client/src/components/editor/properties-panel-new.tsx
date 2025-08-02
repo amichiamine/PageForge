@@ -1806,7 +1806,7 @@ export default function PropertiesPanel({
       case 'icon':
         return renderIconConfiguration();
       default:
-        return renderGenericConfiguration();
+        return renderComponentSpecificConfiguration();
     }
   };
 
@@ -4123,17 +4123,632 @@ export default function PropertiesPanel({
   );
 
   // Configurations simplifiées pour les autres composants
-  const renderFeaturesConfiguration = () => renderGenericConfiguration();
-  const renderCtaConfiguration = () => renderGenericConfiguration();
-  const renderModalConfiguration = () => renderGenericConfiguration();
-  const renderTooltipConfiguration = () => renderGenericConfiguration();
-  const renderTabsConfiguration = () => renderGenericConfiguration();
-  const renderTimelineConfiguration = () => renderGenericConfiguration();
-  const renderBadgeConfiguration = () => renderGenericConfiguration();
-  const renderAlertConfiguration = () => renderGenericConfiguration();
-  const renderBreadcrumbConfiguration = () => renderGenericConfiguration();
-  const renderProgressConfiguration = () => renderGenericConfiguration();
-  const renderSpinnerConfiguration = () => renderGenericConfiguration();
+  const renderFeaturesConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Section Fonctionnalités</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre principal</Label>
+        <Input
+          value={localComponent?.componentData?.featuresTitle || 'Nos Fonctionnalités'}
+          onChange={(e) => updateProperty('componentData.featuresTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Fonctionnalités</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.featureItems || []).map((feature: any, index: number) => (
+            <div key={index} className="border rounded p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Fonctionnalité {index + 1}</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const featureItems = [...(localComponent?.componentData?.featureItems || [])];
+                    featureItems.splice(index, 1);
+                    updateProperty('componentData.featureItems', featureItems);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Titre de la fonctionnalité"
+                value={feature.title || ''}
+                onChange={(e) => {
+                  const featureItems = [...(localComponent?.componentData?.featureItems || [])];
+                  featureItems[index] = { ...feature, title: e.target.value };
+                  updateProperty('componentData.featureItems', featureItems);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Description"
+                value={feature.description || ''}
+                onChange={(e) => {
+                  const featureItems = [...(localComponent?.componentData?.featureItems || [])];
+                  featureItems[index] = { ...feature, description: e.target.value };
+                  updateProperty('componentData.featureItems', featureItems);
+                }}
+                className="text-sm min-h-[40px]"
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const featureItems = [...(localComponent?.componentData?.featureItems || [])];
+              featureItems.push({ title: 'Nouvelle fonctionnalité', description: 'Description...' });
+              updateProperty('componentData.featureItems', featureItems);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une fonctionnalité
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCtaConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Call-to-Action</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre principal</Label>
+        <Input
+          value={localComponent?.componentData?.ctaTitle || 'Prêt à commencer ?'}
+          onChange={(e) => updateProperty('componentData.ctaTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Sous-titre</Label>
+        <Textarea
+          value={localComponent?.componentData?.ctaSubtitle || 'Rejoignez-nous dès aujourd\'hui !'}
+          onChange={(e) => updateProperty('componentData.ctaSubtitle', e.target.value)}
+          className="mt-1 text-sm min-h-[50px]"
+        />
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Texte du bouton</Label>
+          <Input
+            value={localComponent?.componentData?.ctaButtonText || 'Commencer'}
+            onChange={(e) => updateProperty('componentData.ctaButtonText', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Lien du bouton</Label>
+          <Input
+            value={localComponent?.componentData?.ctaButtonLink || '#'}
+            onChange={(e) => updateProperty('componentData.ctaButtonLink', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+    </div>
+  );
+  const renderModalConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Modale</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Select
+            value={localComponent?.componentData?.modalSize || 'medium'}
+            onValueChange={(value) => updateProperty('componentData.modalSize', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Petite</SelectItem>
+              <SelectItem value="medium">Moyenne</SelectItem>
+              <SelectItem value="large">Grande</SelectItem>
+              <SelectItem value="fullscreen">Plein écran</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Fermeture automatique</Label>
+          <Switch
+            checked={localComponent?.componentData?.autoClose !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.autoClose', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de la modale</Label>
+        <Input
+          value={localComponent?.componentData?.modalTitle || 'Titre de la modale'}
+          onChange={(e) => updateProperty('componentData.modalTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Contenu</Label>
+        <Textarea
+          value={localComponent?.componentData?.modalContent || 'Contenu de la modale...'}
+          onChange={(e) => updateProperty('componentData.modalContent', e.target.value)}
+          className="mt-1 text-sm min-h-[60px]"
+        />
+      </div>
+    </div>
+  );
+
+  const renderTooltipConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Infobulle</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Position</Label>
+          <Select
+            value={localComponent?.componentData?.tooltipPosition || 'top'}
+            onValueChange={(value) => updateProperty('componentData.tooltipPosition', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="top">Haut</SelectItem>
+              <SelectItem value="bottom">Bas</SelectItem>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Délai (ms)</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.tooltipDelay || 500}
+            onChange={(e) => updateProperty('componentData.tooltipDelay', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte de l'infobulle</Label>
+        <Input
+          value={localComponent?.componentData?.tooltipText || 'Texte d\'aide'}
+          onChange={(e) => updateProperty('componentData.tooltipText', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
+
+  const renderTabsConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Onglets</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Onglets</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.tabItems || []).map((tab: any, index: number) => (
+            <div key={index} className="border rounded p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Onglet {index + 1}</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const tabItems = [...(localComponent?.componentData?.tabItems || [])];
+                    tabItems.splice(index, 1);
+                    updateProperty('componentData.tabItems', tabItems);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Titre de l'onglet"
+                value={tab.title || ''}
+                onChange={(e) => {
+                  const tabItems = [...(localComponent?.componentData?.tabItems || [])];
+                  tabItems[index] = { ...tab, title: e.target.value };
+                  updateProperty('componentData.tabItems', tabItems);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Contenu de l'onglet"
+                value={tab.content || ''}
+                onChange={(e) => {
+                  const tabItems = [...(localComponent?.componentData?.tabItems || [])];
+                  tabItems[index] = { ...tab, content: e.target.value };
+                  updateProperty('componentData.tabItems', tabItems);
+                }}
+                className="text-sm min-h-[50px]"
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const tabItems = [...(localComponent?.componentData?.tabItems || [])];
+              tabItems.push({ title: `Onglet ${tabItems.length + 1}`, content: 'Contenu...' });
+              updateProperty('componentData.tabItems', tabItems);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un onglet
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+  const renderTimelineConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Timeline</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Événements de la timeline</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.timelineItems || []).map((event: any, index: number) => (
+            <div key={index} className="border rounded p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Événement {index + 1}</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const timelineItems = [...(localComponent?.componentData?.timelineItems || [])];
+                    timelineItems.splice(index, 1);
+                    updateProperty('componentData.timelineItems', timelineItems);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Date"
+                value={event.date || ''}
+                onChange={(e) => {
+                  const timelineItems = [...(localComponent?.componentData?.timelineItems || [])];
+                  timelineItems[index] = { ...event, date: e.target.value };
+                  updateProperty('componentData.timelineItems', timelineItems);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Titre de l'événement"
+                value={event.title || ''}
+                onChange={(e) => {
+                  const timelineItems = [...(localComponent?.componentData?.timelineItems || [])];
+                  timelineItems[index] = { ...event, title: e.target.value };
+                  updateProperty('componentData.timelineItems', timelineItems);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Description"
+                value={event.description || ''}
+                onChange={(e) => {
+                  const timelineItems = [...(localComponent?.componentData?.timelineItems || [])];
+                  timelineItems[index] = { ...event, description: e.target.value };
+                  updateProperty('componentData.timelineItems', timelineItems);
+                }}
+                className="text-sm min-h-[40px]"
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const timelineItems = [...(localComponent?.componentData?.timelineItems || [])];
+              timelineItems.push({ date: '2024', title: 'Nouvel événement', description: 'Description...' });
+              updateProperty('componentData.timelineItems', timelineItems);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un événement
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+  const renderBadgeConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Badge</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Variante</Label>
+          <Select
+            value={localComponent?.componentData?.badgeVariant || 'default'}
+            onValueChange={(value) => updateProperty('componentData.badgeVariant', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Standard</SelectItem>
+              <SelectItem value="secondary">Secondaire</SelectItem>
+              <SelectItem value="success">Succès</SelectItem>
+              <SelectItem value="warning">Attention</SelectItem>
+              <SelectItem value="destructive">Danger</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Select
+            value={localComponent?.componentData?.badgeSize || 'medium'}
+            onValueChange={(value) => updateProperty('componentData.badgeSize', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Petit</SelectItem>
+              <SelectItem value="medium">Moyen</SelectItem>
+              <SelectItem value="large">Grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte du badge</Label>
+        <Input
+          value={localComponent?.componentData?.badgeText || 'Badge'}
+          onChange={(e) => updateProperty('componentData.badgeText', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
+
+  const renderAlertConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Alerte</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type d'alerte</Label>
+          <Select
+            value={localComponent?.componentData?.alertType || 'info'}
+            onValueChange={(value) => updateProperty('componentData.alertType', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="info">Information</SelectItem>
+              <SelectItem value="success">Succès</SelectItem>
+              <SelectItem value="warning">Attention</SelectItem>
+              <SelectItem value="error">Erreur</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Fermable</Label>
+          <Switch
+            checked={localComponent?.componentData?.dismissible !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.dismissible', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de l'alerte</Label>
+        <Input
+          value={localComponent?.componentData?.alertTitle || 'Titre'}
+          onChange={(e) => updateProperty('componentData.alertTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Message</Label>
+        <Textarea
+          value={localComponent?.componentData?.alertMessage || 'Message d\'alerte...'}
+          onChange={(e) => updateProperty('componentData.alertMessage', e.target.value)}
+          className="mt-1 text-sm min-h-[50px]"
+        />
+      </div>
+    </div>
+  );
+  const renderBreadcrumbConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Fil d'Ariane</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Éléments du fil d'Ariane</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.breadcrumbItems || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Texte"
+                value={item.text || ''}
+                onChange={(e) => {
+                  const breadcrumbItems = [...(localComponent?.componentData?.breadcrumbItems || [])];
+                  breadcrumbItems[index] = { ...item, text: e.target.value };
+                  updateProperty('componentData.breadcrumbItems', breadcrumbItems);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={item.link || ''}
+                onChange={(e) => {
+                  const breadcrumbItems = [...(localComponent?.componentData?.breadcrumbItems || [])];
+                  breadcrumbItems[index] = { ...item, link: e.target.value };
+                  updateProperty('componentData.breadcrumbItems', breadcrumbItems);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const breadcrumbItems = [...(localComponent?.componentData?.breadcrumbItems || [])];
+                  breadcrumbItems.splice(index, 1);
+                  updateProperty('componentData.breadcrumbItems', breadcrumbItems);
+                }}
+                className="h-8 w-8 p-0 text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const breadcrumbItems = [...(localComponent?.componentData?.breadcrumbItems || [])];
+              breadcrumbItems.push({ text: `Page ${breadcrumbItems.length + 1}`, link: '#' });
+              updateProperty('componentData.breadcrumbItems', breadcrumbItems);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderProgressConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Barre de Progression</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Valeur (%)</Label>
+          <Input
+            type="number"
+            min="0"
+            max="100"
+            value={localComponent?.componentData?.progressValue || 50}
+            onChange={(e) => updateProperty('componentData.progressValue', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Afficher le texte</Label>
+          <Switch
+            checked={localComponent?.componentData?.showText !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showText', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Couleur</Label>
+        <Input
+          type="color"
+          value={localComponent?.componentData?.progressColor || '#3b82f6'}
+          onChange={(e) => updateProperty('componentData.progressColor', e.target.value)}
+          className="mt-1 h-8"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Taille</Label>
+        <Select
+          value={localComponent?.componentData?.progressSize || 'medium'}
+          onValueChange={(value) => updateProperty('componentData.progressSize', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Petite</SelectItem>
+            <SelectItem value="medium">Moyenne</SelectItem>
+            <SelectItem value="large">Grande</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
+  const renderSpinnerConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Spinner</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Select
+            value={localComponent?.componentData?.spinnerSize || 'medium'}
+            onValueChange={(value) => updateProperty('componentData.spinnerSize', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Petit (16px)</SelectItem>
+              <SelectItem value="medium">Moyen (24px)</SelectItem>
+              <SelectItem value="large">Grand (32px)</SelectItem>
+              <SelectItem value="xl">Très grand (48px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Vitesse</Label>
+          <Select
+            value={localComponent?.componentData?.spinnerSpeed || 'normal'}
+            onValueChange={(value) => updateProperty('componentData.spinnerSpeed', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="slow">Lent</SelectItem>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="fast">Rapide</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Couleur</Label>
+        <Input
+          type="color"
+          value={localComponent?.componentData?.spinnerColor || '#3b82f6'}
+          onChange={(e) => updateProperty('componentData.spinnerColor', e.target.value)}
+          className="mt-1 h-8"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte de chargement</Label>
+        <Input
+          value={localComponent?.componentData?.loadingText || 'Chargement...'}
+          onChange={(e) => updateProperty('componentData.loadingText', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
   const renderDividerConfiguration = () => (
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-purple-900">Configuration Séparateur</h4>
@@ -4222,11 +4837,227 @@ export default function PropertiesPanel({
   );
 
 
-  const renderMainConfiguration = () => renderGenericConfiguration();
-  const renderSectionConfiguration = () => renderGenericConfiguration();
-  const renderArticleConfiguration = () => renderGenericConfiguration();
-  const renderAsideConfiguration = () => renderGenericConfiguration();
-  const renderMapConfiguration = () => renderGenericConfiguration();
+  const renderMainConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Contenu Principal</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Rôle sémantique</Label>
+        <Select
+          value={localComponent?.componentData?.mainRole || 'main'}
+          onValueChange={(value) => updateProperty('componentData.mainRole', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="main">Contenu principal</SelectItem>
+            <SelectItem value="banner">Bannière</SelectItem>
+            <SelectItem value="complementary">Complémentaire</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de la section</Label>
+        <Input
+          value={localComponent?.componentData?.mainTitle || ''}
+          onChange={(e) => updateProperty('componentData.mainTitle', e.target.value)}
+          placeholder="Titre optionnel"
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
+
+  const renderSectionConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Section</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de la section</Label>
+        <Input
+          value={localComponent?.componentData?.sectionTitle || 'Ma Section'}
+          onChange={(e) => updateProperty('componentData.sectionTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">ID de la section</Label>
+        <Input
+          value={localComponent?.componentData?.sectionId || ''}
+          onChange={(e) => updateProperty('componentData.sectionId', e.target.value)}
+          placeholder="section-1"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Arrière-plan</Label>
+        <Select
+          value={localComponent?.componentData?.sectionBackground || 'default'}
+          onValueChange={(value) => updateProperty('componentData.sectionBackground', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Standard</SelectItem>
+            <SelectItem value="gray">Gris clair</SelectItem>
+            <SelectItem value="primary">Couleur primaire</SelectItem>
+            <SelectItem value="gradient">Dégradé</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
+  const renderArticleConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Article</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de l'article</Label>
+        <Input
+          value={localComponent?.componentData?.articleTitle || 'Mon Article'}
+          onChange={(e) => updateProperty('componentData.articleTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Auteur</Label>
+          <Input
+            value={localComponent?.componentData?.articleAuthor || ''}
+            onChange={(e) => updateProperty('componentData.articleAuthor', e.target.value)}
+            placeholder="Nom de l'auteur"
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Date de publication</Label>
+          <Input
+            type="date"
+            value={localComponent?.componentData?.publishDate || ''}
+            onChange={(e) => updateProperty('componentData.publishDate', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Résumé</Label>
+        <Textarea
+          value={localComponent?.componentData?.articleSummary || ''}
+          onChange={(e) => updateProperty('componentData.articleSummary', e.target.value)}
+          placeholder="Résumé de l'article"
+          className="mt-1 text-sm min-h-[60px]"
+        />
+      </div>
+    </div>
+  );
+
+  const renderAsideConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Contenu Latéral</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre du contenu latéral</Label>
+        <Input
+          value={localComponent?.componentData?.asideTitle || 'Information'}
+          onChange={(e) => updateProperty('componentData.asideTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Position</Label>
+        <Select
+          value={localComponent?.componentData?.asidePosition || 'right'}
+          onValueChange={(value) => updateProperty('componentData.asidePosition', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="left">Gauche</SelectItem>
+            <SelectItem value="right">Droite</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Contenu</Label>
+        <Textarea
+          value={localComponent?.componentData?.asideContent || 'Contenu latéral...'}
+          onChange={(e) => updateProperty('componentData.asideContent', e.target.value)}
+          className="mt-1 text-sm min-h-[80px]"
+        />
+      </div>
+    </div>
+  );
+
+  const renderMapConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Carte</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Latitude</Label>
+          <Input
+            type="number"
+            step="0.000001"
+            value={localComponent?.componentData?.mapLat || 48.8566}
+            onChange={(e) => updateProperty('componentData.mapLat', parseFloat(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Longitude</Label>
+          <Input
+            type="number"
+            step="0.000001"
+            value={localComponent?.componentData?.mapLng || 2.3522}
+            onChange={(e) => updateProperty('componentData.mapLng', parseFloat(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Zoom</Label>
+          <Input
+            type="number"
+            min="1"
+            max="20"
+            value={localComponent?.componentData?.mapZoom || 13}
+            onChange={(e) => updateProperty('componentData.mapZoom', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Marqueur</Label>
+          <Switch
+            checked={localComponent?.componentData?.showMarker !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showMarker', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre du marqueur</Label>
+        <Input
+          value={localComponent?.componentData?.markerTitle || 'Notre adresse'}
+          onChange={(e) => updateProperty('componentData.markerTitle', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
   const renderChartConfiguration = () => (
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-purple-900">Configuration Graphique</h4>
@@ -4290,7 +5121,122 @@ export default function PropertiesPanel({
       </div>
     </div>
   );
-  const renderCalendarConfiguration = () => renderGenericConfiguration();
+  const renderCalendarConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Calendrier</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Vue par défaut</Label>
+          <Select
+            value={localComponent?.componentData?.calendarView || 'month'}
+            onValueChange={(value) => updateProperty('componentData.calendarView', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="month">Mois</SelectItem>
+              <SelectItem value="week">Semaine</SelectItem>
+              <SelectItem value="day">Jour</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Première jour de la semaine</Label>
+          <Select
+            value={localComponent?.componentData?.firstDayOfWeek || 'monday'}
+            onValueChange={(value) => updateProperty('componentData.firstDayOfWeek', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sunday">Dimanche</SelectItem>
+              <SelectItem value="monday">Lundi</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Événements cliquables</Label>
+          <Switch
+            checked={localComponent?.componentData?.eventsClickable !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.eventsClickable', checked)}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Navigation</Label>
+          <Switch
+            checked={localComponent?.componentData?.showNavigation !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showNavigation', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Événements du calendrier</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.calendarEvents || []).map((event: any, index: number) => (
+            <div key={index} className="border rounded p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Événement {index + 1}</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const calendarEvents = [...(localComponent?.componentData?.calendarEvents || [])];
+                    calendarEvents.splice(index, 1);
+                    updateProperty('componentData.calendarEvents', calendarEvents);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Titre de l'événement"
+                value={event.title || ''}
+                onChange={(e) => {
+                  const calendarEvents = [...(localComponent?.componentData?.calendarEvents || [])];
+                  calendarEvents[index] = { ...event, title: e.target.value };
+                  updateProperty('componentData.calendarEvents', calendarEvents);
+                }}
+                className="text-sm"
+              />
+              <Input
+                type="date"
+                value={event.date || ''}
+                onChange={(e) => {
+                  const calendarEvents = [...(localComponent?.componentData?.calendarEvents || [])];
+                  calendarEvents[index] = { ...event, date: e.target.value };
+                  updateProperty('componentData.calendarEvents', calendarEvents);
+                }}
+                className="text-sm"
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const calendarEvents = [...(localComponent?.componentData?.calendarEvents || [])];
+              calendarEvents.push({ title: 'Nouvel événement', date: new Date().toISOString().split('T')[0] });
+              updateProperty('componentData.calendarEvents', calendarEvents);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un événement
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
   const renderInputConfiguration = () => (
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-purple-900">Configuration Champ de Saisie</h4>
@@ -4401,15 +5347,537 @@ export default function PropertiesPanel({
       </div>
     </div>
   );
-  const renderSelectConfiguration = () => renderGenericConfiguration();
-  const renderCheckboxConfiguration = () => renderGenericConfiguration();
-  const renderRadioConfiguration = () => renderGenericConfiguration();
-  const renderSliderConfiguration = () => renderGenericConfiguration();
-  const renderToggleConfiguration = () => renderGenericConfiguration();
-  const renderSearchConfiguration = () => renderGenericConfiguration();
-  const renderPaginationConfiguration = () => renderGenericConfiguration();
-  const renderRatingConfiguration = () => renderGenericConfiguration();
-  const renderUploadConfiguration = () => renderGenericConfiguration();
+  const renderSelectConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Liste Déroulante</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Placeholder</Label>
+          <Input
+            value={localComponent?.componentData?.selectPlaceholder || 'Sélectionnez...'}
+            onChange={(e) => updateProperty('componentData.selectPlaceholder', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Requis</Label>
+          <Switch
+            checked={localComponent?.componentData?.required || false}
+            onCheckedChange={(checked) => updateProperty('componentData.required', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Options</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.selectOptions || []).map((option: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Texte"
+                value={option.label || ''}
+                onChange={(e) => {
+                  const selectOptions = [...(localComponent?.componentData?.selectOptions || [])];
+                  selectOptions[index] = { ...option, label: e.target.value };
+                  updateProperty('componentData.selectOptions', selectOptions);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Input
+                placeholder="Valeur"
+                value={option.value || ''}
+                onChange={(e) => {
+                  const selectOptions = [...(localComponent?.componentData?.selectOptions || [])];
+                  selectOptions[index] = { ...option, value: e.target.value };
+                  updateProperty('componentData.selectOptions', selectOptions);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const selectOptions = [...(localComponent?.componentData?.selectOptions || [])];
+                  selectOptions.splice(index, 1);
+                  updateProperty('componentData.selectOptions', selectOptions);
+                }}
+                className="h-8 w-8 p-0 text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const selectOptions = [...(localComponent?.componentData?.selectOptions || [])];
+              selectOptions.push({ label: `Option ${selectOptions.length + 1}`, value: `option${selectOptions.length + 1}` });
+              updateProperty('componentData.selectOptions', selectOptions);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une option
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCheckboxConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Case à Cocher</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Label</Label>
+          <Input
+            value={localComponent?.componentData?.checkboxLabel || 'Case à cocher'}
+            onChange={(e) => updateProperty('componentData.checkboxLabel', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Cochée par défaut</Label>
+          <Switch
+            checked={localComponent?.componentData?.defaultChecked || false}
+            onCheckedChange={(checked) => updateProperty('componentData.defaultChecked', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Description</Label>
+        <Textarea
+          value={localComponent?.componentData?.checkboxDescription || ''}
+          onChange={(e) => updateProperty('componentData.checkboxDescription', e.target.value)}
+          placeholder="Description optionnelle"
+          className="mt-1 text-sm min-h-[50px]"
+        />
+      </div>
+    </div>
+  );
+
+  const renderRadioConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Boutons Radio</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Nom du groupe</Label>
+        <Input
+          value={localComponent?.componentData?.radioGroupName || 'radioGroup'}
+          onChange={(e) => updateProperty('componentData.radioGroupName', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Options radio</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.radioOptions || []).map((option: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Texte"
+                value={option.label || ''}
+                onChange={(e) => {
+                  const radioOptions = [...(localComponent?.componentData?.radioOptions || [])];
+                  radioOptions[index] = { ...option, label: e.target.value };
+                  updateProperty('componentData.radioOptions', radioOptions);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Input
+                placeholder="Valeur"
+                value={option.value || ''}
+                onChange={(e) => {
+                  const radioOptions = [...(localComponent?.componentData?.radioOptions || [])];
+                  radioOptions[index] = { ...option, value: e.target.value };
+                  updateProperty('componentData.radioOptions', radioOptions);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Checkbox
+                checked={option.defaultSelected || false}
+                onCheckedChange={(checked) => {
+                  const radioOptions = [...(localComponent?.componentData?.radioOptions || [])];
+                  radioOptions[index] = { ...option, defaultSelected: checked };
+                  updateProperty('componentData.radioOptions', radioOptions);
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const radioOptions = [...(localComponent?.componentData?.radioOptions || [])];
+                  radioOptions.splice(index, 1);
+                  updateProperty('componentData.radioOptions', radioOptions);
+                }}
+                className="h-8 w-8 p-0 text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const radioOptions = [...(localComponent?.componentData?.radioOptions || [])];
+              radioOptions.push({ label: `Option ${radioOptions.length + 1}`, value: `option${radioOptions.length + 1}` });
+              updateProperty('componentData.radioOptions', radioOptions);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une option
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+  const renderSliderConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Curseur</h4>
+      
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Valeur min</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.sliderMin || 0}
+            onChange={(e) => updateProperty('componentData.sliderMin', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Valeur max</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.sliderMax || 100}
+            onChange={(e) => updateProperty('componentData.sliderMax', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Pas</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.sliderStep || 1}
+            onChange={(e) => updateProperty('componentData.sliderStep', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Valeur par défaut</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.sliderDefault || 50}
+            onChange={(e) => updateProperty('componentData.sliderDefault', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Afficher la valeur</Label>
+          <Switch
+            checked={localComponent?.componentData?.showValue !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showValue', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderToggleConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Interrupteur</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Label</Label>
+          <Input
+            value={localComponent?.componentData?.toggleLabel || 'Activer'}
+            onChange={(e) => updateProperty('componentData.toggleLabel', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Activé par défaut</Label>
+          <Switch
+            checked={localComponent?.componentData?.defaultToggled || false}
+            onCheckedChange={(checked) => updateProperty('componentData.defaultToggled', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Description</Label>
+        <Textarea
+          value={localComponent?.componentData?.toggleDescription || ''}
+          onChange={(e) => updateProperty('componentData.toggleDescription', e.target.value)}
+          placeholder="Description optionnelle"
+          className="mt-1 text-sm min-h-[50px]"
+        />
+      </div>
+    </div>
+  );
+
+  const renderSearchConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Recherche</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Placeholder</Label>
+          <Input
+            value={localComponent?.componentData?.searchPlaceholder || 'Rechercher...'}
+            onChange={(e) => updateProperty('componentData.searchPlaceholder', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Bouton de recherche</Label>
+          <Switch
+            checked={localComponent?.componentData?.showSearchButton !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showSearchButton', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Résultats suggérés</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.searchSuggestions || []).map((suggestion: string, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Suggestion"
+                value={suggestion || ''}
+                onChange={(e) => {
+                  const searchSuggestions = [...(localComponent?.componentData?.searchSuggestions || [])];
+                  searchSuggestions[index] = e.target.value;
+                  updateProperty('componentData.searchSuggestions', searchSuggestions);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const searchSuggestions = [...(localComponent?.componentData?.searchSuggestions || [])];
+                  searchSuggestions.splice(index, 1);
+                  updateProperty('componentData.searchSuggestions', searchSuggestions);
+                }}
+                className="h-8 w-8 p-0 text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const searchSuggestions = [...(localComponent?.componentData?.searchSuggestions || [])];
+              searchSuggestions.push(`Suggestion ${searchSuggestions.length + 1}`);
+              updateProperty('componentData.searchSuggestions', searchSuggestions);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une suggestion
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPaginationConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Pagination</h4>
+      
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Pages totales</Label>
+          <Input
+            type="number"
+            min="1"
+            value={localComponent?.componentData?.totalPages || 10}
+            onChange={(e) => updateProperty('componentData.totalPages', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Page actuelle</Label>
+          <Input
+            type="number"
+            min="1"
+            value={localComponent?.componentData?.currentPage || 1}
+            onChange={(e) => updateProperty('componentData.currentPage', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Pages visibles</Label>
+          <Input
+            type="number"
+            min="3"
+            max="10"
+            value={localComponent?.componentData?.visiblePages || 5}
+            onChange={(e) => updateProperty('componentData.visiblePages', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Boutons Précédent/Suivant</Label>
+          <Switch
+            checked={localComponent?.componentData?.showPrevNext !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showPrevNext', checked)}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Aller à la page</Label>
+          <Switch
+            checked={localComponent?.componentData?.showGoToPage || false}
+            onCheckedChange={(checked) => updateProperty('componentData.showGoToPage', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderRatingConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Notation</h4>
+      
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Nombre d'étoiles</Label>
+          <Select
+            value={String(localComponent?.componentData?.maxRating || 5)}
+            onValueChange={(value) => updateProperty('componentData.maxRating', parseInt(value))}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="3">3 étoiles</SelectItem>
+              <SelectItem value="5">5 étoiles</SelectItem>
+              <SelectItem value="10">10 étoiles</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Note actuelle</Label>
+          <Input
+            type="number"
+            min="0"
+            max={localComponent?.componentData?.maxRating || 5}
+            step="0.1"
+            value={localComponent?.componentData?.currentRating || 0}
+            onChange={(e) => updateProperty('componentData.currentRating', parseFloat(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Lecture seule</Label>
+          <Switch
+            checked={localComponent?.componentData?.readOnly || false}
+            onCheckedChange={(checked) => updateProperty('componentData.readOnly', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Couleur active</Label>
+          <Input
+            type="color"
+            value={localComponent?.componentData?.activeColor || '#fbbf24'}
+            onChange={(e) => updateProperty('componentData.activeColor', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Afficher le texte</Label>
+          <Switch
+            checked={localComponent?.componentData?.showRatingText !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showRatingText', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderUploadConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Upload de Fichier</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Types de fichier acceptés</Label>
+          <Input
+            value={localComponent?.componentData?.acceptedTypes || 'image/*'}
+            onChange={(e) => updateProperty('componentData.acceptedTypes', e.target.value)}
+            placeholder="ex: image/*, .pdf, .doc"
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Fichiers multiples</Label>
+          <Switch
+            checked={localComponent?.componentData?.multiple || false}
+            onCheckedChange={(checked) => updateProperty('componentData.multiple', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Taille max (MB)</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.maxSize || 10}
+            onChange={(e) => updateProperty('componentData.maxSize', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Glisser-déposer</Label>
+          <Switch
+            checked={localComponent?.componentData?.dragDrop !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.dragDrop', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte d'aide</Label>
+        <Textarea
+          value={localComponent?.componentData?.uploadText || 'Cliquez ou glissez vos fichiers ici'}
+          onChange={(e) => updateProperty('componentData.uploadText', e.target.value)}
+          className="mt-1 text-sm min-h-[50px]"
+        />
+      </div>
+    </div>
+  );
   
   const renderIconConfiguration = () => (
     <div className="space-y-4">
