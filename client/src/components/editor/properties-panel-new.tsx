@@ -3486,43 +3486,88 @@ export default function PropertiesPanel({
           </Select>
         </div>
       </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select
+            value={localComponent?.componentData?.alignment || 'center'}
+            onValueChange={(value) => updateProperty('componentData.alignment', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="top">Haut</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="bottom">Bas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Couleur fond éléments</Label>
+          <Input
+            type="color"
+            value={localComponent?.componentData?.itemBackground || '#f3f4f6'}
+            onChange={(e) => updateProperty('componentData.itemBackground', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+      </div>
       
       <div>
         <Label className="text-xs text-gray-600">Éléments de la grille</Label>
         <div className="space-y-2 mt-1">
-          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
-            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+          {(localComponent?.componentData?.gridItems || []).map((item: any, index: number) => (
+            <div key={index} className="p-3 border rounded-lg space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-700">Élément {index + 1}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const items = [...(localComponent?.componentData?.gridItems || [])];
+                    items.splice(index, 1);
+                    updateProperty('componentData.gridItems', items);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
               <Input
-                placeholder="Contenu de l'élément"
-                value={item.text || ''}
+                placeholder="Titre de l'élément"
+                value={item.title || ''}
                 onChange={(e) => {
-                  const items = [...(localComponent?.componentData?.items || [])];
-                  items[index] = { ...item, text: e.target.value };
-                  updateProperty('componentData.items', items);
+                  const items = [...(localComponent?.componentData?.gridItems || [])];
+                  items[index] = { ...item, title: e.target.value };
+                  updateProperty('componentData.gridItems', items);
                 }}
-                className="flex-1 text-sm"
+                className="text-sm"
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const items = [...(localComponent?.componentData?.items || [])];
-                  items.splice(index, 1);
-                  updateProperty('componentData.items', items);
+              <Textarea
+                placeholder="Contenu de l'élément"
+                value={item.content || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.gridItems || [])];
+                  items[index] = { ...item, content: e.target.value };
+                  updateProperty('componentData.gridItems', items);
                 }}
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
+                className="text-sm min-h-[60px]"
+              />
             </div>
           ))}
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              const items = [...(localComponent?.componentData?.items || [])];
-              items.push({ text: `Élément ${items.length + 1}`, id: Date.now().toString() });
-              updateProperty('componentData.items', items);
+              const items = [...(localComponent?.componentData?.gridItems || [])];
+              const newItem = { 
+                title: `Élément ${items.length + 1}`, 
+                content: 'Contenu de l\'élément' 
+              };
+              items.push(newItem);
+              updateProperty('componentData.gridItems', items);
             }}
             className="w-full"
           >
