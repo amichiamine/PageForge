@@ -43,12 +43,13 @@ function Router() {
   
   // Debug function
   const handleToggleSidebar = (hide: boolean) => {
-    console.log('Toggle sidebar:', hide ? 'hide' : 'show', 'Current state:', hideMainSidebar);
+    console.log('handleToggleSidebar appelée avec:', hide, 'État actuel:', hideMainSidebar);
     setHideMainSidebar(hide);
-    console.log('After toggle - showMainSidebar:', !hide);
+    console.log('setHideMainSidebar appelée avec:', hide);
   };
   
-  console.log('Render - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
+  // Debug render
+  console.log('🔄 RENDER App - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
   
   // Debug logs removed for production
 

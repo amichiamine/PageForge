@@ -33,7 +33,7 @@ export default function Sidebar() {
   const [location] = useLocation();
   const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
   
-  console.log('Sidebar render - hideMainSidebar from context:', hideMainSidebar);
+  console.log('🔄 RENDER Sidebar - hideMainSidebar from context:', hideMainSidebar);
 
   return (
     <ResizableSidebar
@@ -52,8 +52,10 @@ export default function Sidebar() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('Logo cliqué - masquage du sidebar');
+              console.log('Logo cliqué - masquage du sidebar, état actuel:', hideMainSidebar);
+              console.log('Fonction setHideMainSidebar:', typeof setHideMainSidebar);
               setHideMainSidebar(true);
+              console.log('Appelé setHideMainSidebar(true)');
             }}
             className="flex items-center space-x-2 min-w-0 w-full hover:bg-gray-50 rounded-md p-1 transition-colors group cursor-pointer"
             title="Cliquer pour masquer la navigation"
