@@ -55,6 +55,8 @@ export default function Sidebar() {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('🚀 DIRECT CLIC - État avant:', hideMainSidebar);
+                console.log('🚀 Type fonction récupérée:', typeof setHideMainSidebar);
+                console.log('🚀 Fonction toString:', setHideMainSidebar.toString().substring(0, 100));
                 setHideMainSidebar(true);
                 console.log('🚀 DIRECT CLIC - Fonction exécutée');
               }}

@@ -56,16 +56,16 @@ function Router() {
     console.log('🎯 setHideMainSidebar exécuté');
   }, [hideMainSidebar]);
   
-  // Test direct pour debug
-  const directSetHideMainSidebar = useCallback((hide) => {
-    console.log('🚀 DIRECT SET appelé avec:', hide);
-    console.log('🚀 Avant setState - hideMainSidebar:', hideMainSidebar);
+  // Test avec fonction directe sans useCallback
+  const directSetHideMainSidebar = (hide) => {
+    console.log('🔥 VRAIE FONCTION appelée avec:', hide);
+    console.log('🔥 Avant setState - hideMainSidebar:', hideMainSidebar);
     setHideMainSidebar((prevState) => {
-      console.log('🚀 DANS setState - prevState:', prevState, 'newValue:', hide);
+      console.log('🔥 DANS setState - prevState:', prevState, 'newValue:', hide);
       return hide;
     });
-    console.log('🚀 Après setState appelé');
-  }, [hideMainSidebar]);
+    console.log('🔥 Après setState appelé');
+  };
   
   // Debug logs removed for production
 
