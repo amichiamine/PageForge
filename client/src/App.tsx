@@ -49,21 +49,8 @@ function Router() {
         {/* Left sidebar for navigation with collapsible functionality */}
         {showMainSidebar ? (
           <div className="flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
-            {/* Toggle button for main navigation */}
-            <div className="p-2 border-b border-gray-100 flex-shrink-0">
-              <button
-                onClick={() => setHideMainSidebar(true)}
-                className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-                title="Masquer la navigation"
-              >
-                <PanelLeftClose className="w-4 h-4" />
-              </button>
-            </div>
-            
             {/* Sidebar content */}
-            <div className="flex-1 overflow-hidden">
-              <Sidebar />
-            </div>
+            <Sidebar />
           </div>
         ) : (
           <div className="w-12 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">

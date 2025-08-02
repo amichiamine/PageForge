@@ -8,8 +8,10 @@ import {
   Cloud,
   Book,
   Settings,
+  PanelLeftClose,
 } from "lucide-react";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
+import { useSidebarContext } from "@/App";
 
 const navigation = [
   { name: "Tableau de bord", href: "/dashboard", icon: Home },
@@ -29,6 +31,7 @@ const documentation = [
 
 export default function Sidebar() {
   const [location] = useLocation();
+  const { setHideMainSidebar } = useSidebarContext();
 
   return (
     <ResizableSidebar
@@ -41,14 +44,21 @@ export default function Sidebar() {
       title="Navigation"
     >
       <div className="h-full overflow-hidden flex flex-col">
-        {/* Header compact */}
+        {/* Header compact avec fonction de masquage */}
         <div className="flex items-center p-2 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center space-x-2 min-w-0 w-full">
-            <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0">
+          <button
+            onClick={() => setHideMainSidebar(true)}
+            className="flex items-center space-x-2 min-w-0 w-full hover:bg-gray-50 rounded-md p-1 transition-colors group"
+            title="Cliquer pour masquer la navigation"
+          >
+            <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0 group-hover:bg-blue-700 transition-colors">
               <Code className="w-3 h-3 text-white" />
             </div>
-            <span className="text-gray-900 font-semibold text-xs truncate">SiteJet</span>
-          </div>
+            <span className="text-gray-900 font-semibold text-xs truncate group-hover:text-gray-700">SiteJet</span>
+            <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+              <PanelLeftClose className="w-3 h-3 text-gray-400" />
+            </div>
+          </button>
         </div>
 
         {/* Navigation */}
