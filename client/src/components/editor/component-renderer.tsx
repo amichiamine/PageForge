@@ -1736,63 +1736,60 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          {gridItems.length > 0 ? (
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: `repeat(${columns}, 1fr)`, 
-              gap: gap, 
-              padding: `${gridPadding}px`,
-              height: '100%',
-              width: '100%',
-              boxSizing: 'border-box',
-              position: 'absolute',
-              top: 0,
-              left: 0
-            }}>
-              {gridItems.map((item: any, index: number) => (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: `repeat(${columns}, 1fr)`, 
+            gap: gap, 
+            padding: `${gridPadding}px`,
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            {gridItems.length > 0 ? (
+              gridItems.map((item: any, index: number) => (
                 <div key={index} style={{ 
                   backgroundColor: '#f3f4f6', 
-                  borderRadius: '8px', 
+                  borderRadius: '6px', 
                   padding: `${gridPadding}px`, 
-                  textAlign: 'center', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  boxSizing: 'border-box'
+                  textAlign: 'left',
+                  boxSizing: 'border-box',
+                  border: '1px solid #e5e7eb',
+                  minHeight: '60px'
                 }}>
-                  <div>
-                    {item.title && <h3 style={{ 
-                      ...gridTextStyles,
-                      color: '#1f2937',
-                      margin: '0 0 4px 0',
-                      fontWeight: 600
-                    }}>{item.title}</h3>}
-                    {item.content && <p style={{ 
-                      ...gridTextStyles,
-                      color: '#6b7280',
-                      margin: 0,
-                      fontSize: '12px'
-                    }}>{item.content}</p>}
-                  </div>
+                  {item.title && <h3 style={{ 
+                    ...gridTextStyles,
+                    color: '#1f2937',
+                    margin: '0 0 4px 0',
+                    fontWeight: 600,
+                    fontSize: '11px'
+                  }}>{item.title}</h3>}
+                  {item.content && <p style={{ 
+                    ...gridTextStyles,
+                    color: '#6b7280',
+                    margin: 0,
+                    fontSize: '10px',
+                    lineHeight: 1.3
+                  }}>{item.content}</p>}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              width: '100%',
-              color: '#9ca3af',
-              fontSize: '14px',
-              textAlign: 'center',
-              padding: `${gridPadding}px`,
-              boxSizing: 'border-box'
-            }}>
-              Grille vide - Ajoutez des éléments via la configuration
-            </div>
-          )}
+              ))
+            ) : (
+              <div style={{
+                gridColumn: '1 / -1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#9ca3af',
+                fontSize: '12px',
+                textAlign: 'center',
+                padding: `${gridPadding}px`,
+                border: '2px dashed #d1d5db',
+                borderRadius: '6px',
+                minHeight: '80px'
+              }}>
+                Grille vide - Ajoutez des éléments
+              </div>
+            )}
+          </div>
         </div>
       );
 

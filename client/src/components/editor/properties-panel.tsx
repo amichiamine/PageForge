@@ -72,6 +72,17 @@ export default function PropertiesPanel({
       (updatedComponent as any)[path] = value;
     }
 
+    // Préserver la position lors des mises à jour de componentData
+    if (path.startsWith('componentData.') && localComponent.styles) {
+      updatedComponent.styles = {
+        ...updatedComponent.styles,
+        left: localComponent.styles.left,
+        top: localComponent.styles.top,
+        width: localComponent.styles.width,
+        height: localComponent.styles.height
+      };
+    }
+
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
   };
