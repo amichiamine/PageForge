@@ -24,9 +24,7 @@ const SidebarContext = createContext<{
   setHideMainSidebar: (hide: boolean) => void;
 }>({
   hideMainSidebar: false,
-  setHideMainSidebar: () => {
-    console.log('🚨 FONCTION PAR DÉFAUT APPELÉE - PROBLÈME !');
-  },
+  setHideMainSidebar: () => {},
 });
 
 export const useSidebarContext = () => useContext(SidebarContext);
@@ -34,11 +32,6 @@ export const useSidebarContext = () => useContext(SidebarContext);
 function Router() {
   const [hideMainSidebar, setHideMainSidebar] = useState(false);
   const [location] = useLocation();
-  
-  // Debug effect pour observer les changements d'état
-  useEffect(() => {
-    console.log('🔍 EFFET - hideMainSidebar changé:', hideMainSidebar);
-  }, [hideMainSidebar]);
   
   // Validation automatique des composants en mode développement
   useEffect(() => {
@@ -48,32 +41,21 @@ function Router() {
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;
   
-  // Debug logs
-  console.log('🔄 App render - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
-  
-  // Wrapper pour setHideMainSidebar avec logs détaillés
-  const handleSetHideMainSidebar = useCallback((hide) => {
-    console.log('🎯 handleSetHideMainSidebar appelé avec:', hide, 'état actuel:', hideMainSidebar);
-    setHideMainSidebar(hide);
-    console.log('🎯 setHideMainSidebar exécuté');
-  }, [hideMainSidebar]);
-  
-  // Version simplifiée qui contourne le problème de closure
-  const directSetHideMainSidebar = useCallback((hide) => {
-    console.log('🔥 VRAIE FONCTION appelée avec:', hide);
-    setHideMainSidebar(hide);
-    console.log('🔥 setState appelé directement');
+  // Fonction pour masquer le sidebar via props
+  const handleHideSidebar = useCallback(() => {
+    setHideMainSidebar(true);
   }, []);
   
-  // Debug logs removed for production
-
+  // Fonction pour afficher le sidebar
+  const handleShowSidebar = useCallback(() => {
+    setHideMainSidebar(false);
+  }, []);
+  
   // Créer l'objet contexte avec useMemo pour éviter les re-créations
   const contextValue = useMemo(() => ({
     hideMainSidebar,
-    setHideMainSidebar: directSetHideMainSidebar
-  }), [hideMainSidebar, directSetHideMainSidebar]);
-  
-  console.log('🔥 CONTEXTE VALUE envoyé avec useMemo:', contextValue);
+    setHideMainSidebar
+  }), [hideMainSidebar]);
 
   return (
     <SidebarContext.Provider value={contextValue}>
@@ -82,16 +64,13 @@ function Router() {
         {showMainSidebar ? (
           <div className="flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
             {/* Sidebar content */}
-            <Sidebar onHideSidebar={() => setHideMainSidebar(true)} />
+            <Sidebar onHideSidebar={handleHideSidebar} />
           </div>
         ) : (
           <div className="w-12 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
             <div className="p-2 border-b border-gray-100">
               <button
-                onClick={() => {
-                  console.log('Bouton ouverture cliqué');
-                  directSetHideMainSidebar(false);
-                }}
+                onClick={handleShowSidebar}
                 className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                 title="Afficher la navigation"
               >

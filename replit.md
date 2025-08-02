@@ -4,7 +4,9 @@
 PageForge is a full-stack visual website builder, offering a drag-and-drop interface for website creation with templates, visual editing, and export functionality. It aims to provide a comprehensive solution for both standalone projects and seamless integration with VS Code, empowering users to design and deploy professional-grade websites efficiently.
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+- Preferred communication style: Simple, everyday language
+- Interface language: French
+- Technical approach: Problem-solving with persistence and deep debugging
 
 ## System Architecture
 
@@ -29,6 +31,7 @@ Preferred communication style: Simple, everyday language.
 - **Visual Editor System**: Component palette, visual canvas with live preview, properties panel for real-time editing, and a template system.
 - **Project Management**: Support for standalone, VS Code integration, and existing project imports. Includes a template engine, multi-format export (HTML, CSS, JS), and multi-page management.
 - **Database Schema**: Structured for users, projects, templates, and pages.
+- **Navigation System**: Collapsible sidebar with logo-based toggle functionality using direct props instead of React Context for reliable state management.
 
 ### Data Flow
 - **Project Creation**: Template selection initiates project creation and redirects to the editor.

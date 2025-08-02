@@ -35,9 +35,6 @@ interface SidebarProps {
 
 export default function Sidebar({ onHideSidebar }: SidebarProps) {
   const [location] = useLocation();
-  
-  console.log('✅ Sidebar reçoit onHideSidebar:', typeof onHideSidebar);
-  console.log('✅ toString fonction prop:', onHideSidebar.toString().substring(0, 100));
 
   return (
     <ResizableSidebar
@@ -58,9 +55,7 @@ export default function Sidebar({ onHideSidebar }: SidebarProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🎯 PROP CLIC - Appel onHideSidebar');
                 onHideSidebar();
-                console.log('🎯 PROP CLIC - Fonction exécutée');
               }}
               className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0 hover:bg-blue-700 transition-colors cursor-pointer"
               title="Cliquer sur le logo pour masquer la navigation"
