@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/theme-context";
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext, useEffect, useCallback } from "react";
 import { runDevelopmentValidation } from "./lib/component-dev-tools";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
@@ -30,21 +30,8 @@ const SidebarContext = createContext<{
 export const useSidebarContext = () => useContext(SidebarContext);
 
 function Router() {
-  const [hideMainSidebar, setHideMainSidebar] = useState(() => {
-    // Récupérer l'état depuis localStorage
-    try {
-      const saved = localStorage.getItem('sitejet-main-sidebar-hidden');
-      return saved ? JSON.parse(saved) : false;
-    } catch {
-      return false;
-    }
-  });
+  const [hideMainSidebar, setHideMainSidebar] = useState(false);
   const [location] = useLocation();
-  
-  // Sauvegarder l'état dans localStorage à chaque changement
-  useEffect(() => {
-    localStorage.setItem('sitejet-main-sidebar-hidden', JSON.stringify(hideMainSidebar));
-  }, [hideMainSidebar]);
   
   // Validation automatique des composants en mode développement
   useEffect(() => {
@@ -57,11 +44,12 @@ function Router() {
   // Debug logs
   console.log('🔄 App render - hideMainSidebar:', hideMainSidebar, 'showMainSidebar:', showMainSidebar);
   
-  // Wrapper pour setHideMainSidebar avec logs
-  const handleSetHideMainSidebar = (hide) => {
-    console.log('🎯 handleSetHideMainSidebar appelé avec:', hide);
+  // Wrapper pour setHideMainSidebar avec logs détaillés
+  const handleSetHideMainSidebar = useCallback((hide) => {
+    console.log('🎯 handleSetHideMainSidebar appelé avec:', hide, 'état actuel:', hideMainSidebar);
     setHideMainSidebar(hide);
-  };
+    console.log('🎯 setHideMainSidebar exécuté');
+  }, [hideMainSidebar]);
   
   // Debug logs removed for production
 
