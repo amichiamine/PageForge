@@ -1494,17 +1494,48 @@ export default function PropertiesPanel({
                   <Minus className="h-3 w-3" />
                 </Button>
               </div>
-              <Input
-                type="url"
-                placeholder="URL de l'image"
-                value={slide.image || ''}
-                onChange={(e) => {
-                  const slides = [...(localComponent?.componentData?.slides || [])];
-                  slides[index] = { ...slide, image: e.target.value };
-                  updateProperty('componentData.slides', slides);
-                }}
-                className="text-sm"
-              />
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-6 text-xs px-2"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            const imageUrl = e.target?.result as string;
+                            const slides = [...(localComponent?.componentData?.slides || [])];
+                            slides[index] = { ...slide, image: imageUrl };
+                            updateProperty('componentData.slides', slides);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    <FileImage className="w-3 h-3" />
+                  </Button>
+                  <span className="text-xs text-gray-500">Image ou URL :</span>
+                </div>
+                <Input
+                  type="url"
+                  placeholder="URL de l'image"
+                  value={slide.image || ''}
+                  onChange={(e) => {
+                    const slides = [...(localComponent?.componentData?.slides || [])];
+                    slides[index] = { ...slide, image: e.target.value };
+                    updateProperty('componentData.slides', slides);
+                  }}
+                  className="text-sm"
+                />
+              </div>
               <Input
                 placeholder="Titre du slide"
                 value={slide.title || ''}
@@ -1569,6 +1600,80 @@ export default function PropertiesPanel({
             <Plus className="h-4 w-4 mr-1" />
             Ajouter un slide
           </Button>
+        </div>
+      </div>
+      
+      {/* Outils WYSIWYG pour le carrousel */}
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        
+        <div>
+          <Label className="text-xs">Style des indicateurs</Label>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={localComponent?.styles?.['--carousel-dot-color'] || '#cbd5e0'}
+                onChange={(e) => updateProperty('styles.--carousel-dot-color', e.target.value)}
+                className="h-8 text-xs"
+                placeholder="#cbd5e0"
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: localComponent?.styles?.['--carousel-dot-color'] || '#cbd5e0' }}
+            >
+              <input
+                type="color"
+                value={localComponent?.styles?.['--carousel-dot-color'] || '#cbd5e0'}
+                onChange={(e) => updateProperty('styles.--carousel-dot-color', e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-xs">Couleur des flèches</Label>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={localComponent?.styles?.['--carousel-arrow-color'] || '#4a5568'}
+                onChange={(e) => updateProperty('styles.--carousel-arrow-color', e.target.value)}
+                className="h-8 text-xs"
+                placeholder="#4a5568"
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: localComponent?.styles?.['--carousel-arrow-color'] || '#4a5568' }}
+            >
+              <input
+                type="color"
+                value={localComponent?.styles?.['--carousel-arrow-color'] || '#4a5568'}
+                onChange={(e) => updateProperty('styles.--carousel-arrow-color', e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-xs">Transition</Label>
+          <Select 
+            value={localComponent?.styles?.transition || 'all 0.3s ease'} 
+            onValueChange={(value) => updateProperty('styles.transition', value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all 0.3s ease">Fluide (0.3s)</SelectItem>
+              <SelectItem value="all 0.5s ease">Normal (0.5s)</SelectItem>
+              <SelectItem value="all 0.8s ease">Lente (0.8s)</SelectItem>
+              <SelectItem value="all 0.2s ease-in-out">Rapide</SelectItem>
+              <SelectItem value="all 1s cubic-bezier(0.4, 0, 0.2, 1)">Personnalisée</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>
@@ -1653,6 +1758,61 @@ export default function PropertiesPanel({
           <Label htmlFor="fullWidth" className="text-xs">Pleine largeur</Label>
         </div>
       </div>
+      
+      {/* Outils WYSIWYG pour le bouton */}
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        
+        <div>
+          <Label className="text-xs">Couleur du bouton</Label>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={localComponent?.styles?.backgroundColor || '#3b82f6'}
+                onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
+                className="h-8 text-xs"
+                placeholder="#3b82f6"
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: localComponent?.styles?.backgroundColor || '#3b82f6' }}
+            >
+              <input
+                type="color"
+                value={localComponent?.styles?.backgroundColor || '#3b82f6'}
+                onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-xs">Couleur du texte</Label>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={localComponent?.styles?.color || '#ffffff'}
+                onChange={(e) => updateProperty('styles.color', e.target.value)}
+                className="h-8 text-xs"
+                placeholder="#ffffff"
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: localComponent?.styles?.color || '#ffffff' }}
+            >
+              <input
+                type="color"
+                value={localComponent?.styles?.color || '#ffffff'}
+                onChange={(e) => updateProperty('styles.color', e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
@@ -1662,13 +1822,43 @@ export default function PropertiesPanel({
       <h4 className="text-sm font-semibold text-purple-900">Configuration de l'Image</h4>
       
       <div>
-        <Label className="text-xs text-gray-600">URL de l'image</Label>
-        <Input
-          value={localComponent?.attributes?.src || ''}
-          onChange={(e) => updateProperty('attributes.src', e.target.value)}
-          placeholder="https://example.com/image.jpg"
-          className="mt-1 text-sm"
-        />
+        <Label className="text-xs text-gray-600">Source de l'image</Label>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs"
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const imageUrl = e.target?.result as string;
+                      updateProperty('attributes.src', imageUrl);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                };
+                input.click();
+              }}
+            >
+              <FileImage className="w-3 h-3 mr-1" />
+              Parcourir
+            </Button>
+            <span className="text-xs text-gray-500">ou saisir une URL :</span>
+          </div>
+          <Input
+            value={localComponent?.attributes?.src || ''}
+            onChange={(e) => updateProperty('attributes.src', e.target.value)}
+            placeholder="https://example.com/image.jpg"
+            className="text-sm"
+          />
+        </div>
       </div>
 
       <div>
@@ -1724,6 +1914,74 @@ export default function PropertiesPanel({
           onCheckedChange={(checked) => updateProperty('componentData.responsive', checked)}
         />
         <Label htmlFor="responsive" className="text-xs">Image responsive</Label>
+      </div>
+      
+      {/* Outils WYSIWYG pour l'image */}
+      <div className="space-y-3 pt-3 border-t">
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        
+        <div>
+          <Label className="text-xs">Bordure de l'image</Label>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={localComponent?.styles?.border || ''}
+                onChange={(e) => updateProperty('styles.border', e.target.value)}
+                className="h-8 text-xs"
+                placeholder="1px solid #ccc"
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: localComponent?.styles?.borderColor || '#cccccc' }}
+            >
+              <input
+                type="color"
+                value={localComponent?.styles?.borderColor || '#cccccc'}
+                onChange={(e) => updateProperty('styles.borderColor', e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-xs">Rayon de bordure</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="range"
+              min="0"
+              max="50"
+              step="1"
+              value={parseInt(localComponent?.styles?.borderRadius?.replace('px', '') || '0')}
+              onChange={(e) => updateProperty('styles.borderRadius', `${e.target.value}px`)}
+              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="text-xs text-gray-500 w-12">{localComponent?.styles?.borderRadius || '0px'}</span>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-xs">Filtre d'image</Label>
+          <Select 
+            value={localComponent?.styles?.filter || 'none'} 
+            onValueChange={(value) => updateProperty('styles.filter', value === 'none' ? '' : value)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun</SelectItem>
+              <SelectItem value="blur(2px)">Flou</SelectItem>
+              <SelectItem value="brightness(1.2)">Plus lumineux</SelectItem>
+              <SelectItem value="brightness(0.8)">Plus sombre</SelectItem>
+              <SelectItem value="contrast(1.5)">Plus de contraste</SelectItem>
+              <SelectItem value="grayscale(100%)">Noir et blanc</SelectItem>
+              <SelectItem value="sepia(100%)">Sépia</SelectItem>
+              <SelectItem value="saturate(1.5)">Plus saturé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );
