@@ -155,42 +155,31 @@ function generateHTML(project: Project, page: any, options: ExportOptions): stri
       
       // Si pas de slides configurés, afficher un placeholder
       if (slides.length === 0) {
-        return `${indentStr}${openingTag}
-${childIndentStr}<div class="carousel-slide" style="width: 100%; height: 100%; background-color: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; position: relative;">
-${childIndentStr}  <div style="text-align: center; padding: 20px;">
-${childIndentStr}    <h3 style="font-size: 24px; margin: 0 0 8px 0;">Carousel</h3>
-${childIndentStr}    <p style="margin: 0; font-size: 16px;">Configurez vos slides dans l'éditeur</p>
+        return `${indentStr}<div ${idAttr} class="carousel-container ${className || ''}">
+${childIndentStr}<div class="carousel-track">
+${childIndentStr}  <div class="carousel-slide carousel-placeholder">
+${childIndentStr}    <div class="carousel-content">
+${childIndentStr}      <h3 class="carousel-title">Carousel</h3>
+${childIndentStr}      <p class="carousel-description">Configurez vos slides dans l'éditeur</p>
+${childIndentStr}    </div>
 ${childIndentStr}  </div>
 ${childIndentStr}</div>
-${indentStr}</${tag}>`;
+${indentStr}</div>`;
       }
       
       const slidesHTML = slides.map((slide: any, index: number) => {
-        const slideStyle = `
-          width: 100%;
-          height: 100%;
-          background-color: ${slide.backgroundColor || '#3b82f6'};
-          ${slide.image ? `background-image: url(${slide.image}); background-size: cover; background-position: center; background-repeat: no-repeat;` : ''}
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: ${slide.textColor || 'white'};
-          position: relative;
-          overflow: hidden;
-        `;
-        
-        return `${childIndentStr}<div class="carousel-slide" style="${slideStyle}">
-${childIndentStr}  ${slide.image ? '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 1;"></div>' : ''}
-${childIndentStr}  <div style="position: relative; z-index: 2; text-align: center; padding: 20px;">
-${childIndentStr}    ${slide.title ? `<h3 style="font-size: ${slide.titleSize || '24px'}; margin: 0 0 8px 0;">${slide.title}</h3>` : ''}
-${childIndentStr}    ${slide.description ? `<p style="margin: 0; font-size: 16px;">${slide.description}</p>` : ''}
-${childIndentStr}    ${slide.buttonText ? `<button style="margin-top: 12px; padding: 8px 16px; background: rgba(255,255,255,0.2); color: ${slide.textColor || 'white'}; border: 2px solid ${slide.textColor || 'white'}; border-radius: 6px; cursor: pointer;">${slide.buttonText}</button>` : ''}
+        return `${childIndentStr}<div class="carousel-slide" ${slide.backgroundColor ? `data-bg-color="${slide.backgroundColor}"` : ''} ${slide.image ? `data-bg-image="${slide.image}"` : ''}>
+${childIndentStr}  ${slide.image ? '<div class="carousel-overlay"></div>' : ''}
+${childIndentStr}  <div class="carousel-content">
+${childIndentStr}    ${slide.title ? `<h3 class="carousel-title">${slide.title}</h3>` : ''}
+${childIndentStr}    ${slide.description ? `<p class="carousel-description">${slide.description}</p>` : ''}
+${childIndentStr}    ${slide.buttonText ? `<button class="carousel-button">${slide.buttonText}</button>` : ''}
 ${childIndentStr}  </div>
 ${childIndentStr}</div>`;
       }).join('\n');
       
       return `${indentStr}<div ${idAttr} class="carousel-container ${className || ''}">
-${childIndentStr}<div class="carousel-track" style="width: ${slides.length * 100}%;">
+${childIndentStr}<div class="carousel-track">
 ${slidesHTML}
 ${childIndentStr}</div>
 ${indentStr}</div>`;
@@ -413,6 +402,61 @@ img {
   object-position: center;
 }
 
+.carousel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.carousel-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: white;
+}
+
+.carousel-title {
+  font-size: 24px;
+  margin: 0 0 8px 0;
+  font-weight: bold;
+}
+
+.carousel-description {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+}
+
+.carousel-button {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.carousel-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.carousel-placeholder {
+  background-color: #3b82f6;
+}
+
 .carousel-dots {
   position: absolute;
   bottom: 12px;
@@ -556,6 +600,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Pause/reprise au survol
     carousel.addEventListener('mouseenter', stopAutoplay);
     carousel.addEventListener('mouseleave', startAutoplay);
+    
+    // Appliquer les couleurs et images personnalisées
+    slides.forEach(slide => {
+      const bgColor = slide.getAttribute('data-bg-color');
+      const bgImage = slide.getAttribute('data-bg-image');
+      
+      if (bgColor) {
+        slide.style.backgroundColor = bgColor;
+      }
+      
+      if (bgImage) {
+        slide.style.backgroundImage = \`url(\${bgImage})\`;
+        slide.style.backgroundSize = 'cover';
+        slide.style.backgroundPosition = 'center';
+        slide.style.backgroundRepeat = 'no-repeat';
+      }
+    });
   });
   
   // Fonctionnalité accordéon
