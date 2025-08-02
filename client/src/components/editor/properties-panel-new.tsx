@@ -1806,7 +1806,7 @@ export default function PropertiesPanel({
       case 'icon':
         return renderIconConfiguration();
       default:
-        return renderComponentSpecificConfiguration();
+        return renderGenericConfiguration();
     }
   };
 
