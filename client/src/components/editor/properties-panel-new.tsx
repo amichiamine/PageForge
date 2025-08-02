@@ -1705,7 +1705,7 @@ export default function PropertiesPanel({
       case 'link':
         return renderLinkConfiguration();
       case 'list':
-        return renderListConfiguration();
+        return renderListItemsConfiguration();
       case 'pricing':
         return renderPricingConfiguration();
       case 'testimonial':
@@ -2043,27 +2043,43 @@ export default function PropertiesPanel({
                     </div>
                   </div>
                 ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const slides = [...(localComponent?.componentData?.slides || [])];
-                    const newIndex = slides.length;
-                    slides.push({ 
-                      image: '', 
-                      title: `Slide ${newIndex + 1}`,
-                      description: '',
-                      buttonText: '',
-                      buttonLink: '#',
-                      backgroundColor: `#${Math.floor(Math.random()*16777215).toString(16)}`
-                    });
-                    updateProperty('componentData.slides', slides);
-                  }}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Ajouter un slide
-                </Button>
+                
+                {/* Bouton toujours visible pour ajouter des slides */}
+                <div className="pt-2 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const currentSlides = localComponent?.componentData?.slides || [];
+                      const newIndex = currentSlides.length;
+                      const newSlide = { 
+                        image: '', 
+                        title: `Slide ${newIndex + 1}`,
+                        description: `Description du slide ${newIndex + 1}`,
+                        buttonText: '',
+                        buttonLink: '#',
+                        backgroundColor: '#3b82f6',
+                        textColor: '#ffffff',
+                        titleSize: '24px',
+                        textPosition: 'center'
+                      };
+                      const updatedSlides = [...currentSlides, newSlide];
+                      updateProperty('componentData.slides', updatedSlides);
+                      
+                      // Forcer la mise à jour de l'interface
+                      setTimeout(() => {
+                        const event = new CustomEvent('carousel-slides-updated', { 
+                          detail: { slides: updatedSlides, componentId: localComponent?.id } 
+                        });
+                        window.dispatchEvent(event);
+                      }, 100);
+                    }}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Ajouter un slide ({(localComponent?.componentData?.slides || []).length})
+                  </Button>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>

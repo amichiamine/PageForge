@@ -372,11 +372,20 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               alignItems: 'center',
               justifyContent: 'center',
               color: '#6b7280',
-              fontSize: '14px',
-              backgroundColor: '#f9fafb',
-              border: '2px dashed #d1d5db'
+              fontSize: containerWidth < 150 ? '12px' : '14px',
+              backgroundColor: '#f8fafc',
+              border: '2px dashed #d1d5db',
+              borderRadius: '8px',
+              textAlign: 'center',
+              padding: `${getResponsiveSpacing(12)}px`,
+              boxSizing: 'border-box'
             }}>
-              Carrousel vide - Ajoutez des slides
+              <div style={{ lineHeight: 1.4 }}>
+                <div style={{ fontWeight: '500', marginBottom: '4px' }}>🎠 Carrousel</div>
+                <div style={{ fontSize: containerWidth < 150 ? '10px' : '12px', color: '#9ca3af' }}>
+                  Ajoutez des slides via la configuration
+                </div>
+              </div>
             </div>
           )}
         </div>
