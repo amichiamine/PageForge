@@ -4592,6 +4592,13 @@ export function updateComponentInTree(
 ): ComponentDefinition[] {
   return components.map(component => {
     if (component.id === id) {
+      console.log('🔄 UPDATING COMPONENT IN TREE:', { 
+        componentId: id, 
+        componentType: component.type,
+        oldComponent: component, 
+        updates,
+        mergedComponent: { ...component, ...updates }
+      });
       return { ...component, ...updates };
     }
     if (component.children) {

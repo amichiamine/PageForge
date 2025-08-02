@@ -724,12 +724,22 @@ export default function Editor() {
                   <PropertiesPanel
                     component={selectedComponent}
                     onComponentUpdate={(component) => {
+                      console.log('📋 PROPERTIES PANEL UPDATE:', { 
+                        componentId: component.id, 
+                        componentType: component.type,
+                        updatedComponent: component 
+                      });
                       const updatedProject = { ...localProject };
                       if (updatedProject.content?.pages?.[0]?.content?.structure) {
                         const structure = updatedProject.content.pages[0].content.structure;
                         const index = structure.findIndex(c => c.id === component.id);
                         if (index !== -1) {
                           structure[index] = component;
+                          console.log('✅ UPDATED PROJECT STRUCTURE:', { 
+                            updatedProject,
+                            structureLength: structure.length,
+                            componentIndex: index 
+                          });
                           handleComponentUpdate(updatedProject);
                         }
                       }

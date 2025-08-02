@@ -80,6 +80,12 @@ export default function PropertiesPanel({
         ...updatedComponent.styles,
         [styleProp]: value
       };
+      console.log('🎨 UPDATE STYLES:', { 
+        path, 
+        styleProp, 
+        value, 
+        newStyles: updatedComponent.styles 
+      });
     } else if (path.startsWith('attributes.')) {
       const attrProp = path.replace('attributes.', '');
       updatedComponent.attributes = {
@@ -98,12 +104,30 @@ export default function PropertiesPanel({
         ...updatedComponent.componentData,
         [dataProp]: value
       };
+      console.log('📊 UPDATE COMPONENT DATA:', { 
+        path, 
+        dataProp, 
+        value, 
+        newComponentData: updatedComponent.componentData 
+      });
     } else {
       (updatedComponent as any)[path] = value;
+      console.log('🔄 UPDATE DIRECT PROPERTY:', { path, value });
     }
 
+    // Mise à jour immédiate du composant local
     setLocalComponent(updatedComponent);
+    
+    // Déclencher immédiatement la mise à jour du parent pour la propagation temps réel
     onComponentUpdate(updatedComponent);
+    
+    console.log('✅ PROPERTY UPDATE COMPLETE:', { 
+      componentId: updatedComponent.id, 
+      componentType: updatedComponent.type,
+      path, 
+      value,
+      fullComponent: updatedComponent 
+    });
   };
 
   // Fonction utilitaire pour le système de couleur WYSIWYG complet
@@ -292,6 +316,7 @@ export default function PropertiesPanel({
                       const reader = new FileReader();
                       reader.onload = (e) => {
                         const imageUrl = e.target?.result as string;
+                        console.log('🖼️ IMAGE FILE UPLOAD:', { property, imageUrl: imageUrl.substring(0, 50) + '...' });
                         updateProperty(property, `url(${imageUrl})`);
                       };
                       reader.readAsDataURL(file);
@@ -307,7 +332,15 @@ export default function PropertiesPanel({
             </div>
             <Input
               value={currentValue?.replace('url(', '').replace(')', '') || ''}
-              onChange={(e) => updateProperty(property, e.target.value.startsWith('url(') ? e.target.value : `url(${e.target.value})`)}
+              onChange={(e) => {
+                const value = e.target.value;
+                console.log('🖼️ IMAGE URL INPUT CHANGE:', { property, value, currentValue });
+                if (value) {
+                  updateProperty(property, value.startsWith('url(') ? value : `url(${value})`);
+                } else {
+                  updateProperty(property, '');
+                }
+              }}
               placeholder="https://example.com/image.jpg"
               className="text-xs"
             />
@@ -2142,6 +2175,7 @@ export default function PropertiesPanel({
                     const reader = new FileReader();
                     reader.onload = (e) => {
                       const imageUrl = e.target?.result as string;
+                      console.log('🖼️ IMAGE FILE UPLOAD for SRC:', { imageUrl: imageUrl.substring(0, 50) + '...' });
                       updateProperty('attributes.src', imageUrl);
                     };
                     reader.readAsDataURL(file);
@@ -2157,7 +2191,10 @@ export default function PropertiesPanel({
           </div>
           <Input
             value={localComponent?.attributes?.src || ''}
-            onChange={(e) => updateProperty('attributes.src', e.target.value)}
+            onChange={(e) => {
+              console.log('🖼️ IMAGE SRC INPUT CHANGE:', { value: e.target.value, currentSrc: localComponent?.attributes?.src });
+              updateProperty('attributes.src', e.target.value);
+            }}
             placeholder="https://example.com/image.jpg"
             className="text-sm"
           />
