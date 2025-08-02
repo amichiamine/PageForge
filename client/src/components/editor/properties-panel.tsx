@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
+import { Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose, Plus, Minus } from 'lucide-react';
 import type { ComponentDefinition, Project } from '@shared/schema';
 
 interface PropertiesPanelProps {
@@ -57,6 +57,12 @@ export default function PropertiesPanel({
         ...updatedComponent.attributes,
         [attrProp]: value
       };
+    } else if (path.startsWith('componentData.')) {
+      const dataProp = path.replace('componentData.', '');
+      updatedComponent.componentData = {
+        ...updatedComponent.componentData,
+        [dataProp]: value
+      };
     } else {
       (updatedComponent as any)[path] = value;
     }
@@ -64,6 +70,818 @@ export default function PropertiesPanel({
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
   };
+
+  // Fonction pour rendre les propriétés spécifiques au type de composant
+  const renderComponentSpecificProperties = () => {
+    if (!localComponent) return null;
+
+    const componentType = localComponent.type;
+
+    switch (componentType) {
+      case 'carousel':
+        return renderCarouselProperties();
+      case 'pricing':
+        return renderPricingProperties();
+      case 'testimonial':
+        return renderTestimonialProperties();
+      case 'team':
+        return renderTeamProperties();
+      case 'stats':
+        return renderStatsProperties();
+      case 'features':
+        return renderFeaturesProperties();
+      case 'cta':
+        return renderCtaProperties();
+      case 'menu':
+        return renderMenuProperties();
+      case 'breadcrumb':
+        return renderBreadcrumbProperties();
+      case 'pagination':
+        return renderPaginationProperties();
+      case 'tabs':
+        return renderTabsProperties();
+      case 'search':
+        return renderSearchProperties();
+      case 'faq':
+        return renderFaqProperties();
+      case 'timeline':
+        return renderTimelineProperties();
+      case 'blog-post':
+        return renderBlogPostProperties();
+      case 'countdown':
+        return renderCountdownProperties();
+      case 'map':
+        return renderMapProperties();
+      case 'weather':
+        return renderWeatherProperties();
+      case 'product-card':
+        return renderProductCardProperties();
+      case 'form':
+        return renderFormProperties();
+      case 'input':
+        return renderInputProperties();
+      case 'textarea':
+        return renderTextareaProperties();
+      case 'checkbox':
+        return renderCheckboxProperties();
+      case 'radio':
+        return renderRadioProperties();
+      case 'select':
+        return renderSelectProperties();
+      case 'button':
+        return renderButtonProperties();
+      case 'image':
+        return renderImageProperties();
+      case 'video':
+        return renderVideoProperties();
+      case 'audio':
+        return renderAudioProperties();
+      case 'gallery':
+        return renderGalleryProperties();
+      case 'icon':
+        return renderIconProperties();
+      case 'link':
+        return renderLinkProperties();
+      case 'modal':
+        return renderModalProperties();
+      case 'dropdown':
+        return renderDropdownProperties();
+      case 'accordion':
+        return renderAccordionProperties();
+      case 'chart':
+        return renderChartProperties();
+      case 'table':
+        return renderTableProperties();
+      case 'list':
+        return renderListProperties();
+      case 'card':
+        return renderCardProperties();
+      case 'badge':
+        return renderBadgeProperties();
+      case 'alert':
+        return renderAlertProperties();
+      case 'progress':
+        return renderProgressProperties();
+      case 'slider':
+        return renderSliderProperties();
+      case 'toggle':
+        return renderToggleProperties();
+      case 'tooltip':
+        return renderTooltipProperties();
+      case 'popover':
+        return renderPopoverProperties();
+      case 'calendar':
+        return renderCalendarProperties();
+      case 'rating':
+        return renderRatingProperties();
+      case 'stepper':
+        return renderStepperProperties();
+      case 'footer':
+        return renderFooterProperties();
+      case 'header':
+        return renderHeaderProperties();
+      case 'hero':
+        return renderHeroProperties();
+      case 'banner':
+        return renderBannerProperties();
+      case 'container':
+        return renderContainerProperties();
+      case 'grid':
+        return renderGridProperties();
+      case 'flexbox':
+        return renderFlexboxProperties();
+      default:
+        return renderGenericProperties();
+    }
+  };
+
+  // Fonction pour les propriétés du carrousel
+  const renderCarouselProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration du Carrousel</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Vitesse d'animation (ms)</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.animationSpeed || 3000}
+            onChange={(e) => updateProperty('componentData.animationSpeed', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+            min="500"
+            max="10000"
+            step="500"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Défilement automatique</Label>
+          <Select
+            value={localComponent?.componentData?.autoplay || 'true'}
+            onValueChange={(value) => updateProperty('componentData.autoplay', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Activé</SelectItem>
+              <SelectItem value="false">Désactivé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Images du carrousel</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.slides || []).map((slide: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                type="url"
+                placeholder="URL de l'image"
+                value={slide.image || ''}
+                onChange={(e) => {
+                  const slides = [...(localComponent?.componentData?.slides || [])];
+                  slides[index] = { ...slide, image: e.target.value };
+                  updateProperty('componentData.slides', slides);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const slides = [...(localComponent?.componentData?.slides || [])];
+                  slides.splice(index, 1);
+                  updateProperty('componentData.slides', slides);
+                }}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const slides = [...(localComponent?.componentData?.slides || [])];
+              slides.push({ image: '', caption: `Slide ${slides.length + 1}` });
+              updateProperty('componentData.slides', slides);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une image
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du composant pricing
+  const renderPricingProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration des Prix</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Nom du plan</Label>
+        <Input
+          value={localComponent?.componentData?.planName || 'Plan Professionnel'}
+          onChange={(e) => updateProperty('componentData.planName', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Prix</Label>
+          <Input
+            value={localComponent?.componentData?.price || '29€'}
+            onChange={(e) => updateProperty('componentData.price', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Période</Label>
+          <Select
+            value={localComponent?.componentData?.period || '/mois'}
+            onValueChange={(value) => updateProperty('componentData.period', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="/mois">Par mois</SelectItem>
+              <SelectItem value="/an">Par an</SelectItem>
+              <SelectItem value="/semaine">Par semaine</SelectItem>
+              <SelectItem value="">Une fois</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Description</Label>
+        <Input
+          value={localComponent?.componentData?.description || 'Idéal pour les équipes qui grandissent'}
+          onChange={(e) => updateProperty('componentData.description', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Fonctionnalités (une par ligne)</Label>
+        <Textarea
+          value={(localComponent?.componentData?.features || ['10 utilisateurs inclus', 'Support prioritaire', 'Intégrations avancées']).join('\n')}
+          onChange={(e) => updateProperty('componentData.features', e.target.value.split('\n').filter(f => f.trim()))}
+          className="mt-1 text-sm"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Texte du bouton</Label>
+        <Input
+          value={localComponent?.componentData?.buttonText || 'Commencer maintenant'}
+          onChange={(e) => updateProperty('componentData.buttonText', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du testimonial
+  const renderTestimonialProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Témoignage</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Citation</Label>
+        <Textarea
+          value={localComponent?.componentData?.quote || 'Cette solution a transformé notre façon de travailler. Les résultats sont impressionnants et l\'équipe est très satisfaite.'}
+          onChange={(e) => updateProperty('componentData.quote', e.target.value)}
+          className="mt-1 text-sm"
+          rows={3}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Nom de l'auteur</Label>
+          <Input
+            value={localComponent?.componentData?.authorName || 'Marie Dubois'}
+            onChange={(e) => updateProperty('componentData.authorName', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Titre/Fonction</Label>
+          <Input
+            value={localComponent?.componentData?.authorTitle || 'Directrice Marketing, TechCorp'}
+            onChange={(e) => updateProperty('componentData.authorTitle', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Photo de l'auteur (URL)</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.authorImage || ''}
+          onChange={(e) => updateProperty('componentData.authorImage', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/photo.jpg"
+        />
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du team
+  const renderTeamProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Équipe</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Nom</Label>
+          <Input
+            value={localComponent?.componentData?.name || 'Sarah Martin'}
+            onChange={(e) => updateProperty('componentData.name', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Poste</Label>
+          <Input
+            value={localComponent?.componentData?.role || 'Développeuse Senior'}
+            onChange={(e) => updateProperty('componentData.role', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Photo (URL)</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.image || ''}
+          onChange={(e) => updateProperty('componentData.image', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/photo.jpg"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Bio</Label>
+        <Textarea
+          value={localComponent?.componentData?.bio || 'Passionnée par le développement web moderne, Sarah apporte son expertise technique à notre équipe depuis plus de 5 ans.'}
+          onChange={(e) => updateProperty('componentData.bio', e.target.value)}
+          className="mt-1 text-sm"
+          rows={3}
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Email</Label>
+        <Input
+          type="email"
+          value={localComponent?.componentData?.email || 'sarah@example.com'}
+          onChange={(e) => updateProperty('componentData.email', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du stats
+  const renderStatsProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Statistiques</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Nombre</Label>
+          <Input
+            value={localComponent?.componentData?.number || '1000+'}
+            onChange={(e) => updateProperty('componentData.number', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Label</Label>
+          <Input
+            value={localComponent?.componentData?.label || 'Clients satisfaits'}
+            onChange={(e) => updateProperty('componentData.label', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Icône</Label>
+        <Select
+          value={localComponent?.componentData?.icon || '👥'}
+          onValueChange={(value) => updateProperty('componentData.icon', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="👥">👥 Utilisateurs</SelectItem>
+            <SelectItem value="💼">💼 Projets</SelectItem>
+            <SelectItem value="⭐">⭐ Étoiles</SelectItem>
+            <SelectItem value="🏆">🏆 Prix</SelectItem>
+            <SelectItem value="📈">📈 Croissance</SelectItem>
+            <SelectItem value="💯">💯 Pourcentage</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du FAQ
+  const renderFaqProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration FAQ</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Questions & Réponses</Label>
+        <div className="space-y-3 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
+            <div key={index} className="p-3 border rounded space-y-2">
+              <Input
+                placeholder="Question"
+                value={item.question || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, question: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Réponse"
+                value={item.answer || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, answer: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+                rows={2}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items.splice(index, 1);
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-red-600 hover:text-red-700"
+              >
+                <Minus className="h-4 w-4 mr-1" />
+                Supprimer
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push({ question: '', answer: '' });
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une question
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du countdown
+  const renderCountdownProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Compte à rebours</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Date cible</Label>
+        <Input
+          type="datetime-local"
+          value={localComponent?.componentData?.targetDate || '2025-12-31T23:59'}
+          onChange={(e) => updateProperty('componentData.targetDate', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Titre</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Lancement dans'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Message de fin</Label>
+        <Input
+          value={localComponent?.componentData?.endMessage || 'L\'événement a commencé !'}
+          onChange={(e) => updateProperty('componentData.endMessage', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés du weather
+  const renderWeatherProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Météo</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Ville</Label>
+          <Input
+            value={localComponent?.componentData?.city || 'Paris'}
+            onChange={(e) => updateProperty('componentData.city', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Température</Label>
+          <Input
+            value={localComponent?.componentData?.temperature || '22°C'}
+            onChange={(e) => updateProperty('componentData.temperature', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Condition</Label>
+        <Select
+          value={localComponent?.componentData?.condition || 'sunny'}
+          onValueChange={(value) => updateProperty('componentData.condition', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="sunny">☀️ Ensoleillé</SelectItem>
+            <SelectItem value="cloudy">☁️ Nuageux</SelectItem>
+            <SelectItem value="rainy">🌧️ Pluvieux</SelectItem>
+            <SelectItem value="snowy">❄️ Neigeux</SelectItem>
+            <SelectItem value="stormy">⛈️ Orageux</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés d'image
+  const renderImageProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Image</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">URL de l'image</Label>
+        <Input
+          type="url"
+          value={localComponent?.attributes?.src || ''}
+          onChange={(e) => updateProperty('attributes.src', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/image.jpg"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Texte alternatif</Label>
+        <Input
+          value={localComponent?.attributes?.alt || ''}
+          onChange={(e) => updateProperty('attributes.alt', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Description de l'image"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Mode d'ajustement</Label>
+        <Select
+          value={localComponent?.styles?.objectFit || 'cover'}
+          onValueChange={(value) => updateProperty('styles.objectFit', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="cover">Couvrir</SelectItem>
+            <SelectItem value="contain">Contenir</SelectItem>
+            <SelectItem value="fill">Remplir</SelectItem>
+            <SelectItem value="scale-down">Réduire</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés de bouton
+  const renderButtonProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Bouton</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte du bouton</Label>
+        <Input
+          value={localComponent?.content || 'Cliquez ici'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type</Label>
+          <Select
+            value={localComponent?.attributes?.type || 'button'}
+            onValueChange={(value) => updateProperty('attributes.type', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="button">Bouton</SelectItem>
+              <SelectItem value="submit">Soumettre</SelectItem>
+              <SelectItem value="reset">Réinitialiser</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Variante</Label>
+          <Select
+            value={localComponent?.componentData?.variant || 'primary'}
+            onValueChange={(value) => updateProperty('componentData.variant', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="primary">Principal</SelectItem>
+              <SelectItem value="secondary">Secondaire</SelectItem>
+              <SelectItem value="outline">Contour</SelectItem>
+              <SelectItem value="ghost">Fantôme</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Action (URL ou JavaScript)</Label>
+        <Input
+          value={localComponent?.componentData?.action || ''}
+          onChange={(e) => updateProperty('componentData.action', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com ou onclick='alert(Hello)'"
+        />
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés de formulaire
+  const renderFormProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Formulaire</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Méthode</Label>
+          <Select
+            value={localComponent?.attributes?.method || 'POST'}
+            onValueChange={(value) => updateProperty('attributes.method', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="GET">GET</SelectItem>
+              <SelectItem value="POST">POST</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Action</Label>
+          <Input
+            value={localComponent?.attributes?.action || '/submit'}
+            onChange={(e) => updateProperty('attributes.action', e.target.value)}
+            className="mt-1 text-sm"
+            placeholder="/submit"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="autocomplete"
+          checked={localComponent?.attributes?.autocomplete === 'on'}
+          onCheckedChange={(checked) => updateProperty('attributes.autocomplete', checked ? 'on' : 'off')}
+        />
+        <Label htmlFor="autocomplete" className="text-xs text-gray-600">Autocomplétion</Label>
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Fonction pour les propriétés génériques
+  const renderGenericProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Propriétés génériques</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Contenu</Label>
+        <Textarea
+          value={localComponent?.content || ''}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm"
+          rows={3}
+        />
+      </div>
+
+      <Separator />
+    </div>
+  );
+
+  // Ajouter les autres fonctions de propriétés vides pour éviter les erreurs
+  const renderFeaturesProperties = () => renderGenericProperties();
+  const renderCtaProperties = () => renderGenericProperties();
+  const renderMenuProperties = () => renderGenericProperties();
+  const renderBreadcrumbProperties = () => renderGenericProperties();
+  const renderPaginationProperties = () => renderGenericProperties();
+  const renderTabsProperties = () => renderGenericProperties();
+  const renderSearchProperties = () => renderGenericProperties();
+  const renderTimelineProperties = () => renderGenericProperties();
+  const renderBlogPostProperties = () => renderGenericProperties();
+  const renderMapProperties = () => renderGenericProperties();
+  const renderProductCardProperties = () => renderGenericProperties();
+  const renderInputProperties = () => renderGenericProperties();
+  const renderTextareaProperties = () => renderGenericProperties();
+  const renderCheckboxProperties = () => renderGenericProperties();
+  const renderRadioProperties = () => renderGenericProperties();
+  const renderSelectProperties = () => renderGenericProperties();
+  const renderVideoProperties = () => renderGenericProperties();
+  const renderAudioProperties = () => renderGenericProperties();
+  const renderGalleryProperties = () => renderGenericProperties();
+  const renderIconProperties = () => renderGenericProperties();
+  const renderLinkProperties = () => renderGenericProperties();
+  const renderModalProperties = () => renderGenericProperties();
+  const renderDropdownProperties = () => renderGenericProperties();
+  const renderAccordionProperties = () => renderGenericProperties();
+  const renderChartProperties = () => renderGenericProperties();
+  const renderTableProperties = () => renderGenericProperties();
+  const renderListProperties = () => renderGenericProperties();
+  const renderCardProperties = () => renderGenericProperties();
+  const renderBadgeProperties = () => renderGenericProperties();
+  const renderAlertProperties = () => renderGenericProperties();
+  const renderProgressProperties = () => renderGenericProperties();
+  const renderSliderProperties = () => renderGenericProperties();
+  const renderToggleProperties = () => renderGenericProperties();
+  const renderTooltipProperties = () => renderGenericProperties();
+  const renderPopoverProperties = () => renderGenericProperties();
+  const renderCalendarProperties = () => renderGenericProperties();
+  const renderRatingProperties = () => renderGenericProperties();
+  const renderStepperProperties = () => renderGenericProperties();
+  const renderFooterProperties = () => renderGenericProperties();
+  const renderHeaderProperties = () => renderGenericProperties();
+  const renderHeroProperties = () => renderGenericProperties();
+  const renderBannerProperties = () => renderGenericProperties();
+  const renderContainerProperties = () => renderGenericProperties();
+  const renderGridProperties = () => renderGenericProperties();
+  const renderFlexboxProperties = () => renderGenericProperties();
 
   const duplicateComponent = () => {
     if (!localComponent) return;
@@ -295,23 +1113,14 @@ export default function PropertiesPanel({
           <Separator />
         </div>
 
-        {/* Contenu */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="content" className="text-sm font-medium">Contenu</Label>
-            <Textarea
-              id="content"
-              value={localComponent.content || ''}
-              onChange={(e) => updateProperty('content', e.target.value)}
-              placeholder="Contenu du composant"
-              rows={3}
-              className="mt-1"
-            />
-          </div>
+        {/* Propriétés spécifiques au composant */}
+        {renderComponentSpecificProperties()}
 
-          {/* Tag HTML */}
+        {/* Tag HTML */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">Configuration HTML</h4>
           <div>
-            <Label htmlFor="tag" className="text-sm font-medium">Balise HTML</Label>
+            <Label htmlFor="tag" className="text-xs text-gray-600">Balise HTML</Label>
             <Select
               value={localComponent.tag || 'div'}
               onValueChange={(value) => updateProperty('tag', value)}
@@ -340,6 +1149,18 @@ export default function PropertiesPanel({
                 <SelectItem value="aside">aside</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="className" className="text-xs text-gray-600">Classes CSS</Label>
+            <Input
+              id="className"
+              type="text"
+              value={localComponent.attributes?.className || ''}
+              onChange={(e) => updateProperty('attributes.className', e.target.value)}
+              placeholder="ex: btn btn-primary"
+              className="mt-1 text-sm"
+            />
           </div>
 
           <Separator />
@@ -439,195 +1260,33 @@ export default function PropertiesPanel({
 
         <Separator />
 
-        {/* Couleurs et apparence */}
+        {/* Styles CSS simplifiés */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-gray-900">Apparence</h3>
+          <h4 className="text-sm font-semibold text-gray-900">Styles CSS</h4>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="backgroundColor" className="text-xs text-gray-600">Arrière-plan</Label>
-              <Input
-                id="backgroundColor"
-                type="color"
-                value={localComponent.styles?.backgroundColor || '#transparent'}
-                onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
-                className="mt-1 h-8"
-              />
-            </div>
-            <div>
-              <Label htmlFor="color" className="text-xs text-gray-600">Couleur du texte</Label>
-              <Input
-                id="color"
-                type="color"
-                value={localComponent.styles?.color || '#000000'}
-                onChange={(e) => updateProperty('styles.color', e.target.value)}
-                className="mt-1 h-8"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="border" className="text-xs text-gray-600">Bordure</Label>
-            <Input
-              id="border"
-              type="text"
-              value={localComponent.styles?.border || 'none'}
-              onChange={(e) => updateProperty('styles.border', e.target.value)}
-              className="mt-1 text-sm"
-              placeholder="ex: 1px solid #000"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="borderRadius" className="text-xs text-gray-600">Arrondi des coins</Label>
-            <Input
-              id="borderRadius"
-              type="text"
-              value={localComponent.styles?.borderRadius || '0px'}
-              onChange={(e) => updateProperty('styles.borderRadius', e.target.value)}
-              className="mt-1 text-sm"
-            />
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Typographie */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-gray-900">Typographie</h3>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="fontSize" className="text-xs text-gray-600">Taille</Label>
-              <Input
-                id="fontSize"
-                type="text"
-                value={localComponent.styles?.fontSize || '16px'}
-                onChange={(e) => updateProperty('styles.fontSize', e.target.value)}
-                className="mt-1 text-sm"
-              />
-            </div>
-            <div>
-              <Label htmlFor="fontWeight" className="text-xs text-gray-600">Poids</Label>
-              <Select
-                value={localComponent.styles?.fontWeight || 'normal'}
-                onValueChange={(value) => updateProperty('styles.fontWeight', value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="bold">Gras</SelectItem>
-                  <SelectItem value="lighter">Léger</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                  <SelectItem value="200">200</SelectItem>
-                  <SelectItem value="300">300</SelectItem>
-                  <SelectItem value="400">400</SelectItem>
-                  <SelectItem value="500">500</SelectItem>
-                  <SelectItem value="600">600</SelectItem>
-                  <SelectItem value="700">700</SelectItem>
-                  <SelectItem value="800">800</SelectItem>
-                  <SelectItem value="900">900</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="fontFamily" className="text-xs text-gray-600">Police</Label>
-            <Select
-              value={localComponent.styles?.fontFamily || 'Arial, sans-serif'}
-              onValueChange={(value) => updateProperty('styles.fontFamily', value)}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Arial, sans-serif">Arial</SelectItem>
-                <SelectItem value="Helvetica, sans-serif">Helvetica</SelectItem>
-                <SelectItem value="'Times New Roman', serif">Times New Roman</SelectItem>
-                <SelectItem value="Georgia, serif">Georgia</SelectItem>
-                <SelectItem value="'Courier New', monospace">Courier New</SelectItem>
-                <SelectItem value="Verdana, sans-serif">Verdana</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Espacement */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-gray-900">Espacement</h3>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="padding" className="text-xs text-gray-600">Padding</Label>
-              <Input
-                id="padding"
-                type="text"
-                value={localComponent.styles?.padding || '0px'}
-                onChange={(e) => updateProperty('styles.padding', e.target.value)}
-                className="mt-1 text-sm"
-              />
-            </div>
-            <div>
-              <Label htmlFor="margin" className="text-xs text-gray-600">Margin</Label>
-              <Input
-                id="margin"
-                type="text"
-                value={localComponent.styles?.margin || '0px'}
-                onChange={(e) => updateProperty('styles.margin', e.target.value)}
-                placeholder="ex: 10px 20px"
-                className="mt-1 text-sm"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="zIndex" className="text-xs text-gray-600">Z-Index</Label>
-            <Input
-              id="zIndex"
-              type="number"
-              value={localComponent.styles?.zIndex || '1000'}
-              onChange={(e) => updateProperty('styles.zIndex', e.target.value)}
-              className="mt-1 text-sm"
-            />
-          </div>
-
-          <Separator />
-        </div>
-
-        {/* Apparence */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-gray-900">Apparence</h4>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="backgroundColor" className="text-xs text-gray-600">Couleur de fond</Label>
+              <Label className="text-xs text-gray-600">Couleur de fond</Label>
               <div className="flex mt-1">
                 <Input
-                  id="backgroundColor"
                   type="color"
-                  value={localComponent.styles?.backgroundColor || '#transparent'}
+                  value={localComponent.styles?.backgroundColor || '#ffffff'}
                   onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
                   className="w-12 h-9 p-1 rounded-l border-r-0"
                 />
                 <Input
                   type="text"
-                  value={localComponent.styles?.backgroundColor || 'transparent'}
+                  value={localComponent.styles?.backgroundColor || '#ffffff'}
                   onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
                   className="flex-1 text-sm rounded-l-none"
-                  placeholder="transparent"
+                  placeholder="#ffffff"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="color" className="text-xs text-gray-600">Couleur du texte</Label>
+              <Label className="text-xs text-gray-600">Couleur du texte</Label>
               <div className="flex mt-1">
                 <Input
-                  id="color"
                   type="color"
                   value={localComponent.styles?.color || '#000000'}
                   onChange={(e) => updateProperty('styles.color', e.target.value)}
@@ -635,10 +1294,10 @@ export default function PropertiesPanel({
                 />
                 <Input
                   type="text"
-                  value={localComponent.styles?.color || 'inherit'}
+                  value={localComponent.styles?.color || '#000000'}
                   onChange={(e) => updateProperty('styles.color', e.target.value)}
                   className="flex-1 text-sm rounded-l-none"
-                  placeholder="inherit"
+                  placeholder="#000000"
                 />
               </div>
             </div>
@@ -646,74 +1305,8 @@ export default function PropertiesPanel({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="fontSize" className="text-xs text-gray-600">Taille de police</Label>
-              <Select
-                value={localComponent.styles?.fontSize || '1rem'}
-                onValueChange={(value) => updateProperty('styles.fontSize', value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0.75rem">Très petit</SelectItem>
-                  <SelectItem value="0.875rem">Petit</SelectItem>
-                  <SelectItem value="1rem">Normal</SelectItem>
-                  <SelectItem value="1.125rem">Grand</SelectItem>
-                  <SelectItem value="1.25rem">Très grand</SelectItem>
-                  <SelectItem value="1.5rem">XXL</SelectItem>
-                  <SelectItem value="2rem">XXXL</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="fontWeight" className="text-xs text-gray-600">Poids de police</Label>
-              <Select
-                value={localComponent.styles?.fontWeight || 'normal'}
-                onValueChange={(value) => updateProperty('styles.fontWeight', value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="bold">Gras</SelectItem>
-                  <SelectItem value="lighter">Léger</SelectItem>
-                  <SelectItem value="bolder">Très gras</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="textAlign" className="text-xs text-gray-600">Alignement du texte</Label>
-            <Select
-              value={localComponent.styles?.textAlign || 'left'}
-              onValueChange={(value) => updateProperty('styles.textAlign', value)}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="left">Gauche</SelectItem>
-                <SelectItem value="center">Centre</SelectItem>
-                <SelectItem value="right">Droite</SelectItem>
-                <SelectItem value="justify">Justifié</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Separator />
-        </div>
-
-        {/* Espacement */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-gray-900">Espacement</h4>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="padding" className="text-xs text-gray-600">Padding interne</Label>
+              <Label className="text-xs text-gray-600">Padding</Label>
               <Input
-                id="padding"
                 type="text"
                 value={localComponent.styles?.padding || '0'}
                 onChange={(e) => updateProperty('styles.padding', e.target.value)}
@@ -722,9 +1315,8 @@ export default function PropertiesPanel({
               />
             </div>
             <div>
-              <Label htmlFor="margin" className="text-xs text-gray-600">Margin externe</Label>
+              <Label className="text-xs text-gray-600">Margin</Label>
               <Input
-                id="margin"
                 type="text"
                 value={localComponent.styles?.margin || '0'}
                 onChange={(e) => updateProperty('styles.margin', e.target.value)}
@@ -734,18 +1326,10 @@ export default function PropertiesPanel({
             </div>
           </div>
 
-          <Separator />
-        </div>
-
-        {/* Bordure et Effets */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-gray-900">Bordure & Effets</h4>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="border" className="text-xs text-gray-600">Bordure</Label>
+              <Label className="text-xs text-gray-600">Bordure</Label>
               <Input
-                id="border"
                 type="text"
                 value={localComponent.styles?.border || 'none'}
                 onChange={(e) => updateProperty('styles.border', e.target.value)}
@@ -754,9 +1338,8 @@ export default function PropertiesPanel({
               />
             </div>
             <div>
-              <Label htmlFor="borderRadius" className="text-xs text-gray-600">Coins arrondis</Label>
+              <Label className="text-xs text-gray-600">Bordure arrondie</Label>
               <Input
-                id="borderRadius"
                 type="text"
                 value={localComponent.styles?.borderRadius || '0'}
                 onChange={(e) => updateProperty('styles.borderRadius', e.target.value)}
@@ -766,133 +1349,7 @@ export default function PropertiesPanel({
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="boxShadow" className="text-xs text-gray-600">Ombre</Label>
-            <Input
-              id="boxShadow"
-              type="text"
-              value={localComponent.styles?.boxShadow || 'none'}
-              onChange={(e) => updateProperty('styles.boxShadow', e.target.value)}
-              placeholder="ex: 0 2px 4px rgba(0,0,0,0.1)"
-              className="mt-1 text-sm"
-            />
-          </div>
-
           <Separator />
-        </div>
-
-        {/* Attributs spécifiques */}
-        {(localComponent.type === 'image' || localComponent.type === 'input' || localComponent.type === 'button') && (
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-gray-900">Attributs spécifiques</h4>
-
-            {localComponent.type === 'image' && (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="src" className="text-xs text-gray-600">URL de l'image</Label>
-                  <Input
-                    id="src"
-                    type="url"
-                    value={localComponent.attributes?.src || ''}
-                    onChange={(e) => updateProperty('attributes.src', e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    className="mt-1 text-sm"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="alt" className="text-xs text-gray-600">Texte alternatif</Label>
-                  <Input
-                    id="alt"
-                    type="text"
-                    value={localComponent.attributes?.alt || ''}
-                    onChange={(e) => updateProperty('attributes.alt', e.target.value)}
-                    placeholder="Description de l'image"
-                    className="mt-1 text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {localComponent.type === 'input' && (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="inputType" className="text-xs text-gray-600">Type de champ</Label>
-                  <Select
-                    value={localComponent.attributes?.type || 'text'}
-                    onValueChange={(value) => updateProperty('attributes.type', value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="text">Texte</SelectItem>
-                      <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="password">Mot de passe</SelectItem>
-                      <SelectItem value="number">Nombre</SelectItem>
-                      <SelectItem value="tel">Téléphone</SelectItem>
-                      <SelectItem value="url">URL</SelectItem>
-                      <SelectItem value="date">Date</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="placeholder" className="text-xs text-gray-600">Placeholder</Label>
-                  <Input
-                    id="placeholder"
-                    type="text"
-                    value={localComponent.attributes?.placeholder || ''}
-                    onChange={(e) => updateProperty('attributes.placeholder', e.target.value)}
-                    className="mt-1 text-sm"
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="required"
-                    checked={localComponent.attributes?.required || false}
-                    onCheckedChange={(checked) => updateProperty('attributes.required', checked)}
-                  />
-                  <Label htmlFor="required" className="text-xs text-gray-600">Champ obligatoire</Label>
-                </div>
-              </div>
-            )}
-
-            {localComponent.type === 'button' && (
-              <div>
-                <Label htmlFor="buttonType" className="text-xs text-gray-600">Type de bouton</Label>
-                <Select
-                  value={localComponent.attributes?.type || 'button'}
-                  onValueChange={(value) => updateProperty('attributes.type', value)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="button">Bouton</SelectItem>
-                    <SelectItem value="submit">Soumettre</SelectItem>
-                    <SelectItem value="reset">Réinitialiser</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <Separator />
-          </div>
-        )}
-
-        {/* Classes CSS */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-gray-900">Classes CSS</h4>
-          <div>
-            <Label htmlFor="className" className="text-xs text-gray-600">Classes CSS</Label>
-            <Input
-              id="className"
-              type="text"
-              value={localComponent.attributes?.className || ''}
-              onChange={(e) => updateProperty('attributes.className', e.target.value)}
-              placeholder="ex: btn btn-primary"
-              className="mt-1 text-sm"
-            />
-          </div>
         </div>
       </div>
     </div>
