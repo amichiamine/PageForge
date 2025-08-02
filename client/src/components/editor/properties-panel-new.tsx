@@ -11,7 +11,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { 
   Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose, 
   Plus, Minus, ChevronDown, ChevronRight, Layers, Settings, Palette,
-  AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline
+  AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline,
+  Pipette, FileImage, Sliders, Type, Layout, Square, Move, Flex, Grid, 
+  Border, Shadow, RotateCcw, Zap, MousePointer, Paintbrush
 } from 'lucide-react';
 import type { ComponentDefinition, Project } from '@shared/schema';
 
@@ -40,6 +42,149 @@ export default function PropertiesPanel({
     properties: true,
     configuration: true
   });
+
+  // State pour les outils WYSIWYG
+  const [gradientSettings, setGradientSettings] = useState({
+    type: 'linear',
+    angle: '90deg',
+    colors: ['#3b82f6', '#8b5cf6'],
+    transparency: '100%'
+  });
+
+  // Composant Color Picker avancé
+  const renderAdvancedColorPicker = (property: string, value: string | undefined) => {
+    const [colorType, setColorType] = useState('solid');
+    
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs text-gray-600 capitalize">{property.replace('styles.', '')}</Label>
+          <Select value={colorType} onValueChange={setColorType}>
+            <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="solid">
+                <div className="flex items-center gap-2">
+                  <Pipette className="w-3 h-3" />
+                  <span>Solide</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="gradient">
+                <div className="flex items-center gap-2">
+                  <Sliders className="w-3 h-3" />
+                  <span>Gradient</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="image">
+                <div className="flex items-center gap-2">
+                  <FileImage className="w-3 h-3" />
+                  <span>Image</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {colorType === 'solid' && (
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                value={value || '#000000'}
+                onChange={(e) => updateProperty(property, e.target.value)}
+                className="h-8 text-xs"
+                placeholder="#000000"
+              />
+            </div>
+            <div 
+              className="w-8 h-8 rounded border-2 border-gray-300 cursor-pointer flex items-center justify-center relative"
+              style={{ backgroundColor: value || '#000000' }}
+            >
+              <input
+                type="color"
+                value={value || '#000000'}
+                onChange={(e) => updateProperty(property, e.target.value)}
+                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+              />
+            </div>
+          </div>
+        )}
+
+        {colorType === 'gradient' && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Type</Label>
+                <Select value={gradientSettings.type} onValueChange={(val) => setGradientSettings({...gradientSettings, type: val})}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="linear">Linéaire</SelectItem>
+                    <SelectItem value="radial">Radial</SelectItem>
+                    <SelectItem value="conic">Conique</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Angle</Label>
+                <Select value={gradientSettings.angle} onValueChange={(val) => setGradientSettings({...gradientSettings, angle: val})}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0deg">0°</SelectItem>
+                    <SelectItem value="45deg">45°</SelectItem>
+                    <SelectItem value="90deg">90°</SelectItem>
+                    <SelectItem value="180deg">180°</SelectItem>
+                    <SelectItem value="270deg">270°</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {colorType === 'image' && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs flex-1"
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        const imageUrl = e.target?.result as string;
+                        updateProperty(property, `url(${imageUrl})`);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  };
+                  input.click();
+                }}
+              >
+                <FileImage className="w-3 h-3 mr-1" />
+                Parcourir
+              </Button>
+            </div>
+            <Input
+              value={value?.replace('url(', '').replace(')', '') || ''}
+              onChange={(e) => updateProperty(property, `url(${e.target.value})`)}
+              placeholder="URL de l'image"
+              className="h-7 text-xs"
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Fonction pour s'assurer qu'une valeur Select n'est jamais vide
   const ensureSelectValue = (value: string | undefined | null, defaultValue: string): string => {
@@ -192,7 +337,7 @@ export default function PropertiesPanel({
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
-          <div className="space-y-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
+          <div className="space-y-4 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2 pb-4">
             {renderLayoutProperties()}
             {renderTypographyProperties()}
             {renderAppearanceProperties()}
@@ -233,7 +378,7 @@ export default function PropertiesPanel({
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
-          <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
+          <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2 pb-4">
             {renderComponentSpecificConfiguration()}
           </div>
         </CollapsibleContent>
@@ -428,13 +573,7 @@ export default function PropertiesPanel({
           </div>
         </div>
         <div>
-          <Label className="text-xs">Color</Label>
-          <Input
-            type="color"
-            value={localComponent?.styles?.color || '#000000'}
-            onChange={(e) => updateProperty('styles.color', e.target.value)}
-            className="h-8 w-full"
-          />
+          {renderAdvancedColorPicker('styles.color', localComponent?.styles?.color)}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -512,37 +651,28 @@ export default function PropertiesPanel({
   const renderAppearanceProperties = () => (
     <div className="space-y-3">
       <h5 className="text-sm font-semibold text-gray-700 border-b pb-1">Apparence</h5>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="space-y-3">
         <div>
-          <Label className="text-xs">Background Color</Label>
-          <Input
-            type="color"
-            value={localComponent?.styles?.backgroundColor || '#ffffff'}
-            onChange={(e) => updateProperty('styles.backgroundColor', e.target.value)}
-            className="h-8 w-full"
-          />
+          {renderAdvancedColorPicker('styles.backgroundColor', localComponent?.styles?.backgroundColor)}
         </div>
         <div>
-          <Label className="text-xs">Opacity</Label>
-          <Input
-            type="number"
-            min="0"
-            max="1"
-            step="0.1"
-            value={localComponent?.styles?.opacity || '1'}
-            onChange={(e) => updateProperty('styles.opacity', e.target.value)}
-            className="h-8 text-xs"
-          />
+          <Label className="text-xs">Opacité</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={localComponent?.styles?.opacity || '1'}
+              onChange={(e) => updateProperty('styles.opacity', e.target.value)}
+              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="text-xs text-gray-500 w-10">{Math.round((parseFloat(localComponent?.styles?.opacity || '1')) * 100)}%</span>
+          </div>
         </div>
       </div>
       <div>
-        <Label className="text-xs">Background Image</Label>
-        <Input
-          value={localComponent?.styles?.backgroundImage || ''}
-          onChange={(e) => updateProperty('styles.backgroundImage', e.target.value)}
-          placeholder="url(image.jpg)"
-          className="h-8 text-xs"
-        />
+        {renderAdvancedColorPicker('styles.backgroundImage', localComponent?.styles?.backgroundImage)}
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
@@ -2214,7 +2344,7 @@ export default function PropertiesPanel({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 pb-8">
           {renderElementsSection()}
           {renderPropertiesSection()}
           {renderConfigurationSection()}
