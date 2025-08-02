@@ -53,9 +53,10 @@ interface DraggableComponentProps {
   onDelete?: () => void;
   showDelete?: boolean;
   onDoubleClick?: (componentType: string) => void;
+  compact?: boolean;
 }
 
-function DraggableComponent({ type, label, icon, color, description, onDelete, showDelete = false, onDoubleClick }: DraggableComponentProps) {
+function DraggableComponent({ type, label, icon, color, description, onDelete, showDelete = false, onDoubleClick, compact = false }: DraggableComponentProps) {
   const [{ isDragging }, drag, preview] = useDrag({
     type: 'component',
     item: { type, componentType: type },
@@ -252,13 +253,40 @@ interface ComponentPaletteProps {
 
 export default function ComponentPalette({ onComponentDoubleClick }: ComponentPaletteProps) {
   const [expandedCategory, setExpandedCategory] = React.useState<string | null>('Layout');
+  const [containerWidth, setContainerWidth] = React.useState<number>(192);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Observer pour détecter les changements de largeur du conteneur
+  React.useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategory(expandedCategory === categoryName ? null : categoryName);
   };
 
+  // Calcul adaptatif du nombre de colonnes basé sur la largeur
+  const getGridColumns = () => {
+    if (containerWidth < 200) return 1;
+    if (containerWidth < 280) return 2;
+    if (containerWidth < 360) return 3;
+    return Math.floor(containerWidth / 120); // 120px par colonne minimum
+  };
+
+  const gridColumns = getGridColumns();
+
   return (
-    <div className="h-full overflow-y-auto">
+    <div ref={containerRef} className="h-full overflow-y-auto">
       <div className="p-2 space-y-2">
         {componentCategories.map((category) => (
           <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
@@ -266,18 +294,30 @@ export default function ComponentPalette({ onComponentDoubleClick }: ComponentPa
               onClick={() => toggleCategory(category.name)}
               className="w-full flex items-center justify-between p-2 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
-              <div className="flex items-center space-x-2">
-                {category.icon}
-                <span className="text-sm font-medium text-gray-700">{category.name}</span>
+              <div className="flex items-center space-x-2 min-w-0">
+                <div className="flex-shrink-0">
+                  {category.icon}
+                </div>
+                <span 
+                  className="text-sm font-medium text-gray-700 truncate" 
+                  title={category.name}
+                >
+                  {containerWidth < 180 ? category.name.substring(0, 8) + '...' : category.name}
+                </span>
               </div>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 flex-shrink-0 ml-1">
                 {expandedCategory === category.name ? '−' : '+'}
               </span>
             </button>
             
             {expandedCategory === category.name && (
               <div className="p-1.5 bg-white">
-                <div className="grid grid-cols-2 gap-1.5">
+                <div 
+                  className="grid gap-1.5"
+                  style={{ 
+                    gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))` 
+                  }}
+                >
                   {category.components.map((component) => (
                     <DraggableComponent
                       key={component.type}
@@ -287,6 +327,7 @@ export default function ComponentPalette({ onComponentDoubleClick }: ComponentPa
                       color={component.color}
                       description={component.description}
                       onDoubleClick={onComponentDoubleClick}
+                      compact={containerWidth < 240}
                     />
                   ))}
                 </div>

@@ -26,6 +26,7 @@ import AlignmentGuides from "@/components/editor/alignment-guides";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { FloatingButton } from "@/components/ui/floating-button";
+import { ResizablePanel } from "@/components/ui/resizable-panel";
 
 // Fonction utilitaire pour générer le HTML de prévisualisation
 function generatePreviewHTML(project: Project): string {
@@ -293,7 +294,9 @@ export default function Editor() {
       content: {
         ...localProject.content,
         pages: [{
-          ...localProject.content?.pages?.[0],
+          id: localProject.content?.pages?.[0]?.id || 'page-1',
+          name: localProject.content?.pages?.[0]?.name || 'Accueil',
+          path: localProject.content?.pages?.[0]?.path || '/',
           content: {
             ...localProject.content?.pages?.[0]?.content,
             structure: updatedStructure
@@ -351,7 +354,8 @@ export default function Editor() {
         id: 'html5',
         backend: HTML5Backend,
         transition: { 
-          event: 'pointer'
+          event: 'pointer',
+          check: () => true
         }
       },
       {
@@ -373,7 +377,8 @@ export default function Editor() {
         },
         preview: true,
         transition: {
-          event: 'pointer'
+          event: 'pointer',
+          check: () => true
         }
       }
     ]
@@ -593,12 +598,18 @@ export default function Editor() {
                     onTouchStart={(e) => e.stopPropagation()}
                   />
                 )}
-                <div className={`
-                  ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 bg-white shadow-2xl' : 'w-40 md:w-44 lg:w-48'} 
-                  ${isMobile ? 'w-64 max-w-[75vw]' : isTablet ? 'w-72 max-w-[50vw]' : ''} 
-                  bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300
-                  ${isMobileOrTablet ? 'animate-slide-in-left' : ''}
-                `}>
+                <ResizablePanel
+                  defaultWidth={isMobile ? 256 : isTablet ? 288 : 192}
+                  minWidth={180}
+                  maxWidth={isMobile ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.8 : 320) : isTablet ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.5 : 400) : 350}
+                  storageKey="component-palette-width"
+                  direction="right"
+                  className={`
+                    ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 shadow-2xl animate-slide-in-left' : ''} 
+                    bg-white border-gray-200 overflow-y-auto transition-all duration-300
+                  `}
+                  title="Composants"
+                >
                   <div className="p-3 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <h2 className="text-base font-semibold text-gray-900">Composants</h2>
@@ -613,7 +624,7 @@ export default function Editor() {
                     </div>
                   </div>
                   <ComponentPalette onComponentDoubleClick={handleComponentDoubleClick} />
-                </div>
+                </ResizablePanel>
               </>
             )}
 
@@ -683,12 +694,18 @@ export default function Editor() {
                     onTouchStart={(e) => e.stopPropagation()}
                   />
                 )}
-                <div className={`
-                  ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 bg-white shadow-2xl' : 'w-40 md:w-44 lg:w-48'} 
-                  ${isMobile ? 'w-64 max-w-[75vw]' : isTablet ? 'w-72 max-w-[50vw]' : ''} 
-                  bg-white border-l border-gray-200 overflow-y-auto transition-all duration-300
-                  ${isMobileOrTablet ? 'animate-slide-in-right' : ''}
-                `}>
+                <ResizablePanel
+                  defaultWidth={isMobile ? 256 : isTablet ? 288 : 192}
+                  minWidth={180}
+                  maxWidth={isMobile ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.8 : 320) : isTablet ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.5 : 400) : 350}
+                  storageKey="properties-panel-width"
+                  direction="left"
+                  className={`
+                    ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 shadow-2xl animate-slide-in-right' : ''} 
+                    bg-white border-gray-200 overflow-y-auto transition-all duration-300
+                  `}
+                  title="Propriétés"
+                >
                   <div className="p-3 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <h2 className="text-base font-semibold text-gray-900">Propriétés</h2>
@@ -729,7 +746,7 @@ export default function Editor() {
                     hideMainSidebar={hideMainSidebar}
                     setHideMainSidebar={setHideMainSidebar}
                   />
-                </div>
+                </ResizablePanel>
               </>
             )}
           </div>

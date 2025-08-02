@@ -9,6 +9,7 @@ import {
   Book,
   Settings,
 } from "lucide-react";
+import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
 
 const navigation = [
   { name: "Tableau de bord", href: "/dashboard", icon: Home },
@@ -30,7 +31,16 @@ export default function Sidebar() {
   const [location] = useLocation();
 
   return (
-    <div className="flex-shrink-0 w-64 bg-theme-surface border-r border-theme-border h-full overflow-y-auto">
+    <ResizableSidebar
+      defaultWidth={256}
+      minWidth={200}
+      maxWidth={400}
+      storageKey="main-sidebar-width"
+      direction="right"
+      className="h-full bg-theme-surface border-theme-border"
+      title="Navigation"
+    >
+      <div className="h-full overflow-y-auto">
       {/* Header */}
       <div className="flex items-center px-6 py-4 border-b border-theme-border">
         <div className="flex items-center space-x-3">
@@ -117,6 +127,7 @@ export default function Sidebar() {
           </div>
         </div>
       </nav>
-    </div>
+      </div>
+    </ResizableSidebar>
   );
 }

@@ -4,6 +4,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Animations pour les panneaux coulissants */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Styles pour le système de redimensionnement */
+.resizable-handle {
+  position: relative;
+  cursor: col-resize;
+  transition: all 0.2s ease;
+}
+
+.resizable-handle:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.resizable-handle:active {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.resizable-panel {
+  transition: width 0.2s ease;
+}
+
+.resizable-panel.resizing {
+  transition: none;
+}
+
+/* Indicateur de redimensionnement */
+.resize-indicator {
+  width: 3px;
+  height: 32px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.resize-indicator:hover,
+.resize-indicator.active {
+  background: #3b82f6;
+  width: 4px;
+}
+
+/* Styles responsifs pour les panneaux */
+@media (max-width: 768px) {
+  .resizable-panel {
+    max-width: 80vw !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .resizable-panel {
+    max-width: 90vw !important;
+  }
+}
+
 /* Variables CSS pour les thèmes */
 :root {
   --color-primary: #6366f1;
