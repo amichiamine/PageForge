@@ -100,6 +100,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (August 2, 2025)
 
+### Documentation Complète pour Export et Distribution ✅
+- **Guides d'Installation Multi-Plateformes**: Documentation détaillée pas à pas pour Windows et Linux avec instructions pour débutants complets
+- **Guide de Distribution Professionnelle**: Manuel complet pour créer des packages de distribution avec scripts d'installation automatique
+- **Documentation de Déploiement**: Guide exhaustif couvrant tous les types d'hébergement (cPanel, VPS, cloud, Docker, FTP)
+- **Scripts d'Installation Automatique**: Créés pour Windows (.bat) et Linux (.sh) avec détection automatique des prérequis
+- **Manuel Utilisateur Final**: Documentation d'utilisation complète avec guides de dépannage et support
+
 ### Critical Bug Fixes - Component Alignment ✅
 - **Component Rendering Fixed**: Resolved major visual offset issues where components displayed content misaligned from their positioned frames
 - **Missing Components Added**: Implemented specific rendering cases for "filters" and "contact" components that were falling back to default renderer
