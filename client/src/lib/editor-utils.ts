@@ -381,138 +381,40 @@ export function createComponent(type: string): ComponentDefinition {
           position: 'relative',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         },
-        children: [
-          {
-            id: nanoid(),
-            type: 'carousel-track',
-            tag: 'div',
-            attributes: { className: 'carousel-track' },
-            styles: {
-              display: 'flex',
-              width: '300%',
-              height: '100%',
-              transition: 'transform 0.3s ease-in-out'
+        // Supprimer les children pour éviter l'affichage comme sous-éléments
+        componentData: {
+          slides: [
+            {
+              image: '',
+              title: 'Slide 1',
+              description: 'Description du premier slide',
+              buttonText: 'En savoir plus',
+              buttonLink: '#',
+              backgroundColor: '#3b82f6'
             },
-            children: [
-              {
-                id: nanoid(),
-                type: 'carousel-slide',
-                tag: 'div',
-                attributes: { className: 'carousel-slide' },
-                styles: {
-                  width: '33.333%',
-                  height: '100%',
-                  backgroundColor: '#3b82f6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontSize: '24px',
-                  fontWeight: 'bold'
-                },
-                content: '1'
-              },
-              {
-                id: nanoid(),
-                type: 'carousel-slide',
-                tag: 'div',
-                attributes: { className: 'carousel-slide' },
-                styles: {
-                  width: '33.333%',
-                  height: '100%',
-                  backgroundColor: '#10b981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontSize: '24px',
-                  fontWeight: 'bold'
-                },
-                content: '2'
-              },
-              {
-                id: nanoid(),
-                type: 'carousel-slide',
-                tag: 'div',
-                attributes: { className: 'carousel-slide' },
-                styles: {
-                  width: '33.333%',
-                  height: '100%',
-                  backgroundColor: '#f59e0b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontSize: '24px',
-                  fontWeight: 'bold'
-                },
-                content: '3'
-              }
-            ]
-          },
-          {
-            id: nanoid(),
-            type: 'carousel-nav',
-            tag: 'div',
-            attributes: { className: 'carousel-navigation' },
-            styles: {
-              position: 'absolute',
-              bottom: '16px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              gap: '8px',
-              zIndex: '10'
+            {
+              image: '',
+              title: 'Slide 2',
+              description: 'Description du deuxième slide',
+              buttonText: 'Découvrir',
+              buttonLink: '#',
+              backgroundColor: '#10b981'
             },
-            children: [
-              {
-                id: nanoid(),
-                type: 'carousel-dot',
-                tag: 'button',
-                attributes: { className: 'carousel-dot active' },
-                styles: {
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  opacity: '1'
-                }
-              },
-              {
-                id: nanoid(),
-                type: 'carousel-dot',
-                tag: 'button',
-                attributes: { className: 'carousel-dot' },
-                styles: {
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  opacity: '0.5'
-                }
-              },
-              {
-                id: nanoid(),
-                type: 'carousel-dot',
-                tag: 'button',
-                attributes: { className: 'carousel-dot' },
-                styles: {
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  opacity: '0.5'
-                }
-              }
-            ]
-          }
-        ]
+            {
+              image: '',
+              title: 'Slide 3',
+              description: 'Description du troisième slide',
+              buttonText: 'Voir plus',
+              buttonLink: '#',
+              backgroundColor: '#ef4444'
+            }
+          ],
+          currentSlide: 0,
+          autoplay: true,
+          animationSpeed: 3000,
+          showDots: true,
+          showArrows: true
+        }
       };
 
     case 'accordion':

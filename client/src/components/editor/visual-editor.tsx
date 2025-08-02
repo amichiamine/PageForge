@@ -420,15 +420,143 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         );
         
       case 'carousel':
+        const slides = component.componentData?.slides || [];
+        const currentSlideIndex = component.componentData?.currentSlide || 0;
+        
+        // Si pas de slides définis, on crée des slides par défaut
+        if (slides.length === 0) {
+          slides.push(
+            { image: '', title: 'Slide 1', backgroundColor: '#3b82f6' },
+            { image: '', title: 'Slide 2', backgroundColor: '#8b5cf6' },
+            { image: '', title: 'Slide 3', backgroundColor: '#ef4444' }
+          );
+        }
+        
         return (
           <div style={style} className={component.attributes?.className}>
-            {component.children?.map(child => (
-              <ComponentRenderer key={child.id} component={child} />
-            )) || (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: '#3b82f6', color: 'white', fontSize: '24px' }}>
-                🎠 Carousel
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+              borderRadius: '8px'
+            }}>
+              {/* Container des slides */}
+              <div style={{
+                display: 'flex',
+                width: `${slides.length * 100}%`,
+                height: '100%',
+                transform: `translateX(-${(currentSlideIndex % slides.length) * (100 / slides.length)}%)`,
+                transition: 'transform 0.5s ease-in-out'
+              }}>
+                {slides.map((slide: any, index: number) => (
+                  <div
+                    key={index}
+                    style={{
+                      width: `${100 / slides.length}%`,
+                      height: '100%',
+                      position: 'relative',
+                      backgroundColor: slide.backgroundColor || '#3b82f6',
+                      backgroundImage: slide.image ? `url(${slide.image})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: slide.image ? 'rgba(255,255,255,0.9)' : '#ffffff',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      textShadow: '1px 1px 3px rgba(0,0,0,0.7)'
+                    }}
+                  >
+                    <div style={{
+                      background: slide.image ? 'rgba(0,0,0,0.3)' : 'transparent',
+                      padding: slide.image ? '12px 20px' : '0',
+                      borderRadius: '8px',
+                      textAlign: 'center',
+                      maxWidth: '80%'
+                    }}>
+                      {slide.title || `Slide ${index + 1}`}
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
+              
+              {/* Indicateurs de slides */}
+              {slides.length > 1 && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  gap: '6px',
+                  zIndex: 10
+                }}>
+                  {slides.map((_: any, index: number) => (
+                    <div
+                      key={index}
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: index === (currentSlideIndex % slides.length) 
+                          ? '#ffffff' 
+                          : 'rgba(255,255,255,0.5)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Flèches de navigation */}
+              {slides.length > 1 && (
+                <>
+                  <div style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    color: 'white',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    zIndex: 10
+                  }}>
+                    ‹
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    color: 'white',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    zIndex: 10
+                  }}>
+                    ›
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         );
         

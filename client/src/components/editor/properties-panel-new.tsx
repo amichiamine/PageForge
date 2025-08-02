@@ -1870,6 +1870,14 @@ export default function PropertiesPanel({
                                     slides[index] = { ...slide, image: imageUrl };
                                     console.log('🎠 CAROUSEL SLIDE IMAGE UNIFIED:', { slideIndex: index, imageUrl: imageUrl.substring(0, 50) + '...' });
                                     updateProperty('componentData.slides', slides);
+                                    
+                                    // Forcer la mise à jour de l'interface
+                                    setTimeout(() => {
+                                      const event = new CustomEvent('carousel-update', { 
+                                        detail: { slides, componentId: localComponent?.id } 
+                                      });
+                                      window.dispatchEvent(event);
+                                    }, 100);
                                   };
                                   reader.readAsDataURL(file);
                                 }
@@ -1885,7 +1893,20 @@ export default function PropertiesPanel({
                             onChange={(e) => {
                               const slides = [...(localComponent?.componentData?.slides || [])];
                               slides[index] = { ...slide, image: e.target.value };
+                              console.log('🎠 CAROUSEL IMAGE UPDATE UNIFIED:', { 
+                                slideIndex: index, 
+                                imageUrl: e.target.value,
+                                allSlides: slides 
+                              });
                               updateProperty('componentData.slides', slides);
+                              
+                              // Forcer la mise à jour de l'interface
+                              setTimeout(() => {
+                                const event = new CustomEvent('carousel-update', { 
+                                  detail: { slides, componentId: localComponent?.id } 
+                                });
+                                window.dispatchEvent(event);
+                              }, 100);
                             }}
                             placeholder="https://example.com/image.jpg"
                             className="text-xs h-7"
