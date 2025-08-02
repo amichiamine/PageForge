@@ -1290,8 +1290,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     // Layout Components
     case 'container':
-      const containerTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 24 });
-      const containerPadding = getResponsiveSpacing(20);
+      const containerTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 8, maxSize: 28 });
+      const containerPadding = getResponsiveSpacing(12);
       
       return (
         <div
@@ -1299,7 +1299,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           className={`container ${className || ''}`}
           style={{
             ...inlineStyles,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            position: 'relative'
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1315,23 +1316,29 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             justifyContent: 'center', 
             backgroundColor: '#f9fafb',
             boxSizing: 'border-box',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            position: 'absolute',
+            top: 0,
+            left: 0
           }}>
             <span style={{ 
               color: '#6b7280', 
               ...containerTextStyles,
-              textAlign: 'center'
-            }}>Zone de contenu</span>
+              textAlign: 'center',
+              lineHeight: 1.2,
+              maxWidth: '100%',
+              wordBreak: 'break-word'
+            }}>Conteneur</span>
           </div>
           {renderChildren()}
         </div>
       );
 
     case 'section':
-      const sectionTitleStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 14, maxSize: 32 });
-      const sectionTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20, multiline: true });
-      const sectionPadding = getResponsiveSpacing(24);
-      const sectionSpacing = getResponsiveSpacing(16);
+      const sectionTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 24 });
+      const sectionTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16, multiline: true });
+      const sectionPadding = getResponsiveSpacing(16);
+      const sectionSpacing = getResponsiveSpacing(8);
       
       return (
         <section
@@ -1339,7 +1346,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           className={`section ${className || ''}`}
           style={{
             ...inlineStyles,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            position: 'relative'
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1354,23 +1362,28 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             boxSizing: 'border-box',
             overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            position: 'absolute',
+            top: 0,
+            left: 0
           }}>
             <h2 style={{ 
               ...sectionTitleStyles,
               fontWeight: '600', 
-              marginBottom: `${sectionSpacing}px`, 
               color: '#1e293b',
-              margin: `0 0 ${sectionSpacing}px 0`
-            }}>Section de contenu</h2>
+              margin: `0 0 ${sectionSpacing}px 0`,
+              lineHeight: 1.2,
+              flexShrink: 0
+            }}>Section</h2>
             <p style={{ 
               ...sectionTextStyles,
               color: '#64748b', 
-              lineHeight: '1.6',
+              lineHeight: 1.4,
               flex: 1,
-              margin: 0
+              margin: 0,
+              overflow: 'hidden'
             }}>
-              Contenu descriptif qui s'adapte parfaitement aux dimensions du cadre de la section.
+              Contenu section
             </p>
           </div>
           {renderChildren()}
@@ -1378,10 +1391,10 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'header':
-      const headerTitleStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 12, maxSize: 32 });
-      const headerNavStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
-      const headerPadding = getResponsiveSpacing(16);
-      const headerGap = getResponsiveSpacing(12);
+      const headerTitleStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 22 });
+      const headerNavStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const headerPadding = getResponsiveSpacing(12);
+      const headerGap = getResponsiveSpacing(8);
       
       return (
         <header
@@ -1389,7 +1402,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           className={`header ${className || ''}`}
           style={{
             ...inlineStyles,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            position: 'relative'
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1405,15 +1419,19 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             alignItems: 'center',
             boxSizing: 'border-box',
             margin: '0',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            position: 'absolute',
+            top: 0,
+            left: 0
           }}>
             <div style={{ 
               ...headerTitleStyles,
               fontWeight: 'bold',
               maxWidth: '60%',
-              flexShrink: 0
+              flexShrink: 0,
+              lineHeight: 1.2
             }}>
-              Mon Site Web
+              Site
             </div>
             <nav style={{ 
               display: 'flex', 
@@ -1422,13 +1440,13 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               overflow: 'hidden',
               minWidth: 0
             }}>
-              {['Accueil', 'À propos', 'Contact'].map((item, index) => (
-                <a key={index} href="#" style={{ 
+              {['Menu'].map((item, index) => (
+                <span key={index} style={{ 
                   color: 'white', 
-                  textDecoration: 'none', 
                   ...headerNavStyles,
-                  flexShrink: 0
-                }}>{item}</a>
+                  flexShrink: 0,
+                  lineHeight: 1.2
+                }}>{item}</span>
               ))}
             </nav>
           </div>
@@ -1436,66 +1454,233 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'footer':
+      const footerTitleStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const footerTextStyles = getResponsiveContentStyles({ baseSize: 10, minSize: 8, maxSize: 14 });
+      const footerPadding = getResponsiveSpacing(16);
+      const footerSpacing = getResponsiveSpacing(8);
+      
       return (
         <footer
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`footer ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden',
+            position: 'relative'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '24px', backgroundColor: '#374151', color: 'white', textAlign: 'center' }}>
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Mon Entreprise</div>
-              <div style={{ fontSize: '14px', color: '#d1d5db' }}>© 2024 Tous droits réservés</div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '14px' }}>
-              <a href="#" style={{ color: '#d1d5db', textDecoration: 'none' }}>Mentions légales</a>
-              <a href="#" style={{ color: '#d1d5db', textDecoration: 'none' }}>Confidentialité</a>
-              <a href="#" style={{ color: '#d1d5db', textDecoration: 'none' }}>Contact</a>
-            </div>
+          <div style={{ 
+            padding: `${footerPadding}px`, 
+            backgroundColor: '#374151', 
+            color: 'white', 
+            textAlign: 'center',
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+          }}>
+            <div style={{ 
+              ...footerTitleStyles,
+              fontWeight: '600', 
+              marginBottom: `${footerSpacing}px`,
+              lineHeight: 1.2
+            }}>Entreprise</div>
+            <div style={{ 
+              ...footerTextStyles,
+              color: '#d1d5db',
+              lineHeight: 1.2 
+            }}>© 2024</div>
           </div>
         </footer>
       );
 
     case 'grid':
+      const gridTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const gridPadding = getResponsiveSpacing(8);
+      const gridGap = getResponsiveSpacing(6);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`grid-layout ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden',
+            position: 'relative'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', padding: '16px' }}>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '14px', color: '#6b7280' }}>Grille 1</span>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: `${gridGap}px`, 
+            padding: `${gridPadding}px`,
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '8px', 
+              padding: `${gridPadding}px`, 
+              textAlign: 'center', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              boxSizing: 'border-box'
+            }}>
+              <span style={{ 
+                ...gridTextStyles,
+                color: '#6b7280',
+                lineHeight: 1.2
+              }}>1</span>
             </div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '14px', color: '#6b7280' }}>Grille 2</span>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '8px', 
+              padding: `${gridPadding}px`, 
+              textAlign: 'center', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              boxSizing: 'border-box'
+            }}>
+              <span style={{ 
+                ...gridTextStyles,
+                color: '#6b7280',
+                lineHeight: 1.2
+              }}>2</span>
             </div>
-            <div style={{ backgroundColor: '#f3f4f6', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '14px', color: '#6b7280' }}>Grille 3</span>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '8px', 
+              padding: `${gridPadding}px`, 
+              textAlign: 'center', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              boxSizing: 'border-box'
+            }}>
+              <span style={{ 
+                ...gridTextStyles,
+                color: '#6b7280',
+                lineHeight: 1.2
+              }}>3</span>
+            </div>
+            <div style={{ 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '8px', 
+              padding: `${gridPadding}px`, 
+              textAlign: 'center', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              boxSizing: 'border-box'
+            }}>
+              <span style={{ 
+                ...gridTextStyles,
+                color: '#6b7280',
+                lineHeight: 1.2
+              }}>4</span>
             </div>
           </div>
         </div>
       );
 
     case 'flexbox':
+      const flexTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const flexPadding = getResponsiveSpacing(8);
+      const flexGap = getResponsiveSpacing(8);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`flexbox-layout ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden',
+            position: 'relative'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'flex', gap: '16px', padding: '16px', alignItems: 'center' }}>
-            <div style={{ flex: 1, backgroundColor: '#fef3c7', borderRadius: '8px', padding: '16px', textAlign: 'center' }}>
-              <span style={{ fontSize: '14px', color: '#92400e' }}>Flex 1</span>
+          <div style={{ 
+            display: 'flex', 
+            gap: `${flexGap}px`, 
+            padding: `${flexPadding}px`, 
+            alignItems: 'center',
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}>
+            <div style={{ 
+              flex: 1, 
+              backgroundColor: '#fef3c7', 
+              borderRadius: '8px', 
+              padding: `${flexPadding}px`, 
+              textAlign: 'center',
+              height: '100%',
+              boxSizing: 'border-box',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <span style={{ 
+                ...flexTextStyles,
+                color: '#92400e',
+                lineHeight: 1.2
+              }}>A</span>
             </div>
-            <div style={{ flex: 2, backgroundColor: '#dbeafe', borderRadius: '8px', padding: '16px', textAlign: 'center' }}>
-              <span style={{ fontSize: '14px', color: '#1e40af' }}>Flex 2 (plus large)</span>
+            <div style={{ 
+              flex: 1, 
+              backgroundColor: '#dbeafe', 
+              borderRadius: '8px', 
+              padding: `${flexPadding}px`, 
+              textAlign: 'center',
+              height: '100%',
+              boxSizing: 'border-box',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <span style={{ 
+                ...flexTextStyles,
+                color: '#1e40af',
+                lineHeight: 1.2
+              }}>B</span>
             </div>
-            <div style={{ flex: 1, backgroundColor: '#dcfce7', borderRadius: '8px', padding: '16px', textAlign: 'center' }}>
-              <span style={{ fontSize: '14px', color: '#166534' }}>Flex 3</span>
+            <div style={{ 
+              flex: 1, 
+              backgroundColor: '#dcfce7', 
+              borderRadius: '8px', 
+              padding: `${flexPadding}px`, 
+              textAlign: 'center',
+              height: '100%',
+              boxSizing: 'border-box',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <span style={{ 
+                ...flexTextStyles,
+                color: '#166534',
+                lineHeight: 1.2
+              }}>C</span>
             </div>
           </div>
         </div>
@@ -1503,10 +1688,25 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     // Text Components
     case 'heading':
+      const headingTextStyles = getResponsiveContentStyles({ baseSize: 24, minSize: 14, maxSize: 40 });
+      const headingPadding = getResponsiveSpacing(8);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`heading ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: `${headingPadding}px`
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
@@ -1514,52 +1714,61 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             component.tag || 'h1',
             {
               style: {
-                fontSize: styles.fontSize || '28px',
+                ...headingTextStyles,
                 fontWeight: styles.fontWeight || 'bold',
                 color: styles.color || '#1a202c',
                 margin: '0',
                 padding: '0',
-                lineHeight: '1.2',
-                letterSpacing: '-0.025em'
+                lineHeight: 1.2,
+                letterSpacing: '-0.025em',
+                textAlign: 'center',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                width: '100%'
               }
             },
-            content || 'Titre principal'
+            content || 'Titre'
           )}
         </div>
       );
 
     case 'paragraph':
-      const paragraphTextSize = Math.max(containerWidth / 20, 10);
-      const paragraphPadding = Math.max(containerHeight / 15, 4);
+      const paragraphTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18, multiline: true });
+      const paragraphPadding = getResponsiveSpacing(8);
+      
       return (
         <p
+          ref={containerRef as React.RefObject<HTMLParagraphElement>}
           className={`text-paragraph ${className || ''}`}
           style={{
             ...inlineStyles,
-            fontSize: `${paragraphTextSize}px`,
-            lineHeight: '1.4',
             color: styles.color || '#4a5568',
             margin: '0',
             padding: `${paragraphPadding}px`,
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: Math.max(Math.floor(containerHeight / (paragraphTextSize * 1.4)), 1),
-            WebkitBoxOrient: 'vertical' as any,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            ...paragraphTextStyles,
+            lineHeight: 1.4,
             wordBreak: 'break-word'
           }}
           onClick={onClick}
           {...otherAttributes}
         >
-          {content || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
+          {content || 'Texte de paragraphe qui s\'adapte automatiquement.'}
         </p>
       );
 
     case 'button':
-      const buttonTextSize = Math.max(containerWidth / 18, 10);
-      const buttonPadding = Math.max(containerHeight / 12, 6);
+      const buttonTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 8, maxSize: 20 });
+      const buttonPadding = getResponsiveSpacing(8);
+      
       return (
         <button
+          ref={containerRef as React.RefObject<HTMLButtonElement>}
           className={`btn-primary ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -1567,9 +1776,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             color: styles.color || '#ffffff',
             border: 'none',
             borderRadius: styles.borderRadius || '8px',
-            padding: `${buttonPadding}px ${buttonPadding * 1.5}px`,
+            padding: `${buttonPadding}px`,
             cursor: 'pointer',
-            fontSize: `${buttonTextSize}px`,
             fontWeight: '500',
             display: 'flex',
             alignItems: 'center',
@@ -1580,31 +1788,43 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             outline: 'none',
             userSelect: 'none',
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            ...buttonTextStyles,
+            lineHeight: 1.2
           }}
           onClick={onClick}
           {...otherAttributes}
         >
-          {content || 'Cliquez ici'}
+          {content || 'Bouton'}
         </button>
       );
 
     // Forms Components  
     case 'input':
+      const inputTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const inputPadding = getResponsiveSpacing(12);
+      
       return (
         <input
+          ref={containerRef as React.RefObject<HTMLInputElement>}
           type={attributes.type as string || 'text'}
-          placeholder={attributes.placeholder as string || 'Entrez votre texte...'}
+          placeholder={attributes.placeholder as string || 'Texte...'}
           className={`form-input ${className || ''}`}
           style={{
             ...inlineStyles,
-            padding: '12px 16px',
+            padding: `${inputPadding}px`,
             border: '1px solid #d1d5db',
             borderRadius: '6px',
-            fontSize: '14px',
             backgroundColor: 'white',
-            outline: 'none'
+            outline: 'none',
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            ...inputTextStyles,
+            lineHeight: 1.2
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1612,19 +1832,27 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'textarea':
+      const textareaStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const textareaPadding = getResponsiveSpacing(12);
+      
       return (
         <textarea
+          ref={containerRef as React.RefObject<HTMLTextAreaElement>}
           placeholder={attributes.placeholder as string || 'Entrez votre message...'}
           className={`form-textarea ${className || ''}`}
           style={{
             ...inlineStyles,
-            padding: '12px 16px',
+            padding: `${textareaPadding}px`,
             border: '1px solid #d1d5db',
             borderRadius: '6px',
-            fontSize: '14px',
             backgroundColor: 'white',
-            resize: 'vertical',
-            outline: 'none'
+            resize: 'none',
+            outline: 'none',
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            ...textareaStyles,
+            lineHeight: 1.4
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1634,56 +1862,86 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'checkbox':
+      const checkboxStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const checkboxGap = getResponsiveSpacing(8);
+      
       return (
         <label
+          ref={containerRef as React.RefObject<HTMLLabelElement>}
           className={`checkbox-label ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            display: 'flex',
+            alignItems: 'center',
+            gap: `${checkboxGap}px`,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            cursor: 'pointer'
+          }}
           onClick={onClick}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input type="checkbox" style={{ margin: '0' }} />
-            <span style={{ fontSize: '14px' }}>{content || 'Case à cocher'}</span>
-          </div>
+          <input type="checkbox" style={{ margin: '0', transform: `scale(${Math.max(containerWidth / 200, 0.8)})` }} />
+          <span style={{ ...checkboxStyles }}>{content || 'Case à cocher'}</span>
         </label>
       );
 
     case 'radio':
+      const radioStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const radioGap = getResponsiveSpacing(8);
+      const radioSpacing = getResponsiveSpacing(6);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`radio-group ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${radioSpacing}px`,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <input type="radio" name="radio-group" />
-              <span>Option 1</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <input type="radio" name="radio-group" />
-              <span>Option 2</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <input type="radio" name="radio-group" />
-              <span>Option 3</span>
-            </label>
-          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: `${radioGap}px`, cursor: 'pointer', ...radioStyles }}>
+            <input type="radio" name="radio-group" style={{ transform: `scale(${Math.max(containerWidth / 200, 0.8)})` }} />
+            <span>Option 1</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: `${radioGap}px`, cursor: 'pointer', ...radioStyles }}>
+            <input type="radio" name="radio-group" style={{ transform: `scale(${Math.max(containerWidth / 200, 0.8)})` }} />
+            <span>Option 2</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: `${radioGap}px`, cursor: 'pointer', ...radioStyles }}>
+            <input type="radio" name="radio-group" style={{ transform: `scale(${Math.max(containerWidth / 200, 0.8)})` }} />
+            <span>Option 3</span>
+          </label>
         </div>
       );
 
     case 'select':
+      const selectStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const selectPadding = getResponsiveSpacing(12);
+      
       return (
         <select
+          ref={containerRef as React.RefObject<HTMLSelectElement>}
           className={`form-select ${className || ''}`}
           style={{
             ...inlineStyles,
-            padding: '12px 16px',
+            padding: `${selectPadding}px`,
             border: '1px solid #d1d5db',
             borderRadius: '6px',
-            fontSize: '14px',
             backgroundColor: 'white',
-            outline: 'none'
+            outline: 'none',
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            ...selectStyles
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1697,144 +1955,300 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     // Navigation & E-commerce Components
     case 'breadcrumb':
+      const breadcrumbStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const breadcrumbGap = getResponsiveSpacing(8);
+      
       return (
         <nav
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`breadcrumb ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <ol style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#6b7280' }}>
-            <li><a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>Accueil</a></li>
+          <ol style={{ display: 'flex', alignItems: 'center', gap: `${breadcrumbGap}px`, color: '#6b7280', ...breadcrumbStyles, margin: 0, padding: 0 }}>
+            <li><a href="#" style={{ color: '#3b82f6', textDecoration: 'none', ...breadcrumbStyles }}>Accueil</a></li>
             <li style={{ color: '#d1d5db' }}>{'>'}</li>
-            <li><a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>Catégorie</a></li>
+            <li><a href="#" style={{ color: '#3b82f6', textDecoration: 'none', ...breadcrumbStyles }}>Catégorie</a></li>
             <li style={{ color: '#d1d5db' }}>{'>'}</li>
-            <li style={{ color: '#374151' }}>Page actuelle</li>
+            <li style={{ color: '#374151', ...breadcrumbStyles }}>Page actuelle</li>
           </ol>
         </nav>
       );
 
     case 'navbar':
+      const navbarLogoStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 14, maxSize: 24 });
+      const navbarLinkStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const navbarPadding = getResponsiveSpacing(12);
+      const navbarGap = getResponsiveSpacing(16);
+      
       return (
         <nav
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`navbar ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937' }}>Logo</div>
-            <div style={{ display: 'flex', gap: '24px' }}>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Accueil</a>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Produits</a>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>À propos</a>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Contact</a>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            padding: `${navbarPadding}px`, 
+            backgroundColor: '#ffffff', 
+            borderBottom: '1px solid #e5e7eb',
+            height: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ fontWeight: 'bold', color: '#1f2937', ...navbarLogoStyles }}>Logo</div>
+            <div style={{ display: 'flex', gap: `${navbarGap}px`, flexWrap: 'wrap' }}>
+              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontWeight: '500', ...navbarLinkStyles }}>Accueil</a>
+              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontWeight: '500', ...navbarLinkStyles }}>Produits</a>
+              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontWeight: '500', ...navbarLinkStyles }}>Contact</a>
             </div>
           </div>
         </nav>
       );
 
     case 'menu':
+      const menuHeaderStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const menuItemStyles = getResponsiveContentStyles({ baseSize: 13, minSize: 9, maxSize: 16 });
+      const menuPadding = getResponsiveSpacing(8);
+      const menuItemPadding = getResponsiveSpacing(10);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`menu ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
-            <div style={{ padding: '12px 16px', borderRadius: '6px', backgroundColor: '#3b82f6', color: 'white', marginBottom: '4px', fontSize: '14px' }}>
+          <div style={{ 
+            backgroundColor: '#f8fafc', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '8px', 
+            padding: `${menuPadding}px`,
+            height: '100%',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ 
+              padding: `${menuItemPadding}px`, 
+              borderRadius: '6px', 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              ...menuHeaderStyles 
+            }}>
               Menu principal
             </div>
-            <div style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+            <div style={{ 
+              padding: `${menuItemPadding}px`, 
+              borderRadius: '6px', 
+              color: '#374151', 
+              cursor: 'pointer',
+              ...menuItemStyles 
+            }}>
               Option 1
             </div>
-            <div style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+            <div style={{ 
+              padding: `${menuItemPadding}px`, 
+              borderRadius: '6px', 
+              color: '#374151', 
+              cursor: 'pointer',
+              ...menuItemStyles 
+            }}>
               Option 2
-            </div>
-            <div style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-              Option 3
             </div>
           </div>
         </div>
       );
 
     case 'pagination':
+      const paginationStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const paginationGap = getResponsiveSpacing(6);
+      const paginationPadding = getResponsiveSpacing(8);
+      
       return (
         <nav
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`pagination ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-            <button style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#6b7280', cursor: 'pointer' }}>
-              Précédent
+          <div style={{ display: 'flex', alignItems: 'center', gap: `${paginationGap}px`, flexWrap: 'wrap' }}>
+            <button style={{ padding: `${paginationPadding}px`, border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#6b7280', cursor: 'pointer', ...paginationStyles }}>
+              Préc
             </button>
-            <button style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#3b82f6', color: 'white' }}>
+            <button style={{ padding: `${paginationPadding}px`, border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#3b82f6', color: 'white', ...paginationStyles }}>
               1
             </button>
-            <button style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#374151', cursor: 'pointer' }}>
+            <button style={{ padding: `${paginationPadding}px`, border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#374151', cursor: 'pointer', ...paginationStyles }}>
               2
             </button>
-            <button style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#374151', cursor: 'pointer' }}>
-              3
-            </button>
-            <button style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#374151', cursor: 'pointer' }}>
-              Suivant
+            <button style={{ padding: `${paginationPadding}px`, border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: 'white', color: '#374151', cursor: 'pointer', ...paginationStyles }}>
+              Suiv
             </button>
           </div>
         </nav>
       );
 
     case 'tabs':
+      const tabStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const tabPadding = getResponsiveSpacing(12);
+      const tabContentPadding = getResponsiveSpacing(16);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`tabs ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <div style={{ borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
             <div style={{ display: 'flex', gap: '0' }}>
-              <button style={{ padding: '12px 24px', borderBottom: '2px solid #3b82f6', backgroundColor: 'transparent', border: 'none', color: '#3b82f6', fontSize: '14px', fontWeight: '500' }}>
+              <button style={{ 
+                padding: `${tabPadding}px`, 
+                borderBottom: '2px solid #3b82f6', 
+                backgroundColor: 'transparent', 
+                border: 'none', 
+                color: '#3b82f6', 
+                fontWeight: '500',
+                ...tabStyles 
+              }}>
                 Onglet 1
               </button>
-              <button style={{ padding: '12px 24px', borderBottom: '2px solid transparent', backgroundColor: 'transparent', border: 'none', color: '#6b7280', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
+              <button style={{ 
+                padding: `${tabPadding}px`, 
+                borderBottom: '2px solid transparent', 
+                backgroundColor: 'transparent', 
+                border: 'none', 
+                color: '#6b7280', 
+                fontWeight: '500', 
+                cursor: 'pointer',
+                ...tabStyles 
+              }}>
                 Onglet 2
-              </button>
-              <button style={{ padding: '12px 24px', borderBottom: '2px solid transparent', backgroundColor: 'transparent', border: 'none', color: '#6b7280', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
-                Onglet 3
               </button>
             </div>
           </div>
-          <div style={{ padding: '20px', backgroundColor: '#ffffff' }}>
-            <p style={{ fontSize: '14px', color: '#374151', margin: '0' }}>Contenu de l'onglet actif</p>
+          <div style={{ 
+            padding: `${tabContentPadding}px`, 
+            backgroundColor: '#ffffff', 
+            flex: 1, 
+            overflow: 'hidden'
+          }}>
+            <p style={{ color: '#374151', margin: '0', ...tabStyles }}>Contenu de l'onglet actif</p>
           </div>
         </div>
       );
 
     case 'sidebar':
+      const sidebarTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 24 });
+      const sidebarLinkStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const sidebarPadding = getResponsiveSpacing(20);
+      const sidebarGap = getResponsiveSpacing(6);
+      
       return (
         <aside
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`sidebar ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '24px', backgroundColor: '#1f2937', color: 'white', height: '100%', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px', marginTop: '0' }}>Navigation</h3>
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <a href="#" style={{ padding: '12px 16px', color: 'white', textDecoration: 'none', borderRadius: '6px', backgroundColor: '#374151', fontSize: '14px' }}>
+          <div style={{ 
+            padding: `${sidebarPadding}px`, 
+            backgroundColor: '#1f2937', 
+            color: 'white', 
+            height: '100%', 
+            borderRadius: '8px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <h3 style={{ 
+              fontWeight: '600', 
+              marginBottom: `${sidebarPadding}px`, 
+              marginTop: '0',
+              ...sidebarTitleStyles 
+            }}>
+              Navigation
+            </h3>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: `${sidebarGap}px`, flex: 1, overflow: 'hidden' }}>
+              <a href="#" style={{ 
+                padding: `${Math.max(sidebarGap, 8)}px`, 
+                color: 'white', 
+                textDecoration: 'none', 
+                borderRadius: '6px', 
+                backgroundColor: '#374151',
+                ...sidebarLinkStyles 
+              }}>
                 🏠 Accueil
               </a>
-              <a href="#" style={{ padding: '12px 16px', color: '#d1d5db', textDecoration: 'none', borderRadius: '6px', fontSize: '14px' }}>
-                📊 Tableau de bord
+              <a href="#" style={{ 
+                padding: `${Math.max(sidebarGap, 8)}px`, 
+                color: '#d1d5db', 
+                textDecoration: 'none', 
+                borderRadius: '6px',
+                ...sidebarLinkStyles 
+              }}>
+                📊 Dashboard
               </a>
-              <a href="#" style={{ padding: '12px 16px', color: '#d1d5db', textDecoration: 'none', borderRadius: '6px', fontSize: '14px' }}>
-                👥 Utilisateurs
-              </a>
-              <a href="#" style={{ padding: '12px 16px', color: '#d1d5db', textDecoration: 'none', borderRadius: '6px', fontSize: '14px' }}>
+              <a href="#" style={{ 
+                padding: `${Math.max(sidebarGap, 8)}px`, 
+                color: '#d1d5db', 
+                textDecoration: 'none', 
+                borderRadius: '6px',
+                ...sidebarLinkStyles 
+              }}>
                 ⚙️ Paramètres
               </a>
             </nav>
@@ -1844,25 +2258,79 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     // Business & E-commerce
     case 'product':
+      const productTitleStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 20 });
+      const productDescStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const productPriceStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 14, maxSize: 24 });
+      const productButtonStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const productPadding = getResponsiveSpacing(12);
+      const productIconSize = getResponsiveSize(40, true);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`product-card ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '48px' }}>📦</span>
+          <div style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '8px', 
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', 
+            border: '1px solid #e5e7eb', 
+            overflow: 'hidden',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ 
+              width: '100%', 
+              flex: '0 0 40%', 
+              backgroundColor: '#f3f4f6', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}>
+              <span style={{ fontSize: `${productIconSize}px` }}>📦</span>
             </div>
-            <div style={{ padding: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>Produit Premium</h3>
-              <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '12px', lineHeight: '1.4' }}>
-                Description détaillée du produit avec ses principales caractéristiques.
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937' }}>49,99 €</span>
-                <button style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', padding: '8px 16px', fontSize: '14px', cursor: 'pointer' }}>
+            <div style={{ padding: `${productPadding}px`, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{ 
+                  fontWeight: '600', 
+                  marginBottom: `${Math.max(productPadding / 2, 4)}px`, 
+                  color: '#1f2937',
+                  margin: 0,
+                  ...productTitleStyles 
+                }}>
+                  Produit Premium
+                </h3>
+                <p style={{ 
+                  color: '#6b7280', 
+                  marginBottom: `${Math.max(productPadding / 2, 6)}px`, 
+                  lineHeight: '1.4',
+                  margin: 0,
+                  ...productDescStyles 
+                }}>
+                  Description du produit
+                </p>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                <span style={{ fontWeight: 'bold', color: '#1f2937', ...productPriceStyles }}>49,99 €</span>
+                <button style={{ 
+                  backgroundColor: '#3b82f6', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '6px', 
+                  padding: `${Math.max(productPadding / 3, 4)}px ${Math.max(productPadding / 2, 8)}px`, 
+                  cursor: 'pointer',
+                  ...productButtonStyles 
+                }}>
                   Acheter
                 </button>
               </div>
@@ -1872,32 +2340,87 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'cart':
+      const cartTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 24 });
+      const cartItemStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const cartTotalStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 20 });
+      const cartPriceStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 14, maxSize: 24 });
+      const cartButtonStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const cartPadding = getResponsiveSpacing(16);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`shopping-cart ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#1f2937' }}>Panier d'achat</h3>
-            <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #f3f4f6' }}>
+          <div style={{ 
+            backgroundColor: 'white', 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px', 
+            padding: `${cartPadding}px`,
+            height: '100%',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <h3 style={{ 
+              fontWeight: '600', 
+              marginBottom: `${cartPadding}px`, 
+              color: '#1f2937',
+              margin: 0,
+              ...cartTitleStyles 
+            }}>
+              Panier d'achat
+            </h3>
+            <div style={{ 
+              marginBottom: `${Math.max(cartPadding / 2, 8)}px`, 
+              paddingBottom: `${Math.max(cartPadding / 2, 8)}px`, 
+              borderBottom: '1px solid #f3f4f6' 
+            }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Produit 1 × 2</span>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: '#1f2937' }}>99,98 €</span>
+                <span style={{ color: '#374151', ...cartItemStyles }}>Produit 1 × 2</span>
+                <span style={{ fontWeight: '500', color: '#1f2937', ...cartItemStyles }}>99,98 €</span>
               </div>
             </div>
-            <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #f3f4f6' }}>
+            <div style={{ 
+              marginBottom: `${cartPadding}px`, 
+              paddingBottom: `${Math.max(cartPadding / 2, 8)}px`, 
+              borderBottom: '1px solid #f3f4f6' 
+            }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Produit 2 × 1</span>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: '#1f2937' }}>29,99 €</span>
+                <span style={{ color: '#374151', ...cartItemStyles }}>Produit 2 × 1</span>
+                <span style={{ fontWeight: '500', color: '#1f2937', ...cartItemStyles }}>29,99 €</span>
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>Total:</span>
-              <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937' }}>129,97 €</span>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: `${cartPadding}px`,
+              marginTop: 'auto'
+            }}>
+              <span style={{ fontWeight: '600', color: '#1f2937', ...cartTotalStyles }}>Total:</span>
+              <span style={{ fontWeight: 'bold', color: '#1f2937', ...cartPriceStyles }}>129,97 €</span>
             </div>
-            <button style={{ width: '100%', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', padding: '12px', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
+            <button style={{ 
+              width: '100%', 
+              backgroundColor: '#10b981', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              padding: `${Math.max(cartPadding / 2, 8)}px`, 
+              fontWeight: '500', 
+              cursor: 'pointer',
+              ...cartButtonStyles 
+            }}>
               Procéder au paiement
             </button>
           </div>
@@ -1905,28 +2428,131 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'form':
+      const formTitleStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 14, maxSize: 26 });
+      const formLabelStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const formInputStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const formButtonStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const formPadding = getResponsiveSpacing(20);
+      const formSpacing = getResponsiveSpacing(12);
+      
       return (
         <form
+          ref={containerRef as React.RefObject<HTMLFormElement>}
           className={`contact-form ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ backgroundColor: 'white', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#1f2937' }}>Formulaire de contact</h3>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Nom complet</label>
-              <input type="text" placeholder="Votre nom..." style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+          <div style={{ 
+            backgroundColor: 'white', 
+            padding: `${formPadding}px`, 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px',
+            height: '100%',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'auto'
+          }}>
+            <h3 style={{ 
+              fontWeight: '600', 
+              marginBottom: `${formPadding}px`, 
+              color: '#1f2937',
+              margin: `0 0 ${formPadding}px 0`,
+              ...formTitleStyles 
+            }}>
+              Formulaire de contact
+            </h3>
+            <div style={{ marginBottom: `${formSpacing}px` }}>
+              <label style={{ 
+                display: 'block', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: `${Math.max(formSpacing / 3, 4)}px`,
+                ...formLabelStyles 
+              }}>
+                Nom complet
+              </label>
+              <input 
+                type="text" 
+                placeholder="Votre nom..." 
+                style={{ 
+                  width: '100%', 
+                  padding: `${Math.max(formSpacing / 2, 6)}px`, 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: '6px',
+                  boxSizing: 'border-box',
+                  ...formInputStyles 
+                }} 
+              />
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Email</label>
-              <input type="email" placeholder="votre@email.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+            <div style={{ marginBottom: `${formSpacing}px` }}>
+              <label style={{ 
+                display: 'block', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: `${Math.max(formSpacing / 3, 4)}px`,
+                ...formLabelStyles 
+              }}>
+                Email
+              </label>
+              <input 
+                type="email" 
+                placeholder="votre@email.com" 
+                style={{ 
+                  width: '100%', 
+                  padding: `${Math.max(formSpacing / 2, 6)}px`, 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: '6px',
+                  boxSizing: 'border-box',
+                  ...formInputStyles 
+                }} 
+              />
             </div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Message</label>
-              <textarea placeholder="Votre message..." style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', resize: 'vertical', minHeight: '80px' }}></textarea>
+            <div style={{ marginBottom: `${formPadding}px`, flex: 1 }}>
+              <label style={{ 
+                display: 'block', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: `${Math.max(formSpacing / 3, 4)}px`,
+                ...formLabelStyles 
+              }}>
+                Message
+              </label>
+              <textarea 
+                placeholder="Votre message..." 
+                style={{ 
+                  width: '100%', 
+                  padding: `${Math.max(formSpacing / 2, 6)}px`, 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: '6px', 
+                  resize: 'none',
+                  minHeight: '60px',
+                  height: '100%',
+                  boxSizing: 'border-box',
+                  ...formInputStyles 
+                }}
+              ></textarea>
             </div>
-            <button type="submit" style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', padding: '12px 24px', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
+            <button 
+              type="submit" 
+              style={{ 
+                backgroundColor: '#3b82f6', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '6px', 
+                padding: `${Math.max(formSpacing, 8)}px`, 
+                fontWeight: '500', 
+                cursor: 'pointer',
+                ...formButtonStyles 
+              }}
+            >
               Envoyer le message
             </button>
           </div>
@@ -1935,24 +2561,81 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     // Content & Media Components
     case 'blog':
+      const blogDateStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const blogTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 24 });
+      const blogTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const blogLinkStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const blogPadding = getResponsiveSpacing(16);
+      const blogIconSize = getResponsiveSize(28, true);
+      
       return (
         <article
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`blog-post ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '120px', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '32px' }}>📝</span>
+          <div style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '8px', 
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', 
+            border: '1px solid #e5e7eb', 
+            overflow: 'hidden',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ 
+              width: '100%', 
+              flex: '0 0 35%', 
+              backgroundColor: '#f3f4f6', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}>
+              <span style={{ fontSize: `${blogIconSize}px` }}>📝</span>
             </div>
-            <div style={{ padding: '20px' }}>
-              <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>2 janvier 2024</div>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>Titre de l'article de blog</h3>
-              <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.5', marginBottom: '16px' }}>
-                Extrait de l'article de blog avec les premières lignes du contenu pour donner un aperçu...
+            <div style={{ padding: `${blogPadding}px`, flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ 
+                color: '#6b7280', 
+                marginBottom: `${Math.max(blogPadding / 3, 4)}px`,
+                ...blogDateStyles 
+              }}>
+                2 janvier 2024
+              </div>
+              <h3 style={{ 
+                fontWeight: '600', 
+                marginBottom: `${Math.max(blogPadding / 2, 6)}px`, 
+                color: '#1f2937',
+                margin: 0,
+                ...blogTitleStyles 
+              }}>
+                Titre de l'article de blog
+              </h3>
+              <p style={{ 
+                color: '#6b7280', 
+                lineHeight: '1.5', 
+                marginBottom: `${blogPadding}px`,
+                margin: 0,
+                flex: 1,
+                ...blogTextStyles 
+              }}>
+                Extrait de l'article de blog avec les premières lignes du contenu...
               </p>
-              <a href="#" style={{ color: '#3b82f6', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
+              <a href="#" style={{ 
+                color: '#3b82f6', 
+                textDecoration: 'none', 
+                fontWeight: '500',
+                marginTop: 'auto',
+                ...blogLinkStyles 
+              }}>
                 Lire la suite →
               </a>
             </div>
@@ -1961,30 +2644,101 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'timeline':
+      const timelineYearStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const timelineTextStyles = getResponsiveContentStyles({ baseSize: 13, minSize: 9, maxSize: 17 });
+      const timelinePadding = getResponsiveSpacing(16);
+      const timelineSpacing = getResponsiveSpacing(20);
+      const timelineCircleSize = getResponsiveSize(10, true);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`timeline ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ position: 'relative', padding: '20px' }}>
-            <div style={{ position: 'absolute', left: '20px', top: '20px', bottom: '20px', width: '2px', backgroundColor: '#e5e7eb' }}></div>
-            <div style={{ marginLeft: '40px' }}>
-              <div style={{ marginBottom: '24px', position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '-30px', top: '4px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#3b82f6' }}></div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>2024</div>
-                <div style={{ fontSize: '13px', color: '#6b7280' }}>Lancement du projet</div>
+          <div style={{ 
+            position: 'relative', 
+            padding: `${timelinePadding}px`,
+            height: '100%',
+            boxSizing: 'border-box',
+            overflow: 'auto'
+          }}>
+            <div style={{ 
+              position: 'absolute', 
+              left: `${timelinePadding}px`, 
+              top: `${timelinePadding}px`, 
+              bottom: `${timelinePadding}px`, 
+              width: '2px', 
+              backgroundColor: '#e5e7eb' 
+            }}></div>
+            <div style={{ marginLeft: `${timelinePadding + 20}px` }}>
+              <div style={{ marginBottom: `${timelineSpacing}px`, position: 'relative' }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  left: `-${timelinePadding + 6}px`, 
+                  top: '4px', 
+                  width: `${timelineCircleSize}px`, 
+                  height: `${timelineCircleSize}px`, 
+                  borderRadius: '50%', 
+                  backgroundColor: '#3b82f6' 
+                }}></div>
+                <div style={{ 
+                  fontWeight: '600', 
+                  color: '#1f2937', 
+                  marginBottom: '4px',
+                  ...timelineYearStyles 
+                }}>
+                  2024
+                </div>
+                <div style={{ color: '#6b7280', ...timelineTextStyles }}>Lancement du projet</div>
               </div>
-              <div style={{ marginBottom: '24px', position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '-30px', top: '4px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>2023</div>
-                <div style={{ fontSize: '13px', color: '#6b7280' }}>Première version stable</div>
+              <div style={{ marginBottom: `${timelineSpacing}px`, position: 'relative' }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  left: `-${timelinePadding + 6}px`, 
+                  top: '4px', 
+                  width: `${timelineCircleSize}px`, 
+                  height: `${timelineCircleSize}px`, 
+                  borderRadius: '50%', 
+                  backgroundColor: '#10b981' 
+                }}></div>
+                <div style={{ 
+                  fontWeight: '600', 
+                  color: '#1f2937', 
+                  marginBottom: '4px',
+                  ...timelineYearStyles 
+                }}>
+                  2023
+                </div>
+                <div style={{ color: '#6b7280', ...timelineTextStyles }}>Première version stable</div>
               </div>
               <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '-30px', top: '4px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#f59e0b' }}></div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>2022</div>
-                <div style={{ fontSize: '13px', color: '#6b7280' }}>Début du développement</div>
+                <div style={{ 
+                  position: 'absolute', 
+                  left: `-${timelinePadding + 6}px`, 
+                  top: '4px', 
+                  width: `${timelineCircleSize}px`, 
+                  height: `${timelineCircleSize}px`, 
+                  borderRadius: '50%', 
+                  backgroundColor: '#f59e0b' 
+                }}></div>
+                <div style={{ 
+                  fontWeight: '600', 
+                  color: '#1f2937', 
+                  marginBottom: '4px',
+                  ...timelineYearStyles 
+                }}>
+                  2022
+                </div>
+                <div style={{ color: '#6b7280', ...timelineTextStyles }}>Début du développement</div>
               </div>
             </div>
           </div>
@@ -2012,44 +2766,82 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'map':
+      const mapTitleStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 20 });
+      const mapTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const mapPadding = getResponsiveSpacing(16);
+      const mapIconSize = getResponsiveSize(40, true);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`map-component ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🗺️</div>
-            <div style={{ fontSize: '16px', fontWeight: '600', color: '#0369a1', marginBottom: '4px' }}>Carte interactive</div>
-            <div style={{ fontSize: '12px', color: '#0284c7' }}>Paris, France</div>
+          <div style={{ 
+            width: '100%', 
+            height: '100%', 
+            backgroundColor: '#f0f9ff', 
+            border: '1px solid #bae6fd', 
+            borderRadius: '8px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            flexDirection: 'column',
+            padding: `${mapPadding}px`,
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ fontSize: `${mapIconSize}px`, marginBottom: `${Math.max(mapPadding / 2, 6)}px` }}>🗺️</div>
+            <div style={{ 
+              fontWeight: '600', 
+              color: '#0369a1', 
+              marginBottom: `${Math.max(mapPadding / 4, 2)}px`,
+              textAlign: 'center',
+              ...mapTitleStyles 
+            }}>
+              Carte interactive
+            </div>
+            <div style={{ color: '#0284c7', textAlign: 'center', ...mapTextStyles }}>Paris, France</div>
           </div>
         </div>
       );
 
     case 'text':
-      const adaptiveTextSize = Math.max(containerWidth / 15, 10);
+      const textStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const textPadding = getResponsiveSpacing(8);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`text-element ${className || ''}`}
           style={{
             ...inlineStyles,
-            fontSize: `${adaptiveTextSize}px`,
             fontWeight: styles.fontWeight || 'normal',
             color: styles.color || '#374151',
             fontFamily: styles.fontFamily || 'inherit',
-            lineHeight: '1.4',
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            padding: `${Math.max(containerHeight / 20, 4)}px`
+            padding: `${textPadding}px`,
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            ...textStyles,
+            lineHeight: 1.4
           }}
           onClick={onClick}
           {...otherAttributes}
         >
-          {content || 'Texte modifiable'}
+          {content || 'Texte'}
         </div>
       );
 
