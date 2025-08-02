@@ -1011,10 +1011,12 @@ export default function PropertiesPanel({
             size="sm"
             onClick={() => {
               const items = [...(localComponent?.componentData?.gridItems || [])];
-              items.push({ 
+              const newItem = { 
                 title: `Élément ${items.length + 1}`, 
                 content: 'Contenu de l\'élément' 
-              });
+              };
+              items.push(newItem);
+              console.log('🔍 GRID ADD ITEM:', { items, newItem, localComponent: localComponent?.componentData });
               updateProperty('componentData.gridItems', items);
             }}
             className="w-full text-sm"
