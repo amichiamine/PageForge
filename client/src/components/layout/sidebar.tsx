@@ -47,7 +47,9 @@ export default function Sidebar() {
         {/* Header compact avec fonction de masquage */}
         <div className="flex items-center p-2 border-b border-gray-100 flex-shrink-0">
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               console.log('Logo cliqué - masquage du sidebar');
               setHideMainSidebar(true);
             }}
