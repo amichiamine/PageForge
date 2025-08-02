@@ -85,6 +85,12 @@ export default function PropertiesPanel({
         ...updatedComponent.attributes,
         [attrProp]: value
       };
+      console.log('🔧 UPDATE ATTRIBUTES:', { 
+        path, 
+        attrProp, 
+        value, 
+        newAttributes: updatedComponent.attributes 
+      });
     } else if (path.startsWith('componentData.')) {
       const dataProp = path.replace('componentData.', '');
       updatedComponent.componentData = {

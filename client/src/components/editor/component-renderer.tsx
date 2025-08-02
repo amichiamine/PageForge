@@ -168,6 +168,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
   switch (component.type) {
     case 'image':
       const imageContentStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 24 });
+      console.log('🖼️ IMAGE DEBUG:', { 
+        componentId: component.id, 
+        attributesSrc: attributes.src, 
+        hasAttributes: !!component.attributes,
+        fullAttributes: component.attributes 
+      });
       if (attributes.src) {
         return (
           <img
