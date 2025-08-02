@@ -456,26 +456,44 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
                       height: '100%',
                       position: 'relative',
                       backgroundColor: slide.backgroundColor || '#3b82f6',
-                      backgroundImage: slide.image ? `url(${slide.image})` : undefined,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: slide.image ? 'rgba(255,255,255,0.9)' : '#ffffff',
-                      fontSize: '18px',
-                      fontWeight: 'bold',
-                      textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
                       overflow: 'hidden'
                     }}
                   >
+                    {/* Image responsive */}
+                    {slide.image && (
+                      <img
+                        src={slide.image}
+                        alt={slide.title || `Slide ${index + 1}`}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          objectPosition: 'center',
+                          zIndex: 1
+                        }}
+                      />
+                    )}
+                    
+                    {/* Contenu texte */}
                     <div style={{
-                      background: slide.image ? 'rgba(0,0,0,0.3)' : 'transparent',
-                      padding: slide.image ? '12px 20px' : '0',
+                      position: 'relative',
+                      zIndex: 2,
+                      background: slide.image ? 'rgba(0,0,0,0.4)' : 'transparent',
+                      padding: slide.image ? '12px 20px' : '8px 16px',
                       borderRadius: '8px',
                       textAlign: 'center',
-                      maxWidth: '80%'
+                      maxWidth: '90%',
+                      color: slide.image ? 'rgba(255,255,255,0.95)' : '#ffffff',
+                      fontSize: `${Math.max(12, Math.min(18, (parseInt(style.width as string) || 200) * 0.08))}px`,
+                      fontWeight: 'bold',
+                      textShadow: slide.image ? '1px 1px 3px rgba(0,0,0,0.8)' : 'none',
+                      wordBreak: 'break-word' as const
                     }}>
                       {slide.title || `Slide ${index + 1}`}
                     </div>

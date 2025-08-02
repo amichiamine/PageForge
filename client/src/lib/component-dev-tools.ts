@@ -131,8 +131,12 @@ export const ComponentValidationHooks = {
    * Hook appelé lors du rendu d'un composant
    */
   onComponentRender: (componentType: string, hasResponsiveFeatures: boolean) => {
-    if (process.env.NODE_ENV === 'development' && !hasResponsiveFeatures) {
-      console.warn(`⚠️ RENDU: Le composant '${componentType}' n'utilise pas le système responsive`);
+    // Validation silencieuse en mode développement - réduction des logs répétitifs
+    if (process.env.NODE_ENV === 'development' && !hasRunValidation) {
+      if (!(window as any).__componentValidationCache) {
+        (window as any).__componentValidationCache = new Set();
+        runDevelopmentValidation();
+      }
     }
   }
 };
