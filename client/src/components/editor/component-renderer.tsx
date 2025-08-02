@@ -3215,46 +3215,34 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     default:
-      // AVERTISSEMENT: Utilisation du rendu par défaut détectée
-      // Chaque nouveau composant doit avoir son propre case de rendu spécifique
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`🚨 VALIDATION: Le composant '${component.type}' utilise le rendu par défaut. 
-        Il doit avoir son propre case de rendu avec:
-        - Système responsive (getResponsiveContentStyles, getResponsiveSpacing, getResponsiveSize)
-        - Référence containerRef
-        - Dimensions adaptatives (width: '100%', height: '100%')
-        - Box-sizing: border-box
-        - Absence de minHeight
-        - Gestion de l'overflow`);
-      }
+      // ERREUR EXPLICITE : Chaque composant doit avoir sa case spécifique
+      const errorMessage = `❌ COMPOSANT NON SUPPORTÉ: ${component.type}`;
+      console.error(`🚨 ARCHITECTURE: ${errorMessage}`);
       
-      // Rendu par défaut pour tous les autres composants
-      // Éléments vides (void elements) ne peuvent pas avoir d'enfants
-      const voidElements = ['input', 'img', 'br', 'hr', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
-      const isVoidElement = voidElements.includes(Tag.toLowerCase());
-      
-      if (isVoidElement) {
-        return React.createElement(
-          Tag as any,
-          {
-            className: className as string,
-            style: inlineStyles,
-            onClick: onClick,
-            ...otherAttributes
-          }
-        );
-      }
-      
-      return React.createElement(
-        Tag as any,
-        {
-          className: className as string,
-          style: inlineStyles,
-          onClick: onClick,
-          ...otherAttributes
-        },
-        content,
-        renderChildren()
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`unsupported-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            backgroundColor: '#fef2f2',
+            border: '2px solid #f87171',
+            color: '#dc2626',
+            padding: '16px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            position: 'relative'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {errorMessage}
+        </div>
       );
   }
 }
