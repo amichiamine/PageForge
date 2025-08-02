@@ -41,6 +41,8 @@ export default function PropertiesPanel({
     if (component) {
       // S'assurer que componentData existe pour les composants qui en ont besoin
       const componentWithData = { ...component };
+      let needsUpdate = false;
+      
       if (component.type === 'grid' && !component.componentData) {
         componentWithData.componentData = {
           gridItems: [],
@@ -49,13 +51,19 @@ export default function PropertiesPanel({
           alignment: 'center',
           itemBackground: '#f3f4f6'
         };
-
+        needsUpdate = true;
       }
+      
       setLocalComponent(componentWithData);
+      
+      // Propager l'initialisation au projet principal si nécessaire
+      if (needsUpdate) {
+        onComponentUpdate(componentWithData);
+      }
     } else {
       setLocalComponent(null);
     }
-  }, [component]);
+  }, [component, onComponentUpdate]);
 
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
