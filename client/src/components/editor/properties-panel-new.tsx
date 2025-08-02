@@ -75,6 +75,8 @@ export default function PropertiesPanel({
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
 
+    console.log('🔧 GRID UPDATE:', { path, value, componentType: localComponent.type });
+
     const updatedComponent = { ...localComponent };
 
     if (path.startsWith('styles.')) {
