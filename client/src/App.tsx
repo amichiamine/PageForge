@@ -47,27 +47,39 @@ function Router() {
     <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
-        <div className={`transition-all duration-300 ${showMainSidebar ? 'w-56 sm:w-56' : 'w-12'} bg-theme-surface border-r border-theme-border flex flex-col`}>
-          {/* Toggle button for main navigation */}
-          <div className="p-2 border-b border-theme-border">
-            <button
-              onClick={() => setHideMainSidebar(!hideMainSidebar)}
-              className="w-full h-10 flex items-center justify-center text-theme-text-secondary hover:text-theme-text hover:bg-theme-background rounded-lg transition-colors"
-              title={showMainSidebar ? "Masquer la navigation" : "Afficher la navigation"}
-            >
-              {showMainSidebar ? (
-                <PanelLeftClose className="w-5 h-5" />
-              ) : (
-                <PanelLeftOpen className="w-5 h-5" />
-              )}
-            </button>
+        {showMainSidebar ? (
+          <div className="flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
+            {/* Toggle button for main navigation */}
+            <div className="p-2 border-b border-gray-100 flex-shrink-0">
+              <button
+                onClick={() => setHideMainSidebar(true)}
+                className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                title="Masquer la navigation"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Sidebar content */}
+            <div className="flex-1 overflow-hidden">
+              <Sidebar />
+            </div>
           </div>
-          
-          {/* Sidebar content */}
-          {showMainSidebar && <Sidebar />}
-        </div>
+        ) : (
+          <div className="w-12 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
+            <div className="p-2 border-b border-gray-100">
+              <button
+                onClick={() => setHideMainSidebar(false)}
+                className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                title="Afficher la navigation"
+              >
+                <PanelLeftOpen className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
         
-        <div className="flex-1 flex flex-col overflow-hidden bg-theme-background transition-colors duration-300">
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 transition-colors duration-300">
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/dashboard" component={Dashboard} />

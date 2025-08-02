@@ -33,26 +33,26 @@ export default function Sidebar() {
   return (
     <ResizableSidebar
       defaultWidth={220}
-      minWidth={150}
-      maxWidth={350}
+      minWidth={120}
+      maxWidth={400}
       storageKey="main-sidebar-width"
       direction="right"
       className="h-full"
       title="Navigation"
     >
-      <div className="h-full bg-white border-r border-gray-200 overflow-hidden flex flex-col">
+      <div className="h-full overflow-hidden flex flex-col">
         {/* Header compact */}
-        <div className="flex items-center p-3 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center space-x-2 min-w-0">
-            <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center flex-shrink-0">
+        <div className="flex items-center p-2 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center space-x-2 min-w-0 w-full">
+            <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0">
               <Code className="w-3 h-3 text-white" />
             </div>
-            <span className="text-gray-900 font-semibold text-sm truncate">SiteJet</span>
+            <span className="text-gray-900 font-semibold text-xs truncate">SiteJet</span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-2">
+        <nav className="flex-1 overflow-y-auto p-1.5">
           <div className="space-y-1 mb-4">
             {navigation.map((item) => {
               const isActive = location === item.href || 
