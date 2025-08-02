@@ -316,7 +316,7 @@ export default function PropertiesPanel({
               <SelectItem value="/mois">Par mois</SelectItem>
               <SelectItem value="/an">Par an</SelectItem>
               <SelectItem value="/semaine">Par semaine</SelectItem>
-              <SelectItem value="">Une fois</SelectItem>
+              <SelectItem value="une-fois">Une fois</SelectItem>
             </SelectContent>
           </Select>
         </div>
