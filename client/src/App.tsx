@@ -51,10 +51,16 @@ function Router() {
     console.log('🎯 setHideMainSidebar exécuté');
   }, [hideMainSidebar]);
   
+  // Test direct pour debug
+  const directSetHideMainSidebar = useCallback((hide) => {
+    console.log('🚀 DIRECT SET appelé avec:', hide);
+    setHideMainSidebar(hide);
+  }, []);
+  
   // Debug logs removed for production
 
   return (
-    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar: handleSetHideMainSidebar }}>
+    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar: directSetHideMainSidebar }}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
         {showMainSidebar ? (
@@ -68,7 +74,7 @@ function Router() {
               <button
                 onClick={() => {
                   console.log('Bouton ouverture cliqué');
-                  handleSetHideMainSidebar(false);
+                  directSetHideMainSidebar(false);
                 }}
                 className="w-full h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                 title="Afficher la navigation"
