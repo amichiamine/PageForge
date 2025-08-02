@@ -1715,19 +1715,20 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'grid':
-      const gridTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
-      const gridPadding = getResponsiveSpacing(8);
-      const gridGap = getResponsiveSpacing(6);
+      const gridTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const gridPadding = getResponsiveSpacing(12);
       
-      // Récupération des données depuis componentData (architecture unifiée)
+      // Récupération des données depuis componentData (source unique de vérité)
+      const gridItems = component.componentData?.gridItems || [];
       const columns = component.componentData?.columns || 2;
       const gap = component.componentData?.gap || '16px';
-      const gridItems = component.componentData?.gridItems || [];
+      const alignment = component.componentData?.alignment || 'center';
+      const itemBackground = component.componentData?.itemBackground || '#f3f4f6';
       
       return (
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
-          className={`grid-layout ${className || ''}`}
+          className={`grid-container ${className || ''}`}
           style={{
             ...inlineStyles,
             overflow: 'hidden',
@@ -1736,60 +1737,66 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: `repeat(${columns}, 1fr)`, 
-            gap: gap, 
-            padding: `${gridPadding}px`,
-            height: '100%',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}>
-            {gridItems.length > 0 ? (
-              gridItems.map((item: any, index: number) => (
+          {gridItems.length > 0 ? (
+            // RENDU AVEC DONNÉES : Affichage complet du grid
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: `repeat(${columns}, 1fr)`, 
+              gap: gap, 
+              padding: `${gridPadding}px`,
+              height: '100%',
+              width: '100%',
+              boxSizing: 'border-box',
+              alignItems: alignment === 'top' ? 'start' : alignment === 'bottom' ? 'end' : 'center'
+            }}>
+              {gridItems.map((item: any, index: number) => (
                 <div key={index} style={{ 
-                  backgroundColor: '#f3f4f6', 
-                  borderRadius: '6px', 
+                  backgroundColor: itemBackground, 
+                  borderRadius: '8px', 
                   padding: `${gridPadding}px`, 
                   textAlign: 'left',
                   boxSizing: 'border-box',
                   border: '1px solid #e5e7eb',
-                  minHeight: '60px'
+                  minHeight: '80px',
+                  transition: 'all 0.2s ease',
+                  cursor: 'default'
                 }}>
                   {item.title && <h3 style={{ 
                     ...gridTextStyles,
                     color: '#1f2937',
-                    margin: '0 0 4px 0',
+                    margin: '0 0 8px 0',
                     fontWeight: 600,
-                    fontSize: '11px'
+                    fontSize: '14px'
                   }}>{item.title}</h3>}
                   {item.content && <p style={{ 
                     ...gridTextStyles,
                     color: '#6b7280',
                     margin: 0,
-                    fontSize: '10px',
-                    lineHeight: 1.3
+                    fontSize: '12px',
+                    lineHeight: 1.4
                   }}>{item.content}</p>}
                 </div>
-              ))
-            ) : (
-              <div style={{
-                gridColumn: '1 / -1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#9ca3af',
-                fontSize: '12px',
-                textAlign: 'center',
-                padding: `${gridPadding}px`,
-                border: '2px dashed #d1d5db',
-                borderRadius: '6px',
-                minHeight: '80px'
-              }}>
-                Grille vide - Ajoutez des éléments
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            // ÉTAT VIDE : Message indicatif pour l'utilisateur
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              width: '100%',
+              color: '#9ca3af',
+              fontSize: '14px',
+              textAlign: 'center',
+              padding: `${gridPadding}px`,
+              border: '2px dashed #d1d5db',
+              borderRadius: '8px',
+              boxSizing: 'border-box'
+            }}>
+              Grille vide - Ajoutez des éléments via la configuration
+            </div>
+          )}
         </div>
       );
 

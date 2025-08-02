@@ -461,24 +461,28 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
-        attributes: { className: 'grid-component' },
+        attributes: { 
+          className: 'grid-container',
+          'data-grid': 'true'
+        },
         styles: {
           ...baseComponent.styles,
           width: '400px',
-          height: '240px',
+          height: '300px',
           backgroundColor: '#ffffff',
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
-          padding: '16px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '16px',
+          overflow: 'hidden',
+          position: 'relative',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          columns: 2,
-          gap: '16px',
-          gridItems: []
+          // DONNÉES MÉTIER SPÉCIFIQUES AU GRID
+          gridItems: [],              // Collection d'éléments
+          columns: 2,                 // Configuration structure
+          gap: '16px',               // Paramètre technique
+          alignment: 'center',        // Options d'affichage
+          itemBackground: '#f3f4f6'   // Personnalisation visuelle
         }
       };
 
