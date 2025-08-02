@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
   Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose, 
@@ -1759,7 +1760,9 @@ export default function PropertiesPanel({
       case 'grid':
         return renderGridConfiguration();
       case 'flex':
-        return renderFlexConfiguration();
+        return renderFlexboxConfiguration();
+      case 'flexbox':
+        return renderFlexboxConfiguration();
       case 'sidebar':
         return renderSidebarConfiguration();
       case 'header':
@@ -1800,6 +1803,8 @@ export default function PropertiesPanel({
         return renderRatingConfiguration();
       case 'upload':
         return renderUploadConfiguration();
+      case 'icon':
+        return renderIconConfiguration();
       default:
         return renderGenericConfiguration();
     }
@@ -3579,6 +3584,217 @@ export default function PropertiesPanel({
     </div>
   );
 
+  const renderContainerConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Container</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type de container</Label>
+          <Select
+            value={localComponent?.componentData?.containerType || 'content'}
+            onValueChange={(value) => updateProperty('componentData.containerType', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="content">Contenu</SelectItem>
+              <SelectItem value="hero">Section héro</SelectItem>
+              <SelectItem value="feature">Zone features</SelectItem>
+              <SelectItem value="wrapper">Wrapper</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Largeur maximale</Label>
+          <Select
+            value={localComponent?.componentData?.maxWidth || '1200px'}
+            onValueChange={(value) => updateProperty('componentData.maxWidth', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="100%">Pleine largeur</SelectItem>
+              <SelectItem value="1200px">Standard (1200px)</SelectItem>
+              <SelectItem value="1000px">Compact (1000px)</SelectItem>
+              <SelectItem value="800px">Étroit (800px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Padding vertical</Label>
+          <Select
+            value={localComponent?.componentData?.paddingY || '20px'}
+            onValueChange={(value) => updateProperty('componentData.paddingY', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Aucun</SelectItem>
+              <SelectItem value="10px">Petit</SelectItem>
+              <SelectItem value="20px">Moyen</SelectItem>
+              <SelectItem value="40px">Grand</SelectItem>
+              <SelectItem value="60px">Très grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Padding horizontal</Label>
+          <Select
+            value={localComponent?.componentData?.paddingX || '20px'}
+            onValueChange={(value) => updateProperty('componentData.paddingX', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Aucun</SelectItem>
+              <SelectItem value="15px">Petit</SelectItem>
+              <SelectItem value="20px">Moyen</SelectItem>
+              <SelectItem value="30px">Grand</SelectItem>
+              <SelectItem value="40px">Très grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Contenu du container</Label>
+        <Textarea
+          value={localComponent?.content || 'Zone de contenu'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          placeholder="Contenu affiché dans le container"
+          className="mt-1 text-sm min-h-[60px]"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Bordure visible</Label>
+          <Switch
+            checked={localComponent?.componentData?.showBorder !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.showBorder', checked)}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Centré</Label>
+          <Switch
+            checked={localComponent?.componentData?.centered !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.centered', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFlexboxConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Flexbox</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Direction</Label>
+          <Select
+            value={localComponent?.componentData?.flexDirection || 'row'}
+            onValueChange={(value) => updateProperty('componentData.flexDirection', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="row">Horizontal</SelectItem>
+              <SelectItem value="column">Vertical</SelectItem>
+              <SelectItem value="row-reverse">Horizontal inversé</SelectItem>
+              <SelectItem value="column-reverse">Vertical inversé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Justification</Label>
+          <Select
+            value={localComponent?.componentData?.justifyContent || 'flex-start'}
+            onValueChange={(value) => updateProperty('componentData.justifyContent', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="flex-start">Début</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="flex-end">Fin</SelectItem>
+              <SelectItem value="space-between">Espacement entre</SelectItem>
+              <SelectItem value="space-around">Espacement autour</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select
+            value={localComponent?.componentData?.alignItems || 'stretch'}
+            onValueChange={(value) => updateProperty('componentData.alignItems', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="stretch">Étirer</SelectItem>
+              <SelectItem value="flex-start">Début</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="flex-end">Fin</SelectItem>
+              <SelectItem value="baseline">Ligne de base</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Retour à la ligne</Label>
+          <Select
+            value={localComponent?.componentData?.flexWrap || 'nowrap'}
+            onValueChange={(value) => updateProperty('componentData.flexWrap', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="nowrap">Pas de retour</SelectItem>
+              <SelectItem value="wrap">Retour à la ligne</SelectItem>
+              <SelectItem value="wrap-reverse">Retour inversé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Espacement entre éléments</Label>
+        <Select
+          value={localComponent?.componentData?.gap || '16px'}
+          onValueChange={(value) => updateProperty('componentData.gap', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">Aucun</SelectItem>
+            <SelectItem value="8px">Petit (8px)</SelectItem>
+            <SelectItem value="16px">Moyen (16px)</SelectItem>
+            <SelectItem value="24px">Grand (24px)</SelectItem>
+            <SelectItem value="32px">Très grand (32px)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   const renderHeaderConfiguration = () => (
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-purple-900">Configuration de l'En-tête</h4>
@@ -3918,19 +4134,273 @@ export default function PropertiesPanel({
   const renderBreadcrumbConfiguration = () => renderGenericConfiguration();
   const renderProgressConfiguration = () => renderGenericConfiguration();
   const renderSpinnerConfiguration = () => renderGenericConfiguration();
-  const renderDividerConfiguration = () => renderGenericConfiguration();
-  const renderSpacerConfiguration = () => renderGenericConfiguration();
-  const renderContainerConfiguration = () => renderGenericConfiguration();
-  const renderFlexConfiguration = () => renderGenericConfiguration();
+  const renderDividerConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Séparateur</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type de séparateur</Label>
+          <Select
+            value={localComponent?.componentData?.dividerType || 'line'}
+            onValueChange={(value) => updateProperty('componentData.dividerType', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="line">Ligne</SelectItem>
+              <SelectItem value="dashed">Pointillés</SelectItem>
+              <SelectItem value="dotted">Points</SelectItem>
+              <SelectItem value="double">Double ligne</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Épaisseur</Label>
+          <Select
+            value={localComponent?.componentData?.thickness || '1px'}
+            onValueChange={(value) => updateProperty('componentData.thickness', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1px">Fin (1px)</SelectItem>
+              <SelectItem value="2px">Moyen (2px)</SelectItem>
+              <SelectItem value="3px">Épais (3px)</SelectItem>
+              <SelectItem value="4px">Très épais (4px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Couleur</Label>
+        <Input
+          type="color"
+          value={localComponent?.componentData?.dividerColor || '#e5e7eb'}
+          onChange={(e) => updateProperty('componentData.dividerColor', e.target.value)}
+          className="mt-1 h-8"
+        />
+      </div>
+    </div>
+  );
+
+  const renderSpacerConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Espacement</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Hauteur d'espacement</Label>
+        <Select
+          value={localComponent?.componentData?.spacerHeight || '20px'}
+          onValueChange={(value) => updateProperty('componentData.spacerHeight', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10px">Petit (10px)</SelectItem>
+            <SelectItem value="20px">Moyen (20px)</SelectItem>
+            <SelectItem value="30px">Grand (30px)</SelectItem>
+            <SelectItem value="50px">Très grand (50px)</SelectItem>
+            <SelectItem value="80px">Extra grand (80px)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Visible en édition</Label>
+        <Switch
+          checked={localComponent?.componentData?.showInEditor !== false}
+          onCheckedChange={(checked) => updateProperty('componentData.showInEditor', checked)}
+          className="mt-1"
+        />
+      </div>
+    </div>
+  );
+
+
   const renderMainConfiguration = () => renderGenericConfiguration();
   const renderSectionConfiguration = () => renderGenericConfiguration();
   const renderArticleConfiguration = () => renderGenericConfiguration();
   const renderAsideConfiguration = () => renderGenericConfiguration();
   const renderMapConfiguration = () => renderGenericConfiguration();
-  const renderChartConfiguration = () => renderGenericConfiguration();
+  const renderChartConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Graphique</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type de graphique</Label>
+          <Select
+            value={localComponent?.componentData?.chartType || 'bar'}
+            onValueChange={(value) => updateProperty('componentData.chartType', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="bar">Barres</SelectItem>
+              <SelectItem value="line">Ligne</SelectItem>
+              <SelectItem value="pie">Camembert</SelectItem>
+              <SelectItem value="doughnut">Anneau</SelectItem>
+              <SelectItem value="area">Aires</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Largeur</Label>
+          <Select
+            value={localComponent?.componentData?.chartWidth || '400px'}
+            onValueChange={(value) => updateProperty('componentData.chartWidth', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="300px">Petit (300px)</SelectItem>
+              <SelectItem value="400px">Moyen (400px)</SelectItem>
+              <SelectItem value="500px">Grand (500px)</SelectItem>
+              <SelectItem value="100%">Pleine largeur</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre du graphique</Label>
+        <Input
+          value={localComponent?.componentData?.chartTitle || 'Mon Graphique'}
+          onChange={(e) => updateProperty('componentData.chartTitle', e.target.value)}
+          placeholder="Titre du graphique"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Données (JSON)</Label>
+        <Textarea
+          value={localComponent?.componentData?.chartData || '{"labels":["Jan","Fév","Mar"],"values":[10,20,15]}'}
+          onChange={(e) => updateProperty('componentData.chartData', e.target.value)}
+          placeholder="Données au format JSON"
+          className="mt-1 text-sm min-h-[60px]"
+        />
+      </div>
+    </div>
+  );
   const renderCalendarConfiguration = () => renderGenericConfiguration();
-  const renderInputConfiguration = () => renderGenericConfiguration();
-  const renderTextareaConfiguration = () => renderGenericConfiguration();
+  const renderInputConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Champ de Saisie</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type de champ</Label>
+          <Select
+            value={localComponent?.componentData?.inputType || 'text'}
+            onValueChange={(value) => updateProperty('componentData.inputType', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="text">Texte</SelectItem>
+              <SelectItem value="email">Email</SelectItem>
+              <SelectItem value="password">Mot de passe</SelectItem>
+              <SelectItem value="number">Nombre</SelectItem>
+              <SelectItem value="tel">Téléphone</SelectItem>
+              <SelectItem value="url">URL</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Requis</Label>
+          <Switch
+            checked={localComponent?.componentData?.required || false}
+            onCheckedChange={(checked) => updateProperty('componentData.required', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Placeholder</Label>
+        <Input
+          value={localComponent?.componentData?.placeholder || 'Tapez ici...'}
+          onChange={(e) => updateProperty('componentData.placeholder', e.target.value)}
+          placeholder="Texte d'aide"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Label du champ</Label>
+        <Input
+          value={localComponent?.componentData?.label || ''}
+          onChange={(e) => updateProperty('componentData.label', e.target.value)}
+          placeholder="Nom du champ"
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
+
+  const renderTextareaConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Zone de Texte</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Lignes</Label>
+          <Select
+            value={String(localComponent?.componentData?.rows || 4)}
+            onValueChange={(value) => updateProperty('componentData.rows', parseInt(value))}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="3">3 lignes</SelectItem>
+              <SelectItem value="4">4 lignes</SelectItem>
+              <SelectItem value="6">6 lignes</SelectItem>
+              <SelectItem value="8">8 lignes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Redimensionnable</Label>
+          <Switch
+            checked={localComponent?.componentData?.resizable !== false}
+            onCheckedChange={(checked) => updateProperty('componentData.resizable', checked)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Placeholder</Label>
+        <Input
+          value={localComponent?.componentData?.placeholder || 'Votre message...'}
+          onChange={(e) => updateProperty('componentData.placeholder', e.target.value)}
+          placeholder="Texte d'aide"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Limite de caractères</Label>
+        <Input
+          type="number"
+          value={localComponent?.componentData?.maxLength || ''}
+          onChange={(e) => updateProperty('componentData.maxLength', e.target.value ? parseInt(e.target.value) : null)}
+          placeholder="Limite (ex: 500)"
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
   const renderSelectConfiguration = () => renderGenericConfiguration();
   const renderCheckboxConfiguration = () => renderGenericConfiguration();
   const renderRadioConfiguration = () => renderGenericConfiguration();
@@ -3940,6 +4410,69 @@ export default function PropertiesPanel({
   const renderPaginationConfiguration = () => renderGenericConfiguration();
   const renderRatingConfiguration = () => renderGenericConfiguration();
   const renderUploadConfiguration = () => renderGenericConfiguration();
+  
+  const renderIconConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Icône</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type d'icône</Label>
+          <Select
+            value={localComponent?.componentData?.iconType || 'lucide'}
+            onValueChange={(value) => updateProperty('componentData.iconType', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="lucide">Lucide Icons</SelectItem>
+              <SelectItem value="fontawesome">Font Awesome</SelectItem>
+              <SelectItem value="feather">Feather Icons</SelectItem>
+              <SelectItem value="custom">Personnalisé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Select
+            value={localComponent?.componentData?.iconSize || '24'}
+            onValueChange={(value) => updateProperty('componentData.iconSize', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="16">Petit (16px)</SelectItem>
+              <SelectItem value="24">Moyen (24px)</SelectItem>
+              <SelectItem value="32">Grand (32px)</SelectItem>
+              <SelectItem value="48">Très grand (48px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Nom de l'icône</Label>
+        <Input
+          value={localComponent?.componentData?.iconName || 'heart'}
+          onChange={(e) => updateProperty('componentData.iconName', e.target.value)}
+          placeholder="Ex: heart, star, home"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Couleur</Label>
+        <Input
+          type="color"
+          value={localComponent?.componentData?.iconColor || '#374151'}
+          onChange={(e) => updateProperty('componentData.iconColor', e.target.value)}
+          className="mt-1 h-8"
+        />
+      </div>
+    </div>
+  );
   
   const renderListConfiguration = () => {
     return (
