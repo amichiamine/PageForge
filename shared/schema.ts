@@ -126,6 +126,7 @@ export interface ComponentDefinition {
   content?: string;
   attributes?: Record<string, any>;
   styles?: Record<string, any>;
+  componentData?: Record<string, any>;
   children?: Array<ComponentDefinition>;
   position?: {
     x: number;
