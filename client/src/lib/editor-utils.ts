@@ -30,7 +30,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'h1',
-        content: 'Titre principal',
+        content: '',
         attributes: { className: 'heading' },
         styles: {
           ...baseComponent.styles,
@@ -53,7 +53,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'p',
-        content: 'Voici un paragraphe de démonstration. Vous pouvez modifier ce texte en cliquant dessus et taper votre contenu.',
+        content: '',
         attributes: { className: 'paragraph' },
         styles: {
           ...baseComponent.styles,
@@ -72,7 +72,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'button',
-        content: 'Cliquez ici',
+        content: '',
         attributes: { className: 'styled-button', type: 'button' },
         styles: {
           ...baseComponent.styles,
@@ -122,7 +122,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
-        content: 'Zone de contenu',
+        content: '',
         attributes: { className: 'container' },
         styles: {
           ...baseComponent.styles,
@@ -337,7 +337,7 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           type: 'bar',
-          title: 'Statistiques',
+          title: '',
           data: [],
           colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
           showLegend: true,
@@ -389,7 +389,7 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           src: '',
-          title: 'Fichier audio',
+          title: '',
           autoplay: false,
           loop: false,
           volume: 0.5
@@ -442,9 +442,9 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          triggerText: 'Ouvrir Modal',
-          title: 'Titre du Modal',
-          content: 'Contenu du modal...',
+          triggerText: '',
+          title: '',
+          content: '',
           size: 'medium',
           backdrop: true
         }
@@ -466,9 +466,9 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          label: 'Sélectionner...',
+          label: '',
           options: [],
-          placeholder: 'Choisir une option',
+          placeholder: '',
           multiple: false
         }
       };
@@ -494,7 +494,7 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          text: 'Badge',
+          text: '',
           variant: 'primary',
           size: 'medium'
         }
@@ -519,8 +519,8 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           type: 'info',
-          title: 'Information',
-          message: 'Ceci est un message d\'information.',
+          title: '',
+          message: '',
           dismissible: true,
           icon: true
         }
@@ -590,7 +590,7 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           checked: false,
-          label: 'Activer',
+          label: '',
           size: 'medium',
           color: '#3b82f6'
         }
@@ -616,8 +616,8 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          text: 'Survolez-moi',
-          tooltip: 'Ceci est une infobulle',
+          text: '',
+          tooltip: '',
           position: 'top',
           delay: 0
         }
@@ -712,11 +712,11 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          title: 'Titre Héro',
-          subtitle: 'Sous-titre descriptif',
+          title: '',
+          subtitle: '',
           backgroundImage: '',
-          ctaText: 'Action principale',
-          ctaLink: '#',
+          ctaText: '',
+          ctaLink: '',
           overlay: true
         }
       };
@@ -740,7 +740,7 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          message: 'Message important',
+          message: '',
           type: 'warning',
           dismissible: true,
           icon: true,
@@ -767,7 +767,7 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          logo: 'Mon Site',
+          logo: '',
           navigation: [],
           showSearch: false,
           sticky: false
@@ -790,10 +790,10 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          companyName: 'Mon Entreprise',
+          companyName: '',
           description: '',
           links: [],
-          copyright: '© 2025 Tous droits réservés'
+          copyright: ''
         }
       };
 
@@ -813,7 +813,7 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          title: 'Menu latéral',
+          title: '',
           items: [],
           collapsible: true,
           position: 'left'
@@ -839,7 +839,7 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          brand: 'Marque',
+          brand: '',
           items: [],
           alignment: 'left',
           style: 'horizontal'
@@ -909,7 +909,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'a',
-        content: 'Lien vers une page',
+        content: '',
         attributes: { 
           href: '#',
           className: 'styled-link',
@@ -1004,10 +1004,10 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
-        content: 'console.log("Hello World!");',
+        content: '',
         attributes: { className: 'code-component' },
         componentData: {
-          content: 'console.log("Hello World!");',
+          content: '',
           language: 'javascript'
         },
         styles: {
