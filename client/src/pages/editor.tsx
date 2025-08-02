@@ -145,18 +145,28 @@ ${indentStr}</${tag}>`;
     }
 
     // Gestion des grilles avec éléments
-    if (component.type === 'grid' && component.componentData?.gridItems) {
-      const items = component.componentData.gridItems;
+    if (component.type === 'grid') {
+      const items = component.componentData?.gridItems || [];
+      
+      if (items.length === 0) {
+        return `${indentStr}<div ${idAttr} class="grid-container grid-placeholder ${classAttr ? className : ''}">
+${childIndentStr}<div class="grid-item">
+${childIndentStr}  <h3>Grille</h3>
+${childIndentStr}  <p>Configurez vos éléments dans l'éditeur</p>
+${childIndentStr}</div>
+${indentStr}</div>`;
+      }
+      
       const itemsHTML = items.map((item: any) => {
-        return `${childIndentStr}<div class="grid-item" style="padding: 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-${childIndentStr}  ${item.title ? `<h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">${item.title}</h3>` : ''}
-${childIndentStr}  ${item.content ? `<p style="margin: 0; color: #6b7280;">${item.content}</p>` : ''}
+        return `${childIndentStr}<div class="grid-item">
+${childIndentStr}  ${item.title ? `<h3 class="grid-item-title">${item.title}</h3>` : ''}
+${childIndentStr}  ${item.content ? `<p class="grid-item-content">${item.content}</p>` : ''}
 ${childIndentStr}</div>`;
       }).join('\n');
       
-      return `${indentStr}${openingTag}
+      return `${indentStr}<div ${idAttr} class="grid-container ${classAttr ? className : ''}">
 ${itemsHTML}
-${indentStr}</${tag}>`;
+${indentStr}</div>`;
     }
 
     if (component.type === 'image') {

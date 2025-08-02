@@ -477,7 +477,11 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           columns: 2,
-          items: []
+          gap: '16px',
+          gridItems: [
+            { title: 'Élément 1', content: 'Contenu du premier élément' },
+            { title: 'Élément 2', content: 'Contenu du deuxième élément' }
+          ]
         }
       };
 
