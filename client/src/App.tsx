@@ -82,7 +82,7 @@ function Router() {
         {showMainSidebar ? (
           <div className="flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
             {/* Sidebar content */}
-            <Sidebar />
+            <Sidebar onHideSidebar={() => setHideMainSidebar(true)} />
           </div>
         ) : (
           <div className="w-12 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">

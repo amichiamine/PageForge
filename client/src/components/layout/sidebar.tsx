@@ -29,16 +29,15 @@ const documentation = [
   { name: "Configuration", href: "/settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onHideSidebar: () => void;
+}
+
+export default function Sidebar({ onHideSidebar }: SidebarProps) {
   const [location] = useLocation();
-  const context = useSidebarContext();
-  console.log('🔍 CONTEXTE COMPLET reçu:', context);
-  console.log('🔍 Type setHideMainSidebar reçu:', typeof context.setHideMainSidebar);
-  console.log('🔍 toString fonction reçue:', context.setHideMainSidebar.toString().substring(0, 150));
   
-  const { hideMainSidebar, setHideMainSidebar } = context;
-  
-  console.log('🔄 RENDER Sidebar - hideMainSidebar from context:', hideMainSidebar);
+  console.log('✅ Sidebar reçoit onHideSidebar:', typeof onHideSidebar);
+  console.log('✅ toString fonction prop:', onHideSidebar.toString().substring(0, 100));
 
   return (
     <ResizableSidebar
@@ -59,11 +58,9 @@ export default function Sidebar() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🚀 DIRECT CLIC - État avant:', hideMainSidebar);
-                console.log('🚀 Type fonction récupérée:', typeof setHideMainSidebar);
-                console.log('🚀 Fonction toString:', setHideMainSidebar.toString().substring(0, 100));
-                setHideMainSidebar(true);
-                console.log('🚀 DIRECT CLIC - Fonction exécutée');
+                console.log('🎯 PROP CLIC - Appel onHideSidebar');
+                onHideSidebar();
+                console.log('🎯 PROP CLIC - Fonction exécutée');
               }}
               className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0 hover:bg-blue-700 transition-colors cursor-pointer"
               title="Cliquer sur le logo pour masquer la navigation"
