@@ -38,9 +38,9 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [localComponent, setLocalComponent] = useState<ComponentDefinition | null>(null);
   const [openSections, setOpenSections] = useState({
-    elements: true,
-    properties: true,
-    configuration: true
+    elements: false,
+    properties: false,
+    configuration: false
   });
 
   // State pour les outils WYSIWYG
@@ -1705,7 +1705,7 @@ export default function PropertiesPanel({
       case 'link':
         return renderLinkConfiguration();
       case 'list':
-        return renderListItemsConfiguration();
+        return renderListConfiguration();
       case 'pricing':
         return renderPricingConfiguration();
       case 'testimonial':
@@ -3893,6 +3893,88 @@ export default function PropertiesPanel({
   const renderPaginationConfiguration = () => renderGenericConfiguration();
   const renderRatingConfiguration = () => renderGenericConfiguration();
   const renderUploadConfiguration = () => renderGenericConfiguration();
+  
+  const renderListConfiguration = () => {
+    return (
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-purple-900">Configuration de Liste</h4>
+        
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="list-items">
+            <AccordionTrigger className="text-sm py-2">
+              <div className="flex items-center justify-between w-full pr-4">
+                <span>Éléments de liste</span>
+                <Badge variant="outline" className="text-xs">
+                  {(localComponent?.componentData?.listItems || []).length} éléments
+                </Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                {(localComponent?.componentData?.listItems || []).map((item: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex justify-between items-center mb-2">
+                      <Label className="text-xs font-medium text-blue-600">
+                        Élément {index + 1}
+                      </Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const items = [...(localComponent?.componentData?.listItems || [])];
+                          items.splice(index, 1);
+                          updateProperty('componentData.listItems', items);
+                        }}
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-xs">Texte</Label>
+                        <Input
+                          value={item.text || ''}
+                          onChange={(e) => {
+                            const items = [...(localComponent?.componentData?.listItems || [])];
+                            items[index] = { ...item, text: e.target.value };
+                            updateProperty('componentData.listItems', items);
+                          }}
+                          placeholder="Texte de l'élément"
+                          className="text-xs h-7"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="pt-2 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const currentItems = localComponent?.componentData?.listItems || [];
+                      const newItem = { 
+                        text: `Élément ${currentItems.length + 1}`,
+                        link: ''
+                      };
+                      const updatedItems = [...currentItems, newItem];
+                      updateProperty('componentData.listItems', updatedItems);
+                    }}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Ajouter un élément
+                  </Button>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    );
+  };
 
   if (!localComponent) {
     return (

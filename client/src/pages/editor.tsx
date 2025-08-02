@@ -120,7 +120,7 @@ export default function Editor() {
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [hideComponentPanel, setHideComponentPanel] = useState(false);
+  const [hideComponentPanel, setHideComponentPanel] = useState(true); // Par défaut fermé
   const [hideRightPanel, setHideRightPanel] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -430,7 +430,7 @@ export default function Editor() {
               onClick={() => setShowPreview(!showPreview)}
               icon={showPreview ? <Grid className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               label={showPreview ? "Éditer" : "Aperçu"}
-              position="top-left"
+              position="center-bottom"
               size="md"
               variant="secondary"
             />
@@ -442,7 +442,7 @@ export default function Editor() {
         {/* Enhanced Header */}
         <div className="flex flex-col w-full">
           <div className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-3 space-y-3 lg:space-y-0">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-2 space-y-2 lg:space-y-0">
               {/* Project Info */}
               <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
                 <div className="flex items-center space-x-2 min-w-0">
