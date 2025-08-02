@@ -220,34 +220,9 @@ export function createComponent(type: string): ComponentDefinition {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         },
         componentData: {
-          slides: [
-            {
-              image: '',
-              title: 'Slide 1',
-              description: 'Description du premier slide',
-              buttonText: 'En savoir plus',
-              buttonLink: '#',
-              backgroundColor: '#3b82f6'
-            },
-            {
-              image: '',
-              title: 'Slide 2',
-              description: 'Description du deuxième slide',
-              buttonText: 'Découvrir',
-              buttonLink: '#',
-              backgroundColor: '#10b981'
-            },
-            {
-              image: '',
-              title: 'Slide 3',
-              description: 'Description du troisième slide',
-              buttonText: 'Voir plus',
-              buttonLink: '#',
-              backgroundColor: '#ef4444'
-            }
-          ],
+          slides: [],
           currentSlide: 0,
-          autoplay: true,
+          autoplay: false,
           animationSpeed: 3000,
           showDots: true,
           showArrows: true
@@ -273,18 +248,7 @@ export function createComponent(type: string): ComponentDefinition {
           overflow: 'hidden'
         },
         componentData: {
-          items: [
-            {
-              question: 'Question 1',
-              answer: 'Réponse à la première question avec des détails utiles.',
-              isOpen: true
-            },
-            {
-              question: 'Question 2', 
-              answer: 'Réponse à la deuxième question avec des informations complémentaires.',
-              isOpen: false
-            }
-          ]
+          items: []
         }
       };
 
@@ -305,11 +269,7 @@ export function createComponent(type: string): ComponentDefinition {
           listStyle: 'none'
         },
         componentData: {
-          items: [
-            { text: 'Premier élément', id: nanoid() },
-            { text: 'Deuxième élément', id: nanoid() },
-            { text: 'Troisième élément', id: nanoid() }
-          ],
+          items: [],
           listType: 'unordered'
         }
       };
@@ -330,10 +290,7 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          fields: [
-            { type: 'email', label: 'Email', placeholder: 'Votre email', required: true, id: nanoid() },
-            { type: 'textarea', label: 'Message', placeholder: 'Votre message...', required: true, id: nanoid() }
-          ],
+          fields: [],
           submitText: 'Envoyer'
         }
       };
@@ -356,10 +313,10 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           image: '',
-          title: 'Titre de la carte',
-          description: 'Description concise du contenu de cette carte avec les informations essentielles.',
-          buttonText: 'En savoir plus',
-          buttonLink: '#'
+          title: '',
+          description: '',
+          buttonText: '',
+          buttonLink: ''
         }
       };
 
@@ -379,14 +336,9 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          title: 'Statistiques',
+          title: '',
           chartType: 'bar',
-          data: [
-            { label: 'Serie 1', value: 75, color: '#3b82f6' },
-            { label: 'Serie 2', value: 60, color: '#10b981' },
-            { label: 'Serie 3', value: 90, color: '#f59e0b' },
-            { label: 'Serie 4', value: 45, color: '#ef4444' }
-          ]
+          data: []
         }
       };
 
@@ -435,12 +387,8 @@ export function createComponent(type: string): ComponentDefinition {
           zIndex: '100'
         },
         componentData: {
-          logo: 'Logo',
-          navigation: [
-            { text: 'Accueil', link: '#', id: nanoid() },
-            { text: 'Services', link: '#', id: nanoid() },
-            { text: 'Contact', link: '#', id: nanoid() }
-          ]
+          logo: '',
+          navigation: []
         }
       };
 
@@ -459,13 +407,10 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          companyName: 'Mon Site',
-          description: 'Description de votre entreprise',
-          links: [
-            { text: 'Mentions légales', link: '#', id: nanoid() },
-            { text: 'Contact', link: '#', id: nanoid() }
-          ],
-          copyright: '© 2025 Tous droits réservés'
+          companyName: '',
+          description: '',
+          links: [],
+          copyright: ''
         }
       };
 
@@ -484,12 +429,8 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          title: 'Navigation',
-          menuItems: [
-            { text: '🏠 Accueil', link: '#', active: true, id: nanoid() },
-            { text: '📊 Analytics', link: '#', active: false, id: nanoid() },
-            { text: '⚙️ Paramètres', link: '#', active: false, id: nanoid() }
-          ]
+          title: '',
+          menuItems: []
         }
       };
 
@@ -511,12 +452,8 @@ export function createComponent(type: string): ComponentDefinition {
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          brand: 'Brand',
-          menuItems: [
-            { text: 'Accueil', link: '#', active: true, id: nanoid() },
-            { text: 'Services', link: '#', active: false, id: nanoid() },
-            { text: 'Contact', link: '#', active: false, id: nanoid() }
-          ]
+          brand: '',
+          menuItems: []
         }
       };
 
@@ -540,12 +477,7 @@ export function createComponent(type: string): ComponentDefinition {
         },
         componentData: {
           columns: 2,
-          items: [
-            { text: 'Item 1', id: nanoid() },
-            { text: 'Item 2', id: nanoid() },
-            { text: 'Item 3', id: nanoid() },
-            { text: 'Item 4', id: nanoid() }
-          ]
+          items: []
         }
       };
 
@@ -650,11 +582,7 @@ export function createComponent(type: string): ComponentDefinition {
           justify: 'space-between',
           align: 'center',
           gap: '16px',
-          items: [
-            { text: 'Flex 1', id: nanoid(), color: '#3b82f6' },
-            { text: 'Flex 2', id: nanoid(), color: '#10b981' },
-            { text: 'Flex 3', id: nanoid(), color: '#f59e0b' }
-          ]
+          items: []
         }
       };
 

@@ -1805,14 +1805,7 @@ export default function PropertiesPanel({
 
   // Configuration du carrousel
   const renderCarouselConfiguration = () => {
-    // Initialiser les slides par défaut si nécessaire
-    if (!localComponent?.componentData?.slides) {
-      updateProperty('componentData.slides', [
-        { image: '', title: 'Slide 1', backgroundColor: '#3b82f6' },
-        { image: '', title: 'Slide 2', backgroundColor: '#8b5cf6' },
-        { image: '', title: 'Slide 3', backgroundColor: '#ef4444' }
-      ]);
-    }
+    // Ne pas initialiser automatiquement - laisser vide selon l'architecture unifiée
 
     return (
       <div className="space-y-4">
@@ -1956,6 +1949,9 @@ export default function PropertiesPanel({
                     slides.push({ 
                       image: '', 
                       title: `Slide ${newIndex + 1}`,
+                      description: '',
+                      buttonText: '',
+                      buttonLink: '#',
                       backgroundColor: `#${Math.floor(Math.random()*16777215).toString(16)}`
                     });
                     updateProperty('componentData.slides', slides);

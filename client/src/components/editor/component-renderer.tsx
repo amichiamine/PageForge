@@ -220,6 +220,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const dotSize = getResponsiveSize(8, false);
       const bottomSpacing = getResponsiveSpacing(12);
       const dotGap = getResponsiveSpacing(6);
+      
+      // Récupération des slides depuis componentData (architecture unifiée)
+      const slides = component.componentData?.slides || [];
+      const currentSlide = component.componentData?.currentSlide || 0;
+      
       return (
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
@@ -232,85 +237,95 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <div className="carousel-track" style={{ 
-            display: 'flex', 
-            width: '300%', 
-            height: '100%', 
-            transition: 'transform 0.3s ease-in-out' 
-          }}>
-            <div className="carousel-slide" style={{ 
-              width: '33.333%', 
-              height: '100%', 
-              backgroundColor: '#3b82f6', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white', 
-              fontWeight: 'bold',
-              overflow: 'hidden',
-              ...carouselTextStyles
+          {slides.length > 0 ? (
+            <>
+              <div className="carousel-track" style={{ 
+                display: 'flex', 
+                width: `${slides.length * 100}%`, 
+                height: '100%', 
+                transition: 'transform 0.3s ease-in-out',
+                transform: `translateX(-${currentSlide * (100 / slides.length)}%)`
+              }}>
+                {slides.map((slide: any, index: number) => (
+                  <div 
+                    key={index}
+                    className="carousel-slide" 
+                    style={{ 
+                      width: `${100 / slides.length}%`, 
+                      height: '100%', 
+                      backgroundColor: slide.backgroundColor || '#3b82f6',
+                      backgroundImage: slide.image ? `url(${slide.image})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      color: 'white', 
+                      fontWeight: 'bold',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      ...carouselTextStyles
+                    }}
+                  >
+                    {slide.image && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.3)',
+                        zIndex: 1
+                      }} />
+                    )}
+                    <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                      {slide.title && <div style={{ marginBottom: '8px' }}>{slide.title}</div>}
+                      {slide.description && <div style={{ fontSize: '0.8em', opacity: 0.9 }}>{slide.description}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {component.componentData?.showDots && slides.length > 1 && (
+                <div style={{ 
+                  position: 'absolute', 
+                  bottom: `${bottomSpacing}px`, 
+                  left: '50%', 
+                  transform: 'translateX(-50%)', 
+                  display: 'flex', 
+                  gap: `${dotGap}px` 
+                }}>
+                  {slides.map((_: any, index: number) => (
+                    <div 
+                      key={index}
+                      style={{ 
+                        width: `${dotSize}px`, 
+                        height: `${dotSize}px`, 
+                        borderRadius: '50%', 
+                        backgroundColor: 'white', 
+                        opacity: index === currentSlide ? 0.8 : 0.5 
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#6b7280',
+              fontSize: '14px',
+              backgroundColor: '#f9fafb',
+              border: '2px dashed #d1d5db'
             }}>
-              Slide 1
+              Carrousel vide - Ajoutez des slides
             </div>
-            <div className="carousel-slide" style={{ 
-              width: '33.333%', 
-              height: '100%', 
-              backgroundColor: '#10b981', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white', 
-              fontWeight: 'bold',
-              overflow: 'hidden',
-              ...carouselTextStyles
-            }}>
-              Slide 2
-            </div>
-            <div className="carousel-slide" style={{ 
-              width: '33.333%', 
-              height: '100%', 
-              backgroundColor: '#f59e0b', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white', 
-              fontWeight: 'bold',
-              overflow: 'hidden',
-              ...carouselTextStyles
-            }}>
-              Slide 3
-            </div>
-          </div>
-          <div style={{ 
-            position: 'absolute', 
-            bottom: `${bottomSpacing}px`, 
-            left: '50%', 
-            transform: 'translateX(-50%)', 
-            display: 'flex', 
-            gap: `${dotGap}px` 
-          }}>
-            <div style={{ 
-              width: `${dotSize}px`, 
-              height: `${dotSize}px`, 
-              borderRadius: '50%', 
-              backgroundColor: 'white', 
-              opacity: 0.8 
-            }}></div>
-            <div style={{ 
-              width: `${dotSize}px`, 
-              height: `${dotSize}px`, 
-              borderRadius: '50%', 
-              backgroundColor: 'white', 
-              opacity: 0.5 
-            }}></div>
-            <div style={{ 
-              width: `${dotSize}px`, 
-              height: `${dotSize}px`, 
-              borderRadius: '50%', 
-              backgroundColor: 'white', 
-              opacity: 0.5 
-            }}></div>
-          </div>
+          )}
         </div>
       );
 
