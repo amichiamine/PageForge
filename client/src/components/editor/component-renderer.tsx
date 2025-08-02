@@ -168,6 +168,15 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     ));
   };
 
+  // DEBUG: Log du type de composant
+  if (component.type === 'gallery') {
+    console.log('🔍 COMPONENT-RENDERER: Gallery détectée!', { 
+      type: component.type, 
+      id: component.id,
+      componentData: component.componentData 
+    });
+  }
+
   // Cas spéciaux pour certains types de composants avec adaptation responsive complète
   switch (component.type) {
     case 'image':
