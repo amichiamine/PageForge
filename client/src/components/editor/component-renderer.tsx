@@ -1290,32 +1290,87 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     // Layout Components
     case 'container':
+      const containerTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 24 });
+      const containerPadding = getResponsiveSpacing(20);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`container ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '20px', border: '2px dashed #d1d5db', borderRadius: '8px', minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb' }}>
-            <span style={{ color: '#6b7280', fontSize: '14px' }}>Conteneur - Glissez des composants ici</span>
+          <div style={{ 
+            padding: `${containerPadding}px`, 
+            border: '2px dashed #d1d5db', 
+            borderRadius: '8px', 
+            height: '100%',
+            width: '100%',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            backgroundColor: '#f9fafb',
+            boxSizing: 'border-box',
+            overflow: 'hidden'
+          }}>
+            <span style={{ 
+              color: '#6b7280', 
+              ...containerTextStyles,
+              textAlign: 'center'
+            }}>Zone de contenu</span>
           </div>
           {renderChildren()}
         </div>
       );
 
     case 'section':
+      const sectionTitleStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 14, maxSize: 32 });
+      const sectionTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20, multiline: true });
+      const sectionPadding = getResponsiveSpacing(24);
+      const sectionSpacing = getResponsiveSpacing(16);
+      
       return (
         <section
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`section ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '24px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px', color: '#1e293b' }}>Section Titre</h2>
-            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6' }}>
-              Contenu de la section avec du texte descriptif et informatif pour présenter cette partie de la page.
+          <div style={{ 
+            padding: `${sectionPadding}px`, 
+            backgroundColor: '#f8fafc', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '8px',
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <h2 style={{ 
+              ...sectionTitleStyles,
+              fontWeight: '600', 
+              marginBottom: `${sectionSpacing}px`, 
+              color: '#1e293b',
+              margin: `0 0 ${sectionSpacing}px 0`
+            }}>Section de contenu</h2>
+            <p style={{ 
+              ...sectionTextStyles,
+              color: '#64748b', 
+              lineHeight: '1.6',
+              flex: 1,
+              margin: 0
+            }}>
+              Contenu descriptif qui s'adapte parfaitement aux dimensions du cadre de la section.
             </p>
           </div>
           {renderChildren()}
