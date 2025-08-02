@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/theme-context";
-import { useState, createContext, useContext, useEffect, useCallback } from "react";
+import { useState, createContext, useContext, useEffect, useCallback, useMemo } from "react";
 import { runDevelopmentValidation } from "./lib/component-dev-tools";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
@@ -58,24 +58,22 @@ function Router() {
     console.log('🎯 setHideMainSidebar exécuté');
   }, [hideMainSidebar]);
   
-  // Test avec fonction directe sans useCallback
-  const directSetHideMainSidebar = (hide) => {
+  // Version simplifiée qui contourne le problème de closure
+  const directSetHideMainSidebar = useCallback((hide) => {
     console.log('🔥 VRAIE FONCTION appelée avec:', hide);
-    console.log('🔥 Avant setState - hideMainSidebar:', hideMainSidebar);
-    setHideMainSidebar((prevState) => {
-      console.log('🔥 DANS setState - prevState:', prevState, 'newValue:', hide);
-      return hide;
-    });
-    console.log('🔥 Après setState appelé');
-  };
+    setHideMainSidebar(hide);
+    console.log('🔥 setState appelé directement');
+  }, []);
   
   // Debug logs removed for production
 
-  // Debug de la valeur du contexte
-  const contextValue = { hideMainSidebar, setHideMainSidebar: directSetHideMainSidebar };
-  console.log('🔥 CONTEXTE VALUE envoyé:', contextValue);
-  console.log('🔥 Type fonction dans contexte:', typeof contextValue.setHideMainSidebar);
-  console.log('🔥 toString fonction envoyée:', contextValue.setHideMainSidebar.toString().substring(0, 150));
+  // Créer l'objet contexte avec useMemo pour éviter les re-créations
+  const contextValue = useMemo(() => ({
+    hideMainSidebar,
+    setHideMainSidebar: directSetHideMainSidebar
+  }), [hideMainSidebar, directSetHideMainSidebar]);
+  
+  console.log('🔥 CONTEXTE VALUE envoyé avec useMemo:', contextValue);
 
   return (
     <SidebarContext.Provider value={contextValue}>
