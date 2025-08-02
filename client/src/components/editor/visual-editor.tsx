@@ -432,9 +432,16 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         }
         
         return (
-          <div style={style} className={`carousel-container ${component.attributes?.className || ''}`}>
+          <div style={{
+            ...style,
+            overflow: 'hidden',
+            position: 'relative',
+            boxSizing: 'border-box'
+          }} className={`carousel-container ${component.attributes?.className || ''}`}>
             <div style={{
-              position: 'relative',
+              position: 'absolute',
+              top: 0,
+              left: 0,
               width: '100%',
               height: '100%',
               overflow: 'hidden',
@@ -462,22 +469,42 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
                       overflow: 'hidden'
                     }}
                   >
-                    {/* Image responsive */}
+                    {/* Image responsive avec contraintes strictes */}
                     {slide.image && (
-                      <img
-                        src={slide.image}
-                        alt={slide.title || `Slide ${index + 1}`}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          objectPosition: 'center',
-                          zIndex: 1
-                        }}
-                      />
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        overflow: 'hidden',
+                        zIndex: 1
+                      }}>
+                        <img
+                          src={slide.image}
+                          alt={slide.title || `Slide ${index + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            display: 'block',
+                            border: 'none',
+                            outline: 'none'
+                          }}
+                          onLoad={(e) => {
+                            // Forcer le recalcul responsif après chargement
+                            const img = e.target as HTMLImageElement;
+                            img.style.cssText = `
+                              width: 100% !important;
+                              height: 100% !important;
+                              object-fit: cover !important;
+                              object-position: center !important;
+                              display: block !important;
+                            `;
+                          }}
+                        />
+                      </div>
                     )}
                     
                     {/* Contenu texte */}

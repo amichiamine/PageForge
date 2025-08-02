@@ -4,6 +4,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Styles responsifs pour le carrousel */
+.carousel-container {
+  contain: layout style;
+  isolation: isolate;
+}
+
+.carousel-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+.carousel-container > div {
+  box-sizing: border-box !important;
+}
+
 /* Animations pour les panneaux coulissants */
 @keyframes slide-in-left {
   from {

@@ -73,22 +73,21 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     flexDirection: styles.flexDirection as any,
     textAlign: styles.textAlign as any,
     fontWeight: styles.fontWeight as any,
+    boxSizing: 'border-box',
     lineHeight: styles.lineHeight,
     letterSpacing: styles.letterSpacing,
     whiteSpace: styles.whiteSpace as any,
     wordBreak: styles.wordBreak as any,
     objectFit: styles.objectFit as any,
-    overflow: containerWidth < 150 || containerHeight < 80 ? 'visible' : 'hidden', // Affichage visible sur petits écrans
+    overflow: component.type === 'carousel' ? 'hidden' : (styles.overflow as any || 'visible'),
     boxShadow: styles.boxShadow,
-    transition: 'all 0.2s ease-in-out', // Animation fluide lors du redimensionnement
+    transition: 'all 0.2s ease-in-out',
     cursor: styles.cursor,
     userSelect: styles.userSelect as any,
     outline: isSelected ? '2px solid #3b82f6' : styles.outline,
-
     maxWidth: styles.maxWidth,
     gridTemplateColumns: styles.gridTemplateColumns,
-    gap: styles.gap,
-    boxSizing: 'border-box' as any
+    gap: styles.gap
   };
 
   // Fonction avancée pour adaptation responsive du contenu

@@ -311,13 +311,11 @@ export default function ComponentDebugger({
       height: component.styles?.height
     };
     
-    // Log des changements détectés (placeholder pour surveillance temps réel)
-    console.log('📍 POSITION_WATCHER:', {
-      componentId: component.id,
-      type: component.type,
-      currentPosition,
-      timestamp: new Date().toISOString()
-    });
+    // Surveillance silencieuse des positions (logs réduits)
+    if (Date.now() - (window as any).__lastPositionLog > 5000) {
+      console.log('📍 POSITION_WATCHER: Surveillance active pour', component.type);
+      (window as any).__lastPositionLog = Date.now();
+    }
   };
 
   const getCustomizationOptions = (componentType: string) => {

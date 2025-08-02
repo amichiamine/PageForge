@@ -131,12 +131,10 @@ export const ComponentValidationHooks = {
    * Hook appelé lors du rendu d'un composant
    */
   onComponentRender: (componentType: string, hasResponsiveFeatures: boolean) => {
-    // Validation silencieuse en mode développement - réduction des logs répétitifs
+    // Validation unique en mode développement
     if (process.env.NODE_ENV === 'development' && !hasRunValidation) {
-      if (!(window as any).__componentValidationCache) {
-        (window as any).__componentValidationCache = new Set();
-        runDevelopmentValidation();
-      }
+      hasRunValidation = true;
+      setTimeout(() => validateComponentRenderer(), 1000);
     }
   }
 };
