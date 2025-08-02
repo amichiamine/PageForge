@@ -16,6 +16,9 @@ scripts\install-simple.bat
 
 # OU installation minimaliste
 scripts\install-minimal.bat
+
+# OU spécial environnements VMware
+scripts\install-vmware-fix.bat
 ```
 
 ### Linux/macOS
@@ -175,6 +178,11 @@ npm run dev
 #### "Node.js non reconnu"
 - **Solution** : Redémarrer l'ordinateur après installation Node.js
 - **Alternative** : Réinstaller Node.js en tant qu'administrateur
+
+#### "VMware était inattendu" (Environnements VMware)
+- **Problème** : VMware interfère avec les commandes `where` sur Windows
+- **Solution** : Utiliser le script spécialisé `install-vmware-fix.bat`
+- **Alternative** : Installer manuellement sans scripts automatiques
 
 #### "npm install échoue"
 - **Solution 1** : `npm cache clean --force`

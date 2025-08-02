@@ -21,37 +21,38 @@ echo - Utilisateur: %USERNAME%
 echo - Repertoire: %CD%
 echo.
 
-:: Test Node.js
+:: Test Node.js (éviter where à cause de VMware)
 echo [DIAGNOSTIC 1] Node.js...
-where node >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ECHEC: Commande 'node' introuvable dans PATH
-    echo PATH actuel: %PATH%
+echo Test direct sans 'where' ^(probleme VMware detecte^)
+node --version 2>&1
+set NODE_ERROR=%errorlevel%
+echo Code retour Node.js: %NODE_ERROR%
+if %NODE_ERROR% neq 0 (
+    echo ECHEC: Node.js non accessible
+    echo Verifiez l'installation depuis https://nodejs.org
     pause
     exit /b 1
 ) else (
-    echo OK: Commande 'node' trouvee
-    node --version 2>&1
-    echo Code retour: %errorlevel%
+    echo OK: Node.js fonctionne
 )
 
 echo.
 
-:: Test npm
+:: Test npm (éviter where à cause de VMware)
 echo [DIAGNOSTIC 2] npm...
-where npm >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ECHEC: Commande 'npm' introuvable dans PATH
+echo Test direct npm ^(contournement VMware^)
+npm --version 2>&1
+set NPM_ERROR=%errorlevel%
+echo Code retour npm: %NPM_ERROR%
+if %NPM_ERROR% neq 0 (
+    echo ECHEC: npm non accessible
     pause
     exit /b 1
 ) else (
-    echo OK: Commande 'npm' trouvee
-    echo Version npm:
-    npm --version 2>&1
-    echo Code retour: %errorlevel%
+    echo OK: npm fonctionne
     
     :: Test npm config
-    echo Configuration npm:
+    echo Configuration npm registry:
     npm config get registry 2>&1
     echo.
 )
