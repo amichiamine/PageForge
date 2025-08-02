@@ -5,7 +5,7 @@
  * Génère un package complet prêt à distribuer
  */
 
-import fs from 'fs-extra';
+import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -19,7 +19,9 @@ async function createDistribution() {
     try {
         // 1. Nettoyage
         console.log('📁 Nettoyage des anciens fichiers...');
-        await fs.remove('SiteJet-Distribution');
+        if (fs.existsSync('SiteJet-Distribution')) {
+            fs.rmSync('SiteJet-Distribution', { recursive: true, force: true });
+        }
         
         // 2. Création de la structure
         console.log('🏗  Création de la structure...');
@@ -32,7 +34,7 @@ async function createDistribution() {
         ];
         
         for (const dir of dirs) {
-            await fs.ensureDir(dir);
+            fs.mkdirSync(dir, { recursive: true });
         }
         
         // 3. Build de production
@@ -46,30 +48,46 @@ async function createDistribution() {
         // 4. Copie des fichiers principaux
         console.log('📋 Copie des fichiers...');
         
+        // Fonction utilitaire pour copier des dossiers
+        const copyDir = (src, dest) => {
+            if (!fs.existsSync(src)) return;
+            fs.mkdirSync(dest, { recursive: true });
+            const files = fs.readdirSync(src, { withFileTypes: true });
+            for (const file of files) {
+                const srcPath = path.join(src, file.name);
+                const destPath = path.join(dest, file.name);
+                if (file.isDirectory()) {
+                    copyDir(srcPath, destPath);
+                } else {
+                    fs.copyFileSync(srcPath, destPath);
+                }
+            }
+        };
+
         // Copier les fichiers de build s'ils existent
-        if (await fs.pathExists('dist')) {
-            await fs.copy('dist', 'SiteJet-Distribution/app/dist');
+        if (fs.existsSync('dist')) {
+            copyDir('dist', 'SiteJet-Distribution/app/dist');
         }
         
         // Copier le code source
         const sourceFiles = ['server', 'shared', 'client'];
         for (const file of sourceFiles) {
-            if (await fs.pathExists(file)) {
-                await fs.copy(file, `SiteJet-Distribution/app/${file}`);
+            if (fs.existsSync(file)) {
+                copyDir(file, `SiteJet-Distribution/app/${file}`);
             }
         }
         
         // Copier les fichiers de configuration
         const configFiles = ['package.json', 'tsconfig.json', 'vite.config.ts', 'drizzle.config.ts'];
         for (const file of configFiles) {
-            if (await fs.pathExists(file)) {
-                await fs.copy(file, `SiteJet-Distribution/app/${file}`);
+            if (fs.existsSync(file)) {
+                fs.copyFileSync(file, `SiteJet-Distribution/app/${file}`);
             }
         }
         
         // Copier la documentation
-        if (await fs.pathExists('docs')) {
-            await fs.copy('docs', 'SiteJet-Distribution/docs');
+        if (fs.existsSync('docs')) {
+            copyDir('docs', 'SiteJet-Distribution/docs');
         }
         
         // 5. Création des scripts d'installation
@@ -152,7 +170,7 @@ echo.
 pause
 `;
     
-    await fs.writeFile('SiteJet-Distribution/scripts/install-windows.bat', windowsScript);
+    fs.writeFileSync('SiteJet-Distribution/scripts/install-windows.bat', windowsScript);
     
     // Script Linux
     const linuxScript = `#!/bin/bash
@@ -224,8 +242,8 @@ echo "3. Ouvrir http://localhost:3000"
 echo
 `;
     
-    await fs.writeFile('SiteJet-Distribution/scripts/install-linux.sh', linuxScript);
-    await fs.chmod('SiteJet-Distribution/scripts/install-linux.sh', '755');
+    fs.writeFileSync('SiteJet-Distribution/scripts/install-linux.sh', linuxScript);
+    fs.chmodSync('SiteJet-Distribution/scripts/install-linux.sh', '755');
     
     // Script macOS
     const macosScript = `#!/bin/bash
@@ -269,8 +287,8 @@ echo "3. Ouvrir http://localhost:3000"
 echo
 `;
     
-    await fs.writeFile('SiteJet-Distribution/scripts/install-macos.sh', macosScript);
-    await fs.chmod('SiteJet-Distribution/scripts/install-macos.sh', '755');
+    fs.writeFileSync('SiteJet-Distribution/scripts/install-macos.sh', macosScript);
+    fs.chmodSync('SiteJet-Distribution/scripts/install-macos.sh', '755');
 }
 
 async function createConfigFiles() {
@@ -290,7 +308,7 @@ SESSION_SECRET=changez-cette-clé-secrète-en-production
 CORS_ORIGIN=http://localhost:3000
 `;
     
-    await fs.writeFile('SiteJet-Distribution/config/.env.example', envExample);
+    fs.writeFileSync('SiteJet-Distribution/config/.env.example', envExample);
     
     // Configuration Nginx
     const nginxConfig = `server {
@@ -334,7 +352,7 @@ server {
     }
 }`;
     
-    await fs.writeFile('SiteJet-Distribution/config/nginx.conf.example', nginxConfig);
+    fs.writeFileSync('SiteJet-Distribution/config/nginx.conf.example', nginxConfig);
     
     // Configuration PM2
     const pm2Config = `module.exports = {
@@ -362,7 +380,7 @@ server {
   }]
 };`;
     
-    await fs.writeFile('SiteJet-Distribution/config/pm2.config.js', pm2Config);
+    fs.writeFileSync('SiteJet-Distribution/config/pm2.config.js', pm2Config);
 }
 
 async function createDocumentation() {
@@ -570,7 +588,7 @@ Puis ouvrez : **http://localhost:3000**
 **Bienvenue dans l'avenir de la création web ! 🚀**
 `;
     
-    await fs.writeFile('SiteJet-Distribution/README.md', mainReadme);
+    fs.writeFileSync('SiteJet-Distribution/README.md', mainReadme);
     
     const quickInstall = `INSTALLATION RAPIDE SITEJET
 ============================
@@ -626,33 +644,19 @@ LICENCE : MIT
 SITE WEB : https://sitejet.com
 `;
     
-    await fs.writeFile('SiteJet-Distribution/INSTALL.txt', quickInstall);
+    fs.writeFileSync('SiteJet-Distribution/INSTALL.txt', quickInstall);
 }
 
 async function createArchives() {
     try {
-        // Archive Windows (ZIP) - Si archiver est disponible
-        try {
-            const archiver = await import('archiver');
-            const outputZip = fs.createWriteStream('SiteJet-Windows.zip');
-            const archive = archiver.default('zip', { zlib: { level: 9 } });
-            
-            outputZip.on('close', () => {
-                console.log(`📦 SiteJet-Windows.zip créé (${archive.pointer()} bytes)`);
-            });
-            
-            archive.pipe(outputZip);
-            archive.directory('SiteJet-Distribution/', false);
-            await archive.finalize();
-            
-        } catch (error) {
-            console.log('📦 Création ZIP avec commande système...');
-            if (process.platform === 'win32') {
-                execSync('powershell Compress-Archive -Path SiteJet-Distribution -DestinationPath SiteJet-Windows.zip', { stdio: 'inherit' });
-            } else {
-                execSync('zip -r SiteJet-Windows.zip SiteJet-Distribution/', { stdio: 'inherit' });
-            }
+        // Archive Windows (ZIP)
+        console.log('📦 Création ZIP avec commande système...');
+        if (process.platform === 'win32') {
+            execSync('powershell Compress-Archive -Force -Path SiteJet-Distribution -DestinationPath SiteJet-Windows.zip', { stdio: 'inherit' });
+        } else {
+            execSync('zip -r SiteJet-Windows.zip SiteJet-Distribution/', { stdio: 'inherit' });
         }
+        console.log('📦 SiteJet-Windows.zip créé');
         
         // Archive Linux/macOS (TAR.GZ)
         console.log('📦 Création de l\'archive Linux...');
@@ -662,6 +666,8 @@ async function createArchives() {
     } catch (error) {
         console.warn('⚠️ Erreur lors de la création des archives:', error.message);
         console.log('💡 Vous pouvez créer les archives manuellement depuis le dossier SiteJet-Distribution/');
+        console.log('💡 Windows: Clic droit sur SiteJet-Distribution → Envoyer vers → Dossier compressé');
+        console.log('💡 Linux/macOS: tar -czf SiteJet-Distribution.tar.gz SiteJet-Distribution/');
     }
 }
 

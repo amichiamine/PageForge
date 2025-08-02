@@ -1,0 +1,900 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables CSS pour les thèmes */
+:root {
+  --color-primary: #6366f1;
+  --color-secondary: #8b5cf6;
+  --color-accent: #10b981;
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  
+  /* Couleurs pastelles pour le thème moderne */
+  --pastel-pink: #fce7f3;
+  --pastel-blue: #dbeafe;
+  --pastel-green: #d1fae5;
+  --pastel-yellow: #fef3c7;
+  --pastel-purple: #e9d5ff;
+  --pastel-orange: #fed7aa;
+}
+
+.dark {
+  --color-primary: #818cf8;
+  --color-secondary: #a78bfa;
+  --color-accent: #34d399;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-border: #334155;
+  
+  /* Couleurs pastelles pour le mode sombre */
+  --pastel-pink: #374151;
+  --pastel-blue: #1e293b;
+  --pastel-green: #064e3b;
+  --pastel-yellow: #451a03;
+  --pastel-purple: #2e1065;
+  --pastel-orange: #431407;
+}
+
+/* Classes utilitaires pour les couleurs personnalisées */
+.bg-theme-primary { background-color: var(--color-primary); }
+.bg-theme-secondary { background-color: var(--color-secondary); }
+.bg-theme-accent { background-color: var(--color-accent); }
+.bg-theme-background { background-color: var(--color-background); }
+.bg-theme-surface { background-color: var(--color-surface); }
+
+.text-theme-primary { color: var(--color-primary); }
+.text-theme-secondary { color: var(--color-secondary); }
+.text-theme-accent { color: var(--color-accent); }
+.text-theme-text { color: var(--color-text); }
+.text-theme-text-secondary { color: var(--color-text-secondary); }
+
+.border-theme-border { border-color: var(--color-border); }
+
+/* Styles pastels modernes */
+.bg-pastel-pink { background-color: var(--pastel-pink); }
+.bg-pastel-blue { background-color: var(--pastel-blue); }
+.bg-pastel-green { background-color: var(--pastel-green); }
+.bg-pastel-yellow { background-color: var(--pastel-yellow); }
+.bg-pastel-purple { background-color: var(--pastel-purple); }
+.bg-pastel-orange { background-color: var(--pastel-orange); }
+
+/* Custom animations for responsive panels */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-slide-out-left {
+  animation: slide-out-left 0.3s ease-out;
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right 0.3s ease-out;
+}
+
+/* Améliorations pour les appareils tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.component-item-mobile {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Amélioration des zones de drop sur mobile */
+@media (max-width: 768px) {
+  .drop-zone {
+    min-height: 60vh;
+  }
+  
+  .component-palette {
+    max-height: 85vh;
+  }
+  
+  .properties-panel {
+    max-height: 85vh;
+  }
+}
+
+/* Styles pour le feedback de drag sur tactile */
+.touch-dragging {
+  opacity: 0.8 !important;
+  transform: scale(1.05) !important;
+  z-index: 9999 !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --muted: hsl(240, 4.8%, 95.9%);
+  --muted-foreground: hsl(240, 3.8%, 46.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --border: hsl(240, 5.9%, 90%);
+  --input: hsl(240, 5.9%, 90%);
+  --primary: hsl(262.1, 83.3%, 57.8%);
+  --primary-foreground: hsl(210, 20%, 98%);
+  --secondary: hsl(220, 14.3%, 95.9%);
+  --secondary-foreground: hsl(220.9, 39.3%, 11%);
+  --accent: hsl(220, 14.3%, 95.9%);
+  --accent-foreground: hsl(220.9, 39.3%, 11%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 20%, 98%);
+  --ring: hsl(262.1, 83.3%, 57.8%);
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(262.1, 83.3%, 57.8%);
+  --primary-foreground: hsl(210, 20%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+    border: 2px solid hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* Enhanced Visual Editor Styles */
+.editor-drop-zone {
+  min-height: 400px;
+  border: 2px dashed hsl(var(--border));
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--background)) 100%);
+}
+
+.editor-drop-zone.drag-over {
+  border-color: hsl(var(--primary));
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--primary) / 0.05) 100%);
+  transform: scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.component-selected {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.1);
+  border-radius: 8px;
+}
+
+.component-hover {
+  outline: 1px solid hsl(var(--primary) / 0.5);
+  outline-offset: 1px;
+  transition: all 0.2s ease;
+}
+
+/* Enhanced Drag and Drop Styles */
+.dragging {
+  opacity: 0.7;
+  transform: rotate(2deg) scale(1.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+/* Touch-friendly styles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.touch-none {
+  touch-action: none;
+}
+
+/* Larger touch targets for mobile */
+@media (pointer: coarse) {
+  .component-wrapper {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .component-wrapper .resize-handle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+
+  .component-palette .draggable-component {
+    min-height: 60px;
+    padding: 12px;
+  }
+}
+
+/* Modern Button Styles */
+.btn-modern {
+  @apply px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm;
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 100%);
+  color: hsl(var(--primary-foreground));
+}
+
+.btn-modern:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px hsl(var(--primary) / 0.4);
+}
+
+.btn-modern:active {
+  transform: translateY(0);
+}
+
+/* Card Styles */
+.card-modern {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+  background: linear-gradient(135deg, white 0%, hsl(var(--muted) / 0.3) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.card-modern:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Panel Styles */
+.panel-modern {
+  @apply bg-white/80 backdrop-blur-xl border border-gray-200/50 shadow-xl;
+  background: linear-gradient(135deg, white 0%, hsl(var(--muted) / 0.5) 100%);
+}
+
+/* Input Styles */
+.input-modern {
+  @apply rounded-xl border-2 border-gray-200 px-4 py-3 transition-all duration-200;
+  background: linear-gradient(135deg, white 0%, hsl(var(--muted) / 0.3) 100%);
+}
+
+.input-modern:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+  outline: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .editor-container {
+    @apply flex-col;
+  }
+
+  .component-palette {
+    @apply w-full h-48 overflow-x-auto;
+  }
+
+  .properties-panel {
+    @apply w-full;
+  }
+}
+
+@media (max-width: 640px) {
+  .editor-header {
+    @apply flex-col space-y-2;
+  }
+
+  .editor-actions {
+    @apply flex-wrap gap-2;
+  }
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-right {
+  animation: slide-right 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility classes for the visual editor */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Loading States */
+.loading-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted-foreground) / 0.1) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Glass Effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Gradient Backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--muted)) 100%);
+}
+
+/* Focus States */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+/* Modern Shadows */
+.shadow-modern {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-modern-lg {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Styles pour l'éditeur */
+.visual-editor-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: white;
+  overflow: hidden;
+  touch-action: pan-x pan-y;
+}
+
+.component-wrapper {
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+.component-wrapper:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.component-wrapper.selected {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px #ef4444 !important;
+}
+
+/* Styles pour le drag and drop */
+.editor-drop-zone {
+  background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.editor-drop-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.05);
+  border: 2px dashed #93c5fd;
+  border-radius: 8px;
+}
+
+/* Amélioration du drag and drop pour mobile */
+@media (hover: none) and (pointer: coarse) {
+  .component-wrapper:hover {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .component-wrapper:active,
+  .component-wrapper[data-touch-dragging="true"] {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+    transform: scale(0.98);
+  }
+
+  /* Améliorer la taille des poignées de redimensionnement sur mobile */
+  .component-wrapper .resize-handle {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* Responsive design pour les panneaux */
+@media (max-width: 1024px) {
+  .editor-panels {
+    flex-direction: column;
+  }
+
+  .component-palette,
+  .properties-panel {
+    width: 100% !important;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
+/* Améliorations tactiles spécifiques */
+@media (max-width: 768px) {
+  /* Header responsive */
+  .editor-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .editor-header h1 {
+    font-size: 1.125rem;
+  }
+  
+  /* Boutons plus grands sur mobile */
+  .editor-header button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem;
+  }
+  
+  /* Zone d'édition adaptée mobile */
+  .visual-editor-container {
+    padding: 0.5rem;
+    min-height: calc(100vh - 120px);
+  }
+  
+  /* Panneaux en plein écran sur mobile */
+  .editor-panel-mobile {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Palette de composants en grille 2 colonnes sur petit mobile */
+  .component-grid-mobile {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Texte plus petit dans les composants */
+  .component-item-mobile {
+    padding: 0.5rem !important;
+  }
+  
+  .component-item-mobile span {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Optimisations tactiles */
+@media (pointer: coarse) {
+  button, .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .resize-handle {
+    width: 20px !important;
+    height: 20px !important;
+    touch-action: none;
+  }
+}
+
+/* Touch-friendly scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animations pour les interactions tactiles */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.4s ease-out;
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 1s ease-in-out infinite;
+}
+
+/* Double-click indicator for touch devices */
+.double-click-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.component-item:hover .double-click-indicator,
+.component-item:focus .double-click-indicator {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Responsive grid adjustments */
+.component-grid-responsive {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
+  .component-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .component-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Enhanced visual feedback for touch interactions */
+.touch-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-feedback::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.touch-feedback:active::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Améliorations d'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-bounce-in,
+  .animate-pulse-gentle {
+    animation: none;
+  }
+  
+  .component-wrapper {
+    transition: none;
+  }
+}
+
+/* Éviter la superposition des composants sur les menus */
+.visual-editor-container .component-wrapper {
+  z-index: 2;
+  position: relative;
+}
+
+.visual-editor-container .component-wrapper.selected {
+  z-index: 3;
+}
+
+/* S'assurer que les panneaux restent au-dessus */
+.component-panel, .properties-panel {
+  z-index: 50;
+}
+
+/* Masquer les débordements des composants */
+.visual-editor-container {
+  overflow: visible;
+  isolation: isolate;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .editor-panel {
+    width: 100vw !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 50 !important;
+    height: 100vh !important;
+  }
+
+  .editor-mobile-hidden {
+    display: none !important;
+  }
+
+  .component-wrapper {
+    touch-action: none;
+  }
+
+  /* Larger touch targets for mobile */
+  .resize-handle {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .editor-sidebar {
+    width: 280px !important;
+  }
+}
