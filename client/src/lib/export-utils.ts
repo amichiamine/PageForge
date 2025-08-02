@@ -905,6 +905,320 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
 `;
     }
     
+    // Styles pour les autres composants manquants
+    if (usedTypes.has('text')) {
+      styles += `
+/* Styles pour text */
+.text-element {
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.text-heading {
+  font-weight: 600;
+  margin-bottom: 0.5em;
+}
+
+.text-paragraph {
+  margin-bottom: 1em;
+}
+`;
+    }
+    
+    if (usedTypes.has('image')) {
+      styles += `
+/* Styles pour image */
+.image-element {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.image-responsive {
+  width: 100%;
+  object-fit: cover;
+}
+
+.image-container {
+  overflow: hidden;
+  border-radius: 8px;
+}
+`;
+    }
+    
+    if (usedTypes.has('video')) {
+      styles += `
+/* Styles pour video */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.video-element {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.video-btn {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+`;
+    }
+    
+    if (usedTypes.has('list')) {
+      styles += `
+/* Styles pour list */
+.list-container {
+  margin: 16px 0;
+}
+
+.list-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-ordered {
+  counter-reset: list-counter;
+}
+
+.list-ordered .list-item {
+  counter-increment: list-counter;
+}
+
+.list-ordered .list-item::before {
+  content: counter(list-counter) ".";
+  font-weight: 600;
+  color: #3b82f6;
+  min-width: 20px;
+}
+
+.list-unordered .list-item::before {
+  content: "•";
+  font-weight: bold;
+  color: #3b82f6;
+  min-width: 20px;
+}
+`;
+    }
+    
+    if (usedTypes.has('header')) {
+      styles += `
+/* Styles pour header */
+.header-container {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.header-nav {
+  display: flex;
+  gap: 24px;
+}
+
+.header-link {
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.header-link:hover {
+  color: #3b82f6;
+}
+`;
+    }
+    
+    if (usedTypes.has('footer')) {
+      styles += `
+/* Styles pour footer */
+.footer-container {
+  background: #1f2937;
+  color: white;
+  padding: 40px 0 20px;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.footer-section h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: white;
+}
+
+.footer-link {
+  color: #9ca3af;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 8px;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: white;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #374151;
+  color: #9ca3af;
+}
+`;
+    }
+    
+    if (usedTypes.has('sidebar')) {
+      styles += `
+/* Styles pour sidebar */
+.sidebar-container {
+  background: #f8fafc;
+  border-right: 1px solid #e5e7eb;
+  padding: 20px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-item {
+  margin-bottom: 8px;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 12px 16px;
+  color: #6b7280;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.sidebar-submenu {
+  padding-left: 16px;
+  margin-top: 8px;
+}
+`;
+    }
+    
+    if (usedTypes.has('chart')) {
+      styles += `
+/* Styles pour chart */
+.chart-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 300px;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.chart-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+`;
+    }
+    
     return styles;
   };
   
@@ -1090,6 +1404,245 @@ document.addEventListener('DOMContentLoaded', function() {
   });`;
     }
     
+    // Accordion JavaScript
+    if (usedTypes.has('accordion')) {
+      jsCode += `
+  
+  // Fonctionnalité accordéon
+  const accordionHeaders = document.querySelectorAll('.accordion-header');
+  accordionHeaders.forEach(header => {
+    header.addEventListener('click', function() {
+      const content = this.nextElementSibling;
+      const isOpen = content.style.display !== 'none';
+      
+      // Fermer tous les autres
+      accordionHeaders.forEach(otherHeader => {
+        if (otherHeader !== this) {
+          otherHeader.classList.remove('active');
+          otherHeader.nextElementSibling.style.display = 'none';
+        }
+      });
+      
+      // Toggle celui-ci
+      if (isOpen) {
+        this.classList.remove('active');
+        content.style.display = 'none';
+      } else {
+        this.classList.add('active');
+        content.style.display = 'block';
+      }
+    });
+  });`;
+    }
+    
+    // Modal JavaScript
+    if (usedTypes.has('modal')) {
+      jsCode += `
+  
+  // Fonctionnalité modal
+  const modalTriggers = document.querySelectorAll('[data-modal-target]');
+  const modalCloses = document.querySelectorAll('.modal-close, .modal-overlay');
+  
+  modalTriggers.forEach(trigger => {
+    trigger.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-modal-target');
+      const modal = document.getElementById(targetId);
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    });
+  });
+  
+  modalCloses.forEach(close => {
+    close.addEventListener('click', function(e) {
+      if (e.target === this) {
+        const modal = this.closest('.modal-overlay') || this.closest('[id]');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      }
+    });
+  });
+  
+  // Fermer modal avec Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const openModals = document.querySelectorAll('.modal-overlay[style*="flex"]');
+      openModals.forEach(modal => modal.style.display = 'none');
+    }
+  });`;
+    }
+    
+    // Form JavaScript
+    if (usedTypes.has('form')) {
+      jsCode += `
+  
+  // Fonctionnalité formulaire
+  const forms = document.querySelectorAll('form[data-form]');
+  
+  forms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Validation simple
+      let valid = true;
+      const requiredFields = this.querySelectorAll('[required]');
+      
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          field.style.borderColor = '#ef4444';
+          valid = false;
+        } else {
+          field.style.borderColor = '#d1d5db';
+        }
+      });
+      
+      if (valid) {
+        console.log('Données du formulaire:', data);
+        // Ici vous pourriez envoyer les données à votre serveur
+        alert('Formulaire soumis avec succès!');
+      } else {
+        alert('Veuillez remplir tous les champs requis.');
+      }
+    });
+  });`;
+    }
+    
+    // Video JavaScript
+    if (usedTypes.has('video')) {
+      jsCode += `
+  
+  // Fonctionnalité video
+  const videoContainers = document.querySelectorAll('.video-container');
+  
+  videoContainers.forEach(container => {
+    const video = container.querySelector('.video-element');
+    const playBtn = container.querySelector('.video-btn[data-action="play"]');
+    const pauseBtn = container.querySelector('.video-btn[data-action="pause"]');
+    
+    if (video && playBtn) {
+      playBtn.addEventListener('click', () => {
+        video.play();
+        playBtn.style.display = 'none';
+        if (pauseBtn) pauseBtn.style.display = 'block';
+      });
+    }
+    
+    if (video && pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        video.pause();
+        pauseBtn.style.display = 'none';
+        if (playBtn) playBtn.style.display = 'block';
+      });
+    }
+    
+    if (video) {
+      video.addEventListener('ended', () => {
+        if (playBtn) playBtn.style.display = 'block';
+        if (pauseBtn) pauseBtn.style.display = 'none';
+      });
+    }
+  });`;
+    }
+    
+    // Navbar JavaScript
+    if (usedTypes.has('navbar')) {
+      jsCode += `
+  
+  // Fonctionnalité navbar responsive
+  const navbarToggles = document.querySelectorAll('.navbar-toggle');
+  
+  navbarToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const navbar = this.closest('.navbar');
+      const nav = navbar.querySelector('.navbar-nav');
+      
+      if (nav) {
+        nav.classList.toggle('active');
+        this.textContent = nav.classList.contains('active') ? '✕' : '☰';
+      }
+    });
+  });
+  
+  // Fermer le menu mobile quand on clique sur un lien
+  const navbarLinks = document.querySelectorAll('.navbar-link');
+  navbarLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const nav = link.closest('.navbar-nav');
+      const toggle = document.querySelector('.navbar-toggle');
+      
+      if (nav && nav.classList.contains('active')) {
+        nav.classList.remove('active');
+        if (toggle) toggle.textContent = '☰';
+      }
+    });
+  });`;
+    }
+    
+    // Chart JavaScript (simple implementation)
+    if (usedTypes.has('chart')) {
+      jsCode += `
+  
+  // Fonctionnalité chart simple
+  const chartContainers = document.querySelectorAll('.chart-container');
+  
+  chartContainers.forEach(container => {
+    const canvas = container.querySelector('.chart-canvas');
+    const data = JSON.parse(container.getAttribute('data-chart') || '{}');
+    
+    if (canvas && data.type) {
+      // Implémentation basique selon le type de graphique
+      if (data.type === 'bar') {
+        drawBarChart(canvas, data);
+      } else if (data.type === 'line') {
+        drawLineChart(canvas, data);
+      }
+    }
+  });
+  
+  function drawBarChart(canvas, data) {
+    const ctx = canvas.getContext('2d');
+    // Implémentation simplifiée d'un graphique en barres
+    ctx.fillStyle = '#3b82f6';
+    const values = data.values || [10, 20, 15, 25];
+    const maxValue = Math.max(...values);
+    
+    values.forEach((value, index) => {
+      const height = (value / maxValue) * (canvas.height - 40);
+      const x = (index * (canvas.width / values.length)) + 10;
+      const y = canvas.height - height - 20;
+      const width = (canvas.width / values.length) - 20;
+      
+      ctx.fillRect(x, y, width, height);
+    });
+  }
+  
+  function drawLineChart(canvas, data) {
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    
+    const values = data.values || [10, 20, 15, 25];
+    const maxValue = Math.max(...values);
+    
+    ctx.beginPath();
+    values.forEach((value, index) => {
+      const x = (index * (canvas.width / (values.length - 1)));
+      const y = canvas.height - ((value / maxValue) * (canvas.height - 40)) - 20;
+      
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+  }`;
+    }
+    
     return jsCode;
   };
   
@@ -1101,31 +1654,7 @@ document.addEventListener('DOMContentLoaded', function() {
   js += `
 });`;
 
-  // Ajouter les autres fonctionnalités génériques conditionnellement
-  if (usedTypes.has('accordion')) {
-    js += `
 
-// Fonctionnalité accordéon
-document.addEventListener('DOMContentLoaded', function() {
-  const accordionHeaders = document.querySelectorAll('.accordion-header');
-  accordionHeaders.forEach(header => {
-    header.addEventListener('click', function() {
-      const content = this.nextElementSibling;
-      const isOpen = content.style.display !== 'none';
-      
-      // Fermer tous les autres
-      accordionHeaders.forEach(otherHeader => {
-        if (otherHeader !== this) {
-          otherHeader.nextElementSibling.style.display = 'none';
-        }
-      });
-      
-      // Toggle celui-ci
-      content.style.display = isOpen ? 'none' : 'block';
-    });
-  });
-});`;
-  }
 
   // Animation au scroll générique (toujours incluse)
   js += `
