@@ -274,8 +274,8 @@ ${childIndentStr}  <source src="${attributes.src}" type="video/mp4">
 ${childIndentStr}  Votre navigateur ne supporte pas l'élément vidéo.
 ${childIndentStr}</video>
 ${childIndentStr}<div class="video-controls">
-${childIndentStr}  <button class="video-btn" data-action="play">▶</button>
-${childIndentStr}  <button class="video-btn" data-action="pause" style="display: none;">⏸</button>
+${childIndentStr}  <button class="video-btn video-play" data-action="play">▶</button>
+${childIndentStr}  <button class="video-btn video-pause" data-action="pause">⏸</button>
 ${childIndentStr}</div>
 ${indentStr}</div>`;
       } else {
@@ -483,7 +483,7 @@ ${childIndentStr}<h3 class="chart-title">${chartData.title || 'Graphique'}</h3>
 ${childIndentStr}<canvas class="chart-canvas" width="400" height="300"></canvas>
 ${childIndentStr}<div class="chart-legend">
 ${childIndentStr}  <div class="chart-legend-item">
-${childIndentStr}    <div class="chart-legend-color" style="background-color: #3b82f6;"></div>
+${childIndentStr}    <div class="chart-legend-color chart-color-primary"></div>
 ${childIndentStr}    <span>Données</span>
 ${childIndentStr}  </div>
 ${childIndentStr}</div>
@@ -1224,6 +1224,14 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   cursor: pointer;
   font-size: 12px;
 }
+
+.video-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.video-pause {
+  display: none;
+}
 `;
     }
     
@@ -1453,6 +1461,10 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   width: 12px;
   height: 12px;
   border-radius: 2px;
+}
+
+.chart-color-primary {
+  background-color: #3b82f6;
 }
 `;
     }
