@@ -1911,7 +1911,7 @@ export default function PropertiesPanel({
                       </div>
                       
                       <div>
-                        <Label className="text-xs">Contenu du slide</Label>
+                        <Label className="text-xs">Titre du slide</Label>
                         <Input
                           value={slide.title || ''}
                           onChange={(e) => {
@@ -1919,23 +1919,126 @@ export default function PropertiesPanel({
                             slides[index] = { ...slide, title: e.target.value };
                             updateProperty('componentData.slides', slides);
                           }}
-                          placeholder="Contenu du slide"
+                          placeholder="Titre du slide"
                           className="text-xs h-7"
                         />
                       </div>
                       
                       <div>
-                        <Label className="text-xs">Couleur de fond</Label>
-                        <Input
-                          type="color"
-                          value={slide.backgroundColor || '#3b82f6'}
+                        <Label className="text-xs">Description</Label>
+                        <Textarea
+                          value={slide.description || ''}
                           onChange={(e) => {
                             const slides = [...(localComponent?.componentData?.slides || [])];
-                            slides[index] = { ...slide, backgroundColor: e.target.value };
+                            slides[index] = { ...slide, description: e.target.value };
                             updateProperty('componentData.slides', slides);
                           }}
-                          className="h-7 w-full"
+                          placeholder="Description du slide"
+                          className="text-xs resize-none"
+                          rows={2}
                         />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Couleur de fond</Label>
+                          <Input
+                            type="color"
+                            value={slide.backgroundColor || '#3b82f6'}
+                            onChange={(e) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, backgroundColor: e.target.value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                            className="h-7 w-full"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Couleur du texte</Label>
+                          <Input
+                            type="color"
+                            value={slide.textColor || '#ffffff'}
+                            onChange={(e) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, textColor: e.target.value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                            className="h-7 w-full"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Taille titre</Label>
+                          <Select
+                            value={slide.titleSize || '24px'}
+                            onValueChange={(value) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, titleSize: value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                          >
+                            <SelectTrigger className="h-7 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="16px">16px</SelectItem>
+                              <SelectItem value="20px">20px</SelectItem>
+                              <SelectItem value="24px">24px</SelectItem>
+                              <SelectItem value="32px">32px</SelectItem>
+                              <SelectItem value="40px">40px</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Position texte</Label>
+                          <Select
+                            value={slide.textPosition || 'center'}
+                            onValueChange={(value) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, textPosition: value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                          >
+                            <SelectTrigger className="h-7 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="center">Centre</SelectItem>
+                              <SelectItem value="top">Haut</SelectItem>
+                              <SelectItem value="bottom">Bas</SelectItem>
+                              <SelectItem value="left">Gauche</SelectItem>
+                              <SelectItem value="right">Droite</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">Bouton/Lien (optionnel)</Label>
+                        <div className="space-y-2">
+                          <Input
+                            value={slide.buttonText || ''}
+                            onChange={(e) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, buttonText: e.target.value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                            placeholder="Texte du bouton"
+                            className="text-xs h-7"
+                          />
+                          <Input
+                            value={slide.buttonLink || ''}
+                            onChange={(e) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, buttonLink: e.target.value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                            placeholder="https://example.com"
+                            className="text-xs h-7"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2724,73 +2827,7 @@ export default function PropertiesPanel({
     </div>
   );
 
-  // Configuration liste
-  const renderListConfiguration = () => (
-    <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration de la Liste</h4>
-      
-      <div>
-        <Label className="text-xs text-gray-600">Type de liste</Label>
-        <Select
-          value={ensureSelectValue(localComponent?.tag, 'ul')}
-          onValueChange={(value) => updateProperty('tag', value)}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ul">Liste à puces</SelectItem>
-            <SelectItem value="ol">Liste numérotée</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
-      <div>
-        <Label className="text-xs text-gray-600">Éléments de la liste</Label>
-        <div className="space-y-2 mt-1">
-          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
-            <div key={index} className="flex gap-2 items-center">
-              <Input
-                placeholder={`Élément ${index + 1}`}
-                value={item.text || ''}
-                onChange={(e) => {
-                  const items = [...(localComponent?.componentData?.items || [])];
-                  items[index] = { ...item, text: e.target.value };
-                  updateProperty('componentData.items', items);
-                }}
-                className="flex-1 text-sm"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const items = [...(localComponent?.componentData?.items || [])];
-                  items.splice(index, 1);
-                  updateProperty('componentData.items', items);
-                }}
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const items = [...(localComponent?.componentData?.items || [])];
-              items.push({ text: `Élément ${items.length + 1}` });
-              updateProperty('componentData.items', items);
-            }}
-            className="w-full"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Ajouter un élément
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
 
   // Configuration pricing
   const renderPricingConfiguration = () => (
@@ -3060,37 +3097,7 @@ export default function PropertiesPanel({
     </div>
   );
 
-  const renderFooterConfiguration = () => (
-    <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration du Footer</h4>
-      
-      <div>
-        <Label className="text-xs text-gray-600">Texte de copyright</Label>
-        <Input
-          value={localComponent?.componentData?.copyright || '© 2024 Mon Site. Tous droits réservés.'}
-          onChange={(e) => updateProperty('componentData.copyright', e.target.value)}
-          className="mt-1 text-sm"
-          placeholder="© 2024 Mon Site"
-        />
-      </div>
 
-      <div>
-        <Label className="text-xs text-gray-600">Liens du footer (séparés par des virgules)</Label>
-        <Input
-          value={localComponent?.componentData?.links?.join(', ') || 'Mentions légales, Politique de confidentialité, CGU'}
-          onChange={(e) => updateProperty('componentData.links', e.target.value.split(',').map(item => item.trim()))}
-          className="mt-1 text-sm"
-          placeholder="Mentions légales, Politique"
-        />
-      </div>
-      
-      <div className="space-y-3 pt-3 border-t">
-        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
-        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan footer', '#f8f9fa')}
-        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#6c757d')}
-      </div>
-    </div>
-  );
 
   const renderHeroConfiguration = () => (
     <div className="space-y-4">
@@ -3419,12 +3426,428 @@ export default function PropertiesPanel({
     </div>
   );
 
-  // Ajout de configurations pour tous les autres composants...
+  // Configurations spécialisées pour chaque type de composant
+  const renderGridConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de la Grille</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Colonnes</Label>
+          <Select
+            value={String(localComponent?.componentData?.columns || 2)}
+            onValueChange={(value) => updateProperty('componentData.columns', parseInt(value))}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1 colonne</SelectItem>
+              <SelectItem value="2">2 colonnes</SelectItem>
+              <SelectItem value="3">3 colonnes</SelectItem>
+              <SelectItem value="4">4 colonnes</SelectItem>
+              <SelectItem value="6">6 colonnes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Espacement</Label>
+          <Select
+            value={localComponent?.componentData?.gap || '16px'}
+            onValueChange={(value) => updateProperty('componentData.gap', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="8px">Petit</SelectItem>
+              <SelectItem value="16px">Moyen</SelectItem>
+              <SelectItem value="24px">Grand</SelectItem>
+              <SelectItem value="32px">Très grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Éléments de la grille</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Contenu de l'élément"
+                value={item.text || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, text: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items.splice(index, 1);
+                  updateProperty('componentData.items', items);
+                }}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push({ text: `Élément ${items.length + 1}`, id: Date.now().toString() });
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderHeaderConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de l'En-tête</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Logo/Marque</Label>
+        <Input
+          value={localComponent?.componentData?.logo || ''}
+          onChange={(e) => updateProperty('componentData.logo', e.target.value)}
+          placeholder="Nom de votre marque"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Menu de navigation</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.navigation || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Texte du menu"
+                value={item.text || ''}
+                onChange={(e) => {
+                  const navigation = [...(localComponent?.componentData?.navigation || [])];
+                  navigation[index] = { ...item, text: e.target.value };
+                  updateProperty('componentData.navigation', navigation);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={item.link || ''}
+                onChange={(e) => {
+                  const navigation = [...(localComponent?.componentData?.navigation || [])];
+                  navigation[index] = { ...item, link: e.target.value };
+                  updateProperty('componentData.navigation', navigation);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const navigation = [...(localComponent?.componentData?.navigation || [])];
+                  navigation.splice(index, 1);
+                  updateProperty('componentData.navigation', navigation);
+                }}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const navigation = [...(localComponent?.componentData?.navigation || [])];
+              navigation.push({ text: `Menu ${navigation.length + 1}`, link: '#', id: Date.now().toString() });
+              updateProperty('componentData.navigation', navigation);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un menu
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFooterConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration du Pied de page</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Nom de l'entreprise</Label>
+        <Input
+          value={localComponent?.componentData?.companyName || ''}
+          onChange={(e) => updateProperty('componentData.companyName', e.target.value)}
+          placeholder="Nom de votre entreprise"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Description</Label>
+        <Textarea
+          value={localComponent?.componentData?.description || ''}
+          onChange={(e) => updateProperty('componentData.description', e.target.value)}
+          placeholder="Description de votre entreprise"
+          className="mt-1 text-sm resize-none"
+          rows={3}
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Liens du footer</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.links || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Texte du lien"
+                value={item.text || ''}
+                onChange={(e) => {
+                  const links = [...(localComponent?.componentData?.links || [])];
+                  links[index] = { ...item, text: e.target.value };
+                  updateProperty('componentData.links', links);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Input
+                placeholder="URL"
+                value={item.link || ''}
+                onChange={(e) => {
+                  const links = [...(localComponent?.componentData?.links || [])];
+                  links[index] = { ...item, link: e.target.value };
+                  updateProperty('componentData.links', links);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const links = [...(localComponent?.componentData?.links || [])];
+                  links.splice(index, 1);
+                  updateProperty('componentData.links', links);
+                }}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const links = [...(localComponent?.componentData?.links || [])];
+              links.push({ text: `Lien ${links.length + 1}`, link: '#', id: Date.now().toString() });
+              updateProperty('componentData.links', links);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un lien
+          </Button>
+        </div>
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Copyright</Label>
+        <Input
+          value={localComponent?.componentData?.copyright || ''}
+          onChange={(e) => updateProperty('componentData.copyright', e.target.value)}
+          placeholder="© 2025 Tous droits réservés"
+          className="mt-1 text-sm"
+        />
+      </div>
+    </div>
+  );
+
+  const renderSidebarConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de la Barre latérale</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de la sidebar</Label>
+        <Input
+          value={localComponent?.componentData?.title || ''}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          placeholder="Navigation"
+          className="mt-1 text-sm"
+        />
+      </div>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Éléments du menu</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.menuItems || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2 items-center p-2 border rounded">
+              <Input
+                placeholder="Texte du menu"
+                value={item.text || ''}
+                onChange={(e) => {
+                  const menuItems = [...(localComponent?.componentData?.menuItems || [])];
+                  menuItems[index] = { ...item, text: e.target.value };
+                  updateProperty('componentData.menuItems', menuItems);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={item.link || ''}
+                onChange={(e) => {
+                  const menuItems = [...(localComponent?.componentData?.menuItems || [])];
+                  menuItems[index] = { ...item, link: e.target.value };
+                  updateProperty('componentData.menuItems', menuItems);
+                }}
+                className="flex-1 text-sm"
+              />
+              <Checkbox
+                checked={item.active || false}
+                onCheckedChange={(checked) => {
+                  const menuItems = [...(localComponent?.componentData?.menuItems || [])];
+                  menuItems[index] = { ...item, active: checked };
+                  updateProperty('componentData.menuItems', menuItems);
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const menuItems = [...(localComponent?.componentData?.menuItems || [])];
+                  menuItems.splice(index, 1);
+                  updateProperty('componentData.menuItems', menuItems);
+                }}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const menuItems = [...(localComponent?.componentData?.menuItems || [])];
+              menuItems.push({ text: `Menu ${menuItems.length + 1}`, link: '#', active: false, id: Date.now().toString() });
+              updateProperty('componentData.menuItems', menuItems);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+
+
+
+
+  const renderAccordionConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de l'Accordéon</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Éléments de l'accordéon</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
+            <div key={index} className="border rounded p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Question {index + 1}</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const items = [...(localComponent?.componentData?.items || [])];
+                    items.splice(index, 1);
+                    updateProperty('componentData.items', items);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Question"
+                value={item.question || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, question: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Réponse"
+                value={item.answer || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, answer: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm resize-none"
+                rows={3}
+              />
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  checked={item.isOpen || false}
+                  onCheckedChange={(checked) => {
+                    const items = [...(localComponent?.componentData?.items || [])];
+                    items[index] = { ...item, isOpen: checked };
+                    updateProperty('componentData.items', items);
+                  }}
+                />
+                <Label className="text-xs">Ouvert par défaut</Label>
+              </div>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push({ 
+                question: `Question ${items.length + 1}`, 
+                answer: 'Réponse...', 
+                isOpen: false, 
+                id: Date.now().toString() 
+              });
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une question
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Configurations simplifiées pour les autres composants
   const renderFeaturesConfiguration = () => renderGenericConfiguration();
   const renderCtaConfiguration = () => renderGenericConfiguration();
   const renderModalConfiguration = () => renderGenericConfiguration();
   const renderTooltipConfiguration = () => renderGenericConfiguration();
-  const renderAccordionConfiguration = () => renderGenericConfiguration();
   const renderTabsConfiguration = () => renderGenericConfiguration();
   const renderTimelineConfiguration = () => renderGenericConfiguration();
   const renderBadgeConfiguration = () => renderGenericConfiguration();
@@ -3435,10 +3858,7 @@ export default function PropertiesPanel({
   const renderDividerConfiguration = () => renderGenericConfiguration();
   const renderSpacerConfiguration = () => renderGenericConfiguration();
   const renderContainerConfiguration = () => renderGenericConfiguration();
-  const renderGridConfiguration = () => renderGenericConfiguration();
   const renderFlexConfiguration = () => renderGenericConfiguration();
-  const renderSidebarConfiguration = () => renderGenericConfiguration();
-  const renderHeaderConfiguration = () => renderGenericConfiguration();
   const renderMainConfiguration = () => renderGenericConfiguration();
   const renderSectionConfiguration = () => renderGenericConfiguration();
   const renderArticleConfiguration = () => renderGenericConfiguration();

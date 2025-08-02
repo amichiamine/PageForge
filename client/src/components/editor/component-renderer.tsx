@@ -279,9 +279,57 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                         zIndex: 1
                       }} />
                     )}
-                    <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
-                      {slide.title && <div style={{ marginBottom: '8px' }}>{slide.title}</div>}
-                      {slide.description && <div style={{ fontSize: '0.8em', opacity: 0.9 }}>{slide.description}</div>}
+                    <div style={{ 
+                      position: 'relative', 
+                      zIndex: 2, 
+                      textAlign: slide.textPosition === 'left' ? 'left' : slide.textPosition === 'right' ? 'right' : 'center',
+                      alignSelf: slide.textPosition === 'top' ? 'flex-start' : slide.textPosition === 'bottom' ? 'flex-end' : 'center',
+                      width: '100%',
+                      padding: '20px',
+                      color: slide.textColor || 'white'
+                    }}>
+                      {slide.title && (
+                        <div style={{ 
+                          marginBottom: '8px', 
+                          fontSize: slide.titleSize || '24px',
+                          fontWeight: 'bold'
+                        }}>
+                          {slide.title}
+                        </div>
+                      )}
+                      {slide.description && (
+                        <div style={{ 
+                          fontSize: '16px', 
+                          opacity: 0.9, 
+                          marginBottom: slide.buttonText ? '16px' : '0'
+                        }}>
+                          {slide.description}
+                        </div>
+                      )}
+                      {slide.buttonText && (
+                        <button
+                          style={{
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            color: slide.textColor || 'white',
+                            border: `2px solid ${slide.textColor || 'white'}`,
+                            padding: '8px 16px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            transition: 'all 0.3s ease',
+                            backdropFilter: 'blur(4px)'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (slide.buttonLink && slide.buttonLink !== '#') {
+                              window.open(slide.buttonLink, '_blank');
+                            }
+                          }}
+                        >
+                          {slide.buttonText}
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1099,8 +1147,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     case 'accordion':
       const accordionTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 20 });
       const accordionIconStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 24 });
+      const accordionContentStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16, multiline: true });
       const accordionPadding = getResponsiveSpacing(10);
       const accordionItemHeight = getResponsiveSize(40, false);
+      
+      // Récupération des données depuis componentData (architecture unifiée)
+      const accordionItems = component.componentData?.items || [];
       
       return (
         <div
@@ -1113,36 +1165,69 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ 
-            border: '1px solid #e5e7eb', 
-            borderRadius: '8px', 
-            overflow: 'hidden',
-            height: '100%'
-          }}>
-            {['Section 1', 'Section 2', 'Section 3'].map((title, index) => (
-              <div key={index} style={{ 
-                padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
-                backgroundColor: '#f9fafb', 
-                borderBottom: index < 2 ? '1px solid #e5e7eb' : 'none',
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                height: `${accordionItemHeight}px`,
-                overflow: 'hidden'
-              }}>
-                <span style={{ 
-                  ...accordionTextStyles,
-                  fontWeight: '500',
-                  flex: 1
-                }}>{title}</span>
-                <span style={{ 
-                  ...accordionIconStyles,
-                  flexShrink: 0,
-                  whiteSpace: 'nowrap'
-                }}>+</span>
-              </div>
-            ))}
-          </div>
+          {accordionItems.length > 0 ? (
+            <div style={{ 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              overflow: 'hidden',
+              height: '100%'
+            }}>
+              {accordionItems.map((item: any, index: number) => (
+                <div key={index}>
+                  <div style={{ 
+                    padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
+                    backgroundColor: '#f9fafb', 
+                    borderBottom: index < accordionItems.length - 1 ? '1px solid #e5e7eb' : 'none',
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    height: `${accordionItemHeight}px`,
+                    overflow: 'hidden',
+                    cursor: 'pointer'
+                  }}>
+                    <span style={{ 
+                      ...accordionTextStyles,
+                      fontWeight: '500',
+                      flex: 1
+                    }}>{item.question || `Question ${index + 1}`}</span>
+                    <span style={{ 
+                      ...accordionIconStyles,
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap'
+                    }}>{item.isOpen ? '-' : '+'}</span>
+                  </div>
+                  {item.isOpen && (
+                    <div style={{
+                      padding: `${accordionPadding}px ${accordionPadding * 1.3}px`,
+                      backgroundColor: '#ffffff',
+                      borderBottom: index < accordionItems.length - 1 ? '1px solid #e5e7eb' : 'none',
+                      ...accordionContentStyles,
+                      color: '#6b7280'
+                    }}>
+                      {item.answer || 'Réponse non définie'}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              width: '100%',
+              color: '#9ca3af',
+              fontSize: '14px',
+              textAlign: 'center',
+              padding: `${accordionPadding}px`,
+              boxSizing: 'border-box',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px'
+            }}>
+              Accordéon vide - Ajoutez des questions/réponses via la configuration
+            </div>
+          )}
         </div>
       );
 
@@ -1210,12 +1295,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const listTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 20 });
       const listPadding = getResponsiveSpacing(16);
       const listItemSpacing = getResponsiveSpacing(6);
-      const listItems = [
-        'Premier élément de la liste',
-        'Deuxième élément important', 
-        'Troisième point à retenir',
-        'Dernier élément conclusif'
-      ];
+      
+      // Récupération des données depuis componentData (architecture unifiée)
+      const listType = component.componentData?.listType || 'unordered';
+      const listItems = component.componentData?.items || [];
+      const ListTag = listType === 'ordered' ? 'ol' : listType === 'none' ? 'div' : 'ul';
       
       return (
         <div
@@ -1228,23 +1312,44 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <ul style={{ 
-            margin: '0', 
-            padding: `0 0 0 ${listPadding}px`, 
-            color: '#374151',
-            height: '100%',
-            overflow: 'hidden',
-            ...listTextStyles
-          }}>
-            {listItems.map((item, index) => (
-              <li key={index} style={{ 
-                marginBottom: index < listItems.length - 1 ? `${listItemSpacing}px` : '0',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>{item}</li>
-            ))}
-          </ul>
+          {listItems.length > 0 ? (
+            <ListTag style={{ 
+              margin: '0', 
+              padding: listType === 'none' ? `${listPadding}px` : `0 0 0 ${listPadding}px`, 
+              color: '#374151',
+              height: '100%',
+              overflow: 'hidden',
+              listStyle: listType === 'none' ? 'none' : 'initial',
+              ...listTextStyles
+            }}>
+              {listItems.map((item: any, index: number) => {
+                const ItemTag = listType === 'none' ? 'div' : 'li';
+                return (
+                  <ItemTag key={index} style={{ 
+                    marginBottom: index < listItems.length - 1 ? `${listItemSpacing}px` : '0',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>{item.text}</ItemTag>
+                );
+              })}
+            </ListTag>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              width: '100%',
+              color: '#9ca3af',
+              fontSize: '14px',
+              textAlign: 'center',
+              padding: `${listPadding}px`,
+              boxSizing: 'border-box'
+            }}>
+              Liste vide - Ajoutez des éléments via la configuration
+            </div>
+          )}
         </div>
       );
 
@@ -1426,6 +1531,10 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const headerPadding = getResponsiveSpacing(12);
       const headerGap = getResponsiveSpacing(8);
       
+      // Récupération des données depuis componentData (architecture unifiée)
+      const logo = component.componentData?.logo || 'Site';
+      const navigation = component.componentData?.navigation || [];
+      
       return (
         <header
           ref={containerRef as React.RefObject<HTMLElement>}
@@ -1461,7 +1570,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               flexShrink: 0,
               lineHeight: 1.2
             }}>
-              Site
+              {logo}
             </div>
             <nav style={{ 
               display: 'flex', 
@@ -1470,14 +1579,22 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               overflow: 'hidden',
               minWidth: 0
             }}>
-              {['Menu'].map((item, index) => (
-                <span key={index} style={{ 
+              {navigation.length > 0 ? navigation.map((item: any, index: number) => (
+                <a key={index} href={item.link || '#'} style={{ 
                   color: 'white', 
+                  textDecoration: 'none',
                   ...headerNavStyles,
                   flexShrink: 0,
                   lineHeight: 1.2
-                }}>{item}</span>
-              ))}
+                }}>{item.text}</a>
+              )) : (
+                <span style={{ 
+                  color: '#9ca3af', 
+                  ...headerNavStyles,
+                  flexShrink: 0,
+                  lineHeight: 1.2
+                }}>Aucun menu configuré</span>
+              )}
             </nav>
           </div>
         </header>
@@ -1486,8 +1603,15 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     case 'footer':
       const footerTitleStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
       const footerTextStyles = getResponsiveContentStyles({ baseSize: 10, minSize: 8, maxSize: 14 });
+      const footerLinkStyles = getResponsiveContentStyles({ baseSize: 10, minSize: 8, maxSize: 14 });
       const footerPadding = getResponsiveSpacing(16);
       const footerSpacing = getResponsiveSpacing(8);
+      
+      // Récupération des données depuis componentData (architecture unifiée)
+      const companyName = component.componentData?.companyName || 'Entreprise';
+      const description = component.componentData?.description || '';
+      const links = component.componentData?.links || [];
+      const copyright = component.componentData?.copyright || '© 2025 Tous droits réservés';
       
       return (
         <footer
@@ -1522,12 +1646,41 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               fontWeight: '600', 
               marginBottom: `${footerSpacing}px`,
               lineHeight: 1.2
-            }}>Entreprise</div>
+            }}>{companyName}</div>
+            
+            {description && (
+              <div style={{ 
+                ...footerTextStyles,
+                color: '#d1d5db',
+                marginBottom: `${footerSpacing}px`,
+                lineHeight: 1.2 
+              }}>{description}</div>
+            )}
+            
+            {links.length > 0 && (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: `${footerSpacing}px`,
+                marginBottom: `${footerSpacing}px`,
+                flexWrap: 'wrap'
+              }}>
+                {links.map((link: any, index: number) => (
+                  <a key={index} href={link.link || '#'} style={{ 
+                    color: '#d1d5db',
+                    textDecoration: 'none',
+                    ...footerLinkStyles,
+                    lineHeight: 1.2
+                  }}>{link.text}</a>
+                ))}
+              </div>
+            )}
+            
             <div style={{ 
               ...footerTextStyles,
-              color: '#d1d5db',
+              color: '#9ca3af',
               lineHeight: 1.2 
-            }}>© 2024</div>
+            }}>{copyright}</div>
           </div>
         </footer>
       );
@@ -1536,6 +1689,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const gridTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
       const gridPadding = getResponsiveSpacing(8);
       const gridGap = getResponsiveSpacing(6);
+      
+      // Récupération des données depuis componentData (architecture unifiée)
+      const columns = component.componentData?.columns || 2;
+      const gap = component.componentData?.gap || '16px';
+      const gridItems = component.componentData?.items || [];
       
       return (
         <div
@@ -1549,83 +1707,54 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: `${gridGap}px`, 
-            padding: `${gridPadding}px`,
-            height: '100%',
-            width: '100%',
-            boxSizing: 'border-box',
-            position: 'absolute',
-            top: 0,
-            left: 0
-          }}>
+          {gridItems.length > 0 ? (
             <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '8px', 
-              padding: `${gridPadding}px`, 
-              textAlign: 'center', 
-              display: 'flex', 
-              alignItems: 'center', 
+              display: 'grid', 
+              gridTemplateColumns: `repeat(${columns}, 1fr)`, 
+              gap: gap, 
+              padding: `${gridPadding}px`,
+              height: '100%',
+              width: '100%',
+              boxSizing: 'border-box',
+              position: 'absolute',
+              top: 0,
+              left: 0
+            }}>
+              {gridItems.map((item: any, index: number) => (
+                <div key={index} style={{ 
+                  backgroundColor: '#f3f4f6', 
+                  borderRadius: '8px', 
+                  padding: `${gridPadding}px`, 
+                  textAlign: 'center', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  boxSizing: 'border-box'
+                }}>
+                  <span style={{ 
+                    ...gridTextStyles,
+                    color: '#6b7280',
+                    lineHeight: 1.2
+                  }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
+              height: '100%',
+              width: '100%',
+              color: '#9ca3af',
+              fontSize: '14px',
+              textAlign: 'center',
+              padding: `${gridPadding}px`,
               boxSizing: 'border-box'
             }}>
-              <span style={{ 
-                ...gridTextStyles,
-                color: '#6b7280',
-                lineHeight: 1.2
-              }}>1</span>
+              Grille vide - Ajoutez des éléments via la configuration
             </div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '8px', 
-              padding: `${gridPadding}px`, 
-              textAlign: 'center', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              boxSizing: 'border-box'
-            }}>
-              <span style={{ 
-                ...gridTextStyles,
-                color: '#6b7280',
-                lineHeight: 1.2
-              }}>2</span>
-            </div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '8px', 
-              padding: `${gridPadding}px`, 
-              textAlign: 'center', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              boxSizing: 'border-box'
-            }}>
-              <span style={{ 
-                ...gridTextStyles,
-                color: '#6b7280',
-                lineHeight: 1.2
-              }}>3</span>
-            </div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '8px', 
-              padding: `${gridPadding}px`, 
-              textAlign: 'center', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              boxSizing: 'border-box'
-            }}>
-              <span style={{ 
-                ...gridTextStyles,
-                color: '#6b7280',
-                lineHeight: 1.2
-              }}>4</span>
-            </div>
-          </div>
+          )}
         </div>
       );
 
@@ -2020,6 +2149,10 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const navbarPadding = getResponsiveSpacing(12);
       const navbarGap = getResponsiveSpacing(16);
       
+      // Récupération des données depuis componentData (architecture unifiée)
+      const brand = component.componentData?.brand || 'Logo';
+      const menuItems = component.componentData?.menuItems || [];
+      
       return (
         <nav
           ref={containerRef as React.RefObject<HTMLElement>}
@@ -2044,11 +2177,18 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             height: '100%',
             boxSizing: 'border-box'
           }}>
-            <div style={{ fontWeight: 'bold', color: '#1f2937', ...navbarLogoStyles }}>Logo</div>
+            <div style={{ fontWeight: 'bold', color: '#1f2937', ...navbarLogoStyles }}>{brand}</div>
             <div style={{ display: 'flex', gap: `${navbarGap}px`, flexWrap: 'wrap' }}>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontWeight: '500', ...navbarLinkStyles }}>Accueil</a>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontWeight: '500', ...navbarLinkStyles }}>Produits</a>
-              <a href="#" style={{ color: '#374151', textDecoration: 'none', fontWeight: '500', ...navbarLinkStyles }}>Contact</a>
+              {menuItems.length > 0 ? menuItems.map((item: any, index: number) => (
+                <a key={index} href={item.link || '#'} style={{ 
+                  color: item.active ? '#3b82f6' : '#374151', 
+                  textDecoration: 'none', 
+                  fontWeight: item.active ? '600' : '500', 
+                  ...navbarLinkStyles 
+                }}>{item.text}</a>
+              )) : (
+                <span style={{ color: '#9ca3af', ...navbarLinkStyles }}>Aucun menu configuré</span>
+              )}
             </div>
           </div>
         </nav>
