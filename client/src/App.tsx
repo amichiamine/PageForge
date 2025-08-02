@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { useState, createContext, useContext, useEffect } from "react";
+import { runDevelopmentValidation } from "./lib/component-dev-tools";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
@@ -31,6 +32,11 @@ export const useSidebarContext = () => useContext(SidebarContext);
 function Router() {
   const [hideMainSidebar, setHideMainSidebar] = useState(false);
   const [location] = useLocation();
+  
+  // Validation automatique des composants en mode développement
+  useEffect(() => {
+    runDevelopmentValidation();
+  }, []);
   
   // Show main sidebar unless explicitly hidden in editor
   const showMainSidebar = !hideMainSidebar;

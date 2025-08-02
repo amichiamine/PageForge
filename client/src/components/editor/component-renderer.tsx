@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import type { ComponentDefinition } from '@shared/schema';
+import { ComponentValidationHooks } from '@/lib/component-dev-tools';
 
 interface ComponentRendererProps {
   component: ComponentDefinition;
@@ -14,6 +15,14 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
   const styles = component.styles || {};
   const attributes = component.attributes || {};
   const { className, ...otherAttributes } = attributes;
+
+  // Validation automatique en mode développement
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const hasResponsiveFeatures = containerRef.current !== null;
+      ComponentValidationHooks.onComponentRender(component.type, hasResponsiveFeatures);
+    }
+  }, [component.type]);
 
   // Observer pour détecter les changements de taille en temps réel
   useEffect(() => {
@@ -3002,6 +3011,19 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     default:
+      // AVERTISSEMENT: Utilisation du rendu par défaut détectée
+      // Chaque nouveau composant doit avoir son propre case de rendu spécifique
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`🚨 VALIDATION: Le composant '${component.type}' utilise le rendu par défaut. 
+        Il doit avoir son propre case de rendu avec:
+        - Système responsive (getResponsiveContentStyles, getResponsiveSpacing, getResponsiveSize)
+        - Référence containerRef
+        - Dimensions adaptatives (width: '100%', height: '100%')
+        - Box-sizing: border-box
+        - Absence de minHeight
+        - Gestion de l'overflow`);
+      }
+      
       // Rendu par défaut pour tous les autres composants
       // Éléments vides (void elements) ne peuvent pas avoir d'enfants
       const voidElements = ['input', 'img', 'br', 'hr', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
