@@ -1722,7 +1722,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       // Récupération des données depuis componentData (architecture unifiée)
       const columns = component.componentData?.columns || 2;
       const gap = component.componentData?.gap || '16px';
-      const gridItems = component.componentData?.items || [];
+      const gridItems = component.componentData?.gridItems || [];
       
       return (
         <div
@@ -1760,11 +1760,20 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                   justifyContent: 'center',
                   boxSizing: 'border-box'
                 }}>
-                  <span style={{ 
-                    ...gridTextStyles,
-                    color: '#6b7280',
-                    lineHeight: 1.2
-                  }}>{item.text}</span>
+                  <div>
+                    {item.title && <h3 style={{ 
+                      ...gridTextStyles,
+                      color: '#1f2937',
+                      margin: '0 0 4px 0',
+                      fontWeight: 600
+                    }}>{item.title}</h3>}
+                    {item.content && <p style={{ 
+                      ...gridTextStyles,
+                      color: '#6b7280',
+                      margin: 0,
+                      fontSize: '12px'
+                    }}>{item.content}</p>}
+                  </div>
                 </div>
               ))}
             </div>

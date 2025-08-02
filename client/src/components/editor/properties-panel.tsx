@@ -885,7 +885,96 @@ export default function PropertiesPanel({
   const renderHeroProperties = () => renderGenericProperties();
   const renderBannerProperties = () => renderGenericProperties();
   const renderContainerProperties = () => renderGenericProperties();
-  const renderGridProperties = () => renderGenericProperties();
+  const renderGridProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration de la Grille</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Nombre de colonnes</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.columns || 2}
+            onChange={(e) => updateProperty('componentData.columns', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+            min="1"
+            max="6"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Espacement (gap)</Label>
+          <Input
+            type="text"
+            value={localComponent?.componentData?.gap || '16px'}
+            onChange={(e) => updateProperty('componentData.gap', e.target.value)}
+            placeholder="16px"
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Éléments de la grille</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.gridItems || []).map((item: any, index: number) => (
+            <div key={index} className="p-3 border rounded space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-gray-700">Élément {index + 1}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const items = [...(localComponent?.componentData?.gridItems || [])];
+                    items.splice(index, 1);
+                    updateProperty('componentData.gridItems', items);
+                  }}
+                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Titre de l'élément"
+                value={item.title || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.gridItems || [])];
+                  items[index] = { ...item, title: e.target.value };
+                  updateProperty('componentData.gridItems', items);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Contenu de l'élément"
+                value={item.content || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.gridItems || [])];
+                  items[index] = { ...item, content: e.target.value };
+                  updateProperty('componentData.gridItems', items);
+                }}
+                className="text-sm min-h-[60px]"
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.gridItems || [])];
+              items.push({ 
+                title: `Élément ${items.length + 1}`, 
+                content: 'Contenu de l\'élément' 
+              });
+              updateProperty('componentData.gridItems', items);
+            }}
+            className="w-full text-sm"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
   const renderFlexboxProperties = () => renderGenericProperties();
 
   const duplicateComponent = () => {
