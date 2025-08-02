@@ -83,6 +83,7 @@ if %errorlevel% neq 0 (
 
 :: Vérification de npm
 echo [VERIFICATION] Verification de npm...
+timeout /t 1 /nobreak >nul
 npm --version >nul 2>&1
 if %errorlevel% neq 0 (
     color 0C
@@ -90,20 +91,28 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 ) else (
-    for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
-    echo [OK] npm trouve : !NPM_VERSION!
+    echo [OK] npm detecte
+    for /f "tokens=*" %%i in ('npm --version 2^>nul') do (
+        if "%%i" neq "" (
+            set NPM_VERSION=%%i
+            echo [OK] npm version : !NPM_VERSION!
+        )
+    )
+    if "!NPM_VERSION!" equ "" (
+        echo [OK] npm fonctionne ^(version non detectee^)
+    )
 )
 
 :: Vérification de l'espace disque
+echo.
 echo [VERIFICATION] Verification de l'espace disque...
-for /f "tokens=3" %%a in ('dir /-c ^| find "octets libres"') do set SPACE=%%a
-if !SPACE! LSS 2000000000 (
-    color 0E
-    echo [AVERTISSEMENT] Espace disque faible ^(!SPACE! octets libres^)
-    echo SiteJet necessite au moins 2 Go d'espace libre.
-    echo Continuez-vous ? ^(O/N^)
-    set /p CONTINUE=
-    if /i "!CONTINUE!" neq "O" exit /b 1
+:: Vérification simplifiée de l'espace disque
+dir >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [AVERTISSEMENT] Impossible de verifier l'espace disque
+) else (
+    echo [OK] Acces au disque confirme
+    echo [INFO] Assurez-vous d'avoir au moins 2 Go d'espace libre
 )
 
 echo.
@@ -136,9 +145,12 @@ if not exist package.json (
 :: Installation des dépendances
 echo [INSTALL] Installation des dependances Node.js...
 echo Cela peut prendre quelques minutes selon votre connexion...
-echo.
+echo Appuyez sur une touche pour continuer ou attendez 5 secondes...
+timeout /t 5 >nul
 
-npm install
+echo.
+echo Installation en cours...
+npm install --no-audit --prefer-offline
 if %errorlevel% neq 0 (
     color 0C
     echo [ERREUR] Echec de l'installation des dependances !
@@ -172,12 +184,14 @@ if exist ..\config\.env.example (
 
 :: Initialisation de la base de données
 echo [DB] Initialisation de la base de donnees...
-npm run db:push
+timeout /t 2 /nobreak >nul
+npm run db:push 2>nul
 if %errorlevel% neq 0 (
     color 0E
     echo [AVERTISSEMENT] Erreur lors de l'initialisation de la base de donnees
     echo SiteJet fonctionnera mais certaines fonctionnalites peuvent etre limitees.
-    echo.
+    echo Vous pourrez reinitialiser plus tard avec : npm run db:push
+    timeout /t 3 /nobreak >nul
 ) else (
     echo [OK] Base de donnees initialisee !
 )
