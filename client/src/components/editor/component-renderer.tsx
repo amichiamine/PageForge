@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import type { ComponentDefinition } from '@shared/schema';
 
 interface ComponentRendererProps {
@@ -8,13 +8,39 @@ interface ComponentRendererProps {
 }
 
 export default function ComponentRenderer({ component, isSelected, onClick }: ComponentRendererProps) {
+  const containerRef = useRef<HTMLElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 200, height: 100 });
+  
   const styles = component.styles || {};
   const attributes = component.attributes || {};
   const { className, ...otherAttributes } = attributes;
 
-  // Calculer les dimensions du conteneur pour adaptation du contenu
-  const containerWidth = parseInt(styles.width || '200px');
-  const containerHeight = parseInt(styles.height || '100px');
+  // Observer pour détecter les changements de taille en temps réel
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setDimensions({ width: Math.max(width, 50), height: Math.max(height, 30) });
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+    
+    // Initialiser les dimensions
+    const rect = containerRef.current.getBoundingClientRect();
+    setDimensions({ 
+      width: Math.max(rect.width || parseInt(styles.width || '200px'), 50), 
+      height: Math.max(rect.height || parseInt(styles.height || '100px'), 30) 
+    });
+
+    return () => resizeObserver.disconnect();
+  }, [styles.width, styles.height]);
+  
+  // Dimensions adaptatives basées sur l'observation en temps réel
+  const containerWidth = dimensions.width;
+  const containerHeight = dimensions.height;
   
   // Convertir les styles CSS en objet React avec adaptation automatique du contenu
   const inlineStyles: React.CSSProperties = {
@@ -45,7 +71,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     objectFit: styles.objectFit as any,
     overflow: 'hidden', // Forcer le masquage du débordement
     boxShadow: styles.boxShadow,
-    transition: styles.transition,
+    transition: 'all 0.2s ease-in-out', // Animation fluide lors du redimensionnement
     cursor: styles.cursor,
     userSelect: styles.userSelect as any,
     outline: isSelected ? '2px solid #3b82f6' : styles.outline,
@@ -56,16 +82,59 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     boxSizing: 'border-box' as any
   };
 
-  // Fonction pour adapter la taille du contenu au conteneur
-  const getAdaptiveContentStyles = (baseSize: number = 16): React.CSSProperties => {
-    const scaleFactor = Math.min(containerWidth / 200, containerHeight / 100, 1);
+  // Fonction avancée pour adaptation responsive du contenu
+  const getResponsiveContentStyles = (config: {
+    baseSize?: number;
+    minSize?: number;
+    maxSize?: number;
+    scaleFactor?: number;
+    multiline?: boolean;
+    padding?: boolean;
+  } = {}): React.CSSProperties => {
+    const {
+      baseSize = 16,
+      minSize = 8,
+      maxSize = 48,
+      scaleFactor = 1,
+      multiline = false,
+      padding = false
+    } = config;
+
+    // Calcul responsive basé sur les dimensions réelles
+    const widthRatio = containerWidth / 200;
+    const heightRatio = containerHeight / 100;
+    const adaptiveScale = Math.sqrt(widthRatio * heightRatio) * scaleFactor;
+    
+    const adaptedSize = Math.min(Math.max(baseSize * adaptiveScale, minSize), maxSize);
+    const adaptedPadding = padding ? Math.max(containerWidth / 50, 4) : 0;
+    const adaptedLineHeight = multiline ? 1.4 : 1.2;
+
     return {
-      fontSize: `${Math.max(baseSize * scaleFactor, 10)}px`,
-      lineHeight: '1.2',
+      fontSize: `${adaptedSize}px`,
+      lineHeight: adaptedLineHeight,
+      padding: padding ? `${adaptedPadding}px` : '0',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
+      whiteSpace: multiline ? 'normal' : 'nowrap',
+      ...(multiline && {
+        display: '-webkit-box',
+        WebkitLineClamp: Math.max(Math.floor(containerHeight / (adaptedSize * adaptedLineHeight)) - 1, 1),
+        WebkitBoxOrient: 'vertical' as any
+      })
     };
+  };
+
+  // Fonction pour calculer les espacements adaptatifs
+  const getResponsiveSpacing = (baseSpacing: number = 16): number => {
+    const scaleFactor = Math.min(containerWidth / 200, containerHeight / 100, 1.5);
+    return Math.max(baseSpacing * scaleFactor, 4);
+  };
+
+  // Fonction pour calculer les tailles d'éléments adaptatifs
+  const getResponsiveSize = (baseSize: number, isWidth: boolean = true): number => {
+    const dimension = isWidth ? containerWidth : containerHeight;
+    const ratio = dimension / (isWidth ? 200 : 100);
+    return Math.max(baseSize * ratio, isWidth ? 20 : 15);
   };
 
   // Filtrer les valeurs undefined pour éviter les warnings React
@@ -86,13 +155,14 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     ));
   };
 
-  // Cas spéciaux pour certains types de composants
+  // Cas spéciaux pour certains types de composants avec adaptation responsive complète
   switch (component.type) {
     case 'image':
-      const imageFontSize = Math.max(containerWidth / 20, 10);
+      const imageContentStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 24 });
       if (attributes.src) {
         return (
           <img
+            ref={containerRef as React.RefObject<HTMLImageElement>}
             src={attributes.src as string}
             alt={attributes.alt as string || ''}
             className={className as string}
@@ -110,6 +180,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       }
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={className as string}
           style={{
             ...inlineStyles,
@@ -118,9 +189,9 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             justifyContent: 'center',
             backgroundColor: '#f3f4f6',
             border: '2px dashed #d1d5db',
-            fontSize: `${imageFontSize}px`,
             color: '#6b7280',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            ...imageContentStyles
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -130,10 +201,13 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'carousel':
-      const carouselFontSize = Math.max(containerWidth / 20, 12);
-      const carouselDotSize = Math.max(containerHeight / 15, 6);
+      const carouselTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 32, scaleFactor: 1.2 });
+      const dotSize = getResponsiveSize(8, false);
+      const bottomSpacing = getResponsiveSpacing(12);
+      const dotGap = getResponsiveSpacing(6);
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`carousel-container ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -157,11 +231,9 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               alignItems: 'center', 
               justifyContent: 'center', 
               color: 'white', 
-              fontSize: `${carouselFontSize}px`, 
               fontWeight: 'bold',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              ...carouselTextStyles
             }}>
               Slide 1
             </div>
@@ -173,11 +245,9 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               alignItems: 'center', 
               justifyContent: 'center', 
               color: 'white', 
-              fontSize: `${carouselFontSize}px`, 
               fontWeight: 'bold',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              ...carouselTextStyles
             }}>
               Slide 2
             </div>
@@ -189,40 +259,38 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               alignItems: 'center', 
               justifyContent: 'center', 
               color: 'white', 
-              fontSize: `${carouselFontSize}px`, 
               fontWeight: 'bold',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              ...carouselTextStyles
             }}>
               Slide 3
             </div>
           </div>
           <div style={{ 
             position: 'absolute', 
-            bottom: `${Math.max(containerHeight / 20, 8)}px`, 
+            bottom: `${bottomSpacing}px`, 
             left: '50%', 
             transform: 'translateX(-50%)', 
             display: 'flex', 
-            gap: `${Math.max(carouselDotSize / 2, 4)}px` 
+            gap: `${dotGap}px` 
           }}>
             <div style={{ 
-              width: `${carouselDotSize}px`, 
-              height: `${carouselDotSize}px`, 
+              width: `${dotSize}px`, 
+              height: `${dotSize}px`, 
               borderRadius: '50%', 
               backgroundColor: 'white', 
               opacity: 0.8 
             }}></div>
             <div style={{ 
-              width: `${carouselDotSize}px`, 
-              height: `${carouselDotSize}px`, 
+              width: `${dotSize}px`, 
+              height: `${dotSize}px`, 
               borderRadius: '50%', 
               backgroundColor: 'white', 
               opacity: 0.5 
             }}></div>
             <div style={{ 
-              width: `${carouselDotSize}px`, 
-              height: `${carouselDotSize}px`, 
+              width: `${dotSize}px`, 
+              height: `${dotSize}px`, 
               borderRadius: '50%', 
               backgroundColor: 'white', 
               opacity: 0.5 
@@ -232,14 +300,16 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'pricing':
-      const pricingTitleSize = Math.max(containerWidth / 15, 12);
-      const pricingPriceSize = Math.max(containerWidth / 10, 16);
-      const pricingTextSize = Math.max(containerWidth / 25, 9);
-      const pricingButtonSize = Math.max(containerWidth / 30, 8);
-      const pricingPadding = Math.max(containerHeight / 15, 10);
-      const pricingSpacing = Math.max(containerHeight / 25, 6);
+      const pricingTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 28, scaleFactor: 1.1 });
+      const pricingPriceStyles = getResponsiveContentStyles({ baseSize: 24, minSize: 16, maxSize: 40, scaleFactor: 1.3 });
+      const pricingTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 18 });
+      const pricingButtonStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const pricingPadding = getResponsiveSpacing(16);
+      const pricingSpacing = getResponsiveSpacing(10);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`pricing-card ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -257,64 +327,53 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <h3 style={{ 
-              fontSize: `${pricingTitleSize}px`, 
+              ...pricingTitleStyles,
               fontWeight: 'bold', 
               marginBottom: `${pricingSpacing}px`, 
               color: '#1f2937',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
               margin: `0 0 ${pricingSpacing}px 0`
             }}>Plan Standard</h3>
             <div style={{ 
-              fontSize: `${pricingPriceSize}px`, 
+              ...pricingPriceStyles,
               fontWeight: 'bold', 
               color: '#3b82f6', 
-              marginBottom: `${pricingSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>29€<span style={{ fontSize: `${Math.max(pricingPriceSize / 2, 10)}px`, color: '#6b7280' }}>/mois</span></div>
+              marginBottom: `${pricingSpacing}px`
+            }}>
+              29€<span style={{ 
+                fontSize: `${parseInt(pricingPriceStyles.fontSize as string) * 0.6}px`, 
+                color: '#6b7280' 
+              }}>/mois</span>
+            </div>
             <ul style={{ 
               listStyle: 'none', 
               padding: '0', 
               margin: '0', 
-              fontSize: `${pricingTextSize}px`, 
               color: '#4b5563',
               flex: 1,
               overflow: 'hidden'
             }}>
               <li style={{ 
-                padding: `${Math.max(pricingSpacing / 2, 2)}px 0`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                ...pricingTextStyles,
+                padding: `${pricingSpacing / 2}px 0`
               }}>✓ 10 projets inclus</li>
               <li style={{ 
-                padding: `${Math.max(pricingSpacing / 2, 2)}px 0`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                ...pricingTextStyles,
+                padding: `${pricingSpacing / 2}px 0`
               }}>✓ Support prioritaire</li>
               <li style={{ 
-                padding: `${Math.max(pricingSpacing / 2, 2)}px 0`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                ...pricingTextStyles,
+                padding: `${pricingSpacing / 2}px 0`
               }}>✓ Analytics avancées</li>
             </ul>
             <button style={{ 
+              ...pricingButtonStyles,
               marginTop: `${pricingSpacing}px`, 
               backgroundColor: '#3b82f6', 
               color: 'white', 
               border: 'none', 
               borderRadius: '6px', 
-              padding: `${Math.max(pricingSpacing / 2, 4)}px ${pricingSpacing}px`, 
-              cursor: 'pointer',
-              fontSize: `${pricingButtonSize}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              padding: `${pricingSpacing / 2}px ${pricingSpacing}px`, 
+              cursor: 'pointer'
             }}>
               Choisir ce plan
             </button>
@@ -323,15 +382,17 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'testimonial':
-      const testQuoteSize = Math.max(containerWidth / 12, 16);
-      const testTextSize = Math.max(containerWidth / 22, 10);
-      const testNameSize = Math.max(containerWidth / 28, 9);
-      const testTitleSize = Math.max(containerWidth / 32, 8);
-      const testPadding = Math.max(containerHeight / 15, 10);
-      const testSpacing = Math.max(containerHeight / 20, 6);
-      const testAvatarSize = Math.max(containerHeight / 8, 24);
+      const testQuoteStyles = getResponsiveContentStyles({ baseSize: 24, minSize: 16, maxSize: 48, scaleFactor: 1.4 });
+      const testTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 24, multiline: true });
+      const testNameStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 20 });
+      const testTitleStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const testPadding = getResponsiveSpacing(16);
+      const testSpacing = getResponsiveSpacing(10);
+      const testAvatarSize = getResponsiveSize(40, false);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`testimonial ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -349,20 +410,16 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <div style={{ 
-              fontSize: `${testQuoteSize}px`, 
+              ...testQuoteStyles,
               color: '#d1d5db', 
-              marginBottom: `${testSpacing}px` 
+              marginBottom: `${testSpacing}px`,
+              whiteSpace: 'nowrap'
             }}>"</div>
             <p style={{ 
-              fontSize: `${testTextSize}px`, 
+              ...testTextStyles,
               color: '#4b5563', 
               marginBottom: `${testSpacing}px`, 
               fontStyle: 'italic',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: Math.max(Math.floor((containerHeight - testQuoteSize - testAvatarSize - testPadding * 2 - testSpacing * 3) / (testTextSize * 1.4)), 1),
-              WebkitBoxOrient: 'vertical' as any,
               flex: 1
             }}>
               Ce service a transformé notre façon de travailler. Vraiment exceptionnel !
@@ -371,7 +428,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
-              gap: `${Math.max(testSpacing / 2, 4)}px`,
+              gap: `${testSpacing / 2}px`,
               overflow: 'hidden'
             }}>
               <div style={{ 
@@ -386,19 +443,13 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                 minWidth: 0
               }}>
                 <div style={{ 
+                  ...testNameStyles,
                   fontWeight: 'bold', 
-                  fontSize: `${testNameSize}px`, 
-                  color: '#1f2937',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
+                  color: '#1f2937'
                 }}>Marie Dubois</div>
                 <div style={{ 
-                  fontSize: `${testTitleSize}px`, 
-                  color: '#6b7280',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
+                  ...testTitleStyles,
+                  color: '#6b7280'
                 }}>Directrice Marketing</div>
               </div>
             </div>
@@ -407,15 +458,17 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'team':
-      const teamAvatarSize = Math.max(containerHeight / 6, 40);
-      const teamNameSize = Math.max(containerWidth / 18, 12);
-      const teamRoleSize = Math.max(containerWidth / 25, 10);
-      const teamDescSize = Math.max(containerWidth / 30, 8);
-      const teamPadding = Math.max(containerHeight / 15, 10);
-      const teamSpacing = Math.max(containerHeight / 25, 6);
-      const teamIconSize = Math.max(teamAvatarSize / 3.5, 14);
+      const teamAvatarSize = getResponsiveSize(80, false);
+      const teamNameStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 26 });
+      const teamRoleStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const teamDescStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18, multiline: true });
+      const teamIconStyles = getResponsiveContentStyles({ baseSize: teamAvatarSize / 3, minSize: 16, maxSize: 32 });
+      const teamPadding = getResponsiveSpacing(16);
+      const teamSpacing = getResponsiveSpacing(12);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`team-member ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -441,39 +494,27 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
-              fontSize: `${teamIconSize}px`, 
               color: '#9ca3af',
-              flexShrink: 0
+              flexShrink: 0,
+              ...teamIconStyles
             }}>
               👤
             </div>
             <h3 style={{ 
-              fontSize: `${teamNameSize}px`, 
+              ...teamNameStyles,
               fontWeight: 'bold', 
-              marginBottom: `${Math.max(teamSpacing / 2, 3)}px`, 
+              marginBottom: `${teamSpacing / 2}px`, 
               color: '#1f2937',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              margin: `0 0 ${Math.max(teamSpacing / 2, 3)}px 0`
+              margin: `0 0 ${teamSpacing / 2}px 0`
             }}>Jean Martin</h3>
             <p style={{ 
-              fontSize: `${teamRoleSize}px`, 
+              ...teamRoleStyles,
               color: '#3b82f6', 
-              marginBottom: `${teamSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              marginBottom: `${teamSpacing}px`
             }}>Développeur Senior</p>
             <p style={{ 
-              fontSize: `${teamDescSize}px`, 
-              color: '#6b7280', 
-              lineHeight: '1.4',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: Math.max(Math.floor((containerHeight - teamAvatarSize - teamPadding * 2 - teamSpacing * 2 - teamNameSize - teamRoleSize) / (teamDescSize * 1.4)), 1),
-              WebkitBoxOrient: 'vertical' as any,
+              ...teamDescStyles,
+              color: '#6b7280',
               flex: 1
             }}>
               Expert en développement web avec 8 ans d'expérience en React et Node.js.
@@ -483,13 +524,15 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'stats':
-      const statsIconSize = Math.max(containerWidth / 8, 20);
-      const statsNumberSize = Math.max(containerWidth / 8, 16);
-      const statsLabelSize = Math.max(containerWidth / 25, 10);
-      const statsPadding = Math.max(containerHeight / 12, 10);
-      const statsSpacing = Math.max(containerHeight / 20, 6);
+      const statsIconStyles = getResponsiveContentStyles({ baseSize: 32, minSize: 20, maxSize: 64, scaleFactor: 1.5 });
+      const statsNumberStyles = getResponsiveContentStyles({ baseSize: 28, minSize: 16, maxSize: 48, scaleFactor: 1.3 });
+      const statsLabelStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 22 });
+      const statsPadding = getResponsiveSpacing(16);
+      const statsSpacing = getResponsiveSpacing(10);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`stats-card ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -509,37 +552,34 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <div style={{ 
-              fontSize: `${statsIconSize}px`, 
-              marginBottom: `${statsSpacing}px` 
+              ...statsIconStyles,
+              marginBottom: `${statsSpacing}px`,
+              whiteSpace: 'nowrap'
             }}>📊</div>
             <div style={{ 
-              fontSize: `${statsNumberSize}px`, 
+              ...statsNumberStyles,
               fontWeight: 'bold', 
               color: '#3b82f6', 
-              marginBottom: `${Math.max(statsSpacing / 2, 3)}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              marginBottom: `${statsSpacing / 2}px`
             }}>1,247</div>
             <div style={{ 
-              fontSize: `${statsLabelSize}px`, 
-              color: '#6b7280',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              ...statsLabelStyles,
+              color: '#6b7280'
             }}>Projets créés</div>
           </div>
         </div>
       );
 
     case 'faq':
-      const faqTitleSize = Math.max(containerWidth / 20, 11);
-      const faqTextSize = Math.max(containerWidth / 26, 9);
-      const faqIconSize = Math.max(containerWidth / 18, 12);
-      const faqPadding = Math.max(containerHeight / 15, 8);
-      const faqSpacing = Math.max(containerHeight / 25, 6);
+      const faqTitleStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 11, maxSize: 24 });
+      const faqTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 18, multiline: true });
+      const faqIconStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 28 });
+      const faqPadding = getResponsiveSpacing(12);
+      const faqSpacing = getResponsiveSpacing(8);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`faq-item ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -565,31 +605,23 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               overflow: 'hidden'
             }}>
               <h4 style={{ 
-                fontSize: `${faqTitleSize}px`, 
+                ...faqTitleStyles,
                 fontWeight: '600', 
                 color: '#1f2937',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
                 flex: 1,
                 margin: 0
               }}>Comment ça fonctionne ?</h4>
               <span style={{ 
-                fontSize: `${faqIconSize}px`, 
+                ...faqIconStyles,
                 color: '#6b7280',
                 flexShrink: 0,
-                marginLeft: '8px'
+                marginLeft: '8px',
+                whiteSpace: 'nowrap'
               }}>+</span>
             </div>
             <p style={{ 
-              fontSize: `${faqTextSize}px`, 
-              color: '#6b7280', 
-              lineHeight: '1.4',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: Math.max(Math.floor((containerHeight - faqTitleSize - faqPadding * 2 - faqSpacing) / (faqTextSize * 1.4)), 1),
-              WebkitBoxOrient: 'vertical' as any,
+              ...faqTextStyles,
+              color: '#6b7280',
               flex: 1,
               margin: 0
             }}>
@@ -600,14 +632,16 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'weather':
-      const weatherIconSize = Math.max(containerWidth / 8, 24);
-      const weatherTempSize = Math.max(containerWidth / 12, 16);
-      const weatherCitySize = Math.max(containerWidth / 25, 10);
-      const weatherDescSize = Math.max(containerWidth / 30, 8);
-      const weatherPadding = Math.max(containerHeight / 12, 10);
-      const weatherSpacing = Math.max(containerHeight / 20, 6);
+      const weatherIconStyles = getResponsiveContentStyles({ baseSize: 36, minSize: 24, maxSize: 72, scaleFactor: 1.8 });
+      const weatherTempStyles = getResponsiveContentStyles({ baseSize: 24, minSize: 16, maxSize: 40, scaleFactor: 1.4 });
+      const weatherCityStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const weatherDescStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18 });
+      const weatherPadding = getResponsiveSpacing(16);
+      const weatherSpacing = getResponsiveSpacing(10);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`weather-widget ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -627,45 +661,38 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <div style={{ 
-              fontSize: `${weatherIconSize}px`, 
-              marginBottom: `${weatherSpacing}px` 
+              ...weatherIconStyles,
+              marginBottom: `${weatherSpacing}px`,
+              whiteSpace: 'nowrap'
             }}>☀️</div>
             <div style={{ 
-              fontSize: `${weatherTempSize}px`, 
+              ...weatherTempStyles,
               fontWeight: 'bold', 
               color: '#1f2937', 
-              marginBottom: `${Math.max(weatherSpacing / 2, 3)}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              marginBottom: `${weatherSpacing / 2}px`
             }}>22°C</div>
             <div style={{ 
-              fontSize: `${weatherCitySize}px`, 
+              ...weatherCityStyles,
               color: '#6b7280', 
-              marginBottom: `${weatherSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              marginBottom: `${weatherSpacing}px`
             }}>Paris, France</div>
             <div style={{ 
-              fontSize: `${weatherDescSize}px`, 
-              color: '#9ca3af',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              ...weatherDescStyles,
+              color: '#9ca3af'
             }}>Ensoleillé</div>
           </div>
         </div>
       );
 
     case 'gallery':
-      const galleryTitleSize = Math.max(containerWidth / 18, 12);
-      const galleryIconSize = Math.max(containerWidth / 15, 16);
-      const galleryPadding = Math.max(containerHeight / 20, 8);
-      const gallerySpacing = Math.max(containerHeight / 30, 4);
-      const galleryGap = Math.max(containerWidth / 50, 4);
+      const galleryTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 28 });
+      const galleryIconStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 16, maxSize: 32, scaleFactor: 1.2 });
+      const gallerySpacing = getResponsiveSpacing(8);
+      const galleryGap = getResponsiveSpacing(6);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`gallery-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -675,91 +702,49 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           {...otherAttributes}
         >
           <h3 style={{ 
-            fontSize: `${galleryTitleSize}px`, 
+            ...galleryTitleStyles,
             fontWeight: '600', 
             marginBottom: `${gallerySpacing}px`, 
             color: '#1f2937', 
             textAlign: 'center',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
             margin: `0 0 ${gallerySpacing}px 0`
           }}>Galerie Photos</h3>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(3, 1fr)', 
             gap: `${galleryGap}px`, 
-            height: `calc(100% - ${galleryTitleSize}px - ${gallerySpacing}px)`,
+            height: `calc(100% - ${parseInt(galleryTitleStyles.fontSize as string)}px - ${gallerySpacing}px)`,
             overflow: 'hidden'
           }}>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: `${galleryIconSize}px`,
-              overflow: 'hidden'
-            }}>🖼️</div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: `${galleryIconSize}px`,
-              overflow: 'hidden'
-            }}>🖼️</div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: `${galleryIconSize}px`,
-              overflow: 'hidden'
-            }}>🖼️</div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: `${galleryIconSize}px`,
-              overflow: 'hidden'
-            }}>🖼️</div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: `${galleryIconSize}px`,
-              overflow: 'hidden'
-            }}>🖼️</div>
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: `${galleryIconSize}px`,
-              overflow: 'hidden'
-            }}>🖼️</div>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} style={{ 
+                backgroundColor: '#f3f4f6', 
+                borderRadius: '6px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                overflow: 'hidden',
+                ...galleryIconStyles
+              }}>🖼️</div>
+            ))}
           </div>
         </div>
       );
 
     case 'chart':
-      const chartTitleSize = Math.max(containerWidth / 22, 11);
-      const chartLabelSize = Math.max(containerWidth / 32, 8);
-      const chartPadding = Math.max(containerHeight / 18, 8);
-      const chartSpacing = Math.max(containerHeight / 25, 6);
-      const chartBarWidth = Math.max(containerWidth / 20, 12);
-      const chartGap = Math.max(containerWidth / 60, 4);
-      const chartHeight = Math.max(containerHeight - chartTitleSize - chartLabelSize - chartPadding * 2 - chartSpacing * 2, 60);
+      const chartTitleStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 11, maxSize: 24 });
+      const chartLabelStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18 });
+      const chartPadding = getResponsiveSpacing(12);
+      const chartSpacing = getResponsiveSpacing(8);
+      const chartBarWidth = getResponsiveSize(16, true);
+      const chartGap = getResponsiveSpacing(4);
+      const titleHeight = parseInt(chartTitleStyles.fontSize as string);
+      const labelHeight = parseInt(chartLabelStyles.fontSize as string);
+      const chartBarAreaHeight = Math.max(containerHeight - titleHeight - labelHeight - chartPadding * 2 - chartSpacing * 2, 60);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`chart-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -776,78 +761,55 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <h3 style={{ 
-              fontSize: `${chartTitleSize}px`, 
+              ...chartTitleStyles,
               fontWeight: '600', 
               marginBottom: `${chartSpacing}px`, 
               color: '#1f2937',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
               margin: `0 0 ${chartSpacing}px 0`
             }}>Ventes mensuelles</h3>
             <div style={{ 
               display: 'flex', 
               alignItems: 'end', 
               justifyContent: 'space-between', 
-              height: `${chartHeight}px`, 
+              height: `${chartBarAreaHeight}px`, 
               gap: `${chartGap}px`,
               flex: 1,
               overflow: 'hidden'
             }}>
-              <div style={{ 
-                backgroundColor: '#3b82f6', 
-                width: `${chartBarWidth}px`, 
-                height: `${Math.max(chartHeight * 0.5, 20)}px`, 
-                borderRadius: '2px',
-                flexShrink: 0
-              }}></div>
-              <div style={{ 
-                backgroundColor: '#10b981', 
-                width: `${chartBarWidth}px`, 
-                height: `${Math.max(chartHeight * 0.67, 24)}px`, 
-                borderRadius: '2px',
-                flexShrink: 0
-              }}></div>
-              <div style={{ 
-                backgroundColor: '#f59e0b', 
-                width: `${chartBarWidth}px`, 
-                height: `${Math.max(chartHeight * 0.83, 30)}px`, 
-                borderRadius: '2px',
-                flexShrink: 0
-              }}></div>
-              <div style={{ 
-                backgroundColor: '#ef4444', 
-                width: `${chartBarWidth}px`, 
-                height: `${Math.max(chartHeight * 0.58, 22)}px`, 
-                borderRadius: '2px',
-                flexShrink: 0
-              }}></div>
-              <div style={{ 
-                backgroundColor: '#8b5cf6', 
-                width: `${chartBarWidth}px`, 
-                height: `${Math.max(chartHeight * 0.75, 28)}px`, 
-                borderRadius: '2px',
-                flexShrink: 0
-              }}></div>
+              {[
+                { color: '#3b82f6', height: 0.5 },
+                { color: '#10b981', height: 0.67 },
+                { color: '#f59e0b', height: 0.83 },
+                { color: '#ef4444', height: 0.58 },
+                { color: '#8b5cf6', height: 0.75 }
+              ].map((bar, i) => (
+                <div key={i} style={{ 
+                  backgroundColor: bar.color, 
+                  width: `${chartBarWidth}px`, 
+                  height: `${Math.max(chartBarAreaHeight * bar.height, 20)}px`, 
+                  borderRadius: '2px',
+                  flexShrink: 0
+                }}></div>
+              ))}
             </div>
             <div style={{ 
+              ...chartLabelStyles,
               marginTop: `${chartSpacing}px`, 
-              fontSize: `${chartLabelSize}px`, 
               color: '#6b7280', 
-              textAlign: 'center',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              textAlign: 'center'
             }}>Jan - Mai 2024</div>
           </div>
         </div>
       );
 
     case 'video':
-      const videoPlaySize = Math.max(containerWidth / 10, 24);
-      const videoTextSize = Math.max(containerWidth / 25, 10);
+      const videoPlayStyles = getResponsiveContentStyles({ baseSize: 48, minSize: 24, maxSize: 80, scaleFactor: 2 });
+      const videoTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 22 });
+      const videoSpacing = getResponsiveSpacing(8);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`video-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -869,14 +831,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           }}>
             <div style={{ color: 'white', textAlign: 'center' }}>
               <div style={{ 
-                fontSize: `${videoPlaySize}px`, 
-                marginBottom: `${Math.max(containerHeight / 20, 6)}px` 
+                ...videoPlayStyles,
+                marginBottom: `${videoSpacing}px`,
+                whiteSpace: 'nowrap'
               }}>▶️</div>
               <div style={{ 
-                fontSize: `${videoTextSize}px`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                ...videoTextStyles
               }}>Vidéo de démonstration</div>
             </div>
           </div>
@@ -884,13 +844,17 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'audio':
-      const audioIconSize = Math.max(containerWidth / 15, 16);
-      const audioTitleSize = Math.max(containerWidth / 25, 10);
-      const audioSubtitleSize = Math.max(containerWidth / 30, 8);
-      const audioPadding = Math.max(containerHeight / 15, 8);
-      const audioButtonSize = Math.max(containerHeight / 8, 24);
+      const audioIconStyles = getResponsiveContentStyles({ baseSize: 24, minSize: 16, maxSize: 40, scaleFactor: 1.5 });
+      const audioTitleStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const audioSubtitleStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const audioPadding = getResponsiveSpacing(12);
+      const audioGap = getResponsiveSpacing(8);
+      const audioButtonSize = getResponsiveSize(32, false);
+      const audioButtonIconStyles = getResponsiveContentStyles({ baseSize: audioButtonSize / 3, minSize: 8, maxSize: 16 });
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`audio-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -902,7 +866,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: `${Math.max(audioPadding / 2, 6)}px`, 
+            gap: `${audioGap}px`, 
             backgroundColor: '#f8fafc', 
             padding: `${audioPadding}px`, 
             borderRadius: '8px', 
@@ -911,8 +875,9 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <div style={{ 
-              fontSize: `${audioIconSize}px`,
-              flexShrink: 0
+              ...audioIconStyles,
+              flexShrink: 0,
+              whiteSpace: 'nowrap'
             }}>🎵</div>
             <div style={{ 
               flex: 1,
@@ -920,20 +885,14 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               minWidth: 0
             }}>
               <div style={{ 
-                fontSize: `${audioTitleSize}px`, 
+                ...audioTitleStyles,
                 fontWeight: '600', 
-                color: '#1e293b',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                color: '#1e293b'
               }}>Musique d'ambiance</div>
               <div style={{ 
-                fontSize: `${audioSubtitleSize}px`, 
+                ...audioSubtitleStyles,
                 color: '#64748b', 
-                marginTop: `${Math.max(audioPadding / 6, 1)}px`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                marginTop: `${audioPadding / 6}px`
               }}>3:45 / 5:20</div>
             </div>
             <button style={{ 
@@ -948,7 +907,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              fontSize: `${Math.max(audioButtonSize / 3, 8)}px`
+              ...audioButtonIconStyles
             }}>
               ▶️
             </button>
@@ -982,9 +941,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'link':
-      const linkFontSize = Math.max(containerWidth / 20, 10);
+      const linkTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 24 });
+      const linkPadding = getResponsiveSpacing(8);
+      
       return (
         <a
+          ref={containerRef as React.RefObject<HTMLAnchorElement>}
           href="#"
           className={`link-component ${className || ''}`}
           style={{ 
@@ -992,14 +954,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             textDecoration: 'underline', 
             color: '#3b82f6', 
             cursor: 'pointer',
-            fontSize: `${linkFontSize}px`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            padding: `${Math.max(containerHeight / 20, 4)}px`,
+            padding: `${linkPadding}px`,
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            ...linkTextStyles
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1009,13 +969,15 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'modal':
-      const modalIconSize = Math.max(containerWidth / 15, 16);
-      const modalTextSize = Math.max(containerWidth / 25, 10);
-      const modalButtonSize = Math.max(containerWidth / 30, 8);
-      const modalPadding = Math.max(containerHeight / 12, 10);
-      const modalSpacing = Math.max(containerHeight / 20, 6);
+      const modalIconStyles = getResponsiveContentStyles({ baseSize: 28, minSize: 16, maxSize: 48, scaleFactor: 1.6 });
+      const modalTextStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 24 });
+      const modalButtonStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 8, maxSize: 20 });
+      const modalPadding = getResponsiveSpacing(16);
+      const modalSpacing = getResponsiveSpacing(10);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`modal-preview ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -1038,27 +1000,23 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <div style={{ 
-              fontSize: `${modalIconSize}px`, 
-              marginBottom: `${modalSpacing}px` 
+              ...modalIconStyles,
+              marginBottom: `${modalSpacing}px`,
+              whiteSpace: 'nowrap'
             }}>🪟</div>
             <div style={{ 
-              fontSize: `${modalTextSize}px`, 
+              ...modalTextStyles,
               color: '#6b7280',
-              marginBottom: `${modalSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              marginBottom: `${modalSpacing}px`
             }}>Modal Dialog</div>
             <button style={{ 
-              padding: `${Math.max(modalSpacing / 2, 3)}px ${modalSpacing}px`, 
+              ...modalButtonStyles,
+              padding: `${modalSpacing / 2}px ${modalSpacing}px`, 
               backgroundColor: '#3b82f6', 
               color: 'white', 
               border: 'none', 
               borderRadius: '4px', 
-              fontSize: `${modalButtonSize}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              cursor: 'pointer'
             }}>
               Ouvrir
             </button>
@@ -1067,10 +1025,13 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'dropdown':
-      const dropdownFontSize = Math.max(containerWidth / 22, 10);
-      const dropdownPadding = Math.max(containerHeight / 15, 6);
+      const dropdownTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const dropdownIconStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
+      const dropdownPadding = getResponsiveSpacing(10);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`dropdown-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -1091,28 +1052,29 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <span style={{ 
-              fontSize: `${dropdownFontSize}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
+              ...dropdownTextStyles,
               flex: 1
             }}>Sélectionner une option</span>
             <span style={{ 
-              fontSize: `${Math.max(dropdownFontSize * 0.8, 8)}px`, 
+              ...dropdownIconStyles,
               color: '#6b7280',
               flexShrink: 0,
-              marginLeft: '8px'
+              marginLeft: '8px',
+              whiteSpace: 'nowrap'
             }}>▼</span>
           </div>
         </div>
       );
 
     case 'accordion':
-      const accordionFontSize = Math.max(containerWidth / 25, 9);
-      const accordionPadding = Math.max(containerHeight / 20, 6);
-      const accordionItemHeight = Math.max(containerHeight / 3.5, 30);
+      const accordionTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 20 });
+      const accordionIconStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 24 });
+      const accordionPadding = getResponsiveSpacing(10);
+      const accordionItemHeight = getResponsiveSize(40, false);
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`accordion-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -1127,74 +1089,45 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden',
             height: '100%'
           }}>
-            <div style={{ 
-              padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
-              backgroundColor: '#f9fafb', 
-              borderBottom: '1px solid #e5e7eb', 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              height: `${accordionItemHeight}px`,
-              overflow: 'hidden'
-            }}>
-              <span style={{ 
-                fontSize: `${accordionFontSize}px`, 
-                fontWeight: '500',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1
-              }}>Section 1</span>
-              <span style={{ flexShrink: 0 }}>+</span>
-            </div>
-            <div style={{ 
-              padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
-              backgroundColor: '#f9fafb', 
-              borderBottom: '1px solid #e5e7eb', 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              height: `${accordionItemHeight}px`,
-              overflow: 'hidden'
-            }}>
-              <span style={{ 
-                fontSize: `${accordionFontSize}px`, 
-                fontWeight: '500',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1
-              }}>Section 2</span>
-              <span style={{ flexShrink: 0 }}>+</span>
-            </div>
-            <div style={{ 
-              padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
-              backgroundColor: '#f9fafb', 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              height: `${accordionItemHeight}px`,
-              overflow: 'hidden'
-            }}>
-              <span style={{ 
-                fontSize: `${accordionFontSize}px`, 
-                fontWeight: '500',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1
-              }}>Section 3</span>
-              <span style={{ flexShrink: 0 }}>+</span>
-            </div>
+            {['Section 1', 'Section 2', 'Section 3'].map((title, index) => (
+              <div key={index} style={{ 
+                padding: `${accordionPadding}px ${accordionPadding * 1.3}px`, 
+                backgroundColor: '#f9fafb', 
+                borderBottom: index < 2 ? '1px solid #e5e7eb' : 'none',
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                height: `${accordionItemHeight}px`,
+                overflow: 'hidden'
+              }}>
+                <span style={{ 
+                  ...accordionTextStyles,
+                  fontWeight: '500',
+                  flex: 1
+                }}>{title}</span>
+                <span style={{ 
+                  ...accordionIconStyles,
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
+                }}>+</span>
+              </div>
+            ))}
           </div>
         </div>
       );
 
     case 'table':
-      const tableFontSize = Math.max(containerWidth / 30, 8);
-      const tablePadding = Math.max(containerHeight / 20, 3);
+      const tableTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18 });
+      const tablePadding = getResponsiveSpacing(6);
+      const tableData = [
+        ['Jean Dupont', 'jean@example.com', 'Actif'],
+        ['Marie Martin', 'marie@example.com', 'Inactif']
+      ];
+      const tableHeaders = ['Nom', 'Email', 'Statut'];
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`table-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -1206,96 +1139,57 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           <table style={{ 
             width: '100%', 
             height: '100%',
-            borderCollapse: 'collapse', 
-            fontSize: `${tableFontSize}px`,
-            overflow: 'hidden'
+            borderCollapse: 'collapse',
+            overflow: 'hidden',
+            ...tableTextStyles
           }}>
             <thead>
               <tr style={{ backgroundColor: '#f3f4f6' }}>
-                <th style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db', 
-                  textAlign: 'left',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Nom</th>
-                <th style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db', 
-                  textAlign: 'left',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Email</th>
-                <th style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db', 
-                  textAlign: 'left',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Statut</th>
+                {tableHeaders.map((header, index) => (
+                  <th key={index} style={{ 
+                    padding: `${tablePadding}px`, 
+                    border: '1px solid #d1d5db', 
+                    textAlign: 'left',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>{header}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Jean Dupont</td>
-                <td style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>jean@example.com</td>
-                <td style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Actif</td>
-              </tr>
-              <tr>
-                <td style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Marie Martin</td>
-                <td style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>marie@example.com</td>
-                <td style={{ 
-                  padding: `${tablePadding}px`, 
-                  border: '1px solid #d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>Inactif</td>
-              </tr>
+              {tableData.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex} style={{ 
+                      padding: `${tablePadding}px`, 
+                      border: '1px solid #d1d5db',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       );
 
     case 'list':
-      const listFontSize = Math.max(containerWidth / 25, 9);
-      const listPadding = Math.max(containerWidth / 15, 12);
-      const listItemSpacing = Math.max(containerHeight / 25, 3);
+      const listTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 20 });
+      const listPadding = getResponsiveSpacing(16);
+      const listItemSpacing = getResponsiveSpacing(6);
+      const listItems = [
+        'Premier élément de la liste',
+        'Deuxième élément important', 
+        'Troisième point à retenir',
+        'Dernier élément conclusif'
+      ];
+      
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`list-component ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -1307,34 +1201,19 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           <ul style={{ 
             margin: '0', 
             padding: `0 0 0 ${listPadding}px`, 
-            fontSize: `${listFontSize}px`, 
             color: '#374151',
             height: '100%',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            ...listTextStyles
           }}>
-            <li style={{ 
-              marginBottom: `${listItemSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>Premier élément de la liste</li>
-            <li style={{ 
-              marginBottom: `${listItemSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>Deuxième élément important</li>
-            <li style={{ 
-              marginBottom: `${listItemSpacing}px`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>Troisième point à retenir</li>
-            <li style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>Dernier élément conclusif</li>
+            {listItems.map((item, index) => (
+              <li key={index} style={{ 
+                marginBottom: index < listItems.length - 1 ? `${listItemSpacing}px` : '0',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>{item}</li>
+            ))}
           </ul>
         </div>
       );
@@ -2217,16 +2096,25 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'contact':
-      const contactTitleSize = Math.max(containerWidth / 11, 12);
-      const contactTextSize = Math.max(containerWidth / 16, 10);
-      const contactIconSize = Math.max(containerWidth / 20, 12);
-      const contactPadding = Math.max(containerHeight / 8, 10);
-      const contactGap = Math.max(containerHeight / 12, 6);
+      const contactTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 28 });
+      const contactTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const contactIconStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 24 });
+      const contactPadding = getResponsiveSpacing(16);
+      const contactGap = getResponsiveSpacing(12);
+      const contactItems = [
+        { icon: '📧', text: 'contact@example.com' },
+        { icon: '📞', text: '+33 1 23 45 67 89' },
+        { icon: '📍', text: '123 Rue Example, Paris' }
+      ];
       
       return (
         <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`contact-info ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
@@ -2242,67 +2130,37 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <h3 style={{ 
-              fontSize: `${contactTitleSize}px`, 
+              ...contactTitleStyles,
               fontWeight: '600', 
               marginBottom: `${contactGap}px`, 
               color: '#1f2937', 
-              margin: `0 0 ${contactGap}px 0`,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              margin: `0 0 ${contactGap}px 0`
             }}>Contact</h3>
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: `${Math.max(contactGap / 2, 4)}px`,
-              height: `calc(100% - ${contactTitleSize + contactGap}px)`,
+              gap: `${contactGap / 2}px`,
+              height: `calc(100% - ${parseInt(contactTitleStyles.fontSize as string) + contactGap}px)`,
               overflow: 'hidden'
             }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: `${Math.max(contactGap / 3, 4)}px`,
-                minHeight: `${contactTextSize + 4}px`
-              }}>
-                <span style={{ fontSize: `${contactIconSize}px`, flexShrink: 0 }}>📧</span>
-                <span style={{ 
-                  fontSize: `${contactTextSize}px`, 
-                  color: '#374151',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>contact@example.com</span>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: `${Math.max(contactGap / 3, 4)}px`,
-                minHeight: `${contactTextSize + 4}px`
-              }}>
-                <span style={{ fontSize: `${contactIconSize}px`, flexShrink: 0 }}>📞</span>
-                <span style={{ 
-                  fontSize: `${contactTextSize}px`, 
-                  color: '#374151',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>+33 1 23 45 67 89</span>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: `${Math.max(contactGap / 3, 4)}px`,
-                minHeight: `${contactTextSize + 4}px`
-              }}>
-                <span style={{ fontSize: `${contactIconSize}px`, flexShrink: 0 }}>📍</span>
-                <span style={{ 
-                  fontSize: `${contactTextSize}px`, 
-                  color: '#374151',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>123 Rue Example, Paris</span>
-              </div>
+              {contactItems.map((item, index) => (
+                <div key={index} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: `${contactGap / 3}px`,
+                  minHeight: `${parseInt(contactTextStyles.fontSize as string) + 4}px`
+                }}>
+                  <span style={{ 
+                    ...contactIconStyles,
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap'
+                  }}>{item.icon}</span>
+                  <span style={{ 
+                    ...contactTextStyles,
+                    color: '#374151'
+                  }}>{item.text}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
