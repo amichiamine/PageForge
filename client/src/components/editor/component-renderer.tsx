@@ -75,7 +75,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     cursor: styles.cursor,
     userSelect: styles.userSelect as any,
     outline: isSelected ? '2px solid #3b82f6' : styles.outline,
-    minHeight: styles.minHeight,
+
     maxWidth: styles.maxWidth,
     gridTemplateColumns: styles.gridTemplateColumns,
     gap: styles.gap,
@@ -2533,7 +2533,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                   border: '1px solid #d1d5db', 
                   borderRadius: '6px', 
                   resize: 'none',
-                  minHeight: '60px',
+
                   height: '100%',
                   boxSizing: 'border-box',
                   ...formInputStyles 
@@ -2886,7 +2886,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               height: `calc(100% - ${filterTitleSize + filterGap}px)`,
               overflow: 'hidden'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minHeight: `${filterTextSize + 4}px` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="checkbox" id="filter1" style={{ 
                   marginRight: '2px',
                   transform: `scale(${Math.min(filterTextSize / 14, 1)})`
@@ -2899,7 +2899,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                   whiteSpace: 'nowrap'
                 }}>Catégorie A</label>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minHeight: `${filterTextSize + 4}px` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="checkbox" id="filter2" style={{ 
                   marginRight: '2px',
                   transform: `scale(${Math.min(filterTextSize / 14, 1)})`
@@ -2912,7 +2912,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                   whiteSpace: 'nowrap'
                 }}>Catégorie B</label>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minHeight: `${filterTextSize + 4}px` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="checkbox" id="filter3" style={{ 
                   marginRight: '2px',
                   transform: `scale(${Math.min(filterTextSize / 14, 1)})`
@@ -2983,7 +2983,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: `${contactGap / 3}px`,
-                  minHeight: `${parseInt(contactTextStyles.fontSize as string) + 4}px`
+
                 }}>
                   <span style={{ 
                     ...contactIconStyles,
