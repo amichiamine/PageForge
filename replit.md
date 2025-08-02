@@ -107,12 +107,12 @@ Preferred communication style: Simple, everyday language.
 - **Scripts d'Installation Automatique**: Créés pour Windows (.bat) et Linux (.sh) avec détection automatique des prérequis
 - **Manuel Utilisateur Final**: Documentation d'utilisation complète avec guides de dépannage et support
 
-### Migration vers Scripts PowerShell Windows ✅
-- **Résolution Problème VMware**: Remplacement des scripts .bat par des scripts PowerShell (.ps1) pour éviter les conflits VMware
-- **Scripts PowerShell Robustes**: Install-SiteJet.ps1 (complet), Quick-Install.ps1 (rapide), Test-SiteJet.ps1 (diagnostic)
-- **Interface Moderne**: Scripts PowerShell avec couleurs, icônes, gestion d'erreurs avancée et interface utilisateur améliorée
-- **Suppression Scripts .bat**: Elimination de tous les scripts batch problématiques pour environnements Windows modernes
-- **Documentation Mise à Jour**: README_DISTRIBUTION.md actualisé avec les nouvelles méthodes d'installation PowerShell
+### Solutions d'Installation Windows Complètes ✅
+- **Script Principal Simple**: install-windows.bat - contourne VMware et restrictions PowerShell pour installation universelle
+- **Scripts PowerShell Avancés**: Install-SiteJet.ps1, Quick-Install.ps1, Test-SiteJet.ps1 avec interface moderne et diagnostic complet
+- **Contournement Restrictions**: run-powershell.bat utilise -ExecutionPolicy Bypass pour lancer PowerShell sans restrictions
+- **Compatibilité Maximale**: Solutions pour tous environnements (VMware, restrictions d'entreprise, politique PowerShell)
+- **Documentation Exhaustive**: README_DISTRIBUTION.md avec toutes méthodes d'installation et résolution de problèmes spécifiques
 
 ### Critical Bug Fixes - Component Alignment ✅
 - **Component Rendering Fixed**: Resolved major visual offset issues where components displayed content misaligned from their positioned frames

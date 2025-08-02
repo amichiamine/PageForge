@@ -1,0 +1,33 @@
+PS C:\xampp\htdocs\Replit\PageForge-V01\scripts> ./install-sitejet.ps1
+./install-sitejet.ps1 : Impossible de charger le fichier
+C:\xampp\htdocs\Replit\PageForge-V01\scripts\Install-SiteJet.ps1. Le fichier
+C:\xampp\htdocs\Replit\PageForge-V01\scripts\Install-SiteJet.ps1 n’est pas signé numériquement. Vous ne pouvez pas
+exécuter ce script sur le système actuel. Pour plus d’informations sur l’exécution de scripts et la définition de
+stratégies d’exécution, voir la rubrique about_Execution_Policies à l’adresse
+https://go.microsoft.com/fwlink/?LinkID=135170.
+Au caractère Ligne:1 : 1
++ ./install-sitejet.ps1
++ ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : Erreur de sécurité : (:) [], PSSecurityException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+PS C:\xampp\htdocs\Replit\PageForge-V01\scripts> .\install-sitejet.ps1
+.\install-sitejet.ps1 : Impossible de charger le fichier
+C:\xampp\htdocs\Replit\PageForge-V01\scripts\Install-SiteJet.ps1. Le fichier
+C:\xampp\htdocs\Replit\PageForge-V01\scripts\Install-SiteJet.ps1 n’est pas signé numériquement. Vous ne pouvez pas
+exécuter ce script sur le système actuel. Pour plus d’informations sur l’exécution de scripts et la définition de
+stratégies d’exécution, voir la rubrique about_Execution_Policies à l’adresse
+https://go.microsoft.com/fwlink/?LinkID=135170.
+Au caractère Ligne:1 : 1
++ .\install-sitejet.ps1
++ ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : Erreur de sécurité : (:) [], PSSecurityException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+PS C:\xampp\htdocs\Replit\PageForge-V01\scripts> .\scripts\Quick-Install.ps1
+.\scripts\Quick-Install.ps1 : Le terme «.\scripts\Quick-Install.ps1» n'est pas reconnu comme nom d'applet de commande,
+fonction, fichier de script ou programme exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe,
+vérifiez que le chemin d'accès est correct et réessayez.
+Au caractère Ligne:1 : 1
++ .\scripts\Quick-Install.ps1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (.\scripts\Quick-Install.ps1:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException

@@ -7,15 +7,15 @@ Ce package contient l'éditeur visuel SiteJet complet, prêt à installer et uti
 ## 🚀 Installation Rapide
 
 ### Windows
-```powershell
-# Installation automatique complète (PowerShell)
-.\scripts\Install-SiteJet.ps1
+```cmd
+# Installation simple et rapide
+scripts\install-windows.bat
 
-# OU installation rapide
-.\scripts\Quick-Install.ps1
+# OU contournement PowerShell (si politique restrictive)
+scripts\run-powershell.bat
 
-# OU test et diagnostic
-.\scripts\Test-SiteJet.ps1
+# OU PowerShell direct (si autorisé)
+powershell -ExecutionPolicy Bypass -File "scripts\Install-SiteJet.ps1"
 ```
 
 ### Linux/macOS
@@ -65,37 +65,33 @@ SiteJet-Distribution/
 
 ## 🎯 Types d'Installation
 
-### 1. Installation PowerShell Complète
-- **Script** : `Install-SiteJet.ps1` (Windows)
+### 1. Installation Windows Simple
+- **Script** : `install-windows.bat` (Windows)
 - **Fonctionnalités** :
-  - Vérification automatique des prérequis
+  - Aucune restriction PowerShell
+  - Compatible VMware/environnements virtuels
+  - Installation robuste en 5 étapes
+  - Configuration automatique
+  - Démarrage optionnel
+
+### 2. Installation PowerShell (si autorisée)
+- **Scripts** : `Install-SiteJet.ps1`, `Quick-Install.ps1`, `Test-SiteJet.ps1`
+- **Lancement** : `run-powershell.bat` (contourne les restrictions)
+- **Fonctionnalités** :
   - Interface moderne avec couleurs
-  - Configuration automatique optimisée
-  - Gestion d'erreurs robuste
-  - Options de démarrage automatique
+  - Diagnostic complet disponible
+  - Gestion d'erreurs avancée
 
-### 2. Installation Rapide
-- **Script** : `Quick-Install.ps1` (Windows)
-- **Fonctionnalités** :
-  - Installation ultra-rapide (1-2 minutes)
-  - Tests minimaux mais efficaces
-  - Configuration automatique basique
-  - Idéal pour déploiement rapide
+### 3. Installation Manuelle (universelle)
+- **Méthode** : Commandes directes sans scripts
+- **Avantages** : Fonctionne toujours, contrôle total
 
-### 3. Test et Diagnostic
-- **Script** : `Test-SiteJet.ps1` (Windows)
-- **Fonctionnalités** :
-  - Diagnostic complet du système
-  - Test de tous les composants
-  - Rapport détaillé avec solutions
-  - Option de correction automatique
-
-### 4. Installation Manuelle
-```powershell
-# Windows PowerShell
+### Installation Manuelle (toujours fonctionnelle)
+```cmd
+# Windows Command Prompt
 cd app
 npm install
-cp ../config/.env.example .env
+copy ..\config\.env.example .env
 npm run db:push
 npm run dev
 ```
@@ -177,8 +173,14 @@ npm run dev
 
 #### "VMware était inattendu" (Environnements VMware)
 - **Problème** : VMware interfère avec les scripts batch Windows
-- **Solution** : Utiliser les scripts PowerShell qui évitent ces conflits
-- **Script recommandé** : `Install-SiteJet.ps1` ou `Quick-Install.ps1`
+- **Solution** : Utiliser le script simple `install-windows.bat`
+- **Alternative** : Contourner avec `run-powershell.bat`
+
+#### "Script PowerShell non signé" (Politique d'exécution)
+- **Problème** : Windows bloque les scripts PowerShell non signés
+- **Solution rapide** : Utiliser `install-windows.bat` (pas de restriction)
+- **Solution PowerShell** : `powershell -ExecutionPolicy Bypass -File "scripts\Install-SiteJet.ps1"`
+- **Solution permanente** : `Set-ExecutionPolicy RemoteSigned` (en tant qu'administrateur)
 
 #### "npm install échoue"
 - **Solution 1** : `npm cache clean --force`
