@@ -3,6 +3,7 @@ import { useDrop } from 'react-dnd';
 import { nanoid } from 'nanoid';
 import ResizableComponent from './resizable-component';
 import AlignmentGuides from './alignment-guides';
+import ComponentDebugger from './component-debugger';
 import type { Project, ComponentDefinition } from '@shared/schema';
 import { 
   createComponent, 
@@ -36,6 +37,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
 }) => {
   const [draggedComponent, setDraggedComponent] = useState<ComponentDefinition | null>(null);
   const [guides, setGuides] = useState<{ x: number[], y: number[] }>({ x: [], y: [] });
+  const [debuggerVisible, setDebuggerVisible] = useState(true);
   const editorRef = useRef<HTMLDivElement>(null);
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -637,6 +639,14 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
           </div>
         </div>
       )}
+
+      {/* Component Debugger */}
+      <ComponentDebugger
+        components={structure}
+        selectedComponent={selectedComponent}
+        onToggle={() => setDebuggerVisible(!debuggerVisible)}
+        isVisible={debuggerVisible}
+      />
     </div>
   );
 };
