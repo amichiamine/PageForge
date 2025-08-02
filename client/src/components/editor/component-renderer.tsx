@@ -797,6 +797,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'gallery':
+      console.log('🎯 CASE GALLERY ATTEINT!', { componentId: component.id });
       const galleryTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 28 });
       const galleryIconStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 16, maxSize: 32, scaleFactor: 1.2 });
       const gallerySpacing = getResponsiveSpacing(8);
