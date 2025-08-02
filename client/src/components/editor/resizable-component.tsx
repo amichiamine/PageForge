@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { ComponentDefinition } from '@shared/schema';
+import ComponentRenderer from './component-renderer';
 
 interface ResizableComponentProps {
   component: ComponentDefinition;
@@ -375,24 +376,30 @@ export default function ResizableComponent({
         height: '100%', 
         position: 'relative',
         overflow: 'visible',
-        display: 'flex',
-        alignItems: component.styles?.textAlign === 'center' ? 'center' : 'flex-start',
-        justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
-                       component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start',
-        pointerEvents: 'none' // Permet au contenu d'être interactif
+        pointerEvents: 'none'
       }}>
         <div style={{
           width: '100%',
           height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: component.styles?.textAlign === 'center' ? 'center' : 
-                         component.styles?.textAlign === 'right' ? 'flex-end' : 'flex-start',
           pointerEvents: 'auto',
-          wordWrap: 'break-word',
-          overflow: 'visible'
+          position: 'absolute',
+          top: 0,
+          left: 0
         }}>
-          {component.content || children}
+          <ComponentRenderer 
+            component={{
+              ...component,
+              styles: {
+                ...component.styles,
+                position: 'static',
+                left: '0',
+                top: '0',
+                width: '100%',
+                height: '100%'
+              }
+            }}
+            isSelected={isSelected}
+          />
         </div>
       </div>
 
@@ -529,152 +536,3 @@ export default function ResizableComponent({
     </div>
   );
 }
-
-const ComponentRenderer = ({ component }: { component: ComponentDefinition }) => {
-    const baseStyle = {
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      fontSize: '14px',
-      fontFamily: 'Arial, sans-serif',
-      color: '#333',
-      padding: '4px',
-      boxSizing: 'border-box' as const,
-      minHeight: '20px',
-      minWidth: '20px',
-    };
-
-    switch (component.type) {
-      case 'text':
-        return (
-          <div style={baseStyle}>
-            {component.content || 'Texte par défaut'}
-          </div>
-        );
-
-      case 'heading':
-        return (
-          <div style={{ 
-            ...baseStyle, 
-            fontWeight: 'bold', 
-            fontSize: component.styles?.fontSize && component.styles.fontSize !== 'px' && component.styles.fontSize !== '0px' ? component.styles.fontSize : '24px'
-          }}>
-            {component.content || 'Titre'}
-          </div>
-        );
-
-      case 'button':
-        return (
-          <button 
-            style={{ 
-              ...baseStyle, 
-              backgroundColor: component.styles?.backgroundColor || '#007bff', 
-              color: component.styles?.color || 'white', 
-              border: component.styles?.border || 'none', 
-              borderRadius: component.styles?.borderRadius || '4px',
-              cursor: 'pointer',
-              padding: component.styles?.padding || '8px 16px',
-              justifyContent: 'center',
-              fontSize: component.styles?.fontSize && component.styles.fontSize !== 'px' && component.styles.fontSize !== '0px' ? component.styles.fontSize : '14px',
-              fontWeight: component.styles?.fontWeight || 'normal'
-            }}
-          >
-            {component.content || 'Bouton'}
-          </button>
-        );
-
-      case 'image':
-        return (
-          <div style={{ ...baseStyle, justifyContent: 'center' }}>
-            {component.attributes?.src ? (
-              <img 
-                src={component.attributes.src} 
-                alt={component.attributes.alt || ''} 
-                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-              />
-            ) : (
-              <div style={{ 
-                backgroundColor: '#f0f0f0', 
-                border: '2px dashed #ccc',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-                height: '100%',
-                minHeight: '60px',
-                color: '#666',
-                fontSize: '12px'
-              }}>
-                📷 Image
-              </div>
-            )}
-          </div>
-        );
-
-      case 'list':
-        return (
-          <div style={baseStyle}>
-            <ul style={{ margin: 0, padding: '0 0 0 20px', fontSize: '14px' }}>
-              <li>Élément 1</li>
-              <li>Élément 2</li>
-              <li>Élément 3</li>
-            </ul>
-          </div>
-        );
-
-      case 'input':
-        return (
-          <input 
-            type="text" 
-            placeholder={component.content || component.attributes?.placeholder || 'Saisir du texte...'}
-            style={{ 
-              width: '100%', 
-              height: '100%',
-              padding: '8px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              minHeight: '32px'
-            }}
-          />
-        );
-
-      case 'select':
-        return (
-          <select style={{ 
-            width: '100%', 
-            height: '100%',
-            padding: '8px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            fontSize: '14px',
-            minHeight: '32px'
-          }}>
-            <option>Option 1</option>
-            <option>Option 2</option>
-            <option>Option 3</option>
-          </select>
-        );
-
-      case 'container':
-        return (
-          <div style={{ ...baseStyle, border: '1px dashed #ccc', backgroundColor: '#f9f9f9', flexDirection: 'column' }}>
-            {component.children?.length ? 
-              component.children.map(child => (
-                <ComponentRenderer key={child.id} component={child} />
-              )) : 
-              'Conteneur vide'
-            }
-          </div>
-        );
-
-      default:
-        return (
-          <div style={baseStyle}>
-            {component.content || `Composant ${component.type}`}
-          </div>
-        );
-    }
-  };
