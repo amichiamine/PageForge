@@ -5922,16 +5922,41 @@ export default function PropertiesPanel({
               <div className="space-y-2">
                 <div>
                   <Label className="text-xs">URL de l'image</Label>
-                  <Input
-                    value={image.src || ''}
-                    onChange={(e) => {
-                      const images = [...(localComponent?.componentData?.images || [])];
-                      images[index] = { ...image, src: e.target.value };
-                      updateProperty('componentData.images', images);
-                    }}
-                    placeholder="https://example.com/image.jpg"
-                    className="text-xs h-7"
-                  />
+                  <div className="flex gap-1">
+                    <Input
+                      value={image.src || ''}
+                      onChange={(e) => {
+                        const images = [...(localComponent?.componentData?.images || [])];
+                        images[index] = { ...image, src: e.target.value };
+                        updateProperty('componentData.images', images);
+                      }}
+                      placeholder="https://example.com/image.jpg"
+                      className="text-xs h-7 flex-1"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          const images = [...(localComponent?.componentData?.images || [])];
+                          images[index] = { ...image, src: url };
+                          updateProperty('componentData.images', images);
+                        }
+                      }}
+                      style={{ display: 'none' }}
+                      id={`file-input-${index}`}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById(`file-input-${index}`)?.click()}
+                      className="h-7 px-2 text-xs"
+                    >
+                      📁
+                    </Button>
+                  </div>
                 </div>
                 <div>
                   <Label className="text-xs">Texte alternatif</Label>
