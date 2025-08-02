@@ -27,7 +27,9 @@ if %errorlevel% neq 0 (
 echo.
 echo [TEST 2] npm...
 npm --version
-if %errorlevel% neq 0 (
+set NPM_ERROR=%errorlevel%
+echo Code retour npm: %NPM_ERROR%
+if %NPM_ERROR% neq 0 (
     echo ECHEC: npm non trouve
     pause
     exit /b 1
