@@ -9,12 +9,6 @@ interface ResizableConfig {
   disabled?: boolean;
 }
 
-interface ResizableState {
-  width: number;
-  isResizing: boolean;
-  isDragging: boolean;
-}
-
 export function useResizable({
   defaultWidth,
   minWidth,
@@ -23,29 +17,27 @@ export function useResizable({
   direction = 'right',
   disabled = false
 }: ResizableConfig) {
-  const [state, setState] = useState<ResizableState>({
-    width: defaultWidth,
-    isResizing: false,
-    isDragging: false
-  });
-
+  const [width, setWidth] = useState(defaultWidth);
+  const [isResizing, setIsResizing] = useState(false);
+  
   const startXRef = useRef<number>(0);
   const startWidthRef = useRef<number>(0);
+  const rafRef = useRef<number>();
 
   // Charger la largeur depuis le localStorage
   useEffect(() => {
     const savedWidth = localStorage.getItem(storageKey);
     if (savedWidth) {
-      const width = parseInt(savedWidth, 10);
-      if (width >= minWidth && width <= maxWidth) {
-        setState(prev => ({ ...prev, width }));
+      const parsedWidth = parseInt(savedWidth, 10);
+      if (parsedWidth >= minWidth && parsedWidth <= maxWidth) {
+        setWidth(parsedWidth);
       }
     }
   }, [storageKey, minWidth, maxWidth]);
 
-  // Sauvegarder la largeur dans le localStorage
-  const saveWidth = useCallback((width: number) => {
-    localStorage.setItem(storageKey, width.toString());
+  // Sauvegarder la largeur
+  const saveWidth = useCallback((newWidth: number) => {
+    localStorage.setItem(storageKey, newWidth.toString());
   }, [storageKey]);
 
   // Démarrer le redimensionnement
@@ -57,90 +49,88 @@ export function useResizable({
 
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     startXRef.current = clientX;
-    startWidthRef.current = state.width;
-
-    setState(prev => ({ 
-      ...prev, 
-      isResizing: true, 
-      isDragging: true 
-    }));
+    startWidthRef.current = width;
+    setIsResizing(true);
 
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
-  }, [disabled, state.width]);
+  }, [disabled, width]);
 
-  // Gérer le redimensionnement
+  // Gérer le redimensionnement avec requestAnimationFrame
   const handleResize = useCallback((e: MouseEvent | TouchEvent) => {
-    if (!state.isResizing) return;
+    if (!isResizing) return;
 
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const deltaX = clientX - startXRef.current;
-    
-    let newWidth;
-    if (direction === 'left') {
-      newWidth = startWidthRef.current + deltaX;
-    } else {
-      newWidth = startWidthRef.current + deltaX;
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
 
-    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+    rafRef.current = requestAnimationFrame(() => {
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const deltaX = direction === 'right' ? clientX - startXRef.current : startXRef.current - clientX;
+      const newWidth = Math.min(maxWidth, Math.max(minWidth, startWidthRef.current + deltaX));
+      setWidth(newWidth);
+    });
+  }, [isResizing, direction, maxWidth, minWidth]);
 
-    setState(prev => ({ ...prev, width: newWidth }));
-  }, [state.isResizing, direction, minWidth, maxWidth]);
-
-  // Terminer le redimensionnement
+  // Arrêter le redimensionnement
   const stopResize = useCallback(() => {
-    if (!state.isResizing) return;
+    if (!isResizing) return;
 
-    setState(prev => ({ 
-      ...prev, 
-      isResizing: false, 
-      isDragging: false 
-    }));
-
-    saveWidth(state.width);
+    setIsResizing(false);
+    saveWidth(width);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-  }, [state.isResizing, state.width, saveWidth]);
-
-  // Événements globaux pour le redimensionnement
-  useEffect(() => {
-    if (state.isResizing) {
-      const handleMouseMove = (e: MouseEvent) => handleResize(e);
-      const handleTouchMove = (e: TouchEvent) => handleResize(e);
-      const handleMouseUp = () => stopResize();
-      const handleTouchEnd = () => stopResize();
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('touchmove', handleTouchMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.addEventListener('touchend', handleTouchEnd);
-
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.removeEventListener('touchend', handleTouchEnd);
-      };
+    
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
-  }, [state.isResizing, handleResize, stopResize]);
+  }, [isResizing, width, saveWidth]);
 
-  // Réinitialiser à la largeur par défaut
+  // Écouteurs d'événements
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => handleResize(e);
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      handleResize(e);
+    };
+    const handleMouseUp = () => stopResize();
+    const handleTouchEnd = () => stopResize();
+
+    document.addEventListener('mousemove', handleMouseMove, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isResizing, handleResize, stopResize]);
+
+  // Réinitialiser la largeur
   const resetWidth = useCallback(() => {
-    setState(prev => ({ ...prev, width: defaultWidth }));
+    setWidth(defaultWidth);
     saveWidth(defaultWidth);
   }, [defaultWidth, saveWidth]);
 
+  // Nettoyage au démontage
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
   return {
-    width: state.width,
-    isResizing: state.isResizing,
-    isDragging: state.isDragging,
+    width,
+    isResizing,
+    isDragging: isResizing,
     startResize,
-    resetWidth,
-    setWidth: (width: number) => {
-      const clampedWidth = Math.max(minWidth, Math.min(maxWidth, width));
-      setState(prev => ({ ...prev, width: clampedWidth }));
-      saveWidth(clampedWidth);
-    }
+    resetWidth
   };
 }

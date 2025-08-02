@@ -599,14 +599,15 @@ export default function Editor() {
                   />
                 )}
                 <ResizablePanel
-                  defaultWidth={isMobile ? 256 : isTablet ? 288 : 192}
-                  minWidth={180}
-                  maxWidth={isMobile ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.8 : 320) : isTablet ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.5 : 400) : 350}
+                  defaultWidth={isMobile ? 240 : isTablet ? 280 : 200}
+                  minWidth={160}
+                  maxWidth={isMobile ? 300 : isTablet ? 400 : 350}
                   storageKey="component-palette-width"
                   direction="right"
+                  disabled={isMobileOrTablet}
                   className={`
                     ${isMobileOrTablet ? 'fixed inset-y-0 left-0 z-50 shadow-2xl animate-slide-in-left' : ''} 
-                    bg-white border-gray-200 overflow-y-auto transition-all duration-300
+                    bg-white border-gray-200 overflow-y-auto
                   `}
                   title="Composants"
                 >
@@ -695,14 +696,15 @@ export default function Editor() {
                   />
                 )}
                 <ResizablePanel
-                  defaultWidth={isMobile ? 256 : isTablet ? 288 : 192}
-                  minWidth={180}
-                  maxWidth={isMobile ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.8 : 320) : isTablet ? Math.floor(typeof window !== 'undefined' ? window.innerWidth * 0.5 : 400) : 350}
+                  defaultWidth={isMobile ? 240 : isTablet ? 280 : 200}
+                  minWidth={160}
+                  maxWidth={isMobile ? 300 : isTablet ? 400 : 350}
                   storageKey="properties-panel-width"
                   direction="left"
+                  disabled={isMobileOrTablet}
                   className={`
                     ${isMobileOrTablet ? 'fixed inset-y-0 right-0 z-50 shadow-2xl animate-slide-in-right' : ''} 
-                    bg-white border-gray-200 overflow-y-auto transition-all duration-300
+                    bg-white border-gray-200 overflow-y-auto
                   `}
                   title="Propriétés"
                 >

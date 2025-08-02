@@ -35,7 +35,6 @@ export function ResizablePanel({
   const {
     width,
     isResizing,
-    isDragging,
     startResize,
     resetWidth
   } = useResizable({
@@ -53,14 +52,13 @@ export function ResizablePanel({
   }, [width, onWidthChange]);
 
   const handleStyle = direction === 'left' ? 'left-0' : 'right-0';
-  const cursorStyle = isResizing ? 'cursor-col-resize' : '';
 
   return (
     <div 
       className={cn(
-        'relative bg-white border-gray-200 overflow-hidden transition-all duration-200',
+        'relative bg-white border-gray-200 overflow-hidden',
         direction === 'left' ? 'border-r' : 'border-l',
-        cursorStyle,
+        isResizing ? 'transition-none' : 'transition-all duration-200',
         className
       )}
       style={{ width: `${width}px` }}
@@ -128,7 +126,7 @@ export function ResizablePanel({
       )}
 
       {/* Overlay pendant le redimensionnement */}
-      {isDragging && (
+      {isResizing && (
         <div className="absolute inset-0 bg-transparent z-40 cursor-col-resize" />
       )}
     </div>
