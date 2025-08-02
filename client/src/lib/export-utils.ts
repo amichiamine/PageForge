@@ -222,8 +222,19 @@ ${indentStr}</div>`;
     }
 
     // Gestion des grilles avec éléments
-    if (component.type === 'grid' && component.componentData?.gridItems) {
-      const items = component.componentData.gridItems;
+    if (component.type === 'grid') {
+      const items = component.componentData?.gridItems || [];
+      
+      // Si pas d'éléments configurés, afficher un placeholder
+      if (items.length === 0) {
+        return `${indentStr}<div ${idAttr} class="grid-container grid-placeholder ${className || ''}">
+${childIndentStr}<div class="grid-item">
+${childIndentStr}  <h3 class="grid-item-title">Grille</h3>
+${childIndentStr}  <p class="grid-item-content">Configurez vos éléments dans l'éditeur</p>
+${childIndentStr}</div>
+${indentStr}</div>`;
+      }
+      
       const itemsHTML = items.map((item: any) => {
         return `${childIndentStr}<div class="grid-item">
 ${childIndentStr}  ${item.title ? `<h3 class="grid-item-title">${item.title}</h3>` : ''}
@@ -812,6 +823,26 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   margin: 0;
   color: #6b7280;
   line-height: 1.5;
+}
+
+.grid-item-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.grid-item-content {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.grid-placeholder {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 `;
     }
