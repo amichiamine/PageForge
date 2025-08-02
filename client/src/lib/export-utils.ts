@@ -168,8 +168,9 @@ ${indentStr}</div>`;
       }
       
       const slidesHTML = slides.map((slide: any, index: number) => {
-        return `${childIndentStr}<div class="carousel-slide" ${slide.backgroundColor ? `data-bg-color="${slide.backgroundColor}"` : ''} ${slide.image ? `data-bg-image="${slide.image}"` : ''}>
-${childIndentStr}  ${slide.image ? '<div class="carousel-overlay"></div>' : ''}
+        return `${childIndentStr}<div class="carousel-slide" ${slide.backgroundColor ? `data-bg-color="${slide.backgroundColor}"` : ''}>
+${slide.image ? `${childIndentStr}  <img src="${slide.image}" alt="${slide.title || `Slide ${index + 1}`}" class="carousel-slide-image">` : ''}
+${slide.image ? `${childIndentStr}  <div class="carousel-overlay"></div>` : ''}
 ${childIndentStr}  <div class="carousel-content">
 ${childIndentStr}    ${slide.title ? `<h3 class="carousel-title">${slide.title}</h3>` : ''}
 ${childIndentStr}    ${slide.description ? `<p class="carousel-description">${slide.description}</p>` : ''}
@@ -372,35 +373,13 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   const componentCSS = generateComponentCSS(pageStructure);
   const usedTypes = getUsedComponentTypes(pageStructure);
   
-  let css = `/* Styles générés par PageForge */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.6;
-  color: #333;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Styles pour des éléments génériques */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-`;
-
-  // Ajouter les styles spécifiques seulement pour les composants utilisés
-  if (usedTypes.has('carousel')) {
-    css += `
+  // Fonction pour générer les styles spécifiques aux composants
+  const getComponentSpecificStyles = (usedTypes: Set<string>): string => {
+    let styles = '';
+    
+    // Styles pour carousel
+    if (usedTypes.has('carousel')) {
+      styles += `
 /* Styles pour carousel */
 .carousel-container {
   position: relative;
@@ -423,11 +402,16 @@ img {
   background-repeat: no-repeat;
 }
 
-.carousel-slide img {
+.carousel-slide img,
+.carousel-slide-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
+  z-index: 0;
 }
 
 .carousel-overlay {
@@ -509,7 +493,450 @@ img {
   transform: scale(1.2);
 }
 `;
+    }
+    
+    // Styles pour accordion
+    if (usedTypes.has('accordion')) {
+      styles += `
+/* Styles pour accordion */
+.accordion-item {
+  border: 1px solid #e5e7eb;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.accordion-header {
+  width: 100%;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accordion-header:hover {
+  background: #f3f4f6;
+}
+
+.accordion-header::after {
+  content: '+';
+  font-size: 18px;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.accordion-header.active::after {
+  transform: rotate(45deg);
+}
+
+.accordion-content {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  background: white;
+}
+`;
+    }
+    
+    // Styles pour grid
+    if (usedTypes.has('grid')) {
+      styles += `
+/* Styles pour grid */
+.grid-container {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-item {
+  padding: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grid-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.grid-item h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.grid-item p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+`;
+    }
+    
+    // Styles pour modal
+    if (usedTypes.has('modal')) {
+      styles += `
+/* Styles pour modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+}
+
+.modal-close:hover {
+  color: #374151;
+}
+`;
+    }
+    
+    // Styles pour card
+    if (usedTypes.has('card')) {
+      styles += `
+/* Styles pour card */
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.card-footer {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.card-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.card-text {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+`;
+    }
+    
+    // Styles pour form
+    if (usedTypes.has('form')) {
+      styles += `
+/* Styles pour form */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.form-button:hover {
+  background: #2563eb;
+}
+
+.form-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+`;
+    }
+    
+    // Styles pour button
+    if (usedTypes.has('button')) {
+      styles += `
+/* Styles pour button */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+}
+
+.btn-outline:hover {
+  background: #3b82f6;
+  color: white;
+}
+`;
+    }
+    
+    // Styles pour table
+    if (usedTypes.has('table')) {
+      styles += `
+/* Styles pour table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+`;
+    }
+    
+    // Styles pour navbar
+    if (usedTypes.has('navbar')) {
+      styles += `
+/* Styles pour navbar */
+.navbar {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.navbar-nav {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 24px;
+}
+
+.navbar-link {
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.navbar-link:hover {
+  color: #3b82f6;
+}
+
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: block;
   }
+  
+  .navbar-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .navbar-nav.active {
+    display: flex;
+  }
+}
+`;
+    }
+    
+    return styles;
+  };
+  
+  let css = `/* Styles générés par PageForge */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Styles pour des éléments génériques */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+`;
+
+  // Générer les styles CSS conditionnellement selon les composants utilisés
+  const componentStyles = getComponentSpecificStyles(usedTypes);
+  css += componentStyles;
 
   // Ajouter les styles personnalisés des composants
   css += `
@@ -574,9 +1001,12 @@ function generateJS(project: Project, page: any, options: ExportOptions): string
 document.addEventListener('DOMContentLoaded', function() {
   console.log('${project.name} chargé avec succès');`;
 
-  // Ajouter le code du carrousel seulement s'il y en a un
-  if (usedTypes.has('carousel')) {
-    js += `
+  // Fonction pour générer le JavaScript spécifique aux composants
+  const getComponentSpecificJS = (usedTypes: Set<string>): string => {
+    let jsCode = '';
+    
+    if (usedTypes.has('carousel')) {
+      jsCode += `
   
   // Fonctionnalité carousel
   const carousels = document.querySelectorAll('.carousel-container');
@@ -649,31 +1079,31 @@ document.addEventListener('DOMContentLoaded', function() {
     carousel.addEventListener('mouseenter', stopAutoplay);
     carousel.addEventListener('mouseleave', startAutoplay);
     
-    // Appliquer les couleurs et images personnalisées
+    // Appliquer les couleurs personnalisées
     slides.forEach(slide => {
       const bgColor = slide.getAttribute('data-bg-color');
-      const bgImage = slide.getAttribute('data-bg-image');
       
       if (bgColor) {
         slide.style.backgroundColor = bgColor;
       }
-      
-      if (bgImage) {
-        slide.style.backgroundImage = \`url(\${bgImage})\`;
-        slide.style.backgroundSize = 'cover';
-        slide.style.backgroundPosition = 'center';
-        slide.style.backgroundRepeat = 'no-repeat';
-      }
     });
   });`;
-  }
+    }
+    
+    return jsCode;
+  };
+  
+  // Ajouter les fonctionnalités JavaScript conditionnellement
+  const componentJS = getComponentSpecificJS(usedTypes);
+  js += componentJS;
   
   // Fermer la fonction principale
   js += `
 });`;
 
-  // Ajouter d'autres fonctionnalités génériques si nécessaire
-  js += `
+  // Ajouter les autres fonctionnalités génériques conditionnellement
+  if (usedTypes.has('accordion')) {
+    js += `
 
 // Fonctionnalité accordéon
 document.addEventListener('DOMContentLoaded', function() {
@@ -694,8 +1124,14 @@ document.addEventListener('DOMContentLoaded', function() {
       content.style.display = isOpen ? 'none' : 'block';
     });
   });
-  
-  // Animation au scroll
+});`;
+  }
+
+  // Animation au scroll générique (toujours incluse)
+  js += `
+
+// Animation au scroll
+document.addEventListener('DOMContentLoaded', function() {
   const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'

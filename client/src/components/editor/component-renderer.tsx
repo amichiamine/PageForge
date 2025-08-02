@@ -259,10 +259,6 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                       width: `${100 / slides.length}%`, 
                       height: '100%', 
                       backgroundColor: slide.backgroundColor || '#3b82f6',
-                      backgroundImage: slide.image ? `url(${slide.image})` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center', 
@@ -274,15 +270,31 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                     }}
                   >
                     {slide.image && (
-                      <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.3)',
-                        zIndex: 1
-                      }} />
+                      <>
+                        <img 
+                          src={slide.image} 
+                          alt={slide.title || `Slide ${index + 1}`}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            zIndex: 0
+                          }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: 'rgba(0,0,0,0.3)',
+                          zIndex: 1
+                        }} />
+                      </>
                     )}
                     <div style={{ 
                       position: 'relative', 
