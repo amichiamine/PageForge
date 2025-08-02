@@ -189,56 +189,62 @@ ${indentStr}</div>`;
     // Gestion des listes avec éléments
     if (component.type === 'list' && component.componentData?.listItems) {
       const items = component.componentData.listItems;
+      const listType = component.componentData.listType || 'unordered';
       const itemsHTML = items.map((item: any) => {
-        return `${childIndentStr}<li>${item.link ? `<a href="${item.link}">${item.text}</a>` : item.text}</li>`;
+        return `${childIndentStr}<li class="list-item">${item.link ? `<a href="${item.link}" class="list-link">${item.text}</a>` : item.text}</li>`;
       }).join('\n');
       
-      return `${indentStr}<ul ${idAttr} ${classAttr}>
+      const listTag = listType === 'ordered' ? 'ol' : 'ul';
+      const listClass = listType === 'ordered' ? 'list-ordered' : 'list-unordered';
+      
+      return `${indentStr}<${listTag} ${idAttr} class="list-container ${listClass} ${className || ''}">
 ${itemsHTML}
-${indentStr}</ul>`;
+${indentStr}</${listTag}>`;
     }
 
     // Gestion des accordéons
     if (component.type === 'accordion' && component.componentData?.accordionItems) {
       const items = component.componentData.accordionItems;
       const itemsHTML = items.map((item: any, index: number) => {
-        return `${childIndentStr}<div class="accordion-item" style="border: 1px solid #e5e7eb; margin-bottom: 8px; border-radius: 6px;">
-${childIndentStr}  <button class="accordion-header" style="width: 100%; padding: 12px; background: #f9fafb; border: none; text-align: left; font-weight: 600; cursor: pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+        return `${childIndentStr}<div class="accordion-item">
+${childIndentStr}  <button class="accordion-header">
 ${childIndentStr}    ${item.question}
 ${childIndentStr}  </button>
-${childIndentStr}  <div class="accordion-content" style="padding: 12px; display: ${index === 0 ? 'block' : 'none'}; border-top: 1px solid #e5e7eb;">
+${childIndentStr}  <div class="accordion-content ${index === 0 ? 'accordion-open' : 'accordion-closed'}">
 ${childIndentStr}    ${item.answer}
 ${childIndentStr}  </div>
 ${childIndentStr}</div>`;
       }).join('\n');
       
-      return `${indentStr}${openingTag}
+      return `${indentStr}<div ${idAttr} class="accordion-container ${className || ''}">
 ${itemsHTML}
-${indentStr}</${tag}>`;
+${indentStr}</div>`;
     }
 
     // Gestion des grilles avec éléments
     if (component.type === 'grid' && component.componentData?.gridItems) {
       const items = component.componentData.gridItems;
       const itemsHTML = items.map((item: any) => {
-        return `${childIndentStr}<div class="grid-item" style="padding: 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-${childIndentStr}  ${item.title ? `<h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">${item.title}</h3>` : ''}
-${childIndentStr}  ${item.content ? `<p style="margin: 0; color: #6b7280;">${item.content}</p>` : ''}
+        return `${childIndentStr}<div class="grid-item">
+${childIndentStr}  ${item.title ? `<h3 class="grid-item-title">${item.title}</h3>` : ''}
+${childIndentStr}  ${item.content ? `<p class="grid-item-content">${item.content}</p>` : ''}
 ${childIndentStr}</div>`;
       }).join('\n');
       
-      return `${indentStr}${openingTag}
+      return `${indentStr}<div ${idAttr} class="grid-container ${className || ''}">
 ${itemsHTML}
-${indentStr}</${tag}>`;
+${indentStr}</div>`;
     }
 
     // Gestion spécifique pour les images
     if (component.type === 'image') {
       if (attributes.src) {
-        return `${indentStr}<img src="${attributes.src}" alt="${attributes.alt || ''}" ${idAttr} ${classAttr} ${attributeString} />`;
+        return `${indentStr}<div ${idAttr} class="image-container ${className || ''}">
+${childIndentStr}<img src="${attributes.src}" alt="${attributes.alt || ''}" class="image-element image-responsive" />
+${indentStr}</div>`;
       } else {
-        return `${indentStr}<div ${idAttr} ${classAttr} style="background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; color: #6b7280; padding: 20px;">
-${childIndentStr}📷 Image non configurée
+        return `${indentStr}<div ${idAttr} class="image-container image-placeholder ${className || ''}">
+${childIndentStr}<span>📷 Image non configurée</span>
 ${indentStr}</div>`;
       }
     }
@@ -246,13 +252,15 @@ ${indentStr}</div>`;
     // Gestion spécifique pour l'audio
     if (component.type === 'audio') {
       if (attributes.src) {
-        return `${indentStr}<audio controls ${idAttr} ${classAttr} ${attributeString}>
-${childIndentStr}<source src="${attributes.src}" type="audio/mpeg">
-${childIndentStr}Votre navigateur ne supporte pas l'élément audio.
-${indentStr}</audio>`;
+        return `${indentStr}<div ${idAttr} class="audio-container ${className || ''}">
+${childIndentStr}<audio controls class="audio-element">
+${childIndentStr}  <source src="${attributes.src}" type="audio/mpeg">
+${childIndentStr}  Votre navigateur ne supporte pas l'élément audio.
+${childIndentStr}</audio>
+${indentStr}</div>`;
       } else {
-        return `${indentStr}<div ${idAttr} ${classAttr} style="background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; color: #6b7280; padding: 20px;">
-${childIndentStr}🎵 Fichier audio non configuré
+        return `${indentStr}<div ${idAttr} class="audio-container audio-placeholder ${className || ''}">
+${childIndentStr}<span>🎵 Fichier audio non configuré</span>
 ${indentStr}</div>`;
       }
     }
@@ -260,15 +268,226 @@ ${indentStr}</div>`;
     // Gestion spécifique pour la vidéo
     if (component.type === 'video') {
       if (attributes.src) {
-        return `${indentStr}<video controls ${idAttr} ${classAttr} ${attributeString}>
-${childIndentStr}<source src="${attributes.src}" type="video/mp4">
-${childIndentStr}Votre navigateur ne supporte pas l'élément vidéo.
-${indentStr}</video>`;
+        return `${indentStr}<div ${idAttr} class="video-container ${className || ''}">
+${childIndentStr}<video class="video-element" controls>
+${childIndentStr}  <source src="${attributes.src}" type="video/mp4">
+${childIndentStr}  Votre navigateur ne supporte pas l'élément vidéo.
+${childIndentStr}</video>
+${childIndentStr}<div class="video-controls">
+${childIndentStr}  <button class="video-btn" data-action="play">▶</button>
+${childIndentStr}  <button class="video-btn" data-action="pause" style="display: none;">⏸</button>
+${childIndentStr}</div>
+${indentStr}</div>`;
       } else {
-        return `${indentStr}<div ${idAttr} ${classAttr} style="background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; color: #6b7280; padding: 20px;">
-${childIndentStr}🎬 Vidéo non configurée
+        return `${indentStr}<div ${idAttr} class="video-container video-placeholder ${className || ''}">
+${childIndentStr}<span>🎬 Vidéo non configurée</span>
 ${indentStr}</div>`;
       }
+    }
+
+    // Gestion pour les formulaires
+    if (component.type === 'form' && component.componentData?.formFields) {
+      const fields = component.componentData.formFields;
+      const fieldsHTML = fields.map((field: any) => {
+        switch (field.type) {
+          case 'input':
+            return `${childIndentStr}<div class="form-group">
+${childIndentStr}  <label class="form-label">${field.label}</label>
+${childIndentStr}  <input type="text" class="form-input" name="${field.name}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''} />
+${childIndentStr}</div>`;
+          case 'textarea':
+            return `${childIndentStr}<div class="form-group">
+${childIndentStr}  <label class="form-label">${field.label}</label>
+${childIndentStr}  <textarea class="form-textarea" name="${field.name}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}></textarea>
+${childIndentStr}</div>`;
+          case 'select':
+            const optionsHTML = (field.options || []).map((option: any) => 
+              `${childIndentStr}    <option value="${option.value}">${option.label}</option>`
+            ).join('\n');
+            return `${childIndentStr}<div class="form-group">
+${childIndentStr}  <label class="form-label">${field.label}</label>
+${childIndentStr}  <select class="form-select" name="${field.name}" ${field.required ? 'required' : ''}>
+${optionsHTML}
+${childIndentStr}  </select>
+${childIndentStr}</div>`;
+          default:
+            return '';
+        }
+      }).join('\n');
+      
+      return `${indentStr}<form ${idAttr} class="form-container ${className || ''}" data-form="true">
+${fieldsHTML}
+${childIndentStr}<button type="submit" class="form-button">Envoyer</button>
+${indentStr}</form>`;
+    }
+
+    // Gestion pour les boutons
+    if (component.type === 'button') {
+      const buttonType = component.componentData?.buttonType || 'primary';
+      const buttonText = component.content || 'Bouton';
+      return `${indentStr}<button ${idAttr} class="btn btn-${buttonType} ${className || ''}" type="button">
+${childIndentStr}${buttonText}
+${indentStr}</button>`;
+    }
+
+    // Gestion pour les modales
+    if (component.type === 'modal' && component.componentData) {
+      const modalData = component.componentData;
+      return `${indentStr}<div ${idAttr} class="modal-overlay ${className || ''}" data-modal-hidden="true">
+${childIndentStr}<div class="modal-content">
+${childIndentStr}  <div class="modal-header">
+${childIndentStr}    <h3>${modalData.title || 'Modal'}</h3>
+${childIndentStr}    <button class="modal-close">&times;</button>
+${childIndentStr}  </div>
+${childIndentStr}  <div class="modal-body">
+${childIndentStr}    ${modalData.content || 'Contenu de la modal'}
+${childIndentStr}  </div>
+${childIndentStr}</div>
+${indentStr}</div>`;
+    }
+
+    // Gestion pour les cartes
+    if (component.type === 'card' && component.componentData) {
+      const cardData = component.componentData;
+      return `${indentStr}<div ${idAttr} class="card ${className || ''}">
+${cardData.header ? `${childIndentStr}<div class="card-header">
+${childIndentStr}  <h3 class="card-title">${cardData.header}</h3>
+${childIndentStr}</div>` : ''}
+${childIndentStr}<div class="card-body">
+${childIndentStr}  <p class="card-text">${cardData.content || 'Contenu de la carte'}</p>
+${childIndentStr}</div>
+${cardData.footer ? `${childIndentStr}<div class="card-footer">
+${childIndentStr}  ${cardData.footer}
+${childIndentStr}</div>` : ''}
+${indentStr}</div>`;
+    }
+
+    // Gestion pour les tableaux
+    if (component.type === 'table' && component.componentData?.tableData) {
+      const tableData = component.componentData.tableData;
+      const headers = tableData.headers || [];
+      const rows = tableData.rows || [];
+      
+      const headersHTML = headers.map((header: string) => 
+        `${childIndentStr}    <th>${header}</th>`
+      ).join('\n');
+      
+      const rowsHTML = rows.map((row: string[]) => {
+        const cellsHTML = row.map(cell => `${childIndentStr}    <td>${cell}</td>`).join('\n');
+        return `${childIndentStr}  <tr>
+${cellsHTML}
+${childIndentStr}  </tr>`;
+      }).join('\n');
+      
+      return `${indentStr}<table ${idAttr} class="table ${className || ''}">
+${childIndentStr}<thead>
+${childIndentStr}  <tr>
+${headersHTML}
+${childIndentStr}  </tr>
+${childIndentStr}</thead>
+${childIndentStr}<tbody>
+${rowsHTML}
+${childIndentStr}</tbody>
+${indentStr}</table>`;
+    }
+
+    // Gestion pour les navbars
+    if (component.type === 'navbar' && component.componentData?.menuItems) {
+      const menuItems = component.componentData.menuItems;
+      const brand = component.componentData.brand || 'Brand';
+      
+      const menuHTML = menuItems.map((item: any) => 
+        `${childIndentStr}    <li><a href="${item.link || '#'}" class="navbar-link">${item.text}</a></li>`
+      ).join('\n');
+      
+      return `${indentStr}<nav ${idAttr} class="navbar ${className || ''}">
+${childIndentStr}<div class="navbar-container">
+${childIndentStr}  <a href="#" class="navbar-brand">${brand}</a>
+${childIndentStr}  <button class="navbar-toggle">☰</button>
+${childIndentStr}  <ul class="navbar-nav">
+${menuHTML}
+${childIndentStr}  </ul>
+${childIndentStr}</div>
+${indentStr}</nav>`;
+    }
+
+    // Gestion pour les headers
+    if (component.type === 'header' && component.componentData) {
+      const headerData = component.componentData;
+      const links = headerData.links || [];
+      
+      const linksHTML = links.map((link: any) => 
+        `${childIndentStr}    <a href="${link.url || '#'}" class="header-link">${link.text}</a>`
+      ).join('\n');
+      
+      return `${indentStr}<header ${idAttr} class="header-container ${className || ''}">
+${childIndentStr}<div class="header-content">
+${childIndentStr}  <a href="#" class="header-logo">${headerData.title || 'Site'}</a>
+${childIndentStr}  <nav class="header-nav">
+${linksHTML}
+${childIndentStr}  </nav>
+${childIndentStr}</div>
+${indentStr}</header>`;
+    }
+
+    // Gestion pour les footers
+    if (component.type === 'footer' && component.componentData) {
+      const footerData = component.componentData;
+      const sections = footerData.sections || [];
+      
+      const sectionsHTML = sections.map((section: any) => {
+        const linksHTML = (section.links || []).map((link: any) => 
+          `${childIndentStr}      <a href="${link.url || '#'}" class="footer-link">${link.text}</a>`
+        ).join('\n');
+        
+        return `${childIndentStr}  <div class="footer-section">
+${childIndentStr}    <h3>${section.title}</h3>
+${linksHTML}
+${childIndentStr}  </div>`;
+      }).join('\n');
+      
+      return `${indentStr}<footer ${idAttr} class="footer-container ${className || ''}">
+${childIndentStr}<div class="footer-content">
+${childIndentStr}  <div class="footer-grid">
+${sectionsHTML}
+${childIndentStr}  </div>
+${childIndentStr}  <div class="footer-bottom">
+${childIndentStr}    ${footerData.copyright || '© 2025 Tous droits réservés'}
+${childIndentStr}  </div>
+${childIndentStr}</div>
+${indentStr}</footer>`;
+    }
+
+    // Gestion pour les sidebars
+    if (component.type === 'sidebar' && component.componentData?.menuItems) {
+      const menuItems = component.componentData.menuItems;
+      
+      const menuHTML = menuItems.map((item: any) => 
+        `${childIndentStr}  <li class="sidebar-item">
+${childIndentStr}    <a href="${item.link || '#'}" class="sidebar-link">${item.text}</a>
+${childIndentStr}  </li>`
+      ).join('\n');
+      
+      return `${indentStr}<aside ${idAttr} class="sidebar-container ${className || ''}">
+${childIndentStr}<ul class="sidebar-nav">
+${menuHTML}
+${childIndentStr}</ul>
+${indentStr}</aside>`;
+    }
+
+    // Gestion pour les graphiques
+    if (component.type === 'chart' && component.componentData) {
+      const chartData = component.componentData;
+      return `${indentStr}<div ${idAttr} class="chart-container ${className || ''}" data-chart='${JSON.stringify(chartData)}'>
+${childIndentStr}<h3 class="chart-title">${chartData.title || 'Graphique'}</h3>
+${childIndentStr}<canvas class="chart-canvas" width="400" height="300"></canvas>
+${childIndentStr}<div class="chart-legend">
+${childIndentStr}  <div class="chart-legend-item">
+${childIndentStr}    <div class="chart-legend-color" style="background-color: #3b82f6;"></div>
+${childIndentStr}    <span>Données</span>
+${childIndentStr}  </div>
+${childIndentStr}</div>
+${indentStr}</div>`;
     }
 
     // Contenu et enfants
@@ -524,6 +743,21 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   background: #f3f4f6;
 }
 
+.accordion-content {
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.accordion-open {
+  display: block;
+}
+
+.accordion-closed {
+  display: none;
+}
+
 .accordion-header::after {
   content: '+';
   font-size: 18px;
@@ -597,6 +831,10 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
+
+.modal-overlay[data-modal-hidden="true"] {
+  display: none;
 }
 
 .modal-content {
@@ -1219,6 +1457,99 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
 `;
     }
     
+    // Styles pour audio
+    if (usedTypes.has('audio')) {
+      styles += `
+/* Styles pour audio */
+.audio-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.audio-element {
+  width: 100%;
+  outline: none;
+}
+
+.audio-placeholder {
+  background-color: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  padding: 20px;
+  min-height: 60px;
+}
+`;
+    }
+    
+    // Styles pour text
+    if (usedTypes.has('text') || usedTypes.has('heading') || usedTypes.has('paragraph')) {
+      styles += `
+/* Styles pour text et contenus textuels */
+.text-element {
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.text-heading {
+  font-weight: 600;
+  margin-bottom: 0.5em;
+}
+
+.text-paragraph {
+  margin-bottom: 1em;
+}
+
+.heading {
+  color: #1a202c;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.text-paragraph {
+  color: #4a5568;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+`;
+    }
+    
+    // Styles pour les placeholders d'images
+    if (usedTypes.has('image')) {
+      styles += `
+.image-placeholder {
+  background-color: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  padding: 20px;
+  min-height: 100px;
+}
+
+.video-placeholder,
+.audio-placeholder {
+  background-color: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  padding: 20px;
+  min-height: 100px;
+}
+`;
+    }
+    
     return styles;
   };
   
@@ -1641,6 +1972,167 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     ctx.stroke();
   }`;
+    }
+    
+    // Audio JavaScript
+    if (usedTypes.has('audio')) {
+      jsCode += `
+  
+  // Fonctionnalité audio
+  const audioContainers = document.querySelectorAll('.audio-container');
+  
+  audioContainers.forEach(container => {
+    const audio = container.querySelector('.audio-element');
+    
+    if (audio) {
+      audio.addEventListener('loadedmetadata', () => {
+        console.log('Audio chargé:', audio.duration + 's');
+      });
+      
+      audio.addEventListener('play', () => {
+        // Pause tous les autres audios
+        document.querySelectorAll('.audio-element').forEach(otherAudio => {
+          if (otherAudio !== audio && !otherAudio.paused) {
+            otherAudio.pause();
+          }
+        });
+      });
+    }
+  });`;
+    }
+    
+    // List JavaScript (pour les liens actifs)
+    if (usedTypes.has('list')) {
+      jsCode += `
+  
+  // Fonctionnalité liste
+  const listLinks = document.querySelectorAll('.list-link');
+  
+  listLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Marquer comme actif
+      listLinks.forEach(l => l.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });`;
+    }
+    
+    // Button JavaScript
+    if (usedTypes.has('button')) {
+      jsCode += `
+  
+  // Fonctionnalité boutons
+  const buttons = document.querySelectorAll('.btn');
+  
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Effet visuel de clic
+      this.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        this.style.transform = 'scale(1)';
+      }, 100);
+      
+      console.log('Bouton cliqué:', this.textContent);
+    });
+  });`;
+    }
+    
+    // Table JavaScript (pour le tri)
+    if (usedTypes.has('table')) {
+      jsCode += `
+  
+  // Fonctionnalité table
+  const tableHeaders = document.querySelectorAll('.table th');
+  
+  tableHeaders.forEach((header, index) => {
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', function() {
+      const table = this.closest('.table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+      // Tri simple par colonne
+      rows.sort((a, b) => {
+        const aText = a.children[index].textContent.trim();
+        const bText = b.children[index].textContent.trim();
+        return aText.localeCompare(bText);
+      });
+      
+      // Réinsérer les lignes triées
+      rows.forEach(row => tbody.appendChild(row));
+      
+      console.log('Table triée par colonne:', index + 1);
+    });
+  });`;
+    }
+    
+    // Header JavaScript (pour le sticky)
+    if (usedTypes.has('header')) {
+      jsCode += `
+  
+  // Fonctionnalité header sticky
+  const headers = document.querySelectorAll('.header-container');
+  
+  headers.forEach(header => {
+    let lastScrollY = window.scrollY;
+    
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scroll vers le bas - cacher le header
+        header.style.transform = 'translateY(-100%)';
+      } else {
+        // Scroll vers le haut - montrer le header
+        header.style.transform = 'translateY(0)';
+      }
+      
+      lastScrollY = currentScrollY;
+    });
+  });`;
+    }
+    
+    // Footer JavaScript (pour les liens sociaux)
+    if (usedTypes.has('footer')) {
+      jsCode += `
+  
+  // Fonctionnalité footer
+  const footerLinks = document.querySelectorAll('.footer-link');
+  
+  footerLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Vérifier si c'est un lien externe
+      if (this.href && this.href.startsWith('http') && !this.href.includes(window.location.hostname)) {
+        e.preventDefault();
+        window.open(this.href, '_blank', 'noopener,noreferrer');
+      }
+    });
+  });`;
+    }
+    
+    // Sidebar JavaScript (pour l'accordéon de navigation)
+    if (usedTypes.has('sidebar')) {
+      jsCode += `
+  
+  // Fonctionnalité sidebar
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Retirer la classe active de tous les liens
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      
+      // Ajouter la classe active au lien cliqué
+      this.classList.add('active');
+      
+      // Gérer les sous-menus
+      const submenu = this.nextElementSibling;
+      if (submenu && submenu.classList.contains('sidebar-submenu')) {
+        e.preventDefault();
+        submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+  });`;
     }
     
     return jsCode;
