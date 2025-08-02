@@ -3295,18 +3295,16 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         </div>
       );
 
-    case 'accordion':
-      const accordeonTitleStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
-      const accordeonTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18, multiline: true });
-      const accordeonPadding = getResponsiveSpacing(12);
-      const accordeonSpacing = getResponsiveSpacing(8);
-      
-      const accordeonItems = component.componentData?.items || [];
+    case 'code':
+      const codeTextStyles = getResponsiveContentStyles({ baseSize: 13, minSize: 10, maxSize: 16, multiline: true });
+      const codePadding = getResponsiveSpacing(16);
+      const codeContent = component.componentData?.content || 'console.log("Hello World!");';
+      const codeLanguage = component.componentData?.language || 'javascript';
       
       return (
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
-          className={`accordion-component ${className || ''}`}
+          className={`code-component ${className || ''}`}
           style={{
             ...inlineStyles,
             overflow: 'hidden'
@@ -3314,65 +3312,71 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          {accordeonItems.length > 0 ? (
-            <div style={{ 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: `${accordeonSpacing}px`
-            }}>
-              {accordeonItems.slice(0, 2).map((item: any, index: number) => (
-                <div key={index} style={{ 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                  flex: 1
-                }}>
-                  <div style={{ 
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: `${accordeonPadding}px`,
-                    backgroundColor: '#f8fafc',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    <span style={{
-                      ...accordeonTitleStyles,
-                      fontWeight: '600',
-                      color: '#1f2937'
-                    }}>
-                      {item.title || `Question ${index + 1}`}
-                    </span>
-                    <span style={{ color: '#6b7280' }}>+</span>
-                  </div>
-                  <div style={{ 
-                    padding: `${accordeonPadding}px`,
-                    ...accordeonTextStyles,
-                    color: '#6b7280',
-                    display: 'flex',
-                    alignItems: 'center',
-                    flex: 1
-                  }}>
-                    {item.content || 'Contenu de la réponse...'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
+          <div style={{
+            height: '100%',
+            backgroundColor: '#1f2937',
+            border: '1px solid #374151',
+            borderRadius: '6px',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
             <div style={{
+              backgroundColor: '#374151',
+              padding: `${codePadding / 2}px ${codePadding}px`,
+              borderBottom: '1px solid #4b5563',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              color: '#9ca3af',
-              fontSize: '14px',
-              textAlign: 'center',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px'
+              justifyContent: 'space-between'
             }}>
-              Accordéon vide - Ajoutez des questions/réponses via la configuration
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ef4444'
+                }}></div>
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f59e0b'
+                }}></div>
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: '#10b981'
+                }}></div>
+              </div>
+              <span style={{
+                fontSize: '11px',
+                color: '#9ca3af',
+                fontFamily: 'monospace'
+              }}>
+                {codeLanguage}
+              </span>
             </div>
-          )}
+            <div style={{
+              padding: `${codePadding}px`,
+              height: `calc(100% - ${codePadding * 2}px)`,
+              overflow: 'auto'
+            }}>
+              <pre style={{
+                ...codeTextStyles,
+                fontFamily: 'Monaco, "Lucida Console", monospace',
+                color: '#e5e7eb',
+                margin: 0,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word'
+              }}>
+                {codeContent}
+              </pre>
+            </div>
+          </div>
         </div>
       );
 

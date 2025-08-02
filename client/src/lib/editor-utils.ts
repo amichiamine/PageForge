@@ -1000,6 +1000,30 @@ export function createComponent(type: string): ComponentDefinition {
         },
       };
 
+    case 'code':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        content: 'console.log("Hello World!");',
+        attributes: { className: 'code-component' },
+        componentData: {
+          content: 'console.log("Hello World!");',
+          language: 'javascript'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '200px',
+          backgroundColor: '#1f2937',
+          color: '#e5e7eb',
+          fontFamily: 'Monaco, "Lucida Console", monospace',
+          fontSize: '13px',
+          padding: '16px',
+          border: '1px solid #374151',
+          borderRadius: '6px'
+        },
+      };
+
     default:
       // ❌ ERREUR : Composant non supporté dans createComponent
       console.error(`🚨 EDITOR-UTILS: Composant '${type}' non supporté dans createComponent !`);

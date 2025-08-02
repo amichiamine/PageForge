@@ -215,6 +215,8 @@ export default function PropertiesPanel({
         return renderGridProperties();
       case 'flexbox':
         return renderFlexboxProperties();
+      case 'code':
+        return renderCodeProperties();
       default:
         return renderGenericProperties();
     }
@@ -3335,6 +3337,85 @@ export default function PropertiesPanel({
           <Separator />
         </div>
       </div>
+    </div>
+  );
+
+  // Fonction pour les propriétés du composant code
+  const renderCodeProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Code</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Langage de programmation</Label>
+        <Select
+          value={ensureSelectValue(localComponent?.componentData?.language, 'javascript')}
+          onValueChange={(value) => updateProperty('componentData.language', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="javascript">JavaScript</SelectItem>
+            <SelectItem value="typescript">TypeScript</SelectItem>
+            <SelectItem value="python">Python</SelectItem>
+            <SelectItem value="java">Java</SelectItem>
+            <SelectItem value="cpp">C++</SelectItem>
+            <SelectItem value="html">HTML</SelectItem>
+            <SelectItem value="css">CSS</SelectItem>
+            <SelectItem value="php">PHP</SelectItem>
+            <SelectItem value="ruby">Ruby</SelectItem>
+            <SelectItem value="go">Go</SelectItem>
+            <SelectItem value="rust">Rust</SelectItem>
+            <SelectItem value="json">JSON</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Code source</Label>
+        <Textarea
+          value={localComponent?.componentData?.content || 'console.log("Hello World!");'}
+          onChange={(e) => updateProperty('componentData.content', e.target.value)}
+          className="mt-1 text-sm font-mono"
+          rows={8}
+          placeholder="Saisissez votre code ici..."
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Afficher les numéros de ligne</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.showLineNumbers, 'true')}
+            onValueChange={(value) => updateProperty('componentData.showLineNumbers', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Oui</SelectItem>
+              <SelectItem value="false">Non</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Thème</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.theme, 'dark')}
+            onValueChange={(value) => updateProperty('componentData.theme', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="dark">Sombre</SelectItem>
+              <SelectItem value="light">Clair</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <Separator />
     </div>
   );
 }
