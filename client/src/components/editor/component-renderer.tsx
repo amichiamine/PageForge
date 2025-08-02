@@ -12,7 +12,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
   const attributes = component.attributes || {};
   const { className, ...otherAttributes } = attributes;
 
-  // Convertir les styles CSS en objet React avec normalisation du positionnement
+  // Calculer les dimensions du conteneur pour adaptation du contenu
+  const containerWidth = parseInt(styles.width || '200px');
+  const containerHeight = parseInt(styles.height || '100px');
+  
+  // Convertir les styles CSS en objet React avec adaptation automatique du contenu
   const inlineStyles: React.CSSProperties = {
     position: styles.position as any || 'absolute',
     left: styles.left || '50px',
@@ -23,8 +27,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     color: styles.color || '#000000',
     fontSize: styles.fontSize || '16px',
     fontFamily: styles.fontFamily || 'Arial, sans-serif',
-    padding: '0', // Normalisation : pas de padding par défaut sur le conteneur
-    margin: '0', // Normalisation : pas de margin par défaut sur le conteneur
+    padding: '0',
+    margin: '0',
     border: styles.border || 'none',
     borderRadius: styles.borderRadius || '0px',
     zIndex: parseInt(styles.zIndex || '1000'),
@@ -39,7 +43,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     whiteSpace: styles.whiteSpace as any,
     wordBreak: styles.wordBreak as any,
     objectFit: styles.objectFit as any,
-    overflow: styles.overflow as any || 'visible',
+    overflow: 'hidden', // Forcer le masquage du débordement
     boxShadow: styles.boxShadow,
     transition: styles.transition,
     cursor: styles.cursor,
@@ -49,8 +53,19 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     maxWidth: styles.maxWidth,
     gridTemplateColumns: styles.gridTemplateColumns,
     gap: styles.gap,
-    // Correction critique : alignement du contenu
     boxSizing: 'border-box' as any
+  };
+
+  // Fonction pour adapter la taille du contenu au conteneur
+  const getAdaptiveContentStyles = (baseSize: number = 16): React.CSSProperties => {
+    const scaleFactor = Math.min(containerWidth / 200, containerHeight / 100, 1);
+    return {
+      fontSize: `${Math.max(baseSize * scaleFactor, 10)}px`,
+      lineHeight: '1.2',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    };
   };
 
   // Filtrer les valeurs undefined pour éviter les warnings React
@@ -514,6 +529,10 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'header':
+      const headerTitleSize = Math.max(containerWidth / 10, 12);
+      const headerNavSize = Math.max(containerWidth / 15, 10);
+      const headerPadding = Math.max(containerHeight / 8, 8);
+      
       return (
         <header
           className={`header ${className || ''}`}
@@ -524,20 +543,56 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           <div style={{ 
             width: '100%', 
             height: '100%', 
-            padding: '16px 24px', 
+            padding: `${headerPadding}px`, 
             backgroundColor: '#1f2937', 
             color: 'white', 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
             boxSizing: 'border-box',
-            margin: '0'
+            margin: '0',
+            overflow: 'hidden'
           }}>
-            <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Mon Site Web</div>
-            <nav style={{ display: 'flex', gap: '24px' }}>
-              <a href="#" style={{ color: 'white', textDecoration: 'none', fontSize: '14px' }}>Accueil</a>
-              <a href="#" style={{ color: 'white', textDecoration: 'none', fontSize: '14px' }}>À propos</a>
-              <a href="#" style={{ color: 'white', textDecoration: 'none', fontSize: '14px' }}>Contact</a>
+            <div style={{ 
+              fontSize: `${headerTitleSize}px`, 
+              fontWeight: 'bold',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '60%'
+            }}>
+              Mon Site Web
+            </div>
+            <nav style={{ 
+              display: 'flex', 
+              gap: `${Math.max(containerWidth / 20, 8)}px`,
+              maxWidth: '40%',
+              overflow: 'hidden'
+            }}>
+              <a href="#" style={{ 
+                color: 'white', 
+                textDecoration: 'none', 
+                fontSize: `${headerNavSize}px`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>Accueil</a>
+              <a href="#" style={{ 
+                color: 'white', 
+                textDecoration: 'none', 
+                fontSize: `${headerNavSize}px`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>À propos</a>
+              <a href="#" style={{ 
+                color: 'white', 
+                textDecoration: 'none', 
+                fontSize: `${headerNavSize}px`,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>Contact</a>
             </nav>
           </div>
         </header>
@@ -637,17 +692,23 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'paragraph':
+      const paragraphTextSize = Math.max(containerWidth / 20, 10);
+      const paragraphPadding = Math.max(containerHeight / 15, 4);
       return (
         <p
           className={`text-paragraph ${className || ''}`}
           style={{
             ...inlineStyles,
-            fontSize: styles.fontSize || '16px',
-            lineHeight: '1.6',
+            fontSize: `${paragraphTextSize}px`,
+            lineHeight: '1.4',
             color: styles.color || '#4a5568',
             margin: '0',
-            padding: '0',
-            whiteSpace: 'pre-wrap',
+            padding: `${paragraphPadding}px`,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: Math.max(Math.floor(containerHeight / (paragraphTextSize * 1.4)), 1),
+            WebkitBoxOrient: 'vertical' as any,
             wordBreak: 'break-word'
           }}
           onClick={onClick}
@@ -658,6 +719,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'button':
+      const buttonTextSize = Math.max(containerWidth / 18, 10);
+      const buttonPadding = Math.max(containerHeight / 12, 6);
       return (
         <button
           className={`btn-primary ${className || ''}`}
@@ -667,18 +730,21 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             color: styles.color || '#ffffff',
             border: 'none',
             borderRadius: styles.borderRadius || '8px',
-            padding: styles.padding || '12px 24px',
+            padding: `${buttonPadding}px ${buttonPadding * 1.5}px`,
             cursor: 'pointer',
-            fontSize: styles.fontSize || '14px',
+            fontSize: `${buttonTextSize}px`,
             fontWeight: '500',
-            display: 'inline-flex',
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.2s ease-in-out',
             outline: 'none',
-            userSelect: 'none'
+            userSelect: 'none',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}
           onClick={onClick}
           {...otherAttributes}
@@ -1125,27 +1191,37 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'text':
+      const adaptiveTextSize = Math.max(containerWidth / 15, 10);
       return (
-        <span
+        <div
           className={`text-element ${className || ''}`}
           style={{
             ...inlineStyles,
-            fontSize: styles.fontSize || '16px',
+            fontSize: `${adaptiveTextSize}px`,
             fontWeight: styles.fontWeight || 'normal',
             color: styles.color || '#374151',
             fontFamily: styles.fontFamily || 'inherit',
-            lineHeight: '1.5',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
+            lineHeight: '1.4',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            padding: `${Math.max(containerHeight / 20, 4)}px`
           }}
           onClick={onClick}
           {...otherAttributes}
         >
           {content || 'Texte modifiable'}
-        </span>
+        </div>
       );
 
     case 'filters':
+      const filterTitleSize = Math.max(containerWidth / 12, 12);
+      const filterTextSize = Math.max(containerWidth / 16, 10);
+      const filterPadding = Math.max(containerHeight / 10, 8);
+      const filterGap = Math.max(containerHeight / 15, 4);
+      
       return (
         <div
           className={`filters-component ${className || ''}`}
@@ -1159,23 +1235,66 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             backgroundColor: 'white', 
             border: '1px solid #e5e7eb', 
             borderRadius: '8px', 
-            padding: '16px',
+            padding: `${filterPadding}px`,
             boxSizing: 'border-box',
-            margin: '0'
+            margin: '0',
+            overflow: 'hidden'
           }}>
-            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#1f2937', margin: '0 0 12px 0' }}>Filtres</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input type="checkbox" id="filter1" style={{ marginRight: '4px' }} />
-                <label htmlFor="filter1" style={{ fontSize: '14px', color: '#374151' }}>Catégorie A</label>
+            <h4 style={{ 
+              fontSize: `${filterTitleSize}px`, 
+              fontWeight: '600', 
+              marginBottom: `${filterGap}px`, 
+              color: '#1f2937', 
+              margin: `0 0 ${filterGap}px 0`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Filtres</h4>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: `${Math.max(filterGap / 2, 2)}px`,
+              height: `calc(100% - ${filterTitleSize + filterGap}px)`,
+              overflow: 'hidden'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minHeight: `${filterTextSize + 4}px` }}>
+                <input type="checkbox" id="filter1" style={{ 
+                  marginRight: '2px',
+                  transform: `scale(${Math.min(filterTextSize / 14, 1)})`
+                }} />
+                <label htmlFor="filter1" style={{ 
+                  fontSize: `${filterTextSize}px`, 
+                  color: '#374151',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Catégorie A</label>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input type="checkbox" id="filter2" style={{ marginRight: '4px' }} />
-                <label htmlFor="filter2" style={{ fontSize: '14px', color: '#374151' }}>Catégorie B</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minHeight: `${filterTextSize + 4}px` }}>
+                <input type="checkbox" id="filter2" style={{ 
+                  marginRight: '2px',
+                  transform: `scale(${Math.min(filterTextSize / 14, 1)})`
+                }} />
+                <label htmlFor="filter2" style={{ 
+                  fontSize: `${filterTextSize}px`, 
+                  color: '#374151',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Catégorie B</label>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input type="checkbox" id="filter3" style={{ marginRight: '4px' }} />
-                <label htmlFor="filter3" style={{ fontSize: '14px', color: '#374151' }}>Catégorie C</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minHeight: `${filterTextSize + 4}px` }}>
+                <input type="checkbox" id="filter3" style={{ 
+                  marginRight: '2px',
+                  transform: `scale(${Math.min(filterTextSize / 14, 1)})`
+                }} />
+                <label htmlFor="filter3" style={{ 
+                  fontSize: `${filterTextSize}px`, 
+                  color: '#374151',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>Catégorie C</label>
               </div>
             </div>
           </div>
@@ -1183,6 +1302,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'contact':
+      const contactTitleSize = Math.max(containerWidth / 11, 12);
+      const contactTextSize = Math.max(containerWidth / 16, 10);
+      const contactIconSize = Math.max(containerWidth / 20, 12);
+      const contactPadding = Math.max(containerHeight / 8, 10);
+      const contactGap = Math.max(containerHeight / 12, 6);
+      
       return (
         <div
           className={`contact-info ${className || ''}`}
@@ -1196,23 +1321,72 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             backgroundColor: 'white', 
             border: '1px solid #e5e7eb', 
             borderRadius: '8px', 
-            padding: '20px',
+            padding: `${contactPadding}px`,
             boxSizing: 'border-box',
-            margin: '0'
+            margin: '0',
+            overflow: 'hidden'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#1f2937', margin: '0 0 16px 0' }}>Informations de contact</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '16px' }}>📧</span>
-                <span style={{ fontSize: '14px', color: '#374151' }}>contact@example.com</span>
+            <h3 style={{ 
+              fontSize: `${contactTitleSize}px`, 
+              fontWeight: '600', 
+              marginBottom: `${contactGap}px`, 
+              color: '#1f2937', 
+              margin: `0 0 ${contactGap}px 0`,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>Contact</h3>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: `${Math.max(contactGap / 2, 4)}px`,
+              height: `calc(100% - ${contactTitleSize + contactGap}px)`,
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: `${Math.max(contactGap / 3, 4)}px`,
+                minHeight: `${contactTextSize + 4}px`
+              }}>
+                <span style={{ fontSize: `${contactIconSize}px`, flexShrink: 0 }}>📧</span>
+                <span style={{ 
+                  fontSize: `${contactTextSize}px`, 
+                  color: '#374151',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>contact@example.com</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '16px' }}>📞</span>
-                <span style={{ fontSize: '14px', color: '#374151' }}>+33 1 23 45 67 89</span>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: `${Math.max(contactGap / 3, 4)}px`,
+                minHeight: `${contactTextSize + 4}px`
+              }}>
+                <span style={{ fontSize: `${contactIconSize}px`, flexShrink: 0 }}>📞</span>
+                <span style={{ 
+                  fontSize: `${contactTextSize}px`, 
+                  color: '#374151',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>+33 1 23 45 67 89</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '16px' }}>📍</span>
-                <span style={{ fontSize: '14px', color: '#374151' }}>123 Rue Example, 75001 Paris</span>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: `${Math.max(contactGap / 3, 4)}px`,
+                minHeight: `${contactTextSize + 4}px`
+              }}>
+                <span style={{ fontSize: `${contactIconSize}px`, flexShrink: 0 }}>📍</span>
+                <span style={{ 
+                  fontSize: `${contactTextSize}px`, 
+                  color: '#374151',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>123 Rue Example, Paris</span>
               </div>
             </div>
           </div>
