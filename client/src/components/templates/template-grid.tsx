@@ -280,14 +280,43 @@ function TemplateCard({ template, onPreview, onUseTemplate }: {
           </div>
         )}
 
-        {/* Template preview miniature */}
+        {/* Template preview miniature - Structure visuelle */}
         <div className="absolute bottom-4 left-4 text-white">
-          <div className="space-y-1 opacity-80">
-            {template.content.structure.slice(0, 3).map((_, index) => (
-              <div key={index} className={`bg-white bg-opacity-40 rounded ${
-                index === 0 ? 'w-20 h-2' : index === 1 ? 'w-16 h-1.5' : 'w-12 h-1'
-              }`}></div>
-            ))}
+          <div className="space-y-1 opacity-90">
+            {template.content?.structure?.length > 0 ? (
+              template.content.structure.slice(0, 4).map((component, index) => {
+                // Couleurs basées sur le type de composant
+                const getComponentColor = (comp: any) => {
+                  switch (comp.type) {
+                    case 'header':
+                    case 'navigation': return 'bg-blue-500';
+                    case 'button': return 'bg-green-500';
+                    case 'image': return 'bg-purple-500';
+                    case 'text':
+                    case 'paragraph': return 'bg-gray-300';
+                    default: return 'bg-white';
+                  }
+                };
+                
+                return (
+                  <div 
+                    key={index} 
+                    className={`${getComponentColor(component)} bg-opacity-70 rounded ${
+                      index === 0 ? 'w-20 h-2.5' : 
+                      index === 1 ? 'w-16 h-2' : 
+                      index === 2 ? 'w-14 h-1.5' : 'w-10 h-1'
+                    }`}
+                  ></div>
+                );
+              })
+            ) : (
+              // Template vide
+              <>
+                <div className="w-20 h-2 bg-white bg-opacity-40 rounded"></div>
+                <div className="w-16 h-1.5 bg-white bg-opacity-30 rounded"></div>
+                <div className="w-12 h-1 bg-white bg-opacity-20 rounded"></div>
+              </>
+            )}
           </div>
         </div>
       </div>
