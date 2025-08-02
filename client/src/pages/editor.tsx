@@ -12,7 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/header";
 import VisualEditor from "@/components/editor/visual-editor";
 import ComponentPalette from "@/components/editor/component-palette";
-import PropertiesPanel from "@/components/editor/properties-panel-new";
+import PropertiesPanel from "@/components/editor/properties-panel";
 import { Save, Eye, Download, Code, Smartphone, Tablet, Monitor, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Grid, Layers, Settings, Undo, Redo, Play, Pause } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";

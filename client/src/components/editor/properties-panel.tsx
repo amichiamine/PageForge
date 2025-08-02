@@ -39,36 +39,16 @@ export default function PropertiesPanel({
   // Effect pour détecter les changements de composant
   useEffect(() => {
     if (component) {
-      // S'assurer que componentData existe pour les composants qui en ont besoin
-      const componentWithData = { ...component };
-      let needsUpdate = false;
-      
-      if (component.type === 'grid' && !component.componentData) {
-        componentWithData.componentData = {
-          gridItems: [],
-          columns: 2,
-          gap: '16px',
-          alignment: 'center',
-          itemBackground: '#f3f4f6'
-        };
-        needsUpdate = true;
-      }
-      
-      setLocalComponent(componentWithData);
-      
-      // Propager l'initialisation au projet principal si nécessaire
-      if (needsUpdate) {
-        onComponentUpdate(componentWithData);
-      }
+      setLocalComponent(component);
     } else {
       setLocalComponent(null);
     }
-  }, [component, onComponentUpdate]);
+  }, [component]);
 
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
 
-
+    console.log('🔧 GRID UPDATE:', { path, value, componentType: localComponent.type });
 
     const updatedComponent = { ...localComponent };
 
@@ -109,7 +89,7 @@ export default function PropertiesPanel({
     setLocalComponent(updatedComponent);
     onComponentUpdate(updatedComponent);
     
-
+    console.log('🔧 GRID UPDATED:', { updatedComponent: updatedComponent.componentData });
   };
 
   // Fonction pour rendre les propriétés spécifiques au type de composant
