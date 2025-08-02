@@ -9,8 +9,7 @@ import {
   createComponent, 
   findComponentById, 
   updateComponentInTree, 
-  removeComponentFromTree, 
-  addComponentToTree 
+  removeComponentFromTree
 } from '@/lib/editor-utils';
 
 interface VisualEditorProps {

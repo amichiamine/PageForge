@@ -78,7 +78,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     whiteSpace: styles.whiteSpace as any,
     wordBreak: styles.wordBreak as any,
     objectFit: styles.objectFit as any,
-    overflow: 'hidden', // Forcer le masquage du débordement
+    overflow: containerWidth < 150 || containerHeight < 80 ? 'visible' : 'hidden', // Affichage visible sur petits écrans
     boxShadow: styles.boxShadow,
     transition: 'all 0.2s ease-in-out', // Animation fluide lors du redimensionnement
     cursor: styles.cursor,
@@ -109,11 +109,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       padding = false
     } = config;
 
-    // Calcul responsive basé sur les dimensions réelles
-    const widthRatio = containerWidth / 200;
-    const heightRatio = containerHeight / 100;
+    // Calcul responsive basé sur les dimensions réelles avec limite mobile
+    const widthRatio = Math.max(containerWidth / 200, 0.3); // Minimum 30% sur mobile
+    const heightRatio = Math.max(containerHeight / 100, 0.5); // Minimum 50% sur mobile
     const adaptiveScale = Math.sqrt(widthRatio * heightRatio) * scaleFactor;
     
+    // Assurer une taille minimum lisible sur mobile
     const adaptedSize = Math.min(Math.max(baseSize * adaptiveScale, minSize), maxSize);
     const adaptedPadding = padding ? Math.max(containerWidth / 50, 4) : 0;
     const adaptedLineHeight = multiline ? 1.4 : 1.2;
@@ -122,10 +123,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       fontSize: `${adaptedSize}px`,
       lineHeight: adaptedLineHeight,
       padding: padding ? `${adaptedPadding}px` : '0',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: multiline ? 'normal' : 'nowrap',
-      ...(multiline && {
+      overflow: 'visible', // Changé de 'hidden' à 'visible' pour mobile
+      textOverflow: multiline ? 'clip' : 'ellipsis',
+      whiteSpace: multiline ? 'normal' : (containerWidth < 150 ? 'normal' : 'nowrap'), // Wrapping forcé sur petits écrans
+      wordBreak: containerWidth < 150 ? 'break-word' : 'normal',
+      ...(multiline && containerHeight > 60 && {
         display: '-webkit-box',
         WebkitLineClamp: Math.max(Math.floor(containerHeight / (adaptedSize * adaptedLineHeight)) - 1, 1),
         WebkitBoxOrient: 'vertical' as any
@@ -135,8 +137,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
   // Fonction pour calculer les espacements adaptatifs
   const getResponsiveSpacing = (baseSpacing: number = 16): number => {
-    const scaleFactor = Math.min(containerWidth / 200, containerHeight / 100, 1.5);
-    return Math.max(baseSpacing * scaleFactor, 4);
+    // Améliorer l'espacement pour mobile avec seuils spécifiques
+    const widthFactor = Math.max(containerWidth / 200, 0.4);
+    const heightFactor = Math.max(containerHeight / 100, 0.4);
+    const scaleFactor = Math.min(Math.sqrt(widthFactor * heightFactor), 1.5);
+    return Math.max(baseSpacing * scaleFactor, containerWidth < 150 ? 2 : 4);
   };
 
   // Fonction pour calculer les tailles d'éléments adaptatifs
@@ -1576,24 +1581,27 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               display: 'flex', 
               gap: `${headerGap}px`,
               maxWidth: '40%',
-              overflow: 'hidden',
-              minWidth: 0
+              overflow: containerWidth < 200 ? 'visible' : 'hidden',
+              minWidth: 0,
+              flexWrap: containerWidth < 200 ? 'wrap' : 'nowrap'
             }}>
               {navigation.length > 0 ? navigation.map((item: any, index: number) => (
                 <a key={index} href={item.link || '#'} style={{ 
                   color: 'white', 
                   textDecoration: 'none',
                   ...headerNavStyles,
-                  flexShrink: 0,
-                  lineHeight: 1.2
+                  flexShrink: containerWidth < 200 ? 1 : 0,
+                  lineHeight: 1.2,
+                  fontSize: containerWidth < 150 ? '9px' : headerNavStyles.fontSize
                 }}>{item.text}</a>
               )) : (
                 <span style={{ 
                   color: '#9ca3af', 
                   ...headerNavStyles,
                   flexShrink: 0,
-                  lineHeight: 1.2
-                }}>Aucun menu configuré</span>
+                  lineHeight: 1.2,
+                  fontSize: containerWidth < 150 ? '9px' : headerNavStyles.fontSize
+                }}>Menu</span>
               )}
             </nav>
           </div>
