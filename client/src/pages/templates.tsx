@@ -6,11 +6,13 @@ import Header from "@/components/layout/header";
 import TemplateGrid from "@/components/templates/template-grid";
 import { useState } from "react";
 import { Search, Plus, Filter } from "lucide-react";
+import CreateTemplateModal from "@/components/templates/create-template-modal";
 import type { Template } from "@shared/schema";
 
 export default function Templates() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ["/api/templates"],
@@ -40,7 +42,7 @@ export default function Templates() {
         title="Templates"
         subtitle={`${templates.length} templates disponibles`}
         actions={
-          <Button>
+          <Button onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Créer un Template
           </Button>
@@ -159,6 +161,12 @@ export default function Templates() {
           )}
         </div>
       </main>
+
+      {/* Create Template Modal */}
+      <CreateTemplateModal 
+        open={showCreateModal} 
+        onOpenChange={setShowCreateModal} 
+      />
     </>
   );
 }

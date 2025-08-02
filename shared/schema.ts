@@ -66,6 +66,7 @@ export interface ProjectContent {
 }
 
 export interface ProjectSettings {
+  status?: "draft" | "completed" | "archived" | "published";
   projectType?: "single-page" | "multi-page" | "ftp-integration";
   ftp?: {
     host?: string;

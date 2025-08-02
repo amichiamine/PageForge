@@ -27,19 +27,96 @@ function TemplatePreviewModal({ template, open, onOpenChange, onUseTemplate }: T
   if (!template) return null;
 
   const renderPreview = () => {
-    // Create a simplified preview based on template structure
-    const previewStructure = template.content.structure.slice(0, 3); // Show first 3 components
+    // Create a realistic preview based on template structure
+    const previewStructure = template.content.structure.slice(0, 5);
+    
+    const renderComponent = (component: any, index: number) => {
+      const baseStyles = "transition-all duration-200";
+      
+      switch (component.type) {
+        case 'section':
+        case 'header':
+          return (
+            <div key={index} className={`h-16 rounded ${baseStyles}`} 
+                 style={{ backgroundColor: component.styles?.backgroundColor || '#f3f4f6' }}>
+              <div className="h-full flex items-center px-3">
+                <div className="w-20 h-3 bg-gray-300 rounded"></div>
+                <div className="ml-auto flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          );
+        case 'heading':
+          return (
+            <div key={index} className={`h-8 rounded ${baseStyles}`}>
+              <div className="w-32 h-4 bg-gray-800 rounded mt-2"></div>
+            </div>
+          );
+        case 'paragraph':
+        case 'text':
+          return (
+            <div key={index} className={`space-y-1 ${baseStyles}`}>
+              <div className="w-full h-2 bg-gray-400 rounded"></div>
+              <div className="w-4/5 h-2 bg-gray-400 rounded"></div>
+              <div className="w-3/5 h-2 bg-gray-400 rounded"></div>
+            </div>
+          );
+        case 'button':
+          return (
+            <div key={index} className={`${baseStyles}`}>
+              <div className="w-24 h-6 bg-blue-500 rounded text-xs flex items-center justify-center text-white">
+                Button
+              </div>
+            </div>
+          );
+        case 'image':
+          return (
+            <div key={index} className={`h-12 bg-gray-300 rounded ${baseStyles} flex items-center justify-center`}>
+              <div className="text-gray-500 text-xs">📷</div>
+            </div>
+          );
+        case 'navigation':
+        case 'nav':
+          return (
+            <div key={index} className={`h-6 flex space-x-2 ${baseStyles}`}>
+              <div className="w-12 h-3 bg-gray-400 rounded"></div>
+              <div className="w-16 h-3 bg-gray-400 rounded"></div>
+              <div className="w-14 h-3 bg-gray-400 rounded"></div>
+            </div>
+          );
+        default:
+          return (
+            <div key={index} className={`h-6 bg-gray-200 rounded ${baseStyles}`}>
+              <div className="w-16 h-3 bg-gray-400 rounded mt-1"></div>
+            </div>
+          );
+      }
+    };
     
     return (
       <div className="bg-white border rounded-lg overflow-hidden">
-        <div className="h-64 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl mb-2">🎨</div>
-            <p className="text-gray-600">Aperçu du template</p>
-            <p className="text-sm text-gray-500">{previewStructure.length} composants</p>
-          </div>
+        <div className="h-64 p-4 space-y-3 overflow-hidden">
+          {previewStructure.length > 0 ? (
+            <>
+              {previewStructure.map((component, index) => renderComponent(component, index))}
+              {previewStructure.length < template.content.structure.length && (
+                <div className="text-xs text-gray-400 text-center mt-2">
+                  +{template.content.structure.length - previewStructure.length} autres composants
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <div className="text-2xl mb-2">📄</div>
+                <p className="text-sm">Template vide</p>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="p-4">
+        <div className="p-4 border-t bg-gray-50">
           <h3 className="font-semibold mb-2">{template.name}</h3>
           <p className="text-sm text-gray-600 mb-3">{template.description}</p>
           <div className="flex flex-wrap gap-1">
@@ -203,10 +280,15 @@ function TemplateCard({ template, onPreview, onUseTemplate }: {
           </div>
         )}
 
-        {/* Template preview placeholder */}
+        {/* Template preview miniature */}
         <div className="absolute bottom-4 left-4 text-white">
-          <div className="w-20 h-3 bg-white bg-opacity-30 rounded mb-2"></div>
-          <div className="w-16 h-2 bg-white bg-opacity-30 rounded"></div>
+          <div className="space-y-1 opacity-80">
+            {template.content.structure.slice(0, 3).map((_, index) => (
+              <div key={index} className={`bg-white bg-opacity-40 rounded ${
+                index === 0 ? 'w-20 h-2' : index === 1 ? 'w-16 h-1.5' : 'w-12 h-1'
+              }`}></div>
+            ))}
+          </div>
         </div>
       </div>
 

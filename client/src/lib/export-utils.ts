@@ -126,95 +126,93 @@ Généré avec PageForge - ${new Date().toLocaleDateString()}
 }
 
 function generateHTML(project: Project, page: any, options: ExportOptions): string {
-  const renderComponent = (component: ComponentDefinition): string => {
-    const Tag = component.tag || 'div';
-    
+  const pageStructure = page.content?.structure || [];
+  const title = page.content?.meta?.title || project.name;
+  const description = page.content?.meta?.description || project.description || "";
+  
+  const renderComponent = (component: ComponentDefinition, indent: number = 2): string => {
+    const styles = component.styles || {};
     const attributes = component.attributes || {};
-    const attrString = Object.entries(attributes)
-      .filter(([key]) => key !== 'className')
+    const { className, ...otherAttributes } = attributes;
+
+    const styleString = Object.entries(styles)
+      .filter(([key, value]) => value !== '' && value !== undefined && value !== null)
+      .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
+      .join('; ');
+
+    const attributeString = Object.entries(otherAttributes)
+      .filter(([key, value]) => value !== '' && value !== undefined && value !== null)
       .map(([key, value]) => `${key}="${value}"`)
       .join(' ');
+
+    const tag = component.tag || 'div';
+    const classAttr = className ? `class="${className}"` : '';
+    const indentStr = ' '.repeat(indent);
+
+    const openingTagParts = [
+      classAttr,
+      styleString ? `style="${styleString}"` : '',
+      attributeString
+    ].filter(Boolean).join(' ');
+
+    const openingTag = `<${tag}${openingTagParts ? ' ' + openingTagParts : ''}>`;
+
+    if (component.children && component.children.length > 0) {
+      const childrenHTML = component.children.map(child => 
+        renderComponent(child, indent + 2)
+      ).join('\n');
       
-    const className = attributes.className || '';
-    
-    const children = component.children?.map(renderComponent).join('') || '';
-    const content = component.content || '';
-    
-    // Only add inline styles if explicitly requested, otherwise rely on CSS classes
-    const styleString = component.styles && options.inlineCSS ? 
-      Object.entries(component.styles)
-        .filter(([key, value]) => {
-          // Filter out problematic line-height values that are height dimensions
-          if (key === 'lineHeight' && typeof value === 'string' && value.match(/^\d+px$/)) {
-            const heightValue = parseInt(value);
-            if (heightValue > 50) { // If line-height is greater than 50px, it's probably a height dimension
-              return false;
-            }
-          }
-          // Filter out empty values
-          return value !== '' && value !== null && value !== undefined;
-        })
-        .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
-        .join('; ') : '';
-    const inlineStyle = styleString ? ` style="${styleString}"` : '';
-    
-    return `<${Tag} ${attrString} class="${className}"${inlineStyle}>${content}${children}</${Tag}>`;
+      return `${indentStr}${openingTag}\n${childrenHTML}\n${indentStr}</${tag}>`;
+    } else {
+      const content = component.content || '';
+      if (content) {
+        return `${indentStr}${openingTag}${content}</${tag}>`;
+      }
+      return `${indentStr}${openingTag}</${tag}>`;
+    }
   };
-  
-  const bodyContent = page.content.structure?.map(renderComponent).join('') || '';
-  
-  const cssLink = options.includeCSS && !options.inlineCSS ? 
-    '<link rel="stylesheet" href="styles.css">' : '';
-  
-  const jsScript = options.includeJS ? 
-    '<script src="script.js"></script>' : '';
 
-  const inlineCSSStyles = options.inlineCSS && options.includeCSS ? `
-    <style>
-      ${generateCSS(project, page, options)}
-    </style>
-  ` : '';
+  const bodyContent = pageStructure.map(component => 
+    renderComponent(component, 2)
+  ).join('\n');
 
-  const responsiveMeta = options.responsive ? 
-    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' : '';
+  const cssLink = options.includeCSS && !options.inlineCSS 
+    ? '  <link rel="stylesheet" href="styles.css">\n' 
+    : '';
 
-  const seoMeta = options.seoOptimized ? `
-    <meta name="description" content="${escapeHtml(page.content.meta?.description || project.description || 'Generated with PageForge')}">
-    <meta property="og:title" content="${escapeHtml(page.content.meta?.title || project.name)}">
-    <meta property="og:description" content="${escapeHtml(page.content.meta?.description || project.description || '')}">
-    <meta property="og:type" content="website">
-    <meta name="author" content="PageForge">
-  ` : '';
+  const inlineCSS = options.inlineCSS && options.includeCSS 
+    ? `  <style>\n${generateCSS(project, page, options)}\n  </style>\n`
+    : '';
 
-  function escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-  
+  const jsScript = options.includeJS 
+    ? '  <script src="script.js"></script>\n'
+    : '';
+
+  const responsiveMeta = options.responsive 
+    ? '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+    : '';
+
+  const seoMeta = options.seoOptimized 
+    ? `  <meta name="description" content="${description}">\n  <meta name="author" content="PageForge">\n`
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8">
-    ${responsiveMeta}
-    <title>${page.content.meta?.title || project.name}</title>
-    ${seoMeta}
-    ${cssLink}
-    ${inlineCSSStyles}
-  </head>
-  <body>
-    ${bodyContent}
-    ${jsScript}
-  </body>
+<head>
+  <meta charset="UTF-8">
+${responsiveMeta}  <title>${title}</title>
+${seoMeta}${cssLink}${inlineCSS}</head>
+<body>
+${bodyContent}
+${jsScript}</body>
 </html>`;
 }
 
 function generateCSS(project: Project, page: any, options: ExportOptions): string {
-  let css = `
-/* Global Styles */
+  const globalStyles = project.content?.styles?.global || '';
+  const pageStyles = page.content?.styles || '';
+  
+  let css = `/* Styles générés par PageForge */
 * {
   margin: 0;
   padding: 0;
@@ -222,196 +220,86 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.6;
   color: #333;
 }
 
-/* Component Styles */
+img {
+  max-width: 100%;
+  height: auto;
+}
 `;
 
-  // Add global styles from project
-  if (project.content?.styles?.global) {
-    css += project.content.styles.global + '\n';
-  }
-
-  // Add page-specific styles
-  if (page.content.styles) {
-    css += page.content.styles + '\n';
-  }
-
-  // Extract styles from individual components
-  const componentStyles = extractComponentStyles(page.content.structure || []);
-  if (componentStyles) {
-    css += componentStyles + '\n';
-  }
-
-  // Add responsive styles if requested
   if (options.responsive) {
     css += `
-/* Responsive Styles */
+/* Responsive Design */
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 0 1rem;
   }
   
-  h1, h2, h3, h4, h5, h6 {
-    font-size: 1.5rem;
-  }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.3rem; }
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 0.5rem;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-size: 1.25rem;
-  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.3rem; }
+  h3 { font-size: 1.1rem; }
 }
 `;
+  }
+
+  if (globalStyles) {
+    css += `\n/* Styles globaux */\n${globalStyles}\n`;
+  }
+
+  if (pageStyles) {
+    css += `\n/* Styles de page */\n${pageStyles}\n`;
   }
 
   return options.minify ? css.replace(/\s+/g, ' ').trim() : css;
 }
 
-// Helper function to extract styles from components recursively
-function extractComponentStyles(components: ComponentDefinition[]): string {
-  let css = '';
-  
-  components.forEach(component => {
-    if (component.styles && Object.keys(component.styles).length > 0) {
-      // Convert component styles to CSS class
-      const className = component.attributes?.className || `component-${component.id}`;
-      const styleRules = Object.entries(component.styles)
-        .map(([property, value]) => `  ${camelToKebabCase(property)}: ${value};`)
-        .join('\n');
-      
-      css += `.${className} {\n${styleRules}\n}\n\n`;
-    }
-    
-    // Recursively process children
-    if (component.children && component.children.length > 0) {
-      css += extractComponentStyles(component.children);
-    }
-  });
-  
-  return css;
-}
-
-// Helper function to convert camelCase to kebab-case
-function camelToKebabCase(str: string): string {
-  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
-}
-
-function generateInlineCSS(project: Project, page: any, options: ExportOptions): string {
-  let css = `
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; line-height: 1.6; color: #333; }
-  `;
-
-  if (project.content?.styles?.global) {
-    css += project.content.styles.global;
-  }
-
-  if (page.content.styles) {
-    css += page.content.styles;
-  }
-
-  return css;
-}
-
 function generateJS(project: Project, page: any, options: ExportOptions): string {
-  let js = `
-// Generated JavaScript for ${project.name}
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Page loaded successfully');
+  const pageScripts = page.content?.scripts || '';
   
-  // Initialize interactive components
-  initializeCarousels();
-  initializeCalendars();
-  initializeForms();
-});
-
-function initializeCarousels() {
-  const carousels = document.querySelectorAll('.carousel');
-  carousels.forEach(carousel => {
-    const items = carousel.querySelectorAll('.carousel-item');
-    const dots = carousel.querySelectorAll('.carousel-dot');
-    let currentIndex = 0;
-    
-    function showSlide(index) {
-      items.forEach((item, i) => {
-        item.style.display = i === index ? 'block' : 'none';
-      });
-      dots.forEach((dot, i) => {
-        dot.className = i === index ? 'carousel-dot active' : 'carousel-dot';
-      });
-    }
-    
-    dots.forEach((dot, i) => {
-      dot.addEventListener('click', () => {
-        currentIndex = i;
-        showSlide(currentIndex);
-      });
-    });
-    
-    // Auto-advance carousel every 5 seconds
-    setInterval(() => {
-      currentIndex = (currentIndex + 1) % items.length;
-      showSlide(currentIndex);
-    }, 5000);
-  });
-}
-
-function initializeCalendars() {
-  const calendars = document.querySelectorAll('.calendar');
-  calendars.forEach(calendar => {
-    const prevBtn = calendar.querySelector('.calendar-nav:first-child');
-    const nextBtn = calendar.querySelector('.calendar-nav:last-child');
-    const title = calendar.querySelector('.calendar-title');
-    
-    if (prevBtn && nextBtn && title) {
-      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-                     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-      let currentMonth = 0;
-      let currentYear = 2024;
-      
-      function updateCalendar() {
-        title.textContent = \`\${months[currentMonth]} \${currentYear}\`;
+  let js = `// Scripts générés par PageForge
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('${project.name} chargé avec succès');
+  
+  // Animation au scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
       }
-      
-      prevBtn.addEventListener('click', () => {
-        currentMonth--;
-        if (currentMonth < 0) {
-          currentMonth = 11;
-          currentYear--;
-        }
-        updateCalendar();
-      });
-      
-      nextBtn.addEventListener('click', () => {
-        currentMonth++;
-        if (currentMonth > 11) {
-          currentMonth = 0;
-          currentYear++;
-        }
-        updateCalendar();
-      });
-    }
-  });
-}
-
-function initializeForms() {
-  const forms = document.querySelectorAll('form');
-  forms.forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert('Formulaire soumis avec succès!');
     });
+  }, observerOptions);
+  
+  // Observer tous les éléments avec animation
+  document.querySelectorAll('[data-animate]').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
   });
-}
+});
 `;
 
-  return options.minify ? js.replace(/\s+/g, ' ').trim() : js;
+  if (pageScripts) {
+    js += `\n// Scripts personnalisés\n${pageScripts}\n`;
+  }
+
+  return options.minify 
+    ? js.replace(/\s+/g, ' ').replace(/\/\*[\s\S]*?\*\//g, '').trim()
+    : js;
 }
