@@ -900,37 +900,74 @@ export default function PropertiesPanel({
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-gray-900">Configuration de la Grille</h4>
       
+      {/* PARAMÈTRES GLOBAUX */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label className="text-xs text-gray-600">Nombre de colonnes</Label>
-          <Input
-            type="number"
-            value={localComponent?.componentData?.columns || 2}
-            onChange={(e) => updateProperty('componentData.columns', parseInt(e.target.value))}
-            className="mt-1 text-sm"
-            min="1"
-            max="6"
-          />
+          <Label className="text-xs text-gray-600">Colonnes</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.columns?.toString(), '2')}
+            onValueChange={(value) => updateProperty('componentData.columns', parseInt(value))}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1 colonne</SelectItem>
+              <SelectItem value="2">2 colonnes</SelectItem>
+              <SelectItem value="3">3 colonnes</SelectItem>
+              <SelectItem value="4">4 colonnes</SelectItem>
+              <SelectItem value="5">5 colonnes</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div>
-          <Label className="text-xs text-gray-600">Espacement (gap)</Label>
+          <Label className="text-xs text-gray-600">Espacement</Label>
           <Input
-            type="text"
             value={localComponent?.componentData?.gap || '16px'}
             onChange={(e) => updateProperty('componentData.gap', e.target.value)}
-            placeholder="16px"
             className="mt-1 text-sm"
+            placeholder="16px"
           />
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.alignment, 'center')}
+            onValueChange={(value) => updateProperty('componentData.alignment', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="top">Haut</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="bottom">Bas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Couleur fond éléments</Label>
+          <Input
+            type="color"
+            value={localComponent?.componentData?.itemBackground || '#f3f4f6'}
+            onChange={(e) => updateProperty('componentData.itemBackground', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+      </div>
+
+      {/* GESTION DES COLLECTIONS */}
       <div>
         <Label className="text-xs text-gray-600">Éléments de la grille</Label>
         <div className="space-y-2 mt-1">
           {(localComponent?.componentData?.gridItems || []).map((item: any, index: number) => (
-            <div key={index} className="p-3 border rounded space-y-2">
-              <div className="flex justify-between items-center">
+            <div key={index} className="p-3 border rounded-lg space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-gray-700">Élément {index + 1}</span>
+                {/* SUPPRESSION D'ÉLÉMENT */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -944,6 +981,7 @@ export default function PropertiesPanel({
                   <Minus className="h-3 w-3" />
                 </Button>
               </div>
+              {/* ÉDITION D'ÉLÉMENT INDIVIDUEL */}
               <Input
                 placeholder="Titre de l'élément"
                 value={item.title || ''}
@@ -966,6 +1004,8 @@ export default function PropertiesPanel({
               />
             </div>
           ))}
+          
+          {/* AJOUT D'ÉLÉMENT */}
           <Button
             variant="outline"
             size="sm"
@@ -984,6 +1024,8 @@ export default function PropertiesPanel({
           </Button>
         </div>
       </div>
+
+      <Separator />
     </div>
   );
   const renderFlexboxProperties = () => renderGenericProperties();

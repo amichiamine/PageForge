@@ -144,27 +144,43 @@ ${itemsHTML}
 ${indentStr}</${tag}>`;
     }
 
-    // Gestion des grilles avec éléments
+    // Gestion des grilles avec éléments (Protocole-Component)
     if (component.type === 'grid') {
       const items = component.componentData?.gridItems || [];
+      const columns = component.componentData?.columns || 2;
+      const gap = component.componentData?.gap || '16px';
+      const alignment = component.componentData?.alignment || 'center';
+      const itemBackground = component.componentData?.itemBackground || '#f3f4f6';
       
       if (items.length === 0) {
+        // Export avec placeholder pour grid vide
         return `${indentStr}<div ${idAttr} class="grid-container grid-placeholder ${classAttr ? className : ''}">
-${childIndentStr}<div class="grid-item">
-${childIndentStr}  <h3>Grille</h3>
-${childIndentStr}  <p>Configurez vos éléments dans l'éditeur</p>
+${childIndentStr}<div class="grid-item" style="padding: 20px; background: ${itemBackground}; border: 2px dashed #d1d5db; border-radius: 8px; text-align: center;">
+${childIndentStr}  <h3 style="margin: 0 0 8px 0; color: #6b7280;">Grille</h3>
+${childIndentStr}  <p style="margin: 0; color: #9ca3af; font-size: 14px;">Configurez vos éléments dans l'éditeur</p>
 ${childIndentStr}</div>
 ${indentStr}</div>`;
       }
       
+      // Export complet avec tous les éléments
+      const gridStyle = `
+        display: grid;
+        grid-template-columns: repeat(${columns}, 1fr);
+        gap: ${gap};
+        align-items: ${alignment === 'top' ? 'start' : alignment === 'bottom' ? 'end' : 'center'};
+        padding: 16px;
+        height: 100%;
+        width: 100%;
+      `;
+      
       const itemsHTML = items.map((item: any) => {
-        return `${childIndentStr}<div class="grid-item">
-${childIndentStr}  ${item.title ? `<h3 class="grid-item-title">${item.title}</h3>` : ''}
-${childIndentStr}  ${item.content ? `<p class="grid-item-content">${item.content}</p>` : ''}
+        return `${childIndentStr}<div class="grid-item" style="background: ${itemBackground}; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; min-height: 80px;">
+${childIndentStr}  ${item.title ? `<h3 class="grid-item-title" style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1f2937;">${item.title}</h3>` : ''}
+${childIndentStr}  ${item.content ? `<p class="grid-item-content" style="margin: 0; font-size: 14px; line-height: 1.4; color: #6b7280;">${item.content}</p>` : ''}
 ${childIndentStr}</div>`;
       }).join('\n');
       
-      return `${indentStr}<div ${idAttr} class="grid-container ${classAttr ? className : ''}">
+      return `${indentStr}<div ${idAttr} class="grid-container ${classAttr ? className : ''}" style="${gridStyle}">
 ${itemsHTML}
 ${indentStr}</div>`;
     }
