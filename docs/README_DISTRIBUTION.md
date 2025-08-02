@@ -39,22 +39,24 @@ SiteJet-Distribution/
 │   ├── client/            # Interface utilisateur React
 │   ├── server/            # Serveur Express/Node.js
 │   ├── shared/            # Types et schémas partagés
-│   └── package.json       # Dépendances et scripts
+│   ├── package.json       # Dépendances et scripts
+│   ├── vite.config.ts     # Configuration Vite
+│   └── drizzle.config.ts  # Configuration base de données
 ├── docs/                   # Documentation complète
 │   ├── INSTALLATION_GUIDE_WINDOWS.md
 │   ├── INSTALLATION_GUIDE_LINUX.md
 │   ├── USER_MANUAL.md
 │   └── TROUBLESHOOTING.md
 ├── scripts/               # Scripts d'installation
-│   ├── package-installer.bat  # Windows automatique
-│   ├── package-installer.sh   # Linux/macOS automatique
-│   ├── install-simple.bat     # Windows simple
-│   └── install-minimal.bat    # Windows minimal
+│   ├── install-windows.bat    # Windows batch
+│   ├── install-windows.ps1    # Windows PowerShell
+│   ├── install-linux.sh       # Linux/macOS
+│   ├── Create-Distribution.ps1 # Création package (PowerShell)
+│   └── create-distribution.js  # Création package (Node.js)
 ├── config/                # Fichiers de configuration
-│   ├── .env.example
-│   ├── nginx.conf.example
-│   └── pm2.config.js
-└── README.md              # Ce fichier
+│   ├── .env.example       # Configuration environnement
+│   └── nginx.conf.example # Configuration serveur web
+└── README.md              # Guide installation rapide
 ```
 
 ### Taille du Package
@@ -108,10 +110,11 @@ npm run dev
 
 ### Minimum Requis
 - **Node.js** 18.0+ (https://nodejs.org)
-- **npm** 8.0+ (inclus avec Node.js)
+- **npm** 8.0+ (inclus avec Node.js) 
 - **RAM** 4 Go
-- **Espace disque** 2 Go libres
+- **Espace disque** 1 Go libres (projet à la racine)
 - **Navigateur** moderne (Chrome 90+, Firefox 88+, Safari 14+)
+- **PowerShell** 5.0+ (Windows, pour scripts .ps1)
 
 ### Recommandé
 - **Node.js** 20.0+

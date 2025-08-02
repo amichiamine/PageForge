@@ -114,6 +114,13 @@ Preferred communication style: Simple, everyday language.
 - **Compatibilité Maximale**: Solutions pour tous environnements (VMware, restrictions d'entreprise, politique PowerShell)
 - **Documentation Exhaustive**: README_DISTRIBUTION.md avec toutes méthodes d'installation et résolution de problèmes spécifiques
 
+### Correction Structure Projet et Documentation ✅
+- **Structure Réelle Identifiée**: Projet organisé à la racine (package.json, server/, client/) sans dossier app/
+- **Scripts Corrigés**: Tous les scripts (.bat, .ps1) mis à jour pour chercher ../package.json au lieu de ../app/package.json
+- **Create-Distribution.ps1**: Nouveau script PowerShell pour création de packages avec interface moderne et compression
+- **Documentation Mise à Jour**: README_DISTRIBUTION.md, guides d'installation, et troubleshooting actualisés avec structure réelle
+- **Guide Structure**: Nouveau STRUCTURE_PROJECT_GUIDE.md expliquant l'architecture moderne vs traditionnelle
+
 ### Critical Bug Fixes - Component Alignment ✅
 - **Component Rendering Fixed**: Resolved major visual offset issues where components displayed content misaligned from their positioned frames
 - **Missing Components Added**: Implemented specific rendering cases for "filters" and "contact" components that were falling back to default renderer
