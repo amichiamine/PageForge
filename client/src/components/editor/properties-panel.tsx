@@ -31,6 +31,11 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [localComponent, setLocalComponent] = useState<ComponentDefinition | null>(null);
 
+  // Fonction pour s'assurer qu'une valeur Select n'est jamais vide
+  const ensureSelectValue = (value: string | undefined | null, defaultValue: string): string => {
+    return (value && value.trim() !== '') ? value : defaultValue;
+  };
+
   // Effect pour détecter les changements de composant
   useEffect(() => {
     if (component) {
@@ -216,7 +221,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Défilement automatique</Label>
           <Select
-            value={localComponent?.componentData?.autoplay || 'true'}
+            value={ensureSelectValue(localComponent?.componentData?.autoplay, 'true')}
             onValueChange={(value) => updateProperty('componentData.autoplay', value)}
           >
             <SelectTrigger className="mt-1">
@@ -306,7 +311,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Période</Label>
           <Select
-            value={localComponent?.componentData?.period || '/mois'}
+            value={ensureSelectValue(localComponent?.componentData?.period, '/mois')}
             onValueChange={(value) => updateProperty('componentData.period', value)}
           >
             <SelectTrigger className="mt-1">
@@ -489,7 +494,7 @@ export default function PropertiesPanel({
       <div>
         <Label className="text-xs text-gray-600">Icône</Label>
         <Select
-          value={localComponent?.componentData?.icon || '👥'}
+          value={ensureSelectValue(localComponent?.componentData?.icon, '👥')}
           onValueChange={(value) => updateProperty('componentData.icon', value)}
         >
           <SelectTrigger className="mt-1">
@@ -640,7 +645,7 @@ export default function PropertiesPanel({
       <div>
         <Label className="text-xs text-gray-600">Condition</Label>
         <Select
-          value={localComponent?.componentData?.condition || 'sunny'}
+          value={ensureSelectValue(localComponent?.componentData?.condition, 'sunny')}
           onValueChange={(value) => updateProperty('componentData.condition', value)}
         >
           <SelectTrigger className="mt-1">
@@ -689,7 +694,7 @@ export default function PropertiesPanel({
       <div>
         <Label className="text-xs text-gray-600">Mode d'ajustement</Label>
         <Select
-          value={localComponent?.styles?.objectFit || 'cover'}
+          value={ensureSelectValue(localComponent?.styles?.objectFit, 'cover')}
           onValueChange={(value) => updateProperty('styles.objectFit', value)}
         >
           <SelectTrigger className="mt-1">
@@ -726,7 +731,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Type</Label>
           <Select
-            value={localComponent?.attributes?.type || 'button'}
+            value={ensureSelectValue(localComponent?.attributes?.type, 'button')}
             onValueChange={(value) => updateProperty('attributes.type', value)}
           >
             <SelectTrigger className="mt-1">
@@ -742,7 +747,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Variante</Label>
           <Select
-            value={localComponent?.componentData?.variant || 'primary'}
+            value={ensureSelectValue(localComponent?.componentData?.variant, 'primary')}
             onValueChange={(value) => updateProperty('componentData.variant', value)}
           >
             <SelectTrigger className="mt-1">
@@ -781,7 +786,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Méthode</Label>
           <Select
-            value={localComponent?.attributes?.method || 'POST'}
+            value={ensureSelectValue(localComponent?.attributes?.method, 'POST')}
             onValueChange={(value) => updateProperty('attributes.method', value)}
           >
             <SelectTrigger className="mt-1">
@@ -1122,7 +1127,7 @@ export default function PropertiesPanel({
           <div>
             <Label htmlFor="tag" className="text-xs text-gray-600">Balise HTML</Label>
             <Select
-              value={localComponent.tag || 'div'}
+              value={ensureSelectValue(localComponent.tag, 'div')}
               onValueChange={(value) => updateProperty('tag', value)}
             >
               <SelectTrigger className="mt-1">
