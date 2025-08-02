@@ -12,7 +12,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
   const attributes = component.attributes || {};
   const { className, ...otherAttributes } = attributes;
 
-  // Convertir les styles CSS en objet React
+  // Convertir les styles CSS en objet React avec normalisation du positionnement
   const inlineStyles: React.CSSProperties = {
     position: styles.position as any || 'absolute',
     left: styles.left || '50px',
@@ -23,8 +23,8 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     color: styles.color || '#000000',
     fontSize: styles.fontSize || '16px',
     fontFamily: styles.fontFamily || 'Arial, sans-serif',
-    padding: styles.padding || '10px',
-    margin: styles.margin || '0px',
+    padding: '0', // Normalisation : pas de padding par défaut sur le conteneur
+    margin: '0', // Normalisation : pas de margin par défaut sur le conteneur
     border: styles.border || 'none',
     borderRadius: styles.borderRadius || '0px',
     zIndex: parseInt(styles.zIndex || '1000'),
@@ -39,7 +39,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     whiteSpace: styles.whiteSpace as any,
     wordBreak: styles.wordBreak as any,
     objectFit: styles.objectFit as any,
-    overflow: styles.overflow as any,
+    overflow: styles.overflow as any || 'visible',
     boxShadow: styles.boxShadow,
     transition: styles.transition,
     cursor: styles.cursor,
@@ -48,7 +48,9 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     minHeight: styles.minHeight,
     maxWidth: styles.maxWidth,
     gridTemplateColumns: styles.gridTemplateColumns,
-    gap: styles.gap
+    gap: styles.gap,
+    // Correction critique : alignement du contenu
+    boxSizing: 'border-box' as any
   };
 
   // Filtrer les valeurs undefined pour éviter les warnings React
@@ -519,7 +521,18 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <div style={{ padding: '16px 24px', backgroundColor: '#1f2937', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ 
+            width: '100%', 
+            height: '100%', 
+            padding: '16px 24px', 
+            backgroundColor: '#1f2937', 
+            color: 'white', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            boxSizing: 'border-box',
+            margin: '0'
+          }}>
             <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Mon Site Web</div>
             <nav style={{ display: 'flex', gap: '24px' }}>
               <a href="#" style={{ color: 'white', textDecoration: 'none', fontSize: '14px' }}>Accueil</a>
@@ -1130,6 +1143,80 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         >
           {content || 'Texte modifiable'}
         </span>
+      );
+
+    case 'filters':
+      return (
+        <div
+          className={`filters-component ${className || ''}`}
+          style={inlineStyles}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <div style={{ 
+            width: '100%', 
+            height: '100%', 
+            backgroundColor: 'white', 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px', 
+            padding: '16px',
+            boxSizing: 'border-box',
+            margin: '0'
+          }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#1f2937', margin: '0 0 12px 0' }}>Filtres</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="filter1" style={{ marginRight: '4px' }} />
+                <label htmlFor="filter1" style={{ fontSize: '14px', color: '#374151' }}>Catégorie A</label>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="filter2" style={{ marginRight: '4px' }} />
+                <label htmlFor="filter2" style={{ fontSize: '14px', color: '#374151' }}>Catégorie B</label>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="filter3" style={{ marginRight: '4px' }} />
+                <label htmlFor="filter3" style={{ fontSize: '14px', color: '#374151' }}>Catégorie C</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+    case 'contact':
+      return (
+        <div
+          className={`contact-info ${className || ''}`}
+          style={inlineStyles}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <div style={{ 
+            width: '100%', 
+            height: '100%', 
+            backgroundColor: 'white', 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px', 
+            padding: '20px',
+            boxSizing: 'border-box',
+            margin: '0'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#1f2937', margin: '0 0 16px 0' }}>Informations de contact</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '16px' }}>📧</span>
+                <span style={{ fontSize: '14px', color: '#374151' }}>contact@example.com</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '16px' }}>📞</span>
+                <span style={{ fontSize: '14px', color: '#374151' }}>+33 1 23 45 67 89</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '16px' }}>📍</span>
+                <span style={{ fontSize: '14px', color: '#374151' }}>123 Rue Example, 75001 Paris</span>
+              </div>
+            </div>
+          </div>
+        </div>
       );
 
     default:
