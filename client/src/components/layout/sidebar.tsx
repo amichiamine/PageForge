@@ -31,7 +31,12 @@ const documentation = [
 
 export default function Sidebar() {
   const [location] = useLocation();
-  const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
+  const context = useSidebarContext();
+  console.log('🔍 CONTEXTE COMPLET reçu:', context);
+  console.log('🔍 Type setHideMainSidebar reçu:', typeof context.setHideMainSidebar);
+  console.log('🔍 toString fonction reçue:', context.setHideMainSidebar.toString().substring(0, 150));
+  
+  const { hideMainSidebar, setHideMainSidebar } = context;
   
   console.log('🔄 RENDER Sidebar - hideMainSidebar from context:', hideMainSidebar);
 

@@ -73,8 +73,9 @@ function Router() {
 
   // Debug de la valeur du contexte
   const contextValue = { hideMainSidebar, setHideMainSidebar: directSetHideMainSidebar };
-  console.log('🔥 CONTEXTE VALUE:', contextValue);
+  console.log('🔥 CONTEXTE VALUE envoyé:', contextValue);
   console.log('🔥 Type fonction dans contexte:', typeof contextValue.setHideMainSidebar);
+  console.log('🔥 toString fonction envoyée:', contextValue.setHideMainSidebar.toString().substring(0, 150));
 
   return (
     <SidebarContext.Provider value={contextValue}>
