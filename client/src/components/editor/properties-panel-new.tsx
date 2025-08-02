@@ -5923,16 +5923,6 @@ export default function PropertiesPanel({
                 <div>
                   <Label className="text-xs">URL de l'image</Label>
                   <div className="flex gap-1">
-                    <Input
-                      value={image.src || ''}
-                      onChange={(e) => {
-                        const images = [...(localComponent?.componentData?.images || [])];
-                        images[index] = { ...image, src: e.target.value };
-                        updateProperty('componentData.images', images);
-                      }}
-                      placeholder="https://example.com/image.jpg"
-                      className="text-xs h-7 flex-1"
-                    />
                     <input
                       type="file"
                       accept="image/*"
@@ -5953,9 +5943,20 @@ export default function PropertiesPanel({
                       size="sm"
                       onClick={() => document.getElementById(`file-input-${index}`)?.click()}
                       className="h-7 px-2 text-xs"
+                      title="Parcourir les fichiers"
                     >
                       📁
                     </Button>
+                    <Input
+                      value={image.src || ''}
+                      onChange={(e) => {
+                        const images = [...(localComponent?.componentData?.images || [])];
+                        images[index] = { ...image, src: e.target.value };
+                        updateProperty('componentData.images', images);
+                      }}
+                      placeholder="https://example.com/image.jpg"
+                      className="text-xs h-7 flex-1"
+                    />
                   </div>
                 </div>
                 <div>
