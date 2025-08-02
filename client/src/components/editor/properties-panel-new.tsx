@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
   Trash2, Copy, Eye, EyeOff, Lock, Unlock, PanelLeftOpen, PanelLeftClose, 
   Plus, Minus, ChevronDown, ChevronRight, Layers, Settings, Palette,
@@ -434,9 +434,9 @@ export default function PropertiesPanel({
     const allComponents = getAllPageComponents();
     
     return (
-      <Collapsible open={openSections.elements} onOpenChange={() => toggleSection('elements')}>
-        <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md cursor-pointer hover:bg-blue-100 transition-colors">
+      <Accordion type="single" collapsible defaultValue={openSections.elements ? "elements" : ""} className="w-full">
+        <AccordionItem value="elements">
+          <AccordionTrigger className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md cursor-pointer hover:bg-blue-100 transition-colors">
             <div className="flex items-center space-x-2">
               <Layers className="w-4 h-4 text-blue-600" />
               <span className="font-medium text-blue-900">Éléments de la page</span>
@@ -444,13 +444,8 @@ export default function PropertiesPanel({
                 {allComponents.length}
               </Badge>
             </div>
-            {openSections.elements ? 
-              <ChevronDown className="w-4 h-4 text-blue-600" /> : 
-              <ChevronRight className="w-4 h-4 text-blue-600" />
-            }
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3">
+          </AccordionTrigger>
+          <AccordionContent className="pt-3">
           <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {allComponents.map((comp) => (
               <div 
@@ -485,8 +480,9 @@ export default function PropertiesPanel({
               </div>
             )}
           </div>
-        </CollapsibleContent>
-      </Collapsible>
+        </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     );
   };
 
@@ -495,20 +491,15 @@ export default function PropertiesPanel({
     if (!localComponent) return null;
 
     return (
-      <Collapsible open={openSections.properties} onOpenChange={() => toggleSection('properties')}>
-        <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md cursor-pointer hover:bg-green-100 transition-colors">
+      <Accordion type="single" collapsible defaultValue={openSections.properties ? "properties" : ""} className="w-full">
+        <AccordionItem value="properties">
+          <AccordionTrigger className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md cursor-pointer hover:bg-green-100 transition-colors">
             <div className="flex items-center space-x-2">
               <Palette className="w-4 h-4 text-green-600" />
               <span className="font-medium text-green-900">Propriétés CSS</span>
             </div>
-            {openSections.properties ? 
-              <ChevronDown className="w-4 h-4 text-green-600" /> : 
-              <ChevronRight className="w-4 h-4 text-green-600" />
-            }
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3">
+          </AccordionTrigger>
+          <AccordionContent className="pt-3">
           <div className="space-y-4 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2 pb-4">
             {renderLayoutProperties()}
             {renderTypographyProperties()}
@@ -523,8 +514,9 @@ export default function PropertiesPanel({
             {renderTransitionProperties()}
             {renderInteractionProperties()}
           </div>
-        </CollapsibleContent>
-      </Collapsible>
+        </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     );
   };
 
@@ -533,9 +525,9 @@ export default function PropertiesPanel({
     if (!localComponent) return null;
 
     return (
-      <Collapsible open={openSections.configuration} onOpenChange={() => toggleSection('configuration')}>
-        <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-md cursor-pointer hover:bg-purple-100 transition-colors">
+      <Accordion type="single" collapsible defaultValue={openSections.configuration ? "configuration" : ""} className="w-full">
+        <AccordionItem value="configuration">
+          <AccordionTrigger className="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-md cursor-pointer hover:bg-purple-100 transition-colors">
             <div className="flex items-center space-x-2">
               <Settings className="w-4 h-4 text-purple-600" />
               <span className="font-medium text-purple-900">Configuration</span>
@@ -543,18 +535,14 @@ export default function PropertiesPanel({
                 {localComponent.type}
               </Badge>
             </div>
-            {openSections.configuration ? 
-              <ChevronDown className="w-4 h-4 text-purple-600" /> : 
-              <ChevronRight className="w-4 h-4 text-purple-600" />
-            }
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3">
-          <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2 pb-4">
-            {renderComponentSpecificConfiguration()}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+          </AccordionTrigger>
+          <AccordionContent className="pt-3">
+            <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2 pb-4">
+              {renderComponentSpecificConfiguration()}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     );
   };
 
@@ -1813,11 +1801,153 @@ export default function PropertiesPanel({
   };
 
   // Configuration du carrousel
-  const renderCarouselConfiguration = () => (
-    <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration du Carrousel</h4>
-      
-      <div className="grid grid-cols-2 gap-3">
+  const renderCarouselConfiguration = () => {
+    // Initialiser les slides par défaut si nécessaire
+    if (!localComponent?.componentData?.slides) {
+      updateProperty('componentData.slides', [
+        { image: '', title: 'Slide 1', backgroundColor: '#3b82f6' },
+        { image: '', title: 'Slide 2', backgroundColor: '#8b5cf6' },
+        { image: '', title: 'Slide 3', backgroundColor: '#ef4444' }
+      ]);
+    }
+
+    return (
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-purple-900">Configuration du Carrousel Unifié</h4>
+        
+        {/* Configuration des slides avec gestion unifiée */}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="slides-management">
+            <AccordionTrigger className="text-sm py-2">
+              <div className="flex items-center justify-between w-full pr-4">
+                <span>Gestion des slides (sous-éléments)</span>
+                <Badge variant="outline" className="text-xs">
+                  {(localComponent?.componentData?.slides || []).length} slides
+                </Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                {(localComponent?.componentData?.slides || []).map((slide: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex justify-between items-center mb-2">
+                      <Label className="text-xs font-medium text-blue-600">
+                        carousel-slide-{index} (sous-élément)
+                      </Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const slides = [...(localComponent?.componentData?.slides || [])];
+                          slides.splice(index, 1);
+                          updateProperty('componentData.slides', slides);
+                        }}
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-xs">Image (backgroundImage)</Label>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs px-2"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (e) => {
+                                    const imageUrl = e.target?.result as string;
+                                    const slides = [...(localComponent?.componentData?.slides || [])];
+                                    slides[index] = { ...slide, image: imageUrl };
+                                    console.log('🎠 CAROUSEL SLIDE IMAGE UNIFIED:', { slideIndex: index, imageUrl: imageUrl.substring(0, 50) + '...' });
+                                    updateProperty('componentData.slides', slides);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              };
+                              input.click();
+                            }}
+                          >
+                            <FileImage className="w-3 h-3 mr-1" />
+                            Parcourir
+                          </Button>
+                          <Input
+                            value={slide.image || ''}
+                            onChange={(e) => {
+                              const slides = [...(localComponent?.componentData?.slides || [])];
+                              slides[index] = { ...slide, image: e.target.value };
+                              updateProperty('componentData.slides', slides);
+                            }}
+                            placeholder="https://example.com/image.jpg"
+                            className="text-xs h-7"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">Contenu du slide</Label>
+                        <Input
+                          value={slide.title || ''}
+                          onChange={(e) => {
+                            const slides = [...(localComponent?.componentData?.slides || [])];
+                            slides[index] = { ...slide, title: e.target.value };
+                            updateProperty('componentData.slides', slides);
+                          }}
+                          placeholder="Contenu du slide"
+                          className="text-xs h-7"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">Couleur de fond</Label>
+                        <Input
+                          type="color"
+                          value={slide.backgroundColor || '#3b82f6'}
+                          onChange={(e) => {
+                            const slides = [...(localComponent?.componentData?.slides || [])];
+                            slides[index] = { ...slide, backgroundColor: e.target.value };
+                            updateProperty('componentData.slides', slides);
+                          }}
+                          className="h-7 w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const slides = [...(localComponent?.componentData?.slides || [])];
+                    const newIndex = slides.length;
+                    slides.push({ 
+                      image: '', 
+                      title: `Slide ${newIndex + 1}`,
+                      backgroundColor: `#${Math.floor(Math.random()*16777215).toString(16)}`
+                    });
+                    updateProperty('componentData.slides', slides);
+                  }}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Ajouter un slide
+                </Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        
+        {/* Configuration du comportement */}
+        <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className="text-xs text-gray-600">Vitesse d'animation (ms)</Label>
           <Input
@@ -1866,138 +1996,9 @@ export default function PropertiesPanel({
         </div>
       </div>
 
-      <div>
-        <Label className="text-xs text-gray-600">Slides du carrousel</Label>
-        <div className="space-y-2 mt-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          {(localComponent?.componentData?.slides || []).map((slide: any, index: number) => (
-            <div key={index} className="border rounded p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">Slide {index + 1}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    const slides = [...(localComponent?.componentData?.slides || [])];
-                    slides.splice(index, 1);
-                    updateProperty('componentData.slides', slides);
-                  }}
-                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-6 text-xs px-2"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*';
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (e) => {
-                            const imageUrl = e.target?.result as string;
-                            const slides = [...(localComponent?.componentData?.slides || [])];
-                            slides[index] = { ...slide, image: imageUrl };
-                            updateProperty('componentData.slides', slides);
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      };
-                      input.click();
-                    }}
-                  >
-                    <FileImage className="w-3 h-3" />
-                  </Button>
-                  <span className="text-xs text-gray-500">Image ou URL :</span>
-                </div>
-                <Input
-                  type="url"
-                  placeholder="URL de l'image"
-                  value={slide.image || ''}
-                  onChange={(e) => {
-                    const slides = [...(localComponent?.componentData?.slides || [])];
-                    slides[index] = { ...slide, image: e.target.value };
-                    updateProperty('componentData.slides', slides);
-                  }}
-                  className="text-sm"
-                />
-              </div>
-              <Input
-                placeholder="Titre du slide"
-                value={slide.title || ''}
-                onChange={(e) => {
-                  const slides = [...(localComponent?.componentData?.slides || [])];
-                  slides[index] = { ...slide, title: e.target.value };
-                  updateProperty('componentData.slides', slides);
-                }}
-                className="text-sm"
-              />
-              <Textarea
-                placeholder="Description du slide"
-                value={slide.description || ''}
-                onChange={(e) => {
-                  const slides = [...(localComponent?.componentData?.slides || [])];
-                  slides[index] = { ...slide, description: e.target.value };
-                  updateProperty('componentData.slides', slides);
-                }}
-                className="text-sm resize-none"
-                rows={2}
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  placeholder="Texte du bouton"
-                  value={slide.buttonText || ''}
-                  onChange={(e) => {
-                    const slides = [...(localComponent?.componentData?.slides || [])];
-                    slides[index] = { ...slide, buttonText: e.target.value };
-                    updateProperty('componentData.slides', slides);
-                  }}
-                  className="text-sm"
-                />
-                <Input
-                  placeholder="Lien du bouton"
-                  value={slide.buttonLink || ''}
-                  onChange={(e) => {
-                    const slides = [...(localComponent?.componentData?.slides || [])];
-                    slides[index] = { ...slide, buttonLink: e.target.value };
-                    updateProperty('componentData.slides', slides);
-                  }}
-                  className="text-sm"
-                />
-              </div>
-            </div>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const slides = [...(localComponent?.componentData?.slides || [])];
-              slides.push({ 
-                image: '', 
-                title: `Slide ${slides.length + 1}`,
-                description: '',
-                buttonText: '',
-                buttonLink: ''
-              });
-              updateProperty('componentData.slides', slides);
-            }}
-            className="w-full"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Ajouter un slide
-          </Button>
-        </div>
-      </div>
-      
-      {/* Outils WYSIWYG pour le carrousel */}
+      {/* Outils WYSIWYG pour le carrousel unifié */}
       <div className="space-y-3 pt-3 border-t">
-        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
+        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle du carrousel</h5>
         
         {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan du carrousel', '#ffffff')}
         {renderAdvancedColorPicker('styles.--carousel-dot-color', 'Couleur des indicateurs', '#cbd5e0')}
@@ -2042,6 +2043,7 @@ export default function PropertiesPanel({
       </div>
     </div>
   );
+  };
 
   // Configuration du bouton
   const renderButtonConfiguration = () => (
