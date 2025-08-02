@@ -3295,6 +3295,87 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         </div>
       );
 
+    case 'accordion':
+      const accordeonTitleStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const accordeonTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18, multiline: true });
+      const accordeonPadding = getResponsiveSpacing(12);
+      const accordeonSpacing = getResponsiveSpacing(8);
+      
+      const accordeonItems = component.componentData?.items || [];
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`accordion-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {accordeonItems.length > 0 ? (
+            <div style={{ 
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${accordeonSpacing}px`
+            }}>
+              {accordeonItems.slice(0, 2).map((item: any, index: number) => (
+                <div key={index} style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  flex: 1
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: `${accordeonPadding}px`,
+                    backgroundColor: '#f8fafc',
+                    borderBottom: '1px solid #e5e7eb'
+                  }}>
+                    <span style={{
+                      ...accordeonTitleStyles,
+                      fontWeight: '600',
+                      color: '#1f2937'
+                    }}>
+                      {item.title || `Question ${index + 1}`}
+                    </span>
+                    <span style={{ color: '#6b7280' }}>+</span>
+                  </div>
+                  <div style={{ 
+                    padding: `${accordeonPadding}px`,
+                    ...accordeonTextStyles,
+                    color: '#6b7280',
+                    display: 'flex',
+                    alignItems: 'center',
+                    flex: 1
+                  }}>
+                    {item.content || 'Contenu de la réponse...'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: '#9ca3af',
+              fontSize: '14px',
+              textAlign: 'center',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px'
+            }}>
+              Accordéon vide - Ajoutez des questions/réponses via la configuration
+            </div>
+          )}
+        </div>
+      );
+
     default:
       // ERREUR EXPLICITE : Chaque composant doit avoir sa case spécifique
       const errorMessage = `❌ COMPOSANT NON SUPPORTÉ: ${component.type}`;

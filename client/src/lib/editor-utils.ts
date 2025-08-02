@@ -327,42 +327,425 @@ export function createComponent(type: string): ComponentDefinition {
         attributes: { className: 'chart-component' },
         styles: {
           ...baseComponent.styles,
-          width: '400px',
-          height: '300px',
+          width: '380px',
+          height: '250px',
           backgroundColor: '#ffffff',
           border: '1px solid #e5e7eb',
-          borderRadius: '12px',
-          padding: '24px',
+          borderRadius: '8px',
+          padding: '16px',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          title: '',
-          chartType: 'bar',
-          data: []
+          type: 'bar',
+          title: 'Statistiques',
+          data: [],
+          colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+          showLegend: true,
+          showGrid: true
         }
       };
 
     case 'video':
       return {
         ...baseComponent,
-        tag: 'div',
-        attributes: { className: 'video-component' },
+        tag: 'video',
+        attributes: { 
+          className: 'video-component',
+          controls: true,
+          preload: 'metadata'
+        },
         styles: {
           ...baseComponent.styles,
-          width: '480px',
-          height: '270px',
-          backgroundColor: '#1f2937',
-          borderRadius: '12px',
-          overflow: 'hidden',
+          width: '400px',
+          height: '225px',
+          backgroundColor: '#000000',
+          borderRadius: '8px',
+          objectFit: 'cover'
+        },
+        componentData: {
+          src: '',
+          poster: '',
+          autoplay: false,
+          loop: false,
+          muted: false
+        }
+      };
+
+    case 'audio':
+      return {
+        ...baseComponent,
+        tag: 'audio',
+        attributes: { 
+          className: 'audio-component',
+          controls: true,
+          preload: 'metadata'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '350px',
+          height: '54px',
+          backgroundColor: '#f3f4f6',
+          borderRadius: '8px'
+        },
+        componentData: {
+          src: '',
+          title: 'Fichier audio',
+          autoplay: false,
+          loop: false,
+          volume: 0.5
+        }
+      };
+
+    case 'table':
+      return {
+        ...baseComponent,
+        tag: 'table',
+        attributes: { className: 'table-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '250px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          borderCollapse: 'collapse'
+        },
+        componentData: {
+          headers: [],
+          rows: [],
+          striped: true,
+          bordered: true,
+          hoverable: true
+        }
+      };
+
+    case 'modal':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'modal-trigger' },
+        styles: {
+          ...baseComponent.styles,
+          width: '150px',
+          height: '40px',
+          backgroundColor: '#3b82f6',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '14px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          triggerText: 'Ouvrir Modal',
+          title: 'Titre du Modal',
+          content: 'Contenu du modal...',
+          size: 'medium',
+          backdrop: true
+        }
+      };
+
+    case 'dropdown':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'dropdown-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '200px',
+          height: '40px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #d1d5db',
+          borderRadius: '6px',
           position: 'relative',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          videoUrl: '',
-          title: 'Lecteur Vidéo',
-          autoplay: false,
-          controls: true,
-          poster: ''
+          label: 'Sélectionner...',
+          options: [],
+          placeholder: 'Choisir une option',
+          multiple: false
+        }
+      };
+
+    case 'badge':
+      return {
+        ...baseComponent,
+        tag: 'span',
+        attributes: { className: 'badge-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: 'auto',
+          height: '24px',
+          backgroundColor: '#3b82f6',
+          color: '#ffffff',
+          fontSize: '12px',
+          fontWeight: '500',
+          padding: '4px 8px',
+          borderRadius: '12px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          text: 'Badge',
+          variant: 'primary',
+          size: 'medium'
+        }
+      };
+
+    case 'alert':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'alert-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '350px',
+          height: '80px',
+          backgroundColor: '#dbeafe',
+          border: '1px solid #93c5fd',
+          borderRadius: '8px',
+          padding: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          type: 'info',
+          title: 'Information',
+          message: 'Ceci est un message d\'information.',
+          dismissible: true,
+          icon: true
+        }
+      };
+
+    case 'progress':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'progress-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '20px',
+          backgroundColor: '#f3f4f6',
+          borderRadius: '10px',
+          overflow: 'hidden',
+          position: 'relative'
+        },
+        componentData: {
+          value: 65,
+          max: 100,
+          color: '#3b82f6',
+          showLabel: true,
+          animated: false
+        }
+      };
+
+    case 'slider':
+      return {
+        ...baseComponent,
+        tag: 'input',
+        attributes: { 
+          className: 'slider-component',
+          type: 'range'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '250px',
+          height: '20px',
+          backgroundColor: 'transparent',
+          appearance: 'none',
+          borderRadius: '10px'
+        },
+        componentData: {
+          min: 0,
+          max: 100,
+          value: 50,
+          step: 1,
+          color: '#3b82f6'
+        }
+      };
+
+    case 'toggle':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'toggle-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '50px',
+          height: '28px',
+          backgroundColor: '#d1d5db',
+          borderRadius: '14px',
+          position: 'relative',
+          cursor: 'pointer'
+        },
+        componentData: {
+          checked: false,
+          label: 'Activer',
+          size: 'medium',
+          color: '#3b82f6'
+        }
+      };
+
+    case 'tooltip':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'tooltip-trigger' },
+        styles: {
+          ...baseComponent.styles,
+          width: '100px',
+          height: '30px',
+          backgroundColor: '#6b7280',
+          color: '#ffffff',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '14px',
+          cursor: 'pointer',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          text: 'Survolez-moi',
+          tooltip: 'Ceci est une infobulle',
+          position: 'top',
+          delay: 0
+        }
+      };
+
+    case 'rating':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'rating-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '150px',
+          height: '30px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '20px'
+        },
+        componentData: {
+          rating: 4,
+          maxRating: 5,
+          allowHalfRating: true,
+          readonly: false,
+          icon: '★'
+        }
+      };
+
+    case 'calendar':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'calendar-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '250px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          selectedDate: new Date().toISOString().split('T')[0],
+          minDate: '',
+          maxDate: '',
+          locale: 'fr',
+          showWeekNumbers: false
+        }
+      };
+
+    case 'stepper':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'stepper-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '80px',
+          backgroundColor: '#ffffff',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          steps: [],
+          currentStep: 0,
+          orientation: 'horizontal',
+          showNumbers: true
+        }
+      };
+
+    case 'hero':
+      return {
+        ...baseComponent,
+        tag: 'section',
+        attributes: { className: 'hero-section' },
+        styles: {
+          ...baseComponent.styles,
+          width: '600px',
+          height: '400px',
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          padding: '40px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          title: 'Titre Héro',
+          subtitle: 'Sous-titre descriptif',
+          backgroundImage: '',
+          ctaText: 'Action principale',
+          ctaLink: '#',
+          overlay: true
+        }
+      };
+
+    case 'banner':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'banner-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '500px',
+          height: '100px',
+          backgroundColor: '#fef3c7',
+          border: '1px solid #f59e0b',
+          borderRadius: '8px',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        componentData: {
+          message: 'Message important',
+          type: 'warning',
+          dismissible: true,
+          icon: true,
+          actionText: '',
+          actionLink: ''
         }
       };
 
@@ -373,22 +756,21 @@ export function createComponent(type: string): ComponentDefinition {
         attributes: { className: 'header-component' },
         styles: {
           ...baseComponent.styles,
-          width: '100%',
+          width: '500px',
           height: '80px',
           backgroundColor: '#1f2937',
           color: '#ffffff',
+          padding: '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          position: 'sticky',
-          top: '0',
-          zIndex: '100'
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          logo: '',
-          navigation: []
+          logo: 'Mon Site',
+          navigation: [],
+          showSearch: false,
+          sticky: false
         }
       };
 
@@ -399,18 +781,19 @@ export function createComponent(type: string): ComponentDefinition {
         attributes: { className: 'footer-component' },
         styles: {
           ...baseComponent.styles,
-          width: '100%',
-          height: '200px',
-          backgroundColor: '#1f2937',
+          width: '500px',
+          height: '120px',
+          backgroundColor: '#374151',
           color: '#ffffff',
-          padding: '40px 24px 20px',
+          padding: '24px',
+          textAlign: 'center',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          companyName: '',
+          companyName: 'Mon Entreprise',
           description: '',
           links: [],
-          copyright: ''
+          copyright: '© 2025 Tous droits réservés'
         }
       };
 
@@ -423,14 +806,17 @@ export function createComponent(type: string): ComponentDefinition {
           ...baseComponent.styles,
           width: '250px',
           height: '400px',
-          backgroundColor: '#1f2937',
-          color: '#ffffff',
-          padding: '24px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '16px',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          title: '',
-          menuItems: []
+          title: 'Menu latéral',
+          items: [],
+          collapsible: true,
+          position: 'left'
         }
       };
 
@@ -441,19 +827,22 @@ export function createComponent(type: string): ComponentDefinition {
         attributes: { className: 'navbar-component' },
         styles: {
           ...baseComponent.styles,
-          width: '100%',
-          height: '64px',
+          width: '500px',
+          height: '60px',
           backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e5e7eb',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '8px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
         componentData: {
-          brand: '',
-          menuItems: []
+          brand: 'Marque',
+          items: [],
+          alignment: 'left',
+          style: 'horizontal'
         }
       };
 

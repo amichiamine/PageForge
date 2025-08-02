@@ -205,6 +205,10 @@ export default function PropertiesPanel({
         return renderHeroProperties();
       case 'banner':
         return renderBannerProperties();
+      case 'sidebar':
+        return renderSidebarProperties();
+      case 'navbar':
+        return renderNavbarProperties();
       case 'container':
         return renderContainerProperties();
       case 'grid':
@@ -872,20 +876,1845 @@ export default function PropertiesPanel({
   const renderInputProperties = () => renderGenericProperties();
   const renderTextareaProperties = () => renderGenericProperties();
   const renderCheckboxProperties = () => renderGenericProperties();
+  const renderVideoProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Vidéo</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">URL de la vidéo</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.src || ''}
+          onChange={(e) => updateProperty('componentData.src', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/video.mp4"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Image de couverture</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.poster || ''}
+          onChange={(e) => updateProperty('componentData.poster', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/poster.jpg"
+        />
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.autoplay || false}
+            onCheckedChange={(checked) => updateProperty('componentData.autoplay', checked)}
+          />
+          <Label className="text-xs">Lecture automatique</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.loop || false}
+            onCheckedChange={(checked) => updateProperty('componentData.loop', checked)}
+          />
+          <Label className="text-xs">Boucle</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.muted || false}
+            onCheckedChange={(checked) => updateProperty('componentData.muted', checked)}
+          />
+          <Label className="text-xs">Muet</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderAudioProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Audio</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">URL du fichier audio</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.src || ''}
+          onChange={(e) => updateProperty('componentData.src', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/audio.mp3"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Titre</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Fichier audio'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Volume</Label>
+          <Input
+            type="number"
+            min="0"
+            max="1"
+            step="0.1"
+            value={localComponent?.componentData?.volume || 0.5}
+            onChange={(e) => updateProperty('componentData.volume', parseFloat(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div className="flex items-center space-x-4 mt-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={localComponent?.componentData?.autoplay || false}
+              onCheckedChange={(checked) => updateProperty('componentData.autoplay', checked)}
+            />
+            <Label className="text-xs">Auto</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={localComponent?.componentData?.loop || false}
+              onCheckedChange={(checked) => updateProperty('componentData.loop', checked)}
+            />
+            <Label className="text-xs">Boucle</Label>
+          </div>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderProgressProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Progress</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Valeur</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.value || 65}
+            onChange={(e) => updateProperty('componentData.value', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Maximum</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.max || 100}
+            onChange={(e) => updateProperty('componentData.max', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Couleur</Label>
+        <Input
+          type="color"
+          value={localComponent?.componentData?.color || '#3b82f6'}
+          onChange={(e) => updateProperty('componentData.color', e.target.value)}
+          className="mt-1 h-8"
+        />
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.showLabel ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.showLabel', checked)}
+          />
+          <Label className="text-xs">Afficher le pourcentage</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.animated || false}
+            onCheckedChange={(checked) => updateProperty('componentData.animated', checked)}
+          />
+          <Label className="text-xs">Animation</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderSliderProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Slider</h4>
+      
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Minimum</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.min || 0}
+            onChange={(e) => updateProperty('componentData.min', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Maximum</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.max || 100}
+            onChange={(e) => updateProperty('componentData.max', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Valeur</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.value || 50}
+            onChange={(e) => updateProperty('componentData.value', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Pas</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.step || 1}
+            onChange={(e) => updateProperty('componentData.step', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Couleur</Label>
+          <Input
+            type="color"
+            value={localComponent?.componentData?.color || '#3b82f6'}
+            onChange={(e) => updateProperty('componentData.color', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderToggleProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Toggle</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Libellé</Label>
+        <Input
+          value={localComponent?.componentData?.label || 'Activer'}
+          onChange={(e) => updateProperty('componentData.label', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.size, 'medium')}
+            onValueChange={(value) => updateProperty('componentData.size', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Petit</SelectItem>
+              <SelectItem value="medium">Moyen</SelectItem>
+              <SelectItem value="large">Grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Couleur</Label>
+          <Input
+            type="color"
+            value={localComponent?.componentData?.color || '#3b82f6'}
+            onChange={(e) => updateProperty('componentData.color', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={localComponent?.componentData?.checked || false}
+          onCheckedChange={(checked) => updateProperty('componentData.checked', checked)}
+        />
+        <Label className="text-xs">État initial activé</Label>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderTooltipProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Tooltip</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte déclencheur</Label>
+        <Input
+          value={localComponent?.componentData?.text || 'Survolez-moi'}
+          onChange={(e) => updateProperty('componentData.text', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Contenu de l'infobulle</Label>
+        <Textarea
+          value={localComponent?.componentData?.tooltip || 'Ceci est une infobulle'}
+          onChange={(e) => updateProperty('componentData.tooltip', e.target.value)}
+          className="mt-1 text-sm"
+          rows={2}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Position</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.position, 'top')}
+            onValueChange={(value) => updateProperty('componentData.position', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="top">Haut</SelectItem>
+              <SelectItem value="bottom">Bas</SelectItem>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Délai (ms)</Label>
+          <Input
+            type="number"
+            value={localComponent?.componentData?.delay || 0}
+            onChange={(e) => updateProperty('componentData.delay', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderRatingProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Rating</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Note actuelle</Label>
+          <Input
+            type="number"
+            min="0"
+            value={localComponent?.componentData?.rating || 4}
+            onChange={(e) => updateProperty('componentData.rating', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Note maximum</Label>
+          <Input
+            type="number"
+            min="1"
+            max="10"
+            value={localComponent?.componentData?.maxRating || 5}
+            onChange={(e) => updateProperty('componentData.maxRating', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Icône</Label>
+        <Input
+          value={localComponent?.componentData?.icon || '★'}
+          onChange={(e) => updateProperty('componentData.icon', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="★ ❤️ 👍"
+        />
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.allowHalfRating ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.allowHalfRating', checked)}
+          />
+          <Label className="text-xs">Demi-notes</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.readonly || false}
+            onCheckedChange={(checked) => updateProperty('componentData.readonly', checked)}
+          />
+          <Label className="text-xs">Lecture seule</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderCalendarProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Calendrier</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Date sélectionnée</Label>
+        <Input
+          type="date"
+          value={localComponent?.componentData?.selectedDate || new Date().toISOString().split('T')[0]}
+          onChange={(e) => updateProperty('componentData.selectedDate', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Date minimum</Label>
+          <Input
+            type="date"
+            value={localComponent?.componentData?.minDate || ''}
+            onChange={(e) => updateProperty('componentData.minDate', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Date maximum</Label>
+          <Input
+            type="date"
+            value={localComponent?.componentData?.maxDate || ''}
+            onChange={(e) => updateProperty('componentData.maxDate', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Langue</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.locale, 'fr')}
+            onValueChange={(value) => updateProperty('componentData.locale', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fr">Français</SelectItem>
+              <SelectItem value="en">Anglais</SelectItem>
+              <SelectItem value="es">Espagnol</SelectItem>
+              <SelectItem value="de">Allemand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center space-x-2 mt-4">
+          <Checkbox
+            checked={localComponent?.componentData?.showWeekNumbers || false}
+            onCheckedChange={(checked) => updateProperty('componentData.showWeekNumbers', checked)}
+          />
+          <Label className="text-xs">Numéros de semaine</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderStepperProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Stepper</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Étapes</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.steps || []).map((step: string, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Nom de l'étape"
+                value={step}
+                onChange={(e) => {
+                  const steps = [...(localComponent?.componentData?.steps || [])];
+                  steps[index] = e.target.value;
+                  updateProperty('componentData.steps', steps);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const steps = [...(localComponent?.componentData?.steps || [])];
+                  steps.splice(index, 1);
+                  updateProperty('componentData.steps', steps);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const steps = [...(localComponent?.componentData?.steps || [])];
+              steps.push(`Étape ${steps.length + 1}`);
+              updateProperty('componentData.steps', steps);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une étape
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Étape actuelle</Label>
+          <Input
+            type="number"
+            min="0"
+            value={localComponent?.componentData?.currentStep || 0}
+            onChange={(e) => updateProperty('componentData.currentStep', parseInt(e.target.value))}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Orientation</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.orientation, 'horizontal')}
+            onValueChange={(value) => updateProperty('componentData.orientation', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="horizontal">Horizontale</SelectItem>
+              <SelectItem value="vertical">Verticale</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={localComponent?.componentData?.showNumbers ?? true}
+          onCheckedChange={(checked) => updateProperty('componentData.showNumbers', checked)}
+        />
+        <Label className="text-xs">Afficher les numéros</Label>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderHeroProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Héro</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre principal</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Titre Héro'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Sous-titre</Label>
+        <Textarea
+          value={localComponent?.componentData?.subtitle || 'Sous-titre descriptif'}
+          onChange={(e) => updateProperty('componentData.subtitle', e.target.value)}
+          className="mt-1 text-sm"
+          rows={2}
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Image de fond</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.backgroundImage || ''}
+          onChange={(e) => updateProperty('componentData.backgroundImage', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com/background.jpg"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Texte du bouton</Label>
+          <Input
+            value={localComponent?.componentData?.ctaText || 'Action principale'}
+            onChange={(e) => updateProperty('componentData.ctaText', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Lien du bouton</Label>
+          <Input
+            value={localComponent?.componentData?.ctaLink || '#'}
+            onChange={(e) => updateProperty('componentData.ctaLink', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={localComponent?.componentData?.overlay ?? true}
+          onCheckedChange={(checked) => updateProperty('componentData.overlay', checked)}
+        />
+        <Label className="text-xs">Overlay sombre</Label>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderBannerProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Bannière</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Message</Label>
+        <Textarea
+          value={localComponent?.componentData?.message || 'Message important'}
+          onChange={(e) => updateProperty('componentData.message', e.target.value)}
+          className="mt-1 text-sm"
+          rows={2}
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Type</Label>
+        <Select
+          value={ensureSelectValue(localComponent?.componentData?.type, 'warning')}
+          onValueChange={(value) => updateProperty('componentData.type', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="info">Information</SelectItem>
+            <SelectItem value="success">Succès</SelectItem>
+            <SelectItem value="warning">Avertissement</SelectItem>
+            <SelectItem value="error">Erreur</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Texte d'action</Label>
+          <Input
+            value={localComponent?.componentData?.actionText || ''}
+            onChange={(e) => updateProperty('componentData.actionText', e.target.value)}
+            className="mt-1 text-sm"
+            placeholder="En savoir plus"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Lien d'action</Label>
+          <Input
+            value={localComponent?.componentData?.actionLink || ''}
+            onChange={(e) => updateProperty('componentData.actionLink', e.target.value)}
+            className="mt-1 text-sm"
+            placeholder="#"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.dismissible ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.dismissible', checked)}
+          />
+          <Label className="text-xs">Peut être fermée</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.icon ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.icon', checked)}
+          />
+          <Label className="text-xs">Afficher l'icône</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderHeaderProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration En-tête</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Logo/Marque</Label>
+        <Input
+          value={localComponent?.componentData?.logo || 'Mon Site'}
+          onChange={(e) => updateProperty('componentData.logo', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Navigation</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.navigation || []).map((nav: any, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Libellé"
+                value={nav.label || ''}
+                onChange={(e) => {
+                  const navigation = [...(localComponent?.componentData?.navigation || [])];
+                  navigation[index] = { ...nav, label: e.target.value };
+                  updateProperty('componentData.navigation', navigation);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={nav.href || ''}
+                onChange={(e) => {
+                  const navigation = [...(localComponent?.componentData?.navigation || [])];
+                  navigation[index] = { ...nav, href: e.target.value };
+                  updateProperty('componentData.navigation', navigation);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const navigation = [...(localComponent?.componentData?.navigation || [])];
+                  navigation.splice(index, 1);
+                  updateProperty('componentData.navigation', navigation);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const navigation = [...(localComponent?.componentData?.navigation || [])];
+              navigation.push({ label: 'Accueil', href: '#' });
+              updateProperty('componentData.navigation', navigation);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un lien
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.showSearch || false}
+            onCheckedChange={(checked) => updateProperty('componentData.showSearch', checked)}
+          />
+          <Label className="text-xs">Barre de recherche</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.sticky || false}
+            onCheckedChange={(checked) => updateProperty('componentData.sticky', checked)}
+          />
+          <Label className="text-xs">Sticky</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderFooterProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Pied de page</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Nom de l'entreprise</Label>
+        <Input
+          value={localComponent?.componentData?.companyName || 'Mon Entreprise'}
+          onChange={(e) => updateProperty('componentData.companyName', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Description</Label>
+        <Textarea
+          value={localComponent?.componentData?.description || ''}
+          onChange={(e) => updateProperty('componentData.description', e.target.value)}
+          className="mt-1 text-sm"
+          rows={2}
+          placeholder="Description de votre entreprise"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Copyright</Label>
+        <Input
+          value={localComponent?.componentData?.copyright || '© 2025 Tous droits réservés'}
+          onChange={(e) => updateProperty('componentData.copyright', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Liens</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.links || []).map((link: any, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Libellé"
+                value={link.label || ''}
+                onChange={(e) => {
+                  const links = [...(localComponent?.componentData?.links || [])];
+                  links[index] = { ...link, label: e.target.value };
+                  updateProperty('componentData.links', links);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={link.href || ''}
+                onChange={(e) => {
+                  const links = [...(localComponent?.componentData?.links || [])];
+                  links[index] = { ...link, href: e.target.value };
+                  updateProperty('componentData.links', links);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const links = [...(localComponent?.componentData?.links || [])];
+                  links.splice(index, 1);
+                  updateProperty('componentData.links', links);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const links = [...(localComponent?.componentData?.links || [])];
+              links.push({ label: 'Accueil', href: '#' });
+              updateProperty('componentData.links', links);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un lien
+          </Button>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderSidebarProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Sidebar</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Menu latéral'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Éléments du menu</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Libellé"
+                value={item.label || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, label: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={item.href || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, href: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items.splice(index, 1);
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push({ label: 'Menu', href: '#' });
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Position</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.position, 'left')}
+            onValueChange={(value) => updateProperty('componentData.position', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center space-x-2 mt-4">
+          <Checkbox
+            checked={localComponent?.componentData?.collapsible ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.collapsible', checked)}
+          />
+          <Label className="text-xs">Repliable</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderNavbarProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Navbar</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Marque</Label>
+        <Input
+          value={localComponent?.componentData?.brand || 'Marque'}
+          onChange={(e) => updateProperty('componentData.brand', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Éléments de navigation</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Libellé"
+                value={item.label || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, label: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Lien"
+                value={item.href || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, href: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items.splice(index, 1);
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push({ label: 'Accueil', href: '#' });
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.alignment, 'left')}
+            onValueChange={(value) => updateProperty('componentData.alignment', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Style</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.style, 'horizontal')}
+            onValueChange={(value) => updateProperty('componentData.style', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="horizontal">Horizontal</SelectItem>
+              <SelectItem value="vertical">Vertical</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderChartProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Graphique</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Statistiques'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Type de graphique</Label>
+        <Select
+          value={ensureSelectValue(localComponent?.componentData?.type, 'bar')}
+          onValueChange={(value) => updateProperty('componentData.type', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="bar">Barres</SelectItem>
+            <SelectItem value="line">Ligne</SelectItem>
+            <SelectItem value="pie">Secteurs</SelectItem>
+            <SelectItem value="area">Aires</SelectItem>
+            <SelectItem value="doughnut">Anneau</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Données</Label>
+        <Textarea
+          value={localComponent?.componentData?.data || '10,20,30,40,50'}
+          onChange={(e) => updateProperty('componentData.data', e.target.value)}
+          className="mt-1 text-sm"
+          rows={3}
+          placeholder="Entrez les valeurs séparées par des virgules"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Libellés</Label>
+        <Textarea
+          value={localComponent?.componentData?.labels || 'Jan,Fév,Mar,Avr,Mai'}
+          onChange={(e) => updateProperty('componentData.labels', e.target.value)}
+          className="mt-1 text-sm"
+          rows={2}
+          placeholder="Entrez les libellés séparés par des virgules"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Couleur primaire</Label>
+          <Input
+            type="color"
+            value={localComponent?.componentData?.primaryColor || '#3b82f6'}
+            onChange={(e) => updateProperty('componentData.primaryColor', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+        <div className="flex items-center space-x-2 mt-4">
+          <Checkbox
+            checked={localComponent?.componentData?.showLegend ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.showLegend', checked)}
+          />
+          <Label className="text-xs">Afficher la légende</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderTableProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Tableau</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">En-têtes</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.headers || []).map((header: string, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="En-tête"
+                value={header}
+                onChange={(e) => {
+                  const headers = [...(localComponent?.componentData?.headers || [])];
+                  headers[index] = e.target.value;
+                  updateProperty('componentData.headers', headers);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const headers = [...(localComponent?.componentData?.headers || [])];
+                  headers.splice(index, 1);
+                  updateProperty('componentData.headers', headers);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const headers = [...(localComponent?.componentData?.headers || [])];
+              headers.push(`Colonne ${headers.length + 1}`);
+              updateProperty('componentData.headers', headers);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une colonne
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Lignes de données</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.rows || []).map((row: string[], rowIndex: number) => (
+            <div key={rowIndex} className="space-y-1">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">Ligne {rowIndex + 1}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const rows = [...(localComponent?.componentData?.rows || [])];
+                    rows.splice(rowIndex, 1);
+                    updateProperty('componentData.rows', rows);
+                  }}
+                  className="text-red-600"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {row.map((cell: string, cellIndex: number) => (
+                  <Input
+                    key={cellIndex}
+                    placeholder={`Cellule ${cellIndex + 1}`}
+                    value={cell}
+                    onChange={(e) => {
+                      const rows = [...(localComponent?.componentData?.rows || [])];
+                      rows[rowIndex][cellIndex] = e.target.value;
+                      updateProperty('componentData.rows', rows);
+                    }}
+                    className="text-sm"
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const rows = [...(localComponent?.componentData?.rows || [])];
+              const headerCount = (localComponent?.componentData?.headers || []).length || 2;
+              rows.push(Array(headerCount).fill(''));
+              updateProperty('componentData.rows', rows);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une ligne
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.striped ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.striped', checked)}
+          />
+          <Label className="text-xs">Lignes alternées</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.sortable || false}
+            onCheckedChange={(checked) => updateProperty('componentData.sortable', checked)}
+          />
+          <Label className="text-xs">Tri activé</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
   const renderRadioProperties = () => renderGenericProperties();
   const renderSelectProperties = () => renderGenericProperties();
-  const renderVideoProperties = () => renderGenericProperties();
-  const renderAudioProperties = () => renderGenericProperties();
-  const renderGalleryProperties = () => renderGenericProperties();
-  const renderIconProperties = () => renderGenericProperties();
-  const renderLinkProperties = () => renderGenericProperties();
-  const renderModalProperties = () => renderGenericProperties();
-  const renderDropdownProperties = () => renderGenericProperties();
-  const renderAccordionProperties = () => renderGenericProperties();
-  const renderChartProperties = () => renderGenericProperties();
-  const renderTableProperties = () => renderGenericProperties();
-  const renderListProperties = () => renderGenericProperties();
-  const renderCardProperties = () => renderGenericProperties();
+  const renderGalleryProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Galerie</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Images</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.images || []).map((image: any, index: number) => (
+            <div key={index} className="p-3 border rounded space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Image {index + 1}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const images = [...(localComponent?.componentData?.images || [])];
+                    images.splice(index, 1);
+                    updateProperty('componentData.images', images);
+                  }}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+              </div>
+              <Input
+                placeholder="URL de l'image"
+                value={image.src || ''}
+                onChange={(e) => {
+                  const images = [...(localComponent?.componentData?.images || [])];
+                  images[index] = { ...image, src: e.target.value };
+                  updateProperty('componentData.images', images);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Texte alternatif"
+                value={image.alt || ''}
+                onChange={(e) => {
+                  const images = [...(localComponent?.componentData?.images || [])];
+                  images[index] = { ...image, alt: e.target.value };
+                  updateProperty('componentData.images', images);
+                }}
+                className="text-sm"
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const images = [...(localComponent?.componentData?.images || [])];
+              images.push({ src: '', alt: '' });
+              updateProperty('componentData.images', images);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une image
+          </Button>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderIconProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Icône</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Icône</Label>
+        <Input
+          value={localComponent?.content || '⭐'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Emoji ou caractère"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Input
+            value={localComponent?.styles?.fontSize || '32px'}
+            onChange={(e) => updateProperty('styles.fontSize', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Couleur</Label>
+          <Input
+            type="color"
+            value={localComponent?.styles?.color || '#3b82f6'}
+            onChange={(e) => updateProperty('styles.color', e.target.value)}
+            className="mt-1 h-8"
+          />
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderLinkProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Lien</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte du lien</Label>
+        <Input
+          value={localComponent?.content || 'Lien vers une page'}
+          onChange={(e) => updateProperty('content', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">URL</Label>
+        <Input
+          type="url"
+          value={localComponent?.attributes?.href || '#'}
+          onChange={(e) => updateProperty('attributes.href', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="https://example.com"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Cible</Label>
+        <Select
+          value={ensureSelectValue(localComponent?.attributes?.target, '_self')}
+          onValueChange={(value) => updateProperty('attributes.target', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="_self">Même onglet</SelectItem>
+            <SelectItem value="_blank">Nouvel onglet</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderModalProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Modal</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Texte du bouton</Label>
+        <Input
+          value={localComponent?.componentData?.triggerText || 'Ouvrir Modal'}
+          onChange={(e) => updateProperty('componentData.triggerText', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Titre du modal</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Titre du Modal'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Contenu</Label>
+        <Textarea
+          value={localComponent?.componentData?.content || 'Contenu du modal...'}
+          onChange={(e) => updateProperty('componentData.content', e.target.value)}
+          className="mt-1 text-sm"
+          rows={3}
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Taille</Label>
+        <Select
+          value={ensureSelectValue(localComponent?.componentData?.size, 'medium')}
+          onValueChange={(value) => updateProperty('componentData.size', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Petit</SelectItem>
+            <SelectItem value="medium">Moyen</SelectItem>
+            <SelectItem value="large">Grand</SelectItem>
+            <SelectItem value="fullscreen">Plein écran</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderDropdownProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Dropdown</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Label</Label>
+        <Input
+          value={localComponent?.componentData?.label || 'Sélectionner...'}
+          onChange={(e) => updateProperty('componentData.label', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Options</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.options || []).map((option: any, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Valeur"
+                value={option.value || ''}
+                onChange={(e) => {
+                  const options = [...(localComponent?.componentData?.options || [])];
+                  options[index] = { ...option, value: e.target.value };
+                  updateProperty('componentData.options', options);
+                }}
+                className="text-sm"
+              />
+              <Input
+                placeholder="Libellé"
+                value={option.label || ''}
+                onChange={(e) => {
+                  const options = [...(localComponent?.componentData?.options || [])];
+                  options[index] = { ...option, label: e.target.value };
+                  updateProperty('componentData.options', options);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const options = [...(localComponent?.componentData?.options || [])];
+                  options.splice(index, 1);
+                  updateProperty('componentData.options', options);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const options = [...(localComponent?.componentData?.options || [])];
+              options.push({ value: '', label: '' });
+              updateProperty('componentData.options', options);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une option
+          </Button>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderAccordionProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Accordéon</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Éléments</Label>
+        <div className="space-y-3 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: any, index: number) => (
+            <div key={index} className="p-3 border rounded space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Élément {index + 1}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const items = [...(localComponent?.componentData?.items || [])];
+                    items.splice(index, 1);
+                    updateProperty('componentData.items', items);
+                  }}
+                  className="text-red-600"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+              </div>
+              <Input
+                placeholder="Titre"
+                value={item.title || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, title: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Textarea
+                placeholder="Contenu"
+                value={item.content || ''}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = { ...item, content: e.target.value };
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+                rows={2}
+              />
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push({ title: '', content: '' });
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderChartProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Graphique</h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type</Label>
+          <Select
+            value={ensureSelectValue(localComponent?.componentData?.type, 'bar')}
+            onValueChange={(value) => updateProperty('componentData.type', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="bar">Barres</SelectItem>
+              <SelectItem value="line">Ligne</SelectItem>
+              <SelectItem value="pie">Camembert</SelectItem>
+              <SelectItem value="doughnut">Anneau</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Titre</Label>
+          <Input
+            value={localComponent?.componentData?.title || 'Statistiques'}
+            onChange={(e) => updateProperty('componentData.title', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.showLegend ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.showLegend', checked)}
+          />
+          <Label className="text-xs">Afficher la légende</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.showGrid ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.showGrid', checked)}
+          />
+          <Label className="text-xs">Afficher la grille</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderTableProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Tableau</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">En-têtes</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.headers || []).map((header: string, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="En-tête"
+                value={header}
+                onChange={(e) => {
+                  const headers = [...(localComponent?.componentData?.headers || [])];
+                  headers[index] = e.target.value;
+                  updateProperty('componentData.headers', headers);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const headers = [...(localComponent?.componentData?.headers || [])];
+                  headers.splice(index, 1);
+                  updateProperty('componentData.headers', headers);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const headers = [...(localComponent?.componentData?.headers || [])];
+              headers.push('Nouvelle colonne');
+              updateProperty('componentData.headers', headers);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une colonne
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.striped ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.striped', checked)}
+          />
+          <Label className="text-xs">Lignes alternées</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={localComponent?.componentData?.bordered ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.bordered', checked)}
+          />
+          <Label className="text-xs">Bordures</Label>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderListProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Liste</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Type de liste</Label>
+        <Select
+          value={ensureSelectValue(localComponent?.componentData?.listType, 'unordered')}
+          onValueChange={(value) => updateProperty('componentData.listType', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="unordered">Non ordonnée</SelectItem>
+            <SelectItem value="ordered">Ordonnée</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Éléments</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.items || []).map((item: string, index: number) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                placeholder="Élément de liste"
+                value={item}
+                onChange={(e) => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items[index] = e.target.value;
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-sm"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const items = [...(localComponent?.componentData?.items || [])];
+                  items.splice(index, 1);
+                  updateProperty('componentData.items', items);
+                }}
+                className="text-red-600"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const items = [...(localComponent?.componentData?.items || [])];
+              items.push('Nouvel élément');
+              updateProperty('componentData.items', items);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un élément
+          </Button>
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
+
+  const renderCardProperties = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-gray-900">Configuration Carte</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Image</Label>
+        <Input
+          type="url"
+          value={localComponent?.componentData?.image || ''}
+          onChange={(e) => updateProperty('componentData.image', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="URL de l'image"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Titre</Label>
+        <Input
+          value={localComponent?.componentData?.title || ''}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Description</Label>
+        <Textarea
+          value={localComponent?.componentData?.description || ''}
+          onChange={(e) => updateProperty('componentData.description', e.target.value)}
+          className="mt-1 text-sm"
+          rows={3}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Texte bouton</Label>
+          <Input
+            value={localComponent?.componentData?.buttonText || ''}
+            onChange={(e) => updateProperty('componentData.buttonText', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Lien bouton</Label>
+          <Input
+            value={localComponent?.componentData?.buttonLink || ''}
+            onChange={(e) => updateProperty('componentData.buttonLink', e.target.value)}
+            className="mt-1 text-sm"
+          />
+        </div>
+      </div>
+      <Separator />
+    </div>
+  );
   const renderBadgeProperties = () => renderGenericProperties();
   const renderAlertProperties = () => renderGenericProperties();
   const renderProgressProperties = () => renderGenericProperties();
