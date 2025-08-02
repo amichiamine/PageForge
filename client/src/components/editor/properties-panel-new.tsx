@@ -5929,10 +5929,14 @@ export default function PropertiesPanel({
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const url = URL.createObjectURL(file);
-                          const images = [...(localComponent?.componentData?.images || [])];
-                          images[index] = { ...image, src: url };
-                          updateProperty('componentData.images', images);
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const base64Url = event.target?.result as string;
+                            const images = [...(localComponent?.componentData?.images || [])];
+                            images[index] = { ...image, src: base64Url };
+                            updateProperty('componentData.images', images);
+                          };
+                          reader.readAsDataURL(file);
                         }
                       }}
                       style={{ display: 'none' }}
