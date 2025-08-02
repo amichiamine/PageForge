@@ -97,6 +97,12 @@ Cette procédure permet d'analyser méthodiquement un composant pour identifier 
 - **Symptôme** : Les éléments ne s'ajoutent pas ou ne s'affichent pas
 - **Solution** : Respecter la structure définie dans `editor-utils.ts`
 
+### ❌ Support d'Export Manquant (CRITIQUE)
+- **Problème identifié** : Composant fonctionne dans l'éditeur mais pas dans l'aperçu/export
+- **Symptôme** : L'aperçu ne génère pas le HTML/CSS correct pour le composant
+- **Cause** : Deux fonctions de génération distinctes (editor vs export) avec support différent
+- **Solution** : Synchroniser les fonctions `generateHTML` (export-utils.ts) et `generatePreviewHTML` (editor.tsx)
+
 ## Modèle de Diagnostic
 
 ### Template d'Analyse
@@ -175,8 +181,90 @@ Le composant grid se créait correctement mais la configuration ne fonctionnait 
 - Attention aux conflits entre fonctions génériques et spécialisées
 - L'architecture peut être correcte mais les détails d'implémentation défaillants
 
+## Cas d'Étude : Correction de Gallery (Janvier 2025)
+
+### Problème Rencontré
+Le composant gallery fonctionnait parfaitement dans l'éditeur (configuration, rendu, upload d'images) mais ne s'affichait pas dans l'aperçu ni l'export final.
+
+### Analyse Méthodique
+1. **Création** ✅ - `editor-utils.ts` définit correctement `componentData.images`
+2. **Rendu Éditeur** ✅ - `component-renderer.tsx` affiche les images correctement
+3. **Configuration** ✅ - `properties-panel-new.tsx` avec bouton upload fonctionnel
+4. **Export HTML** ❌ - `export-utils.ts` n'avait pas de support pour `gallery`
+5. **Aperçu Editor** ❌ - `generatePreviewHTML` dans `editor.tsx` ignorait les galeries
+
+### Solution Appliquée
+**Étape 1 - Support Export (export-utils.ts)**
+- Ajout de la gestion spécifique pour `component.type === 'gallery'`
+- Génération HTML avec structure responsive (1-3 colonnes automatique)
+- Support des légendes et états vides avec placeholder
+- Filtrage des images valides avec `images.filter((img: any) => img.src)`
+
+**Étape 2 - Styles CSS Conditionnels (export-utils.ts)**
+- Ajout des styles gallery dans `getComponentSpecificStyles()`
+- Classes CSS responsive : `.gallery-cols-1`, `.gallery-cols-2`, `.gallery-cols-3`
+- Gestion des aspect-ratio et object-fit pour les images
+- Media queries pour l'adaptation mobile
+
+**Étape 3 - Support Aperçu (editor.tsx)**
+- Ajout de la gestion gallery dans `generatePreviewHTML()`
+- Styles inline pour l'aperçu temps réel
+- Structure identique à l'export pour cohérence
+- Gestion correcte des images base64 uploadées
+
+### Code Clé Ajouté
+```typescript
+// Dans generateHTML() et generatePreviewHTML()
+if (component.type === 'gallery') {
+  const images = component.componentData?.images || [];
+  const validImages = images.filter((img: any) => img.src);
+  const columnsClass = validImages.length === 1 ? 'gallery-cols-1' : 
+                      validImages.length === 2 ? 'gallery-cols-2' : 'gallery-cols-3';
+  // ... génération HTML avec grid layout responsive
+}
+```
+
+### Enseignements Critiques
+1. **Double Génération** : L'aperçu utilise `generatePreviewHTML()` différent de l'export `generateHTML()`
+2. **Synchronisation Obligatoire** : Tout nouveau composant doit être supporté dans les DEUX fonctions
+3. **Test Complet** : Valider à la fois l'éditeur ET l'aperçu pour chaque composant
+4. **Export Conditionnel** : Vérifier que les styles CSS sont générés conditionnellement
+
+### Checklist de Validation Gallery
+- ✅ Configuration fonctionnelle avec bouton upload 📁
+- ✅ Rendu temps réel dans l'éditeur
+- ✅ Images base64 correctement traitées 
+- ✅ Aperçu affiche les vraies images
+- ✅ Export HTML inclut le support gallery
+- ✅ Styles CSS conditionnels générés
+- ✅ Responsive design automatique
+- ✅ Gestion des états vides et légendes
+
+### Points de Vigilance Futurs
+- Vérifier systématiquement les deux fonctions de génération lors d'ajouts de composants
+- Tester l'aperçu après chaque modification d'export
+- Maintenir la cohérence entre les structures HTML générées
+- S'assurer que les styles conditionnels couvrent tous les nouveaux composants
+
 ---
 
-**Dernière mise à jour :** Janvier 2025  
+**Dernière mise à jour :** Février 2025  
 **Créé pour :** PageForge - Système de validation des composants  
-**Cas d'étude ajouté :** Correction Grid - Conflit de propriétés componentData
+**Cas d'étude ajouté :** Correction Gallery - Support d'export manquant 
+- ✅ Aperçu affiche les vraies images
+- ✅ Export HTML inclut le support gallery
+- ✅ Styles CSS conditionnels générés
+- ✅ Responsive design automatique
+- ✅ Gestion des états vides et légendes
+
+### Points de Vigilance Futurs
+- Vérifier systématiquement les deux fonctions de génération lors d'ajouts de composants
+- Tester l'aperçu après chaque modification d'export
+- Maintenir la cohérence entre les structures HTML générées
+- S'assurer que les styles conditionnels couvrent tous les nouveaux composants
+
+---
+
+**Dernière mise à jour :** Février 2025  
+**Créé pour :** PageForge - Système de validation des composants  
+**Cas d'étude ajouté :** Correction Gallery - Support d'export manquant

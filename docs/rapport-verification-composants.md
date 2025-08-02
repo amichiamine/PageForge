@@ -25,12 +25,12 @@
 - [ ] **table** - Tableau de données ❌ À CRÉER
 
 ### 📋 Catégorie Média (6 composants)
-- [ ] **image** - Image ou photo
-- [ ] **video** - Lecteur vidéo
-- [ ] **audio** - Lecteur audio
-- [ ] **gallery** - Galerie d'images
-- [ ] **carousel** - Carrousel d'images
-- [ ] **icon** - Icône décorative
+- [x] **image** - Image ou photo ✅ CONFORME
+- [x] **video** - Lecteur vidéo ✅ CONFORME
+- [x] **audio** - Lecteur audio ✅ CONFORME
+- [x] **gallery** - Galerie d'images ✅ CORRIGÉ (Export manquant)
+- [x] **carousel** - Carrousel d'images ✅ CONFORME
+- [ ] **icon** - Icône décorative ❌ À VÉRIFIER
 
 ### 📋 Catégorie Interactif (6 composants)
 - [ ] **button** - Bouton cliquable
@@ -156,7 +156,23 @@
 🎯 **MISSION MASSIVE : Application protocole verif-component sur TOUS les composants restants**
 
 **❌ MANQUANTS dans editor-utils.ts (nombreux) :**
-- section, quote, code, table, audio, gallery, modal, dropdown, pricing, testimonial, team, stats, features, cta, menu, breadcrumb, pagination, tabs, search, calendar, contact, map, social, faq, blog, product, cart, checkout, reviews, wishlist, filters, hero, tooltip, timeline, badge, alert, progress, spinner
+- section, quote, code, table, modal, dropdown, pricing, testimonial, team, stats, features, cta, menu, breadcrumb, pagination, tabs, search, calendar, contact, map, social, faq, blog, product, cart, checkout, reviews, wishlist, filters, hero, tooltip, timeline, badge, alert, progress, spinner
+
+## 🔧 CORRECTIONS RÉCENTES
+
+### Gallery - Février 2025 ✅
+**Problème :** Fonctionnait dans l'éditeur mais pas dans l'aperçu/export
+- ✅ Support ajouté dans generateHTML (export-utils.ts)
+- ✅ Support ajouté dans generatePreviewHTML (editor.tsx)  
+- ✅ Styles CSS conditionnels ajoutés
+- ✅ Responsive design automatique (1-3 colonnes)
+- ✅ Gestion upload images base64 fonctionnelle
+
+### Grid - Janvier 2025 ✅
+**Problème :** Configuration ne fonctionnait pas malgré architecture correcte
+- ✅ Correction componentData.items → componentData.gridItems
+- ✅ Unification structure {title, content}
+- ✅ Ajout options manquantes (alignement, couleur)
 
 ### 🎯 PRIORITÉS
 
