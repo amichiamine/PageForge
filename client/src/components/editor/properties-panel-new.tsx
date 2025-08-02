@@ -56,8 +56,11 @@ export default function PropertiesPanel({
 
 
   // Fonction pour s'assurer qu'une valeur Select n'est jamais vide
-  const ensureSelectValue = (value: string | undefined | null, defaultValue: string): string => {
-    return (value && value.trim() !== '') ? value : defaultValue;
+  const ensureSelectValue = (value: any, defaultValue: string): string => {
+    if (typeof value === 'string' && value.trim() !== '') {
+      return value;
+    }
+    return defaultValue;
   };
 
   // Effect pour détecter les changements de composant
