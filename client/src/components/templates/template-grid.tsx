@@ -215,61 +215,7 @@ function TemplatePreviewModal({ template, open, onOpenChange, onUseTemplate }: T
   );
 }
 
-// Composant pour l'aperçu visuel du template
-function TemplatePreview({ template }: { template: Template }) {
-  const components = template.content?.structure || [];
-  
-  return (
-    <div className="w-full h-full bg-white rounded shadow-sm p-1 text-xs overflow-hidden">
-      {/* Header simulation */}
-      <div className="bg-blue-100 h-4 rounded-sm mb-1 flex items-center px-1">
-        <div className="w-2 h-2 bg-blue-500 rounded-full mr-1"></div>
-        <div className="w-8 h-1 bg-blue-300 rounded"></div>
-      </div>
-      
-      {/* Content simulation basée sur la structure réelle */}
-      <div className="space-y-1">
-        {components.slice(0, 4).map((component, index) => {
-          const getComponentPreview = (comp: any) => {
-            switch (comp.type) {
-              case 'header':
-              case 'navigation':
-                return <div key={index} className="h-3 bg-blue-200 rounded-sm"></div>;
-              case 'hero':
-              case 'banner':
-                return <div key={index} className="h-6 bg-gradient-to-r from-purple-200 to-blue-200 rounded-sm"></div>;
-              case 'button':
-                return <div key={index} className="w-1/3 h-2 bg-green-400 rounded-sm"></div>;
-              case 'text':
-              case 'paragraph':
-                return <div key={index} className="h-1 bg-gray-300 rounded w-4/5"></div>;
-              case 'image':
-                return <div key={index} className="h-4 bg-gray-200 rounded-sm flex items-center justify-center text-gray-400">📷</div>;
-              case 'grid':
-              case 'container':
-                return (
-                  <div key={index} className="grid grid-cols-3 gap-0.5">
-                    <div className="h-2 bg-gray-200 rounded-sm"></div>
-                    <div className="h-2 bg-gray-200 rounded-sm"></div>
-                    <div className="h-2 bg-gray-200 rounded-sm"></div>
-                  </div>
-                );
-              default:
-                return <div key={index} className="h-2 bg-gray-200 rounded-sm w-3/4"></div>;
-            }
-          };
-          
-          return getComponentPreview(component);
-        })}
-        
-        {/* Footer simulation */}
-        <div className="mt-auto pt-1">
-          <div className="h-1 bg-gray-200 rounded w-full"></div>
-        </div>
-      </div>
-    </div>
-  );
-}
+
 
 function TemplateCard({ template, onPreview, onUseTemplate }: { 
   template: Template;
@@ -299,9 +245,40 @@ function TemplateCard({ template, onPreview, onUseTemplate }: {
       <div className={`h-48 bg-gradient-to-br ${getGradientClass(template.category)} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-black bg-opacity-10 group-hover:bg-opacity-20 transition-all duration-200"></div>
         
-        {/* Aperçu visuel du template */}
-        <div className="absolute inset-2 bg-white/10 rounded-lg p-2 backdrop-blur-sm">
-          <TemplatePreview template={template} />
+        {/* Aperçu visuel du template avec mockup réaliste */}
+        <div className="absolute inset-3 bg-white rounded-lg shadow-lg p-2 border">
+          <div className="w-full h-full overflow-hidden">
+            {/* Navigation mockup */}
+            <div className="bg-gray-100 h-4 rounded-t-sm mb-1 flex items-center px-2">
+              <div className="flex space-x-1">
+                <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+              </div>
+              <div className="ml-2 w-12 h-1 bg-gray-300 rounded"></div>
+            </div>
+            
+            {/* Hero section mockup */}
+            <div className="bg-gradient-to-r from-blue-200 to-purple-200 h-8 rounded-sm mb-1 flex items-center justify-center">
+              <div className="w-8 h-1 bg-white/70 rounded"></div>
+            </div>
+            
+            {/* Content grid mockup */}
+            <div className="grid grid-cols-3 gap-1 mb-1">
+              <div className="h-4 bg-gray-200 rounded-sm flex items-center justify-center text-xs">📄</div>
+              <div className="h-4 bg-gray-200 rounded-sm flex items-center justify-center text-xs">🖼️</div>
+              <div className="h-4 bg-gray-200 rounded-sm flex items-center justify-center text-xs">📊</div>
+            </div>
+            
+            {/* Buttons mockup */}
+            <div className="flex space-x-1 mb-1">
+              <div className="w-6 h-2 bg-blue-400 rounded-sm"></div>
+              <div className="w-8 h-2 bg-green-400 rounded-sm"></div>
+            </div>
+            
+            {/* Footer mockup */}
+            <div className="bg-gray-100 h-2 rounded-b-sm"></div>
+          </div>
         </div>
         
         {/* Overlay actions */}
