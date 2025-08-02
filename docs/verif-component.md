@@ -87,6 +87,16 @@ Cette procédure permet d'analyser méthodiquement un composant pour identifier 
 - `localComponent` non synchronisé avec le composant parent
 - Mises à jour partielles qui ne se propagent pas
 
+### ❌ Conflit de Noms de Fonctions (CRITIQUE)
+- **Problème identifié** : Dans `properties-panel-new.tsx`, `renderGridProperties()` gère les styles CSS grid génériques au lieu de la configuration métier
+- **Symptôme** : Le composant se créé mais la configuration spécialisée ne fonctionne pas
+- **Solution** : Vérifier que la fonction de configuration utilise les bonnes propriétés (`componentData.gridItems` vs `componentData.items`)
+
+### ❌ Propriétés ComponentData Incorrectes
+- **Problème identifié** : Usage de `componentData.items` au lieu de `componentData.gridItems`
+- **Symptôme** : Les éléments ne s'ajoutent pas ou ne s'affichent pas
+- **Solution** : Respecter la structure définie dans `editor-utils.ts`
+
 ## Modèle de Diagnostic
 
 ### Template d'Analyse
@@ -120,6 +130,11 @@ Cette procédure permet d'analyser méthodiquement un composant pour identifier 
 ### 🎯 SOLUTIONS REQUISES
 1. [Action corrective]
 2. [Action corrective]
+
+### 🔧 VÉRIFICATIONS SUPPLÉMENTAIRES
+- [ ] Cohérence des noms de propriétés entre création et configuration
+- [ ] Vérification des imports de fichiers (properties-panel vs properties-panel-new)
+- [ ] Test de la propagation des mises à jour en temps réel
 ```
 
 ## Checklist de Validation
@@ -140,5 +155,28 @@ Cette procédure doit être appliquée :
 - En cas de dysfonctionnement rapporté
 - Pour valider l'implémentation du Protocole-Component
 
-**Dernière mise à jour :** Janvier 2025
-**Créé pour :** PageForge - Système de validation des composants
+## Cas d'Étude : Correction du Grid (Janvier 2025)
+
+### Problème Rencontré
+Le composant grid se créait correctement mais la configuration ne fonctionnait pas malgré l'architecture correcte.
+
+### Analyse Méthodique
+1. **Création** ✅ - `editor-utils.ts` définit correctement `componentData.gridItems`
+2. **Rendu** ✅ - `component-renderer.tsx` utilise `componentData.gridItems`  
+3. **Configuration** ❌ - `properties-panel-new.tsx` utilisait `componentData.items`
+
+### Solution Appliquée
+- Correction des propriétés `componentData.items` → `componentData.gridItems`
+- Unification de la structure : `{title, content}` au lieu de `{text}`
+- Ajout des options manquantes (alignement, couleur de fond)
+
+### Enseignements
+- Vérifier la cohérence des noms de propriétés dans tous les fichiers
+- Attention aux conflits entre fonctions génériques et spécialisées
+- L'architecture peut être correcte mais les détails d'implémentation défaillants
+
+---
+
+**Dernière mise à jour :** Janvier 2025  
+**Créé pour :** PageForge - Système de validation des composants  
+**Cas d'étude ajouté :** Correction Grid - Conflit de propriétés componentData
