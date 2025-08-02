@@ -1805,6 +1805,8 @@ export default function PropertiesPanel({
         return renderUploadConfiguration();
       case 'icon':
         return renderIconConfiguration();
+      case 'gallery':
+        return renderGalleryConfiguration();
       default:
         return renderGenericConfiguration();
     }
@@ -5879,6 +5881,156 @@ export default function PropertiesPanel({
     </div>
   );
   
+  // Configuration de Gallery
+  const renderGalleryConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration de Galerie</h4>
+      
+      <div>
+        <Label className="text-xs text-gray-600">Titre de la galerie</Label>
+        <Input
+          value={localComponent?.componentData?.title || 'Galerie Photos'}
+          onChange={(e) => updateProperty('componentData.title', e.target.value)}
+          className="mt-1 text-sm"
+          placeholder="Galerie Photos"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-gray-600">Images de la galerie</Label>
+        <div className="space-y-2 mt-1">
+          {(localComponent?.componentData?.images || []).map((image: any, index: number) => (
+            <div key={index} className="border rounded-lg p-3 bg-gray-50">
+              <div className="flex justify-between items-center mb-2">
+                <Label className="text-xs font-medium text-blue-600">
+                  Image {index + 1}
+                </Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const images = [...(localComponent?.componentData?.images || [])];
+                    images.splice(index, 1);
+                    updateProperty('componentData.images', images);
+                  }}
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs">URL de l'image</Label>
+                  <Input
+                    value={image.src || ''}
+                    onChange={(e) => {
+                      const images = [...(localComponent?.componentData?.images || [])];
+                      images[index] = { ...image, src: e.target.value };
+                      updateProperty('componentData.images', images);
+                    }}
+                    placeholder="https://example.com/image.jpg"
+                    className="text-xs h-7"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Texte alternatif</Label>
+                  <Input
+                    value={image.alt || ''}
+                    onChange={(e) => {
+                      const images = [...(localComponent?.componentData?.images || [])];
+                      images[index] = { ...image, alt: e.target.value };
+                      updateProperty('componentData.images', images);
+                    }}
+                    placeholder="Description de l'image"
+                    className="text-xs h-7"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Légende (optionnelle)</Label>
+                  <Input
+                    value={image.caption || ''}
+                    onChange={(e) => {
+                      const images = [...(localComponent?.componentData?.images || [])];
+                      images[index] = { ...image, caption: e.target.value };
+                      updateProperty('componentData.images', images);
+                    }}
+                    placeholder="Légende de l'image"
+                    className="text-xs h-7"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const currentImages = localComponent?.componentData?.images || [];
+              const newImage = { 
+                src: '',
+                alt: `Image ${currentImages.length + 1}`,
+                caption: ''
+              };
+              const updatedImages = [...currentImages, newImage];
+              updateProperty('componentData.images', updatedImages);
+            }}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter une image ({(localComponent?.componentData?.images || []).length})
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Colonnes</Label>
+          <Select
+            value={localComponent?.componentData?.columns || '3'}
+            onValueChange={(value) => updateProperty('componentData.columns', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2">2 colonnes</SelectItem>
+              <SelectItem value="3">3 colonnes</SelectItem>
+              <SelectItem value="4">4 colonnes</SelectItem>
+              <SelectItem value="6">6 colonnes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Espacement</Label>
+          <Select
+            value={localComponent?.componentData?.gap || '6'}
+            onValueChange={(value) => updateProperty('componentData.gap', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2">Petit</SelectItem>
+              <SelectItem value="4">Moyen</SelectItem>
+              <SelectItem value="6">Normal</SelectItem>
+              <SelectItem value="8">Grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={localComponent?.componentData?.showCaptions !== false}
+          onCheckedChange={(checked) => updateProperty('componentData.showCaptions', checked)}
+        />
+        <Label className="text-xs">Afficher les légendes</Label>
+      </div>
+    </div>
+  );
+
   const renderIconConfiguration = () => (
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-purple-900">Configuration Icône</h4>
