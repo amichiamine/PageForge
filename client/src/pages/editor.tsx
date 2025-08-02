@@ -87,12 +87,13 @@ function generatePreviewHTML(project: Project): string {
           width: 100%;
           height: 100%;
           background-color: ${slide.backgroundColor || '#3b82f6'};
-          ${slide.image ? `background-image: url(${slide.image}); background-size: cover; background-position: center;` : ''}
+          ${slide.image ? `background-image: url(${slide.image}); background-size: cover; background-position: center; background-repeat: no-repeat;` : ''}
           display: flex;
           align-items: center;
           justify-content: center;
           color: ${slide.textColor || 'white'};
           position: relative;
+          object-fit: cover;
         `;
         
         return `${childIndentStr}<div class="carousel-slide" style="${slideStyle}">
