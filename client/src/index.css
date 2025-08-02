@@ -106,6 +106,35 @@
   --pastel-orange: #fed7aa;
 }
 
+/* Styles pour carousel dans l'éditeur */
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.carousel-container .carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  height: 100%;
+}
+
+.carousel-container .carousel-slide {
+  flex: 0 0 100%;
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.carousel-container .carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 .dark {
   --color-primary: #818cf8;
   --color-secondary: #a78bfa;

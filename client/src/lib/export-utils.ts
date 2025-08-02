@@ -176,7 +176,7 @@ ${indentStr}</${tag}>`;
           justify-content: center;
           color: ${slide.textColor || 'white'};
           position: relative;
-          object-fit: cover;
+          overflow: hidden;
         `;
         
         return `${childIndentStr}<div class="carousel-slide" style="${slideStyle}">
@@ -189,11 +189,11 @@ ${childIndentStr}  </div>
 ${childIndentStr}</div>`;
       }).join('\n');
       
-      return `${indentStr}${openingTag}
-${childIndentStr}<div class="carousel-track" style="display: flex; width: ${slides.length * 100}%; height: 100%;">
+      return `${indentStr}<div ${idAttr} class="carousel-container ${className || ''}">
+${childIndentStr}<div class="carousel-track" style="width: ${slides.length * 100}%;">
 ${slidesHTML}
 ${childIndentStr}</div>
-${indentStr}</${tag}>`;
+${indentStr}</div>`;
     }
 
     // Gestion des listes avec éléments
@@ -388,16 +388,29 @@ img {
 .carousel-container {
   position: relative;
   overflow: hidden;
+  border-radius: 8px;
 }
 
 .carousel-track {
   display: flex;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.5s ease-in-out;
+  height: 100%;
 }
 
 .carousel-slide {
   flex: 0 0 100%;
   position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .carousel-dots {
@@ -407,73 +420,28 @@ img {
   transform: translateX(-50%);
   display: flex;
   gap: 6px;
+  z-index: 10;
 }
 
 .carousel-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: white;
-  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .carousel-dot.active {
-  opacity: 0.8;
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.2);
 }
 
-/* Styles des listes */
-ul {
-  list-style-type: disc;
-  padding-left: 20px;
-}
-
-li {
-  margin-bottom: 4px;
-}
-
-/* Styles des accordéons */
-.accordion-item {
-  border: 1px solid #e5e7eb;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.accordion-header {
-  width: 100%;
-  padding: 12px;
-  background: #f9fafb;
-  border: none;
-  text-align: left;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.accordion-header:hover {
-  background: #f3f4f6;
-}
-
-.accordion-content {
-  padding: 12px;
-  border-top: 1px solid #e5e7eb;
-  background: white;
-}
-
-/* Styles des grilles */
-.grid-item {
-  padding: 16px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: box-shadow 0.2s ease;
-}
-
-.grid-item:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+/* Styles pour des éléments génériques */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /* Styles des composants individuels */
@@ -525,24 +493,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const track = carousel.querySelector('.carousel-track');
     const slides = carousel.querySelectorAll('.carousel-slide');
     
-    if (slides.length <= 1) return;
+    if (!track || slides.length <= 1) return;
     
     let currentSlide = 0;
+    let autoplayInterval = null;
     
-    // Créer les dots
-    const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'carousel-dots';
-    
-    slides.forEach((_, index) => {
-      const dot = document.createElement('div');
-      dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
-      dot.addEventListener('click', () => goToSlide(index));
-      dotsContainer.appendChild(dot);
-    });
-    
-    carousel.appendChild(dotsContainer);
+    // Créer les dots seulement s'il n'y en a pas déjà
+    if (!carousel.querySelector('.carousel-dots')) {
+      const dotsContainer = document.createElement('div');
+      dotsContainer.className = 'carousel-dots';
+      
+      slides.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
+      });
+      
+      carousel.appendChild(dotsContainer);
+    }
     
     function goToSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      
       currentSlide = index;
       track.style.transform = \`translateX(-\${currentSlide * 100}%)\`;
       
@@ -553,11 +526,36 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
     
-    // Auto-play (optionnel)
-    setInterval(() => {
-      currentSlide = (currentSlide + 1) % slides.length;
-      goToSlide(currentSlide);
-    }, 5000);
+    // Navigation par flèches clavier
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        goToSlide((currentSlide - 1 + slides.length) % slides.length);
+      } else if (e.key === 'ArrowRight') {
+        goToSlide((currentSlide + 1) % slides.length);
+      }
+    });
+    
+    // Auto-play avec pause au survol
+    function startAutoplay() {
+      autoplayInterval = setInterval(() => {
+        currentSlide = (currentSlide + 1) % slides.length;
+        goToSlide(currentSlide);
+      }, 5000);
+    }
+    
+    function stopAutoplay() {
+      if (autoplayInterval) {
+        clearInterval(autoplayInterval);
+        autoplayInterval = null;
+      }
+    }
+    
+    // Démarrer l'autoplay
+    startAutoplay();
+    
+    // Pause/reprise au survol
+    carousel.addEventListener('mouseenter', stopAutoplay);
+    carousel.addEventListener('mouseleave', startAutoplay);
   });
   
   // Fonctionnalité accordéon

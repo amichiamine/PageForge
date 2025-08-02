@@ -432,7 +432,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
         }
         
         return (
-          <div style={style} className={component.attributes?.className}>
+          <div style={style} className={`carousel-container ${component.attributes?.className || ''}`}>
             <div style={{
               position: 'relative',
               width: '100%',
@@ -459,13 +459,15 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
                       backgroundImage: slide.image ? `url(${slide.image})` : undefined,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: slide.image ? 'rgba(255,255,255,0.9)' : '#ffffff',
                       fontSize: '18px',
                       fontWeight: 'bold',
-                      textShadow: '1px 1px 3px rgba(0,0,0,0.7)'
+                      textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
+                      overflow: 'hidden'
                     }}
                   >
                     <div style={{
