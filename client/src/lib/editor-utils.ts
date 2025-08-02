@@ -591,20 +591,43 @@ export function createComponent(type: string): ComponentDefinition {
         }
       };
 
-    default:
+    case 'gallery':
       return {
         ...baseComponent,
         tag: 'div',
-        content: 'Composant inconnu',
-        attributes: { className: 'unknown-component' },
+        content: '',
+        attributes: { className: 'gallery' },
+        componentData: {
+          images: []
+        },
         styles: {
           ...baseComponent.styles,
-          backgroundColor: '#fee2e2',
-          border: '1px solid #fca5a5',
+          width: '300px',
+          height: '200px',
+          padding: '12px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          backgroundColor: '#f9fafb'
+        },
+      };
+
+    default:
+      // ❌ ERREUR : Composant non supporté dans createComponent
+      console.error(`🚨 EDITOR-UTILS: Composant '${type}' non supporté dans createComponent !`);
+      return {
+        ...baseComponent,
+        tag: 'div',
+        content: `❌ COMPOSANT NON SUPPORTÉ: ${type}`,
+        attributes: { className: 'unsupported-component' },
+        styles: {
+          ...baseComponent.styles,
+          backgroundColor: '#fef2f2',
+          border: '2px solid #f87171',
           color: '#dc2626',
           padding: '20px',
           textAlign: 'center',
-          fontSize: '14px'
+          fontSize: '14px',
+          fontWeight: 'bold'
         },
       };
   }
