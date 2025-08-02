@@ -24,7 +24,9 @@ const SidebarContext = createContext<{
   setHideMainSidebar: (hide: boolean) => void;
 }>({
   hideMainSidebar: false,
-  setHideMainSidebar: () => {},
+  setHideMainSidebar: () => {
+    console.log('🚨 FONCTION PAR DÉFAUT APPELÉE - PROBLÈME !');
+  },
 });
 
 export const useSidebarContext = () => useContext(SidebarContext);
@@ -69,8 +71,13 @@ function Router() {
   
   // Debug logs removed for production
 
+  // Debug de la valeur du contexte
+  const contextValue = { hideMainSidebar, setHideMainSidebar: directSetHideMainSidebar };
+  console.log('🔥 CONTEXTE VALUE:', contextValue);
+  console.log('🔥 Type fonction dans contexte:', typeof contextValue.setHideMainSidebar);
+
   return (
-    <SidebarContext.Provider value={{ hideMainSidebar, setHideMainSidebar: directSetHideMainSidebar }}>
+    <SidebarContext.Provider value={contextValue}>
       <div className="h-full flex overflow-hidden">
         {/* Left sidebar for navigation with collapsible functionality */}
         {showMainSidebar ? (
