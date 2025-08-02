@@ -33,8 +33,9 @@ try {
 }
 
 # Vérification structure
-if (-not (Test-Path "../app/package.json")) {
+if (-not (Test-Path "../package.json")) {
     Write-Host "❌ Structure SiteJet incorrecte" -ForegroundColor Red
+    Write-Host "Exécutez depuis le dossier scripts/" -ForegroundColor Yellow
     exit 1
 }
 
@@ -43,7 +44,7 @@ Write-Host ""
 
 # Installation rapide
 Write-Host "Installation des dépendances..." -ForegroundColor Cyan
-Push-Location "../app"
+Push-Location ".."
 
 try {
     # Configuration npm rapide

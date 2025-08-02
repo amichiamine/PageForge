@@ -36,14 +36,15 @@ if %errorlevel% neq 0 (
     for /f %%v in ('npm --version 2^>nul') do echo OK: npm %%v detecte
 )
 
-:: Aller dans app
-echo [3/5] Acces dossier application...
-if not exist ..\app (
-    echo ECHEC: Dossier app manquant
+:: Vérifier structure projet
+echo [3/5] Verification structure projet...
+if not exist ..\package.json (
+    echo ECHEC: package.json manquant - mauvais repertoire
+    echo Executez ce script depuis le dossier scripts/
     pause
     exit /b 1
 )
-cd ..\app
+cd ..
 
 :: Installation
 echo [4/5] Installation dependances...
@@ -63,9 +64,13 @@ if %errorlevel% neq 0 (
 
 :: Configuration
 echo [5/5] Configuration...
-echo DATABASE_URL=sqlite:./database.db > .env
-echo NODE_ENV=development >> .env
-echo PORT=3000 >> .env
+if exist config\.env.example (
+    copy config\.env.example .env >nul
+) else (
+    echo DATABASE_URL=sqlite:./database.db > .env
+    echo NODE_ENV=development >> .env
+    echo PORT=3000 >> .env
+)
 npm run db:push >nul 2>&1
 
 echo.

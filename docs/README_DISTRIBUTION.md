@@ -88,10 +88,9 @@ SiteJet-Distribution/
 
 ### Installation Manuelle (toujours fonctionnelle)
 ```cmd
-# Windows Command Prompt
-cd app
+# Windows Command Prompt (depuis la racine du projet)
 npm install
-copy ..\config\.env.example .env
+copy config\.env.example .env 2>nul || echo DATABASE_URL=sqlite:./database.db > .env
 npm run db:push
 npm run dev
 ```

@@ -139,10 +139,10 @@ try {
 Write-Section "Test Structure de Fichiers"
 
 $requiredPaths = @(
-    @{ Path = "../app"; Name = "Dossier app" },
-    @{ Path = "../app/package.json"; Name = "package.json" },
-    @{ Path = "../docs"; Name = "Documentation" },
-    @{ Path = "../config"; Name = "Configuration" }
+    @{ Path = "../package.json"; Name = "package.json racine" },
+    @{ Path = "../server"; Name = "Dossier server" },
+    @{ Path = "../client"; Name = "Dossier client" },
+    @{ Path = "../docs"; Name = "Documentation" }
 )
 
 foreach ($item in $requiredPaths) {
@@ -156,9 +156,9 @@ foreach ($item in $requiredPaths) {
 }
 
 # Analyse package.json si présent
-if (Test-Path "../app/package.json") {
+if (Test-Path "../package.json") {
     try {
-        $packageJson = Get-Content "../app/package.json" | ConvertFrom-Json
+        $packageJson = Get-Content "../package.json" | ConvertFrom-Json
         Write-TestResult "package.json valide" "OK" "Version: $($packageJson.version)"
         
         if ($packageJson.scripts.dev) {
@@ -217,8 +217,8 @@ foreach ($port in $ports) {
 
 Write-Section "Test Installation SiteJet"
 
-if (Test-Path "../app/node_modules") {
-    $moduleCount = (Get-ChildItem "../app/node_modules" -Directory -ErrorAction SilentlyContinue).Count
+if (Test-Path "../node_modules") {
+    $moduleCount = (Get-ChildItem "../node_modules" -Directory -ErrorAction SilentlyContinue).Count
     if ($moduleCount -gt 0) {
         Write-TestResult "Dépendances installées" "OK" "$moduleCount modules"
     } else {
@@ -228,7 +228,7 @@ if (Test-Path "../app/node_modules") {
     Write-TestResult "Dépendances installées" "ECHEC" "npm install requis"
 }
 
-if (Test-Path "../app/.env") {
+if (Test-Path "../.env") {
     Write-TestResult "Configuration .env" "OK" "Fichier présent"
 } else {
     Write-TestResult "Configuration .env" "WARNING" "Fichier de configuration manquant"

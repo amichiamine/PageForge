@@ -78,14 +78,14 @@ try {
         }
         
         # Test structure
-        if (-not (Test-Path "../app")) {
-            Write-Error "Dossier 'app' manquant"
+        if (-not (Test-Path "../package.json")) {
+            Write-Error "Fichier 'package.json' manquant"
             Write-Info "Exécutez ce script depuis le dossier 'scripts'"
             exit 1
         }
         
-        if (-not (Test-Path "../app/package.json")) {
-            Write-Error "Fichier 'package.json' manquant"
+        if (-not (Test-Path "../server")) {
+            Write-Error "Dossier 'server' manquant - structure projet incorrecte"
             exit 1
         }
         
@@ -99,8 +99,8 @@ try {
     
     Write-Info "Préparation de l'installation..."
     
-    # Aller dans le dossier app
-    Push-Location "../app"
+    # Aller dans le dossier racine du projet
+    Push-Location ".."
     
     # Configuration npm optimisée
     & npm config set registry https://registry.npmjs.org/ 2>$null
@@ -168,8 +168,8 @@ try {
     Write-Info "Configuration de l'environnement..."
     
     # Créer le fichier .env
-    if (Test-Path "../config/.env.example") {
-        Copy-Item "../config/.env.example" ".env" -Force
+    if (Test-Path "config/.env.example") {
+        Copy-Item "config/.env.example" ".env" -Force
         Write-Success "Configuration copiée depuis le template"
     } else {
         $envContent = @"
