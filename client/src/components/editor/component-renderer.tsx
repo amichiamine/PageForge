@@ -1378,14 +1378,19 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'header':
-      const headerTitleSize = Math.max(containerWidth / 10, 12);
-      const headerNavSize = Math.max(containerWidth / 15, 10);
-      const headerPadding = Math.max(containerHeight / 8, 8);
+      const headerTitleStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 12, maxSize: 32 });
+      const headerNavStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
+      const headerPadding = getResponsiveSpacing(16);
+      const headerGap = getResponsiveSpacing(12);
       
       return (
         <header
+          ref={containerRef as React.RefObject<HTMLElement>}
           className={`header ${className || ''}`}
-          style={inlineStyles}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
           onClick={onClick}
           {...otherAttributes}
         >
@@ -1403,45 +1408,28 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             overflow: 'hidden'
           }}>
             <div style={{ 
-              fontSize: `${headerTitleSize}px`, 
+              ...headerTitleStyles,
               fontWeight: 'bold',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              maxWidth: '60%'
+              maxWidth: '60%',
+              flexShrink: 0
             }}>
               Mon Site Web
             </div>
             <nav style={{ 
               display: 'flex', 
-              gap: `${Math.max(containerWidth / 20, 8)}px`,
+              gap: `${headerGap}px`,
               maxWidth: '40%',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              minWidth: 0
             }}>
-              <a href="#" style={{ 
-                color: 'white', 
-                textDecoration: 'none', 
-                fontSize: `${headerNavSize}px`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>Accueil</a>
-              <a href="#" style={{ 
-                color: 'white', 
-                textDecoration: 'none', 
-                fontSize: `${headerNavSize}px`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>À propos</a>
-              <a href="#" style={{ 
-                color: 'white', 
-                textDecoration: 'none', 
-                fontSize: `${headerNavSize}px`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>Contact</a>
+              {['Accueil', 'À propos', 'Contact'].map((item, index) => (
+                <a key={index} href="#" style={{ 
+                  color: 'white', 
+                  textDecoration: 'none', 
+                  ...headerNavStyles,
+                  flexShrink: 0
+                }}>{item}</a>
+              ))}
             </nav>
           </div>
         </header>
