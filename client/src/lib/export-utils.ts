@@ -326,6 +326,22 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   const pageStyles = page.content?.styles || '';
   const pageStructure = page.content?.structure || [];
   
+  // Fonction pour détecter les types de composants utilisés
+  const getUsedComponentTypes = (components: ComponentDefinition[]): Set<string> => {
+    const usedTypes = new Set<string>();
+    
+    const processComponent = (component: ComponentDefinition) => {
+      usedTypes.add(component.type);
+      
+      if (component.children) {
+        component.children.forEach(processComponent);
+      }
+    };
+    
+    components.forEach(processComponent);
+    return usedTypes;
+  };
+  
   // Générer le CSS pour chaque composant
   const generateComponentCSS = (components: ComponentDefinition[]): string => {
     let css = '';
@@ -354,6 +370,7 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   };
   
   const componentCSS = generateComponentCSS(pageStructure);
+  const usedTypes = getUsedComponentTypes(pageStructure);
   
   let css = `/* Styles générés par PageForge */
 * {
@@ -373,6 +390,17 @@ img {
   height: auto;
 }
 
+/* Styles pour des éléments génériques */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+`;
+
+  // Ajouter les styles spécifiques seulement pour les composants utilisés
+  if (usedTypes.has('carousel')) {
+    css += `
 /* Styles pour carousel */
 .carousel-container {
   position: relative;
@@ -480,14 +508,11 @@ img {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.2);
 }
+`;
+  }
 
-/* Styles pour des éléments génériques */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
+  // Ajouter les styles personnalisés des composants
+  css += `
 /* Styles des composants individuels */
 ${componentCSS}`;
 
@@ -525,10 +550,33 @@ ${componentCSS}`;
 
 function generateJS(project: Project, page: any, options: ExportOptions): string {
   const pageScripts = page.content?.scripts || '';
+  const pageStructure = page.content?.structure || [];
+  
+  // Détecter les types de composants utilisés
+  const getUsedComponentTypes = (components: ComponentDefinition[]): Set<string> => {
+    const usedTypes = new Set<string>();
+    
+    const processComponent = (component: ComponentDefinition) => {
+      usedTypes.add(component.type);
+      
+      if (component.children) {
+        component.children.forEach(processComponent);
+      }
+    };
+    
+    components.forEach(processComponent);
+    return usedTypes;
+  };
+  
+  const usedTypes = getUsedComponentTypes(pageStructure);
   
   let js = `// Scripts générés par PageForge
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('${project.name} chargé avec succès');
+  console.log('${project.name} chargé avec succès');`;
+
+  // Ajouter le code du carrousel seulement s'il y en a un
+  if (usedTypes.has('carousel')) {
+    js += `
   
   // Fonctionnalité carousel
   const carousels = document.querySelectorAll('.carousel-container');
@@ -617,9 +665,18 @@ document.addEventListener('DOMContentLoaded', function() {
         slide.style.backgroundRepeat = 'no-repeat';
       }
     });
-  });
+  });`;
+  }
   
-  // Fonctionnalité accordéon
+  // Fermer la fonction principale
+  js += `
+});`;
+
+  // Ajouter d'autres fonctionnalités génériques si nécessaire
+  js += `
+
+// Fonctionnalité accordéon
+document.addEventListener('DOMContentLoaded', function() {
   const accordionHeaders = document.querySelectorAll('.accordion-header');
   accordionHeaders.forEach(header => {
     header.addEventListener('click', function() {
@@ -660,8 +717,7 @@ document.addEventListener('DOMContentLoaded', function() {
     el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     observer.observe(el);
   });
-});
-`;
+});`;
 
   if (pageScripts) {
     js += `\n// Scripts personnalisés\n${pageScripts}\n`;
