@@ -1134,6 +1134,22 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     default:
       // Rendu par défaut pour tous les autres composants
+      // Éléments vides (void elements) ne peuvent pas avoir d'enfants
+      const voidElements = ['input', 'img', 'br', 'hr', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
+      const isVoidElement = voidElements.includes(Tag.toLowerCase());
+      
+      if (isVoidElement) {
+        return React.createElement(
+          Tag as any,
+          {
+            className: className as string,
+            style: inlineStyles,
+            onClick: onClick,
+            ...otherAttributes
+          }
+        );
+      }
+      
       return React.createElement(
         Tag as any,
         {
