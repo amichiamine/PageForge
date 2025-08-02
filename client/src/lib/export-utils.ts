@@ -221,6 +221,36 @@ ${itemsHTML}
 ${indentStr}</div>`;
     }
 
+    // Gestion des galeries avec images
+    if (component.type === 'gallery') {
+      const images = component.componentData?.images || [];
+      
+      // Si pas d'images configurées, afficher un placeholder
+      if (images.length === 0 || !images.some((img: any) => img.src)) {
+        return `${indentStr}<div ${idAttr} class="gallery-container gallery-placeholder ${className || ''}">
+${childIndentStr}<div class="gallery-item">
+${childIndentStr}  <span class="gallery-placeholder-icon">🖼️</span>
+${childIndentStr}  <h3 class="gallery-placeholder-title">Galerie vide</h3>
+${childIndentStr}  <p class="gallery-placeholder-text">Ajoutez des images via la configuration</p>
+${childIndentStr}</div>
+${indentStr}</div>`;
+      }
+      
+      const imagesHTML = images.filter((img: any) => img.src).map((image: any, index: number) => {
+        return `${childIndentStr}<div class="gallery-item">
+${childIndentStr}  <img src="${image.src}" alt="${image.alt || `Image ${index + 1}`}" class="gallery-image" />
+${childIndentStr}  ${image.caption ? `<div class="gallery-caption">${image.caption}</div>` : ''}
+${childIndentStr}</div>`;
+      }).join('\n');
+      
+      const columnsClass = images.filter((img: any) => img.src).length === 1 ? 'gallery-cols-1' : 
+                          images.filter((img: any) => img.src).length === 2 ? 'gallery-cols-2' : 'gallery-cols-3';
+      
+      return `${indentStr}<div ${idAttr} class="gallery-container ${columnsClass} ${className || ''}">
+${imagesHTML}
+${indentStr}</div>`;
+    }
+
     // Gestion des grilles avec éléments
     if (component.type === 'grid') {
       const items = component.componentData?.gridItems || [];
@@ -607,6 +637,99 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
   const getComponentSpecificStyles = (usedTypes: Set<string>): string => {
     let styles = '';
     
+    // Styles pour gallery
+    if (usedTypes.has('gallery')) {
+      styles += `
+/* Styles pour gallery */
+.gallery-container {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gallery-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.gallery-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gallery-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #f3f4f6;
+  aspect-ratio: 1;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 10px;
+  text-align: center;
+}
+
+.gallery-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.gallery-placeholder-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.gallery-placeholder-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.gallery-placeholder-text {
+  font-size: 12px;
+  color: #d1d5db;
+  margin: 0;
+}
+
+/* Responsive gallery */
+@media (max-width: 768px) {
+  .gallery-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-cols-3,
+  .gallery-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+`;
+    }
+
     // Styles pour carousel
     if (usedTypes.has('carousel')) {
       styles += `
