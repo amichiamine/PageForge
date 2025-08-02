@@ -106,7 +106,7 @@ ${childIndentStr}</div>`;
       }).join('\n');
       
       return `${indentStr}${openingTag}
-${childIndentStr}<div class="carousel-track" style="display: flex; width: ${slides.length * 100}%; height: 100%; transition: transform 0.3s ease;">
+${childIndentStr}<div class="carousel-track" style="display: flex; width: ${slides.length * 100}%; height: 100%;">
 ${slidesHTML}
 ${childIndentStr}</div>
 ${indentStr}</${tag}>`;
@@ -192,12 +192,22 @@ ${indentStr}</${tag}>`;
   <meta name="description" content="${project.description || ''}">
   <meta name="author" content="PageForge">
   <style>
+    /* Styles de base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body { 
       margin: 0; 
       padding: 20px; 
-      font-family: Arial, sans-serif; 
-      background: #f5f5f5; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+      background: #f5f5f5;
+      line-height: 1.6;
+      color: #333;
     }
+    
     .container { 
       max-width: 1200px; 
       margin: 0 auto; 
@@ -206,11 +216,125 @@ ${indentStr}</${tag}>`;
       position: relative; 
     }
     
-    /* Styles des composants */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Styles pour carousel */
+    .carousel-container {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .carousel-track {
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+    }
+    
+    .carousel-slide {
+      flex: 0 0 100%;
+      position: relative;
+    }
+    
+    .carousel-dots {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+    
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+      opacity: 0.5;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+    
+    .carousel-dot.active {
+      opacity: 0.8;
+    }
+    
+    /* Styles des listes */
+    ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+    
+    li {
+      margin-bottom: 4px;
+    }
+    
+    /* Styles des accordéons */
+    .accordion-item {
+      border: 1px solid #e5e7eb;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    
+    .accordion-header {
+      width: 100%;
+      padding: 12px;
+      background: #f9fafb;
+      border: none;
+      text-align: left;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .accordion-header:hover {
+      background: #f3f4f6;
+    }
+    
+    .accordion-content {
+      padding: 12px;
+      border-top: 1px solid #e5e7eb;
+      background: white;
+    }
+    
+    /* Styles des grilles */
+    .grid-item {
+      padding: 16px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s ease;
+    }
+    
+    .grid-item:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Styles des composants individuels */
 ${componentCSS}
     
     /* Styles personnalisés de la page */
     ${currentPage?.content?.styles || ''}
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+      
+      h1 { font-size: 1.8rem; }
+      h2 { font-size: 1.5rem; }
+      h3 { font-size: 1.3rem; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      h2 { font-size: 1.3rem; }
+      h3 { font-size: 1.1rem; }
+    }
   </style>
 </head>
 <body>
@@ -218,6 +342,69 @@ ${componentCSS}
 ${pageStructure.map(component => renderComponent(component, 4)).join('\n')}
   </div>
   <script>
+    // Fonctionnalité carousel
+    document.addEventListener('DOMContentLoaded', function() {
+      const carousels = document.querySelectorAll('.carousel-container');
+      
+      carousels.forEach(carousel => {
+        const track = carousel.querySelector('.carousel-track');
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        
+        if (slides.length <= 1) return;
+        
+        let currentSlide = 0;
+        
+        // Créer les dots
+        const dotsContainer = document.createElement('div');
+        dotsContainer.className = 'carousel-dots';
+        
+        slides.forEach((_, index) => {
+          const dot = document.createElement('div');
+          dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
+          dot.addEventListener('click', () => goToSlide(index));
+          dotsContainer.appendChild(dot);
+        });
+        
+        carousel.appendChild(dotsContainer);
+        
+        function goToSlide(index) {
+          currentSlide = index;
+          track.style.transform = \`translateX(-\${currentSlide * 100}%)\`;
+          
+          // Mettre à jour les dots
+          const dots = carousel.querySelectorAll('.carousel-dot');
+          dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentSlide);
+          });
+        }
+        
+        // Auto-play (optionnel)
+        setInterval(() => {
+          currentSlide = (currentSlide + 1) % slides.length;
+          goToSlide(currentSlide);
+        }, 5000);
+      });
+      
+      // Fonctionnalité accordéon
+      const accordionHeaders = document.querySelectorAll('.accordion-header');
+      accordionHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+          const content = this.nextElementSibling;
+          const isOpen = content.style.display !== 'none';
+          
+          // Fermer tous les autres
+          accordionHeaders.forEach(otherHeader => {
+            if (otherHeader !== this) {
+              otherHeader.nextElementSibling.style.display = 'none';
+            }
+          });
+          
+          // Toggle celui-ci
+          content.style.display = isOpen ? 'none' : 'block';
+        });
+      });
+    });
+    
     // Scripts personnalisés de la page
     ${currentPage?.content?.scripts || ''}
   </script>
