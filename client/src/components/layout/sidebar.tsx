@@ -46,31 +46,25 @@ export default function Sidebar() {
       title="Navigation"
     >
       <div className="h-full overflow-hidden flex flex-col">
-        {/* Header compact avec fonction de masquage */}
+        {/* Header compact avec logo cliquable séparé */}
         <div className="flex items-center p-2 border-b border-gray-100 flex-shrink-0">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('🎯 Logo cliqué - masquage du sidebar');
-              setHideMainSidebar(true);
-            }}
-            className="flex items-center space-x-2 min-w-0 w-full hover:bg-gray-50 rounded-md p-1 transition-colors group cursor-pointer"
-            title="Cliquer pour masquer la navigation"
-          >
-            <div 
-              className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0 group-hover:bg-blue-700 transition-colors cursor-pointer"
+          <div className="flex items-center space-x-2 min-w-0 w-full">
+            {/* Logo cliquable pour masquer */}
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Logo directement cliqué');
+                console.log('🎯 Logo cliqué - masquage du sidebar');
                 setHideMainSidebar(true);
               }}
+              className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center flex-shrink-0 hover:bg-blue-700 transition-colors cursor-pointer"
+              title="Cliquer sur le logo pour masquer la navigation"
             >
               <Code className="w-3 h-3 text-white" />
-            </div>
-            <span className="text-gray-900 font-semibold text-xs truncate group-hover:text-gray-700 cursor-pointer">SiteJet</span>
-          </button>
+            </button>
+            {/* Texte non cliquable */}
+            <span className="text-gray-900 font-semibold text-xs truncate">SiteJet</span>
+          </div>
         </div>
 
         {/* Navigation */}
