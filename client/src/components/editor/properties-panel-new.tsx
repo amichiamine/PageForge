@@ -134,7 +134,7 @@ export default function PropertiesPanel({
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
-          <div className="space-y-2 max-h-60 overflow-y-auto">
+          <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {allComponents.map((comp) => (
               <div 
                 key={comp.id} 
@@ -191,19 +191,21 @@ export default function PropertiesPanel({
             }
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-4">
-          {renderLayoutProperties()}
-          {renderTypographyProperties()}
-          {renderAppearanceProperties()}
-          {renderSpacingProperties()}
-          {renderPositionProperties()}
-          {renderFlexboxProperties()}
-          {renderGridProperties()}
-          {renderBorderProperties()}
-          {renderShadowProperties()}
-          {renderTransformProperties()}
-          {renderTransitionProperties()}
-          {renderInteractionProperties()}
+        <CollapsibleContent className="pt-3">
+          <div className="space-y-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
+            {renderLayoutProperties()}
+            {renderTypographyProperties()}
+            {renderAppearanceProperties()}
+            {renderSpacingProperties()}
+            {renderPositionProperties()}
+            {renderFlexboxProperties()}
+            {renderGridProperties()}
+            {renderBorderProperties()}
+            {renderShadowProperties()}
+            {renderTransformProperties()}
+            {renderTransitionProperties()}
+            {renderInteractionProperties()}
+          </div>
         </CollapsibleContent>
       </Collapsible>
     );
@@ -231,7 +233,9 @@ export default function PropertiesPanel({
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
-          {renderComponentSpecificConfiguration()}
+          <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
+            {renderComponentSpecificConfiguration()}
+          </div>
         </CollapsibleContent>
       </Collapsible>
     );
@@ -1276,7 +1280,7 @@ export default function PropertiesPanel({
 
       <div>
         <Label className="text-xs text-gray-600">Slides du carrousel</Label>
-        <div className="space-y-2 mt-1">
+        <div className="space-y-2 mt-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {(localComponent?.componentData?.slides || []).map((slide: any, index: number) => (
             <div key={index} className="border rounded p-3 space-y-2">
               <div className="flex items-center justify-between">
@@ -2183,19 +2187,24 @@ export default function PropertiesPanel({
 
   if (!localComponent) {
     return (
-      <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto">
-        <div className="text-center text-gray-500">
-          <Settings className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun élément sélectionné</h3>
-          <p className="text-sm">Sélectionnez un élément sur la page pour modifier ses propriétés.</p>
+      <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-lg font-semibold text-gray-900">Propriétés</h2>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center text-gray-500">
+            <Settings className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun élément sélectionné</h3>
+            <p className="text-sm">Sélectionnez un élément sur la page pour modifier ses propriétés.</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
+    <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">Propriétés</h2>
           <Badge variant="outline" className="text-xs">
@@ -2204,10 +2213,12 @@ export default function PropertiesPanel({
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
-        {renderElementsSection()}
-        {renderPropertiesSection()}
-        {renderConfigurationSection()}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 space-y-4">
+          {renderElementsSection()}
+          {renderPropertiesSection()}
+          {renderConfigurationSection()}
+        </div>
       </div>
     </div>
   );
