@@ -23,14 +23,14 @@ const SidebarContext = createContext<{
   hideMainSidebar: boolean;
   setHideMainSidebar: (hide: boolean) => void;
 }>({
-  hideMainSidebar: true, // Par défaut fermé
+  hideMainSidebar: false, // Ouvert par défaut
   setHideMainSidebar: () => {},
 });
 
 export const useSidebarContext = () => useContext(SidebarContext);
 
 function Router() {
-  const [hideMainSidebar, setHideMainSidebar] = useState(true); // Par défaut fermé
+  const [hideMainSidebar, setHideMainSidebar] = useState(false); // Ouvert par défaut
   const [location] = useLocation();
   
   // Validation automatique des composants en mode développement

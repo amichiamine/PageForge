@@ -517,6 +517,16 @@ export default function Editor() {
     }
   }, [isMobile, isMobileOrTablet]);
 
+  // Fermer le navigateur principal à l'ouverture de l'éditeur
+  useEffect(() => {
+    setHideMainSidebar(true);
+    
+    // Nettoyer à la fermeture (optionnel)
+    return () => {
+      setHideMainSidebar(false);
+    };
+  }, [setHideMainSidebar]);
+
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
     enabled: !!projectId,
@@ -813,14 +823,14 @@ export default function Editor() {
         {/* Enhanced Header */}
         <div className="flex flex-col w-full">
           <div className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-1 space-y-1 lg:space-y-0">
+            <div className="flex flex-row items-center justify-between px-2 py-0.5 min-h-[32px]">
               {/* Project Info */}
               <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
                 <div className="flex items-center space-x-2 min-w-0">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{localProject.name}</h1>
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                  <h1 className="text-sm font-semibold text-gray-900 truncate">{localProject.name}</h1>
                   {hasUnsavedChanges && (
-                    <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs flex-shrink-0">
+                    <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs flex-shrink-0 h-4 px-1">
                       Non sauvegardé
                     </Badge>
                   )}
@@ -828,116 +838,114 @@ export default function Editor() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2 justify-end">
+              <div className="flex items-center gap-1">
                 {/* Undo/Redo */}
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-0.5">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleUndo}
                     disabled={undoStack.length === 0}
-                    className="rounded-lg"
+                    className="h-6 w-6 p-0 rounded"
                     title="Annuler"
                   >
-                    <Undo className="h-4 w-4" />
-                    <span className="sr-only sm:not-sr-only sm:ml-2 hidden md:inline">Annuler</span>
+                    <Undo className="h-3 w-3" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleRedo}
                     disabled={redoStack.length === 0}
-                    className="rounded-lg"
+                    className="h-6 w-6 p-0 rounded"
                     title="Refaire"
                   >
-                    <Redo className="h-4 w-4" />
-                    <span className="sr-only sm:not-sr-only sm:ml-2 hidden md:inline">Refaire</span>
+                    <Redo className="h-3 w-3" />
                   </Button>
                 </div>
 
                 {/* View Mode Toggles */}
-                <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
+                <div className="flex items-center space-x-0.5 bg-gray-100 p-0.5 rounded">
                   <Button
                     variant={viewMode === "desktop" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("desktop")}
-                    className="rounded-md"
+                    className="h-6 w-6 p-0 rounded"
                     title="Vue bureau"
                   >
-                    <Monitor className="h-4 w-4" />
+                    <Monitor className="h-3 w-3" />
                   </Button>
                   <Button
                     variant={viewMode === "tablet" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("tablet")}
-                    className="rounded-md"
+                    className="h-6 w-6 p-0 rounded"
                     title="Vue tablette"
                   >
-                    <Tablet className="h-4 w-4" />
+                    <Tablet className="h-3 w-3" />
                   </Button>
                   <Button
                     variant={viewMode === "mobile" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("mobile")}
-                    className="rounded-md"
+                    className="h-6 w-6 p-0 rounded"
                     title="Vue mobile"
                   >
-                    <Smartphone className="h-4 w-4" />
+                    <Smartphone className="h-3 w-3" />
                   </Button>
                 </div>
 
                 {/* Editor Modes */}
-                <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
+                <div className="flex items-center space-x-0.5 bg-gray-100 p-0.5 rounded">
                   <Button
                     variant={!showCode && !showPreview ? "default" : "ghost"}
                     size="sm"
                     onClick={() => { setShowCode(false); setShowPreview(false); }}
-                    className="rounded-md"
+                    className="h-6 w-6 p-0 rounded"
                     title="Mode éditeur"
                   >
-                    <Layers className="h-4 w-4" />
+                    <Layers className="h-3 w-3" />
                   </Button>
                   <Button
                     variant={showCode ? "default" : "ghost"}
                     size="sm"
                     onClick={() => { setShowCode(!showCode); setShowPreview(false); }}
-                    className="rounded-md"
+                    className="h-6 w-6 p-0 rounded"
                     title="Voir le code"
                   >
-                    <Code className="h-4 w-4" />
+                    <Code className="h-3 w-3" />
                   </Button>
                   <Button
                     variant={showPreview ? "default" : "ghost"}
                     size="sm"
                     onClick={() => { setShowPreview(!showPreview); setShowCode(false); }}
-                    className="rounded-md"
+                    className="h-6 w-6 p-0 rounded"
                     title="Prévisualiser"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-3 w-3" />
                   </Button>
                 </div>
 
                 {/* Settings and Auto-save - Hidden on small screens */}
-                <div className="hidden lg:flex items-center space-x-2">
+                <div className="hidden lg:flex items-center space-x-1">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowAlignmentGuides(!showAlignmentGuides)}
-                    className={`rounded-lg ${showAlignmentGuides ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
+                    className={`h-6 w-6 p-0 rounded ${showAlignmentGuides ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
                     title="Guides d'alignement"
                   >
-                    <Grid className="h-4 w-4" />
+                    <Grid className="h-3 w-3" />
                   </Button>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <input
                       type="checkbox"
                       id="autoSave"
                       checked={autoSaveEnabled}
                       onChange={(e) => setAutoSaveEnabled(e.target.checked)}
-                      className="rounded border-gray-300"
+                      className="w-3 h-3 rounded border-gray-300"
                     />
-                    <label htmlFor="autoSave" className="text-sm text-gray-600 whitespace-nowrap">Auto-save</label>
+                    <label htmlFor="autoSave" className="text-xs text-gray-600 whitespace-nowrap">Auto</label>
                   </div>
                 </div>
 
@@ -945,11 +953,12 @@ export default function Editor() {
                 <Button 
                   onClick={handleSave}
                   disabled={!hasUnsavedChanges || saveMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded h-6 px-2"
+                  size="sm"
                 >
-                  <Save className="h-4 w-4" />
-                  <span className="ml-2 hidden sm:inline">
-                    {saveMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
+                  <Save className="h-3 w-3" />
+                  <span className="ml-1 text-xs hidden sm:inline">
+                    {saveMutation.isPending ? "..." : "Save"}
                   </span>
                 </Button>
               </div>
