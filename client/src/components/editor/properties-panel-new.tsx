@@ -4943,53 +4943,389 @@ export default function PropertiesPanel({
   );
   const renderDividerConfiguration = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration Séparateur</h4>
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Divider Avancée</h4>
       
+      {/* Presets rapides */}
+      <div>
+        <Label className="text-xs text-gray-600">Styles prédéfinis</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'minimal');
+              updateProperty('componentData.style', 'solid');
+              updateProperty('componentData.thickness', '1px');
+              updateProperty('componentData.color', '#e5e7eb');
+              updateProperty('componentData.withText', false);
+            }}
+            className="text-xs"
+          >
+            📏 Minimal
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'bold');
+              updateProperty('componentData.style', 'solid');
+              updateProperty('componentData.thickness', '4px');
+              updateProperty('componentData.color', '#374151');
+              updateProperty('componentData.effects.shadow', true);
+            }}
+            className="text-xs"
+          >
+            🔸 Bold
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'decorative');
+              updateProperty('componentData.decorative.pattern', 'dots');
+              updateProperty('componentData.color', '#8b5cf6');
+              updateProperty('componentData.decorative.dotCount', 5);
+            }}
+            className="text-xs"
+          >
+            ✨ Décoratif
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'branded');
+              updateProperty('componentData.withText', true);
+              updateProperty('componentData.text', 'SECTION');
+              updateProperty('componentData.effects.gradient', 'linear-gradient(90deg, #3b82f6, #8b5cf6)');
+            }}
+            className="text-xs"
+          >
+            🏷️ Branded
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label className="text-xs text-gray-600">Type de séparateur</Label>
+          <Label className="text-xs text-gray-600">Style de ligne</Label>
           <Select
-            value={localComponent?.componentData?.dividerType || 'line'}
-            onValueChange={(value) => updateProperty('componentData.dividerType', value)}
+            value={localComponent?.componentData?.style || 'solid'}
+            onValueChange={(value) => updateProperty('componentData.style', value)}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="line">Ligne</SelectItem>
-              <SelectItem value="dashed">Pointillés</SelectItem>
+              <SelectItem value="solid">Solide</SelectItem>
+              <SelectItem value="dashed">Tirets</SelectItem>
               <SelectItem value="dotted">Points</SelectItem>
-              <SelectItem value="double">Double ligne</SelectItem>
+              <SelectItem value="double">Double</SelectItem>
+              <SelectItem value="groove">Rainuré</SelectItem>
+              <SelectItem value="ridge">Relief</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label className="text-xs text-gray-600">Épaisseur</Label>
           <Select
-            value={localComponent?.componentData?.thickness || '1px'}
+            value={localComponent?.componentData?.thickness || '2px'}
             onValueChange={(value) => updateProperty('componentData.thickness', value)}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1px">Fin (1px)</SelectItem>
-              <SelectItem value="2px">Moyen (2px)</SelectItem>
-              <SelectItem value="3px">Épais (3px)</SelectItem>
-              <SelectItem value="4px">Très épais (4px)</SelectItem>
+              <SelectItem value="1px">Très fin (1px)</SelectItem>
+              <SelectItem value="2px">Fin (2px)</SelectItem>
+              <SelectItem value="3px">Moyen (3px)</SelectItem>
+              <SelectItem value="4px">Épais (4px)</SelectItem>
+              <SelectItem value="6px">Très épais (6px)</SelectItem>
+              <SelectItem value="8px">Ultra épais (8px)</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
-      
+
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Largeur</Label>
+          <Select
+            value={localComponent?.componentData?.width || '100%'}
+            onValueChange={(value) => updateProperty('componentData.width', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="100%">Pleine (100%)</SelectItem>
+              <SelectItem value="80%">Large (80%)</SelectItem>
+              <SelectItem value="60%">Moyenne (60%)</SelectItem>
+              <SelectItem value="40%">Petite (40%)</SelectItem>
+              <SelectItem value="20%">Minimale (20%)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Alignement</Label>
+          <Select
+            value={localComponent?.componentData?.alignment || 'center'}
+            onValueChange={(value) => updateProperty('componentData.alignment', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Gauche</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="right">Droite</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Orientation</Label>
+          <Select
+            value={localComponent?.componentData?.orientation || 'horizontal'}
+            onValueChange={(value) => updateProperty('componentData.orientation', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="horizontal">Horizontal</SelectItem>
+              <SelectItem value="vertical">Vertical</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div>
         <Label className="text-xs text-gray-600">Couleur</Label>
-        <Input
-          type="color"
-          value={localComponent?.componentData?.dividerColor || '#e5e7eb'}
-          onChange={(e) => updateProperty('componentData.dividerColor', e.target.value)}
-          className="mt-1 h-8"
-        />
+        <div className="flex gap-2 mt-1">
+          <Input
+            type="color"
+            value={localComponent?.componentData?.color || '#e5e7eb'}
+            onChange={(e) => updateProperty('componentData.color', e.target.value)}
+            className="w-16 h-8"
+          />
+          <div className="flex gap-1 flex-1">
+            {['#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#374151', '#1f2937'].map(color => (
+              <button
+                key={color}
+                className="w-6 h-6 rounded border-2 border-gray-300"
+                style={{ backgroundColor: color }}
+                onClick={() => updateProperty('componentData.color', color)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Divider avec texte */}
+      <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="with-text"
+            checked={localComponent?.componentData?.withText ?? false}
+            onCheckedChange={(checked) => updateProperty('componentData.withText', checked)}
+          />
+          <Label htmlFor="with-text" className="text-xs">Divider avec texte</Label>
+        </div>
+        {localComponent?.componentData?.withText && (
+          <div className="space-y-2">
+            <Input
+              value={localComponent?.componentData?.text || ''}
+              onChange={(e) => updateProperty('componentData.text', e.target.value)}
+              placeholder="OU, ET, SECTION..."
+              className="text-xs"
+            />
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                value={localComponent?.componentData?.textStyle?.fontSize || '14px'}
+                onChange={(e) => updateProperty('componentData.textStyle.fontSize', e.target.value)}
+                placeholder="Taille"
+                className="text-xs"
+              />
+              <Input
+                type="color"
+                value={localComponent?.componentData?.textStyle?.color || '#6b7280'}
+                onChange={(e) => updateProperty('componentData.textStyle.color', e.target.value)}
+                className="h-8"
+              />
+              <Input
+                value={localComponent?.componentData?.textStyle?.padding || '0 12px'}
+                onChange={(e) => updateProperty('componentData.textStyle.padding', e.target.value)}
+                placeholder="Padding"
+                className="text-xs"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Motifs décoratifs */}
+      <div>
+        <Label className="text-xs text-gray-600">Motif décoratif</Label>
+        <Select
+          value={localComponent?.componentData?.decorative?.pattern || 'none'}
+          onValueChange={(value) => updateProperty('componentData.decorative.pattern', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Aucun</SelectItem>
+            <SelectItem value="dots">Points</SelectItem>
+            <SelectItem value="waves">Vagues</SelectItem>
+            <SelectItem value="zigzag">Zigzag</SelectItem>
+            <SelectItem value="ornament">Ornement</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        {localComponent?.componentData?.decorative?.pattern === 'dots' && (
+          <div className="mt-2">
+            <Label className="text-xs">Nombre de points</Label>
+            <Input
+              type="number"
+              min="3"
+              max="10"
+              value={localComponent?.componentData?.decorative?.dotCount || 3}
+              onChange={(e) => updateProperty('componentData.decorative.dotCount', parseInt(e.target.value))}
+              className="mt-1 text-xs"
+            />
+          </div>
+        )}
+        
+        {localComponent?.componentData?.decorative?.pattern === 'waves' && (
+          <div className="mt-2">
+            <Label className="text-xs">Amplitude</Label>
+            <Select
+              value={localComponent?.componentData?.decorative?.waveAmplitude || '5px'}
+              onValueChange={(value) => updateProperty('componentData.decorative.waveAmplitude', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3px">Subtile (3px)</SelectItem>
+                <SelectItem value="5px">Normale (5px)</SelectItem>
+                <SelectItem value="8px">Prononcée (8px)</SelectItem>
+                <SelectItem value="12px">Forte (12px)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      {/* Espacement */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Espacement haut</Label>
+          <Select
+            value={localComponent?.componentData?.spacing?.top || '20px'}
+            onValueChange={(value) => updateProperty('componentData.spacing.top', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Aucun</SelectItem>
+              <SelectItem value="10px">Petit (10px)</SelectItem>
+              <SelectItem value="20px">Moyen (20px)</SelectItem>
+              <SelectItem value="30px">Grand (30px)</SelectItem>
+              <SelectItem value="40px">Très grand (40px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Espacement bas</Label>
+          <Select
+            value={localComponent?.componentData?.spacing?.bottom || '20px'}
+            onValueChange={(value) => updateProperty('componentData.spacing.bottom', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Aucun</SelectItem>
+              <SelectItem value="10px">Petit (10px)</SelectItem>
+              <SelectItem value="20px">Moyen (20px)</SelectItem>
+              <SelectItem value="30px">Grand (30px)</SelectItem>
+              <SelectItem value="40px">Très grand (40px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Effets */}
+      <div>
+        <Label className="text-xs text-gray-600">Effets visuels</Label>
+        <div className="grid grid-cols-3 gap-2 mt-1">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="shadow"
+              checked={localComponent?.componentData?.effects?.shadow ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.effects.shadow', checked)}
+            />
+            <Label htmlFor="shadow" className="text-xs">Ombre</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="glow"
+              checked={localComponent?.componentData?.effects?.glow ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.effects.glow', checked)}
+            />
+            <Label htmlFor="glow" className="text-xs">Lueur</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="gradient"
+              checked={!!localComponent?.componentData?.effects?.gradient}
+              onCheckedChange={(checked) => updateProperty('componentData.effects.gradient', 
+                checked ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)' : null)}
+            />
+            <Label htmlFor="gradient" className="text-xs">Gradient</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Animation */}
+      <div>
+        <Label className="text-xs text-gray-600">Animation</Label>
+        <Select
+          value={localComponent?.componentData?.effects?.animation || 'none'}
+          onValueChange={(value) => updateProperty('componentData.effects.animation', value)}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Aucune</SelectItem>
+            <SelectItem value="fadeIn">Apparition</SelectItem>
+            <SelectItem value="slideIn">Glissement</SelectItem>
+            <SelectItem value="pulse">Pulsation</SelectItem>
+            <SelectItem value="draw">Tracé</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu temps réel</Label>
+        <div className="flex items-center justify-center py-4">
+          <div
+            className="transition-all duration-200"
+            style={{
+              width: localComponent?.componentData?.width || '100%',
+              height: localComponent?.componentData?.thickness || '2px',
+              backgroundColor: localComponent?.componentData?.color || '#e5e7eb',
+              borderStyle: localComponent?.componentData?.style || 'solid',
+              borderColor: localComponent?.componentData?.color || '#e5e7eb',
+              borderWidth: localComponent?.componentData?.style !== 'solid' ? localComponent?.componentData?.thickness || '2px' : '0',
+              maxWidth: '200px'
+            }}
+          />
+        </div>
       </div>
     </div>
   );

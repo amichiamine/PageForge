@@ -903,16 +903,60 @@ export function createComponent(type: string): ComponentDefinition {
     case 'divider':
       return {
         ...baseComponent,
-        tag: 'hr',
-        attributes: { className: 'divider' },
+        tag: 'div',
+        content: '',
+        attributes: { className: 'divider-component' },
         styles: {
           ...baseComponent.styles,
-          width: '300px',
-          height: '1px',
-          backgroundColor: '#e2e8f0',
+          width: '100%',
+          height: '2px',
+          backgroundColor: 'transparent',
           border: 'none',
-          margin: '20px 0'
+          margin: '20px 0',
+          left: '0',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
+        componentData: {
+          preset: 'minimal',
+          style: 'solid',
+          thickness: '2px',
+          color: '#e5e7eb',
+          width: '100%',
+          alignment: 'center',
+          orientation: 'horizontal',
+          spacing: {
+            top: '20px',
+            bottom: '20px'
+          },
+          withText: false,
+          text: '',
+          textStyle: {
+            fontSize: '14px',
+            color: '#6b7280',
+            backgroundColor: '#ffffff',
+            padding: '0 12px'
+          },
+          decorative: {
+            pattern: 'none',
+            dotCount: 3,
+            waveAmplitude: '5px'
+          },
+          effects: {
+            shadow: false,
+            glow: false,
+            gradient: null,
+            animation: 'none'
+          },
+          responsive: {
+            mobile: { width: '90%', thickness: '1px' },
+            tablet: { width: '95%', thickness: '2px' },
+            desktop: { width: '100%', thickness: '2px' }
+          }
+        }
       };
 
     case 'spacer':
