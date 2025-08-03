@@ -874,10 +874,8 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
-        attributes: { 
-          className: 'grid-container',
-          'data-grid': 'true'
-        },
+        content: '',
+        attributes: { className: 'grid-component' },
         styles: {
           ...baseComponent.styles,
           width: '400px',
@@ -885,17 +883,93 @@ export function createComponent(type: string): ComponentDefinition {
           backgroundColor: '#ffffff',
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
-          overflow: 'hidden',
-          position: 'relative',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+          padding: '16px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateRows: 'repeat(2, 1fr)',
+          gap: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          overflow: 'visible'
         },
         componentData: {
-          // DONNÉES MÉTIER SPÉCIFIQUES AU GRID (Architecture unifiée)
-          gridItems: [],              // Collection d'éléments - démarre vide
-          columns: 2,                 // Configuration structure
-          gap: '16px',               // Paramètre technique
-          alignment: 'center',        // Options d'affichage
-          itemBackground: '#f3f4f6'   // Personnalisation visuelle
+          preset: 'basic',
+          layout: {
+            columns: 'repeat(3, 1fr)',
+            rows: 'repeat(2, 1fr)',
+            gap: '16px',
+            areas: {
+              enabled: false,
+              template: [],
+              zones: {}
+            },
+            autoFlow: 'row',
+            dense: false
+          },
+          container: {
+            padding: '16px',
+            background: true,
+            border: true,
+            rounded: true,
+            minHeight: '300px',
+            maxWidth: '100%',
+            overflow: 'visible'
+          },
+          items: [],
+          itemDefaults: {
+            justifySelf: 'stretch',
+            alignSelf: 'stretch',
+            gridColumn: 'auto',
+            gridRow: 'auto'
+          },
+          alignment: {
+            justifyItems: 'stretch',
+            alignItems: 'stretch',
+            justifyContent: 'start',
+            alignContent: 'start'
+          },
+          responsive: {
+            mobile: {
+              columns: '1fr',
+              rows: 'auto',
+              gap: '12px',
+              padding: '12px',
+              areas: { enabled: false }
+            },
+            tablet: {
+              columns: 'repeat(2, 1fr)',
+              rows: 'auto 1fr',
+              gap: '14px',
+              padding: '14px',
+              areas: { enabled: false }
+            },
+            desktop: {
+              columns: 'repeat(3, 1fr)',
+              rows: 'repeat(2, 1fr)',
+              gap: '16px',
+              padding: '16px',
+              areas: { enabled: false }
+            }
+          },
+          advanced: {
+            implicit: {
+              columns: 'auto',
+              rows: 'auto'
+            },
+            subgrid: false,
+            sizing: 'auto'
+          },
+          templates: {
+            showGridLines: true,
+            showAreaLabels: true,
+            snapToGrid: true,
+            visualBuilder: false
+          },
+          accessibility: {
+            role: 'grid',
+            ariaLabel: '',
+            landmark: false,
+            gridRole: true
+          }
         }
       };
 

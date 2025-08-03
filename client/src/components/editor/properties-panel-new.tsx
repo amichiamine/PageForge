@@ -1810,69 +1810,688 @@ export default function PropertiesPanel({
     </div>
   );
 
-  // Propriétés Grid
+  // Configuration CSS Grid avancée
   const renderGridProperties = () => (
-    <div className="space-y-3">
-      <h5 className="text-sm font-semibold text-gray-700 border-b pb-1">Grid</h5>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label className="text-xs">Grid Template Columns</Label>
-          <Input
-            value={localComponent?.styles?.gridTemplateColumns || ''}
-            onChange={(e) => updateProperty('styles.gridTemplateColumns', e.target.value)}
-            placeholder="1fr 1fr, repeat(3, 1fr)"
-            className="h-8 text-xs"
-          />
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-purple-900">Configuration CSS Grid Avancée</h4>
+      
+      {/* Presets de layout */}
+      <div>
+        <Label className="text-xs text-gray-600">Presets de layout</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'dashboard');
+              updateProperty('componentData.layout.columns', '200px 1fr');
+              updateProperty('componentData.layout.rows', 'auto 1fr auto');
+              updateProperty('componentData.layout.areas.enabled', true);
+              updateProperty('componentData.layout.areas.template', [
+                'header header',
+                'sidebar main',
+                'footer footer'
+              ]);
+            }}
+            className="text-xs"
+          >
+            📊 Dashboard
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'gallery');
+              updateProperty('componentData.layout.columns', 'repeat(auto-fit, minmax(200px, 1fr))');
+              updateProperty('componentData.layout.rows', 'auto');
+              updateProperty('componentData.layout.autoFlow', 'row dense');
+              updateProperty('componentData.layout.gap', '16px');
+            }}
+            className="text-xs"
+          >
+            🖼️ Galerie
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'blog');
+              updateProperty('componentData.layout.columns', '1fr 300px');
+              updateProperty('componentData.layout.rows', 'auto 1fr auto');
+              updateProperty('componentData.layout.areas.enabled', true);
+              updateProperty('componentData.layout.areas.template', [
+                'header header',
+                'content sidebar',
+                'footer footer'
+              ]);
+            }}
+            className="text-xs"
+          >
+            📝 Blog
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'portfolio');
+              updateProperty('componentData.layout.columns', 'repeat(4, 1fr)');
+              updateProperty('componentData.layout.rows', 'repeat(3, 200px)');
+              updateProperty('componentData.layout.gap', '20px');
+              updateProperty('componentData.layout.dense', true);
+            }}
+            className="text-xs"
+          >
+            🎨 Portfolio
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'magazine');
+              updateProperty('componentData.layout.columns', 'repeat(6, 1fr)');
+              updateProperty('componentData.layout.rows', 'auto auto 1fr auto');
+              updateProperty('componentData.layout.areas.enabled', true);
+              updateProperty('componentData.layout.areas.template', [
+                'header header header header header header',
+                'nav nav nav nav nav nav',
+                'article article article article aside aside',
+                'footer footer footer footer footer footer'
+              ]);
+            }}
+            className="text-xs"
+          >
+            📰 Magazine
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'ecommerce');
+              updateProperty('componentData.layout.columns', 'repeat(auto-fill, minmax(250px, 1fr))');
+              updateProperty('componentData.layout.rows', 'auto');
+              updateProperty('componentData.layout.gap', '24px');
+              updateProperty('componentData.alignment.justifyItems', 'center');
+            }}
+            className="text-xs"
+          >
+            🛒 E-commerce
+          </Button>
+        </div>
+      </div>
+
+      {/* Configuration principale du layout */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Structure de la grille</Label>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-xs">Colonnes</Label>
+            <Input
+              value={localComponent?.componentData?.layout?.columns || 'repeat(3, 1fr)'}
+              onChange={(e) => updateProperty('componentData.layout.columns', e.target.value)}
+              placeholder="repeat(3, 1fr), 200px 1fr, auto 1fr auto"
+              className="mt-1 text-xs"
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              Exemples: repeat(3, 1fr), 200px 1fr, minmax(200px, 1fr)
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Lignes</Label>
+            <Input
+              value={localComponent?.componentData?.layout?.rows || 'repeat(2, 1fr)'}
+              onChange={(e) => updateProperty('componentData.layout.rows', e.target.value)}
+              placeholder="auto 1fr auto, repeat(3, 200px)"
+              className="mt-1 text-xs"
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              Exemples: auto 1fr auto, repeat(3, 200px), minmax(100px, auto)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Configuration des zones nommées */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs text-gray-600">Zones nommées (Grid Areas)</Label>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="enable-areas"
+              checked={localComponent?.componentData?.layout?.areas?.enabled ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.layout.areas.enabled', checked)}
+            />
+            <Label htmlFor="enable-areas" className="text-xs">Activer</Label>
+          </div>
+        </div>
+        
+        {localComponent?.componentData?.layout?.areas?.enabled && (
+          <div className="space-y-2">
+            <div>
+              <Label className="text-xs">Template des zones</Label>
+              <textarea
+                value={localComponent?.componentData?.layout?.areas?.template?.join('\n') || ''}
+                onChange={(e) => updateProperty('componentData.layout.areas.template', e.target.value.split('\n').filter(line => line.trim()))}
+                placeholder={`header header header\nsidebar main main\nfooter footer footer`}
+                className="w-full mt-1 text-xs border rounded p-2 font-mono"
+                rows={4}
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                Chaque ligne représente une ligne de la grille. Utilisez des noms pour définir les zones.
+              </div>
+            </div>
+            
+            {/* Zones prédéfinies */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  updateProperty('componentData.layout.areas.template', [
+                    'header header',
+                    'sidebar main',
+                    'footer footer'
+                  ]);
+                }}
+                className="text-xs"
+              >
+                Layout Sidebar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  updateProperty('componentData.layout.areas.template', [
+                    'header header header',
+                    'nav content aside',
+                    'footer footer footer'
+                  ]);
+                }}
+                className="text-xs"
+              >
+                Layout 3 colonnes
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Espacement et Gap */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Espacement</Label>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <Label className="text-xs">Gap global</Label>
+            <Input
+              value={localComponent?.componentData?.layout?.gap || '16px'}
+              onChange={(e) => updateProperty('componentData.layout.gap', e.target.value)}
+              placeholder="16px, 1rem"
+              className="mt-1 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Gap colonnes</Label>
+            <Input
+              value={localComponent?.componentData?.layout?.columnGap || ''}
+              onChange={(e) => updateProperty('componentData.layout.columnGap', e.target.value)}
+              placeholder="16px"
+              className="mt-1 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Gap lignes</Label>
+            <Input
+              value={localComponent?.componentData?.layout?.rowGap || ''}
+              onChange={(e) => updateProperty('componentData.layout.rowGap', e.target.value)}
+              placeholder="16px"
+              className="mt-1 text-xs"
+            />
+          </div>
         </div>
         <div>
-          <Label className="text-xs">Grid Template Rows</Label>
+          <Label className="text-xs">Padding conteneur</Label>
           <Input
-            value={localComponent?.styles?.gridTemplateRows || ''}
-            onChange={(e) => updateProperty('styles.gridTemplateRows', e.target.value)}
-            placeholder="auto, 100px 200px"
-            className="h-8 text-xs"
+            value={localComponent?.componentData?.container?.padding || '16px'}
+            onChange={(e) => updateProperty('componentData.container.padding', e.target.value)}
+            placeholder="16px, 1rem 2rem"
+            className="mt-1 text-xs"
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label className="text-xs">Grid Column Gap</Label>
-          <Input
-            value={localComponent?.styles?.columnGap || ''}
-            onChange={(e) => updateProperty('styles.columnGap', e.target.value)}
-            placeholder="10px, 1rem"
-            className="h-8 text-xs"
-          />
-        </div>
-        <div>
-          <Label className="text-xs">Grid Row Gap</Label>
-          <Input
-            value={localComponent?.styles?.rowGap || ''}
-            onChange={(e) => updateProperty('styles.rowGap', e.target.value)}
-            placeholder="10px, 1rem"
-            className="h-8 text-xs"
-          />
+
+      {/* Flux automatique */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Flux automatique</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Auto Flow</Label>
+            <Select
+              value={localComponent?.componentData?.layout?.autoFlow || 'row'}
+              onValueChange={(value) => updateProperty('componentData.layout.autoFlow', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="row">Ligne</SelectItem>
+                <SelectItem value="column">Colonne</SelectItem>
+                <SelectItem value="row dense">Ligne dense</SelectItem>
+                <SelectItem value="column dense">Colonne dense</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2 mt-6">
+            <Checkbox
+              id="dense"
+              checked={localComponent?.componentData?.layout?.dense ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.layout.dense', checked)}
+            />
+            <Label htmlFor="dense" className="text-xs">Placement dense</Label>
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label className="text-xs">Grid Column</Label>
-          <Input
-            value={localComponent?.styles?.gridColumn || ''}
-            onChange={(e) => updateProperty('styles.gridColumn', e.target.value)}
-            placeholder="1 / 3, span 2"
-            className="h-8 text-xs"
-          />
+
+      {/* Alignement */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Alignement</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Justify Items</Label>
+            <Select
+              value={localComponent?.componentData?.alignment?.justifyItems || 'stretch'}
+              onValueChange={(value) => updateProperty('componentData.alignment.justifyItems', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stretch">Étirement</SelectItem>
+                <SelectItem value="start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="end">Fin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Align Items</Label>
+            <Select
+              value={localComponent?.componentData?.alignment?.alignItems || 'stretch'}
+              onValueChange={(value) => updateProperty('componentData.alignment.alignItems', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stretch">Étirement</SelectItem>
+                <SelectItem value="start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="end">Fin</SelectItem>
+                <SelectItem value="baseline">Ligne de base</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div>
-          <Label className="text-xs">Grid Row</Label>
-          <Input
-            value={localComponent?.styles?.gridRow || ''}
-            onChange={(e) => updateProperty('styles.gridRow', e.target.value)}
-            placeholder="1 / 3, span 2"
-            className="h-8 text-xs"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Justify Content</Label>
+            <Select
+              value={localComponent?.componentData?.alignment?.justifyContent || 'start'}
+              onValueChange={(value) => updateProperty('componentData.alignment.justifyContent', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="end">Fin</SelectItem>
+                <SelectItem value="space-between">Espacement entre</SelectItem>
+                <SelectItem value="space-around">Espacement autour</SelectItem>
+                <SelectItem value="space-evenly">Espacement équitable</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Align Content</Label>
+            <Select
+              value={localComponent?.componentData?.alignment?.alignContent || 'start'}
+              onValueChange={(value) => updateProperty('componentData.alignment.alignContent', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="end">Fin</SelectItem>
+                <SelectItem value="space-between">Espacement entre</SelectItem>
+                <SelectItem value="space-around">Espacement autour</SelectItem>
+                <SelectItem value="space-evenly">Espacement équitable</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+      </div>
+
+      {/* Propriétés par défaut des éléments */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Propriétés par défaut des éléments</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Justify Self</Label>
+            <Select
+              value={localComponent?.componentData?.itemDefaults?.justifySelf || 'stretch'}
+              onValueChange={(value) => updateProperty('componentData.itemDefaults.justifySelf', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stretch">Étirement</SelectItem>
+                <SelectItem value="start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="end">Fin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Align Self</Label>
+            <Select
+              value={localComponent?.componentData?.itemDefaults?.alignSelf || 'stretch'}
+              onValueChange={(value) => updateProperty('componentData.itemDefaults.alignSelf', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stretch">Étirement</SelectItem>
+                <SelectItem value="start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="end">Fin</SelectItem>
+                <SelectItem value="baseline">Ligne de base</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Grid Column</Label>
+            <Input
+              value={localComponent?.componentData?.itemDefaults?.gridColumn || 'auto'}
+              onChange={(e) => updateProperty('componentData.itemDefaults.gridColumn', e.target.value)}
+              placeholder="auto, 1/3, span 2"
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Grid Row</Label>
+            <Input
+              value={localComponent?.componentData?.itemDefaults?.gridRow || 'auto'}
+              onChange={(e) => updateProperty('componentData.itemDefaults.gridRow', e.target.value)}
+              placeholder="auto, 1/3, span 2"
+              className="text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Options du conteneur */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Style du conteneur</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="grid-background"
+              checked={localComponent?.componentData?.container?.background ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.container.background', checked)}
+            />
+            <Label htmlFor="grid-background" className="text-xs">Fond</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="grid-border"
+              checked={localComponent?.componentData?.container?.border ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.container.border', checked)}
+            />
+            <Label htmlFor="grid-border" className="text-xs">Bordure</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="grid-rounded"
+              checked={localComponent?.componentData?.container?.rounded ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.container.rounded', checked)}
+            />
+            <Label htmlFor="grid-rounded" className="text-xs">Arrondi</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Contraintes avancées */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Contraintes avancées</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Min Height</Label>
+            <Input
+              value={localComponent?.componentData?.container?.minHeight || '300px'}
+              onChange={(e) => updateProperty('componentData.container.minHeight', e.target.value)}
+              placeholder="300px, 50vh"
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Max Width</Label>
+            <Input
+              value={localComponent?.componentData?.container?.maxWidth || '100%'}
+              onChange={(e) => updateProperty('componentData.container.maxWidth', e.target.value)}
+              placeholder="100%, 1200px"
+              className="text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Configuration responsive */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration responsive</Label>
+        <div className="space-y-2">
+          <div>
+            <Label className="text-xs">📱 Mobile</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.columns || '1fr'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.columns', e.target.value)}
+                placeholder="Colonnes"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.gap || '12px'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.gap', e.target.value)}
+                placeholder="Gap"
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">📱 Tablet</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.columns || 'repeat(2, 1fr)'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.columns', e.target.value)}
+                placeholder="Colonnes"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.gap || '14px'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.gap', e.target.value)}
+                placeholder="Gap"
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">🖥️ Desktop</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.columns || 'repeat(3, 1fr)'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.columns', e.target.value)}
+                placeholder="Colonnes"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.gap || '16px'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.gap', e.target.value)}
+                placeholder="Gap"
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Options avancées */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Options avancées</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Colonnes implicites</Label>
+            <Input
+              value={localComponent?.componentData?.advanced?.implicit?.columns || 'auto'}
+              onChange={(e) => updateProperty('componentData.advanced.implicit.columns', e.target.value)}
+              placeholder="auto, 200px"
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Lignes implicites</Label>
+            <Input
+              value={localComponent?.componentData?.advanced?.implicit?.rows || 'auto'}
+              onChange={(e) => updateProperty('componentData.advanced.implicit.rows', e.target.value)}
+              placeholder="auto, 100px"
+              className="text-xs"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="subgrid"
+              checked={localComponent?.componentData?.advanced?.subgrid ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.advanced.subgrid', checked)}
+            />
+            <Label htmlFor="subgrid" className="text-xs">Subgrid</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-grid-lines"
+              checked={localComponent?.componentData?.templates?.showGridLines ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.showGridLines', checked)}
+            />
+            <Label htmlFor="show-grid-lines" className="text-xs">Grille visible</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Outils visuels */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Outils visuels</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-area-labels"
+              checked={localComponent?.componentData?.templates?.showAreaLabels ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.showAreaLabels', checked)}
+            />
+            <Label htmlFor="show-area-labels" className="text-xs">Labels zones</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="snap-to-grid-grid"
+              checked={localComponent?.componentData?.templates?.snapToGrid ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.snapToGrid', checked)}
+            />
+            <Label htmlFor="snap-to-grid-grid" className="text-xs">Snap to grid</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="visual-builder"
+              checked={localComponent?.componentData?.templates?.visualBuilder ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.visualBuilder', checked)}
+            />
+            <Label htmlFor="visual-builder" className="text-xs">Builder visuel</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Accessibilité */}
+      <div className="space-y-2">
+        <Label className="text-xs text-gray-600">Accessibilité</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Role</Label>
+            <Select
+              value={localComponent?.componentData?.accessibility?.role || 'grid'}
+              onValueChange={(value) => updateProperty('componentData.accessibility.role', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="grid">Grid</SelectItem>
+                <SelectItem value="group">Group</SelectItem>
+                <SelectItem value="main">Main</SelectItem>
+                <SelectItem value="region">Region</SelectItem>
+                <SelectItem value="presentation">Presentation</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="grid-role"
+              checked={localComponent?.componentData?.accessibility?.gridRole ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.accessibility.gridRole', checked)}
+            />
+            <Label htmlFor="grid-role" className="text-xs">Grid ARIA</Label>
+          </div>
+        </div>
+        <Input
+          value={localComponent?.componentData?.accessibility?.ariaLabel || ''}
+          onChange={(e) => updateProperty('componentData.accessibility.ariaLabel', e.target.value)}
+          placeholder="Aria-label pour lecteurs d'écran"
+          className="text-xs"
+        />
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu de la grille</Label>
+        <div className="flex items-center justify-center py-2">
+          <div
+            className="border border-dashed border-gray-300 grid transition-all duration-200"
+            style={{
+              gridTemplateColumns: localComponent?.componentData?.layout?.columns || 'repeat(3, 1fr)',
+              gridTemplateRows: localComponent?.componentData?.layout?.rows || 'repeat(2, 1fr)',
+              gap: localComponent?.componentData?.layout?.gap || '16px',
+              padding: localComponent?.componentData?.container?.padding || '16px',
+              backgroundColor: localComponent?.componentData?.container?.background ? '#f8fafc' : 'transparent',
+              borderRadius: localComponent?.componentData?.container?.rounded ? '8px' : '0',
+              minHeight: '120px',
+              minWidth: '200px',
+              gridAutoFlow: localComponent?.componentData?.layout?.autoFlow || 'row'
+            }}
+          >
+            <div className="bg-blue-200 rounded p-2 text-xs text-center">1</div>
+            <div className="bg-green-200 rounded p-2 text-xs text-center">2</div>
+            <div className="bg-red-200 rounded p-2 text-xs text-center">3</div>
+            <div className="bg-yellow-200 rounded p-2 text-xs text-center">4</div>
+            <div className="bg-purple-200 rounded p-2 text-xs text-center">5</div>
+            <div className="bg-pink-200 rounded p-2 text-xs text-center">6</div>
+          </div>
+        </div>
+        {localComponent?.componentData?.layout?.areas?.enabled && (
+          <div className="mt-2 text-xs text-gray-500">
+            <strong>Zones définies:</strong> {localComponent?.componentData?.layout?.areas?.template?.join(' | ') || 'Aucune'}
+          </div>
+        )}
       </div>
     </div>
   );
