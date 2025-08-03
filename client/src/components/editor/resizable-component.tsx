@@ -336,7 +336,7 @@ export default function ResizableComponent({
     height: currentHeight + 'px',
     minWidth: '20px',
     minHeight: '20px',
-    zIndex: parseInt(component.styles?.zIndex || '1000'),
+    zIndex: component.styles?.zIndex === 'auto' ? 'auto' : (parseInt(component.styles?.zIndex || '1000') || 1000),
     cursor: isDragging ? 'grabbing' : 'grab',
     transform: isDragging ? 'scale(1.01)' : 'scale(1)',
     transition: isDragging ? 'none' : 'transform 0.1s ease',

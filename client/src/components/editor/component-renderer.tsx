@@ -66,7 +66,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     margin: '0',
     border: styles.border || 'none',
     borderRadius: styles.borderRadius || '0px',
-    zIndex: parseInt(styles.zIndex || '1000'),
+    zIndex: styles.zIndex === 'auto' ? 'auto' : (parseInt(styles.zIndex || '1000') || 1000),
     display: styles.display || 'block',
     alignItems: styles.alignItems as any,
     justifyContent: styles.justifyContent as any,
