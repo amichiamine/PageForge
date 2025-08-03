@@ -70,6 +70,16 @@ SiteForge is a full-stack visual website builder, offering a drag-and-drop inter
   - Architecture: Aperçu = Code = Export (système unifié)
   - Avantages: Plus de divergence entre aperçu et export, tous les composants s'affichent correctement, performance optimisée
   - Date: 3 janvier 2025
+- ✅ **Container Component Advanced Enhancement**: Major upgrade of Container component following verif-component protocol
+  - Protocol compliance: Container inserted empty, all configuration via componentData section only
+  - Presets rapides: 4 templates (Hero, Content, Sidebar, Grid 3) avec configuration automatique
+  - Grille intégrée: Support 1-4 colonnes avec gap personnalisable et distribution intelligente
+  - Template CSS Grid: Configuration manuelle grid-template-columns pour layouts complexes
+  - Contraintes enfants: Système de limitation des types de composants acceptés (text, heading, button, image, card)
+  - Overflow intelligent: Gestion visible/hidden/scroll/auto avec padding uniforme
+  - Guides visuels: Affichage des limites, grille et magnétisme dans l'éditeur
+  - Configuration responsive: Settings séparés mobile/tablet/desktop pour padding, colonnes, maxWidth
+  - Date: 3 janvier 2025
 
 ## System Architecture
 

@@ -126,22 +126,46 @@ export function createComponent(type: string): ComponentDefinition {
         attributes: { className: 'container' },
         styles: {
           ...baseComponent.styles,
-          backgroundColor: '#ffffff',
+          backgroundColor: 'transparent',
           border: '2px dashed #cbd5e1',
           borderRadius: '8px',
           padding: '20px',
-          width: '320px',
-          height: '200px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: '100%',
+          height: '400px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'block',
+          position: 'relative',
+          left: '0',
+          top: '100px',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
           fontSize: '14px',
           color: '#64748b',
-          textAlign: 'center',
           minHeight: '120px',
           boxSizing: 'border-box'
         },
+        componentData: {
+          preset: 'default',
+          maxWidth: '1200px',
+          centered: true,
+          padding: '20px',
+          columns: 1,
+          gap: '20px',
+          gridTemplate: 'none',
+          distribution: 'flex-start',
+          overflow: 'visible',
+          constraints: [],
+          responsive: {
+            mobile: { padding: '10px', columns: 1, maxWidth: '100%' },
+            tablet: { padding: '15px', columns: 2, maxWidth: '768px' },
+            desktop: { padding: '20px', columns: 1, maxWidth: '1200px' }
+          },
+          guides: {
+            showLimits: true,
+            showGrid: false,
+            snapToGrid: false
+          }
+        }
       };
 
     case 'input':

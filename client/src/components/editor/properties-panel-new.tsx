@@ -3588,26 +3588,72 @@ export default function PropertiesPanel({
 
   const renderContainerConfiguration = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration du Container</h4>
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Container Avancée</h4>
       
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs text-gray-600">Type de container</Label>
-          <Select
-            value={localComponent?.componentData?.containerType || 'content'}
-            onValueChange={(value) => updateProperty('componentData.containerType', value)}
+      {/* Presets rapides */}
+      <div>
+        <Label className="text-xs text-gray-600">Presets rapides</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'hero');
+              updateProperty('componentData.maxWidth', '100%');
+              updateProperty('componentData.columns', 1);
+              updateProperty('componentData.padding', '60px 20px');
+              updateProperty('componentData.distribution', 'center');
+            }}
+            className="text-xs"
           >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="content">Contenu</SelectItem>
-              <SelectItem value="hero">Section héro</SelectItem>
-              <SelectItem value="feature">Zone features</SelectItem>
-              <SelectItem value="wrapper">Wrapper</SelectItem>
-            </SelectContent>
-          </Select>
+            📄 Hero
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'content');
+              updateProperty('componentData.maxWidth', '1200px');
+              updateProperty('componentData.columns', 1);
+              updateProperty('componentData.padding', '20px');
+              updateProperty('componentData.distribution', 'flex-start');
+            }}
+            className="text-xs"
+          >
+            📝 Content
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'sidebar');
+              updateProperty('componentData.maxWidth', '100%');
+              updateProperty('componentData.columns', 2);
+              updateProperty('componentData.gap', '30px');
+              updateProperty('componentData.gridTemplate', '300px 1fr');
+            }}
+            className="text-xs"
+          >
+            📊 Sidebar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'grid3');
+              updateProperty('componentData.maxWidth', '1200px');
+              updateProperty('componentData.columns', 3);
+              updateProperty('componentData.gap', '20px');
+              updateProperty('componentData.distribution', 'space-between');
+            }}
+            className="text-xs"
+          >
+            🔲 Grid 3
+          </Button>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className="text-xs text-gray-600">Largeur maximale</Label>
           <Select
@@ -3619,81 +3665,225 @@ export default function PropertiesPanel({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="100%">Pleine largeur</SelectItem>
+              <SelectItem value="1400px">Très large (1400px)</SelectItem>
               <SelectItem value="1200px">Standard (1200px)</SelectItem>
               <SelectItem value="1000px">Compact (1000px)</SelectItem>
               <SelectItem value="800px">Étroit (800px)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs text-gray-600">Padding vertical</Label>
-          <Select
-            value={localComponent?.componentData?.paddingY || '20px'}
-            onValueChange={(value) => updateProperty('componentData.paddingY', value)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Aucun</SelectItem>
-              <SelectItem value="10px">Petit</SelectItem>
-              <SelectItem value="20px">Moyen</SelectItem>
-              <SelectItem value="40px">Grand</SelectItem>
-              <SelectItem value="60px">Très grand</SelectItem>
+              <SelectItem value="600px">Mobile (600px)</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label className="text-xs text-gray-600">Padding horizontal</Label>
-          <Select
-            value={localComponent?.componentData?.paddingX || '20px'}
-            onValueChange={(value) => updateProperty('componentData.paddingX', value)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Aucun</SelectItem>
-              <SelectItem value="15px">Petit</SelectItem>
-              <SelectItem value="20px">Moyen</SelectItem>
-              <SelectItem value="30px">Grand</SelectItem>
-              <SelectItem value="40px">Très grand</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div>
-        <Label className="text-xs text-gray-600">Contenu du container</Label>
-        <Textarea
-          value={localComponent?.content || 'Zone de contenu'}
-          onChange={(e) => updateProperty('content', e.target.value)}
-          placeholder="Contenu affiché dans le container"
-          className="mt-1 text-sm min-h-[60px]"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs text-gray-600">Bordure visible</Label>
+          <Label className="text-xs text-gray-600">Centrage automatique</Label>
           <Switch
-            checked={localComponent?.componentData?.showBorder ?? false}
-            onCheckedChange={(checked) => updateProperty('componentData.showBorder', checked)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <Label className="text-xs text-gray-600">Centré</Label>
-          <Switch
-            checked={localComponent?.componentData?.centered ?? false}
+            checked={localComponent?.componentData?.centered ?? true}
             onCheckedChange={(checked) => updateProperty('componentData.centered', checked)}
             className="mt-1"
           />
         </div>
       </div>
+
+      {/* Grille intégrée */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Colonnes</Label>
+          <Select
+            value={String(localComponent?.componentData?.columns || 1)}
+            onValueChange={(value) => updateProperty('componentData.columns', parseInt(value))}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1 colonne</SelectItem>
+              <SelectItem value="2">2 colonnes</SelectItem>
+              <SelectItem value="3">3 colonnes</SelectItem>
+              <SelectItem value="4">4 colonnes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Écart</Label>
+          <Select
+            value={localComponent?.componentData?.gap || '20px'}
+            onValueChange={(value) => updateProperty('componentData.gap', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10px">Petit (10px)</SelectItem>
+              <SelectItem value="20px">Moyen (20px)</SelectItem>
+              <SelectItem value="30px">Grand (30px)</SelectItem>
+              <SelectItem value="40px">Très grand (40px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Distribution</Label>
+          <Select
+            value={localComponent?.componentData?.distribution || 'flex-start'}
+            onValueChange={(value) => updateProperty('componentData.distribution', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="flex-start">Début</SelectItem>
+              <SelectItem value="center">Centre</SelectItem>
+              <SelectItem value="space-between">Espacement</SelectItem>
+              <SelectItem value="space-around">Autour</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Template de grille personnalisé */}
+      <div>
+        <Label className="text-xs text-gray-600">Template grille (CSS Grid)</Label>
+        <Input
+          value={localComponent?.componentData?.gridTemplate || 'none'}
+          onChange={(e) => updateProperty('componentData.gridTemplate', e.target.value)}
+          placeholder="300px 1fr 200px"
+          className="mt-1 text-xs"
+        />
+      </div>
+
+      {/* Contraintes enfants */}
+      <div>
+        <Label className="text-xs text-gray-600">Types acceptés (contraintes)</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          {['text', 'heading', 'button', 'image', 'card'].map(type => (
+            <div key={type} className="flex items-center space-x-2">
+              <Checkbox
+                id={`constraint-${type}`}
+                checked={(localComponent?.componentData?.constraints || []).includes(type)}
+                onCheckedChange={(checked) => {
+                  const constraints = localComponent?.componentData?.constraints || [];
+                  const newConstraints = checked 
+                    ? [...constraints, type]
+                    : constraints.filter((c: string) => c !== type);
+                  updateProperty('componentData.constraints', newConstraints);
+                }}
+              />
+              <Label htmlFor={`constraint-${type}`} className="text-xs">{type}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Overflow intelligent */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Gestion overflow</Label>
+          <Select
+            value={localComponent?.componentData?.overflow || 'visible'}
+            onValueChange={(value) => updateProperty('componentData.overflow', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="visible">Visible</SelectItem>
+              <SelectItem value="hidden">Masqué</SelectItem>
+              <SelectItem value="scroll">Défilement</SelectItem>
+              <SelectItem value="auto">Automatique</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Padding uniforme</Label>
+          <Input
+            value={localComponent?.componentData?.padding || '20px'}
+            onChange={(e) => updateProperty('componentData.padding', e.target.value)}
+            placeholder="20px ou 20px 40px"
+            className="mt-1 text-xs"
+          />
+        </div>
+      </div>
+
+      {/* Guides visuels */}
+      <div>
+        <Label className="text-xs text-gray-600">Guides visuels (éditeur)</Label>
+        <div className="grid grid-cols-3 gap-2 mt-1">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-limits"
+              checked={localComponent?.componentData?.guides?.showLimits ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.guides', {
+                ...localComponent?.componentData?.guides,
+                showLimits: checked
+              })}
+            />
+            <Label htmlFor="show-limits" className="text-xs">Limites</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-grid"
+              checked={localComponent?.componentData?.guides?.showGrid ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.guides', {
+                ...localComponent?.componentData?.guides,
+                showGrid: checked
+              })}
+            />
+            <Label htmlFor="show-grid" className="text-xs">Grille</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="snap-to-grid"
+              checked={localComponent?.componentData?.guides?.snapToGrid ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.guides', {
+                ...localComponent?.componentData?.guides,
+                snapToGrid: checked
+              })}
+            />
+            <Label htmlFor="snap-to-grid" className="text-xs">Magnétisme</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Configuration responsive */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="responsive">
+          <AccordionTrigger className="text-xs">Configuration responsive</AccordionTrigger>
+          <AccordionContent className="space-y-3">
+            {['mobile', 'tablet', 'desktop'].map(breakpoint => (
+              <div key={breakpoint} className="border rounded p-3 space-y-2">
+                <Label className="text-xs font-medium capitalize">{breakpoint}</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Input
+                      placeholder="Padding"
+                      value={localComponent?.componentData?.responsive?.[breakpoint]?.padding || ''}
+                      onChange={(e) => updateProperty(`componentData.responsive.${breakpoint}.padding`, e.target.value)}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Colonnes"
+                      type="number"
+                      min="1"
+                      max="4"
+                      value={localComponent?.componentData?.responsive?.[breakpoint]?.columns || ''}
+                      onChange={(e) => updateProperty(`componentData.responsive.${breakpoint}.columns`, parseInt(e.target.value))}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Max Width"
+                      value={localComponent?.componentData?.responsive?.[breakpoint]?.maxWidth || ''}
+                      onChange={(e) => updateProperty(`componentData.responsive.${breakpoint}.maxWidth`, e.target.value)}
+                      className="text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 
