@@ -25,7 +25,7 @@ const integration = [
 ];
 
 const documentation = [
-  { name: "Guide d'usage", href: "/documentation", icon: Book },
+  { name: "Guide d'utilisation", href: "/documentation", icon: Book },
   { name: "Configuration", href: "/settings", icon: Settings },
 ];
 
