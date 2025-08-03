@@ -2149,6 +2149,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         <textarea
           ref={containerRef as React.RefObject<HTMLTextAreaElement>}
           placeholder={attributes.placeholder as string || 'Entrez votre message...'}
+          value={content || ''}
           className={`form-textarea ${className || ''}`}
           style={{
             ...inlineStyles,
@@ -2165,10 +2166,9 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
             lineHeight: 1.4
           }}
           onClick={onClick}
+          readOnly
           {...otherAttributes}
-        >
-          {content}
-        </textarea>
+        />
       );
 
     case 'checkbox':
