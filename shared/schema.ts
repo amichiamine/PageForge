@@ -45,6 +45,19 @@ export const pages = pgTable("pages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const deployments = pgTable("deployments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => projects.id).notNull(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  platform: text("platform").notNull().default("pageforge"), // pageforge, netlify, vercel, custom
+  status: text("status").notNull().default("building"), // building, success, failed, deploying
+  buildLog: text("build_log"),
+  config: json("config").$type<DeploymentConfig>().notNull().default({}),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Type definitions for JSON fields
 export interface ProjectContent {
   pages?: Array<{
@@ -92,6 +105,16 @@ export interface ProjectSettings {
     workspacePath?: string;
     targetFiles?: string[];
   };
+}
+
+export interface DeploymentConfig {
+  domain?: string;
+  subdomain?: string;
+  customDomain?: string;
+  envVars?: Record<string, string>;
+  buildCommand?: string;
+  outputDir?: string;
+  nodeVersion?: string;
 }
 
 export interface TemplateContent {
@@ -190,6 +213,16 @@ export const insertPageSchema = z.object({
   meta: z.any().optional(),
 });
 
+export const insertDeploymentSchema = z.object({
+  projectId: z.string(),
+  name: z.string().min(1, "Deployment name is required"),
+  url: z.string().url("Valid URL is required"),
+  platform: z.enum(["pageforge", "netlify", "vercel", "custom"]).default("pageforge"),
+  status: z.enum(["building", "success", "failed", "deploying"]).default("building"),
+  buildLog: z.string().optional(),
+  config: z.any().optional(),
+});
+
 export const updateProjectSchema = insertProjectSchema.partial();
 export const updatePageSchema = insertPageSchema.omit({ projectId: true }).partial();
 
@@ -207,3 +240,6 @@ export type Template = typeof templates.$inferSelect;
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = typeof pages.$inferSelect;
 export type UpdatePage = z.infer<typeof updatePageSchema>;
+
+export type InsertDeployment = z.infer<typeof insertDeploymentSchema>;
+export type Deployment = typeof deployments.$inferSelect;

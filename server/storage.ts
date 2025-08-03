@@ -1,6 +1,7 @@
 
 import { type User, type InsertUser, type Project, type InsertProject, type UpdateProject, 
          type Template, type InsertTemplate, type Page, type InsertPage, type UpdatePage,
+         type Deployment, type InsertDeployment,
          type ProjectContent, type TemplateContent, type ComponentDefinition } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -29,6 +30,14 @@ export interface IStorage {
   updatePage(id: string, updates: UpdatePage): Promise<Page | undefined>;
   deletePage(id: string): Promise<boolean>;
   
+  // Deployment methods
+  getDeployments(): Promise<Deployment[]>;
+  getProjectDeployments(projectId: string): Promise<Deployment[]>;
+  getDeployment(id: string): Promise<Deployment | undefined>;
+  createDeployment(deployment: InsertDeployment): Promise<Deployment>;
+  updateDeploymentStatus(id: string, status: "building" | "success" | "failed" | "deploying", buildLog?: string): Promise<Deployment | undefined>;
+  deleteDeployment(id: string): Promise<boolean>;
+  
   // Export methods
   exportProject(projectId: string, options?: ExportOptions): Promise<{ files: Array<{ path: string; content: string; }> }>;
 }
@@ -48,11 +57,14 @@ export class MemStorage implements IStorage {
   private projects: Map<string, Project>;
   private templates: Map<string, Template>;
   private pages: Map<string, Page>;
+  private deployments: Map<string, Deployment>;
 
   constructor() {
     this.users = new Map();
     this.projects = new Map();
     this.templates = new Map();
+    this.pages = new Map();
+    this.deployments = new Map();
     this.pages = new Map();
     
     // Initialize with built-in templates
@@ -1639,6 +1651,59 @@ Ce projet est prêt pour le déploiement sur n'importe quel serveur web statique
 
 Généré avec PageForge - ${new Date().toLocaleDateString()}
 `;
+  }
+
+  // Deployment methods implementation
+  async getDeployments(): Promise<Deployment[]> {
+    return Array.from(this.deployments.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  async getProjectDeployments(projectId: string): Promise<Deployment[]> {
+    return Array.from(this.deployments.values())
+      .filter(deployment => deployment.projectId === projectId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getDeployment(id: string): Promise<Deployment | undefined> {
+    return this.deployments.get(id);
+  }
+
+  async createDeployment(deployment: InsertDeployment): Promise<Deployment> {
+    const now = new Date();
+    const newDeployment: Deployment = {
+      id: randomUUID(),
+      ...deployment,
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    this.deployments.set(newDeployment.id, newDeployment);
+    return newDeployment;
+  }
+
+  async updateDeploymentStatus(
+    id: string, 
+    status: "building" | "success" | "failed" | "deploying", 
+    buildLog?: string
+  ): Promise<Deployment | undefined> {
+    const deployment = this.deployments.get(id);
+    if (!deployment) return undefined;
+
+    const updatedDeployment: Deployment = {
+      ...deployment,
+      status,
+      buildLog: buildLog || deployment.buildLog,
+      updatedAt: new Date(),
+    };
+
+    this.deployments.set(id, updatedDeployment);
+    return updatedDeployment;
+  }
+
+  async deleteDeployment(id: string): Promise<boolean> {
+    return this.deployments.delete(id);
   }
 
   private generateOptimizedHTML(page: any, project: Project, options: ExportOptions): string {

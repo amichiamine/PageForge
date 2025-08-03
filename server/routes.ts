@@ -278,6 +278,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  // Routes pour les déploiements
+  app.get("/api/deployments", async (req, res) => {
+    try {
+      const deployments = await storage.getDeployments();
+      res.json(deployments);
+    } catch (error: any) {
+      console.error("Get deployments error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/projects/:projectId/deployments", async (req, res) => {
+    try {
+      const deployments = await storage.getProjectDeployments(req.params.projectId);
+      res.json(deployments);
+    } catch (error: any) {
+      console.error("Get project deployments error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/deployments", async (req, res) => {
+    try {
+      const { projectId, name, platform, config } = req.body;
+      
+      // Générer une URL de déploiement unique
+      const subdomain = Math.random().toString(36).substring(2, 10);
+      const url = platform === 'pageforge' 
+        ? `https://${subdomain}.pageforge.app`
+        : req.body.url;
+
+      const deployment = await storage.createDeployment({
+        projectId,
+        name: name || `Déploiement ${new Date().toLocaleDateString()}`,
+        url,
+        platform: platform || 'pageforge',
+        status: 'building',
+        config: config || {}
+      });
+
+      // Simuler le processus de déploiement en arrière-plan
+      setTimeout(async () => {
+        try {
+          const success = Math.random() > 0.1; // 90% de chance de succès
+          await storage.updateDeploymentStatus(
+            deployment.id, 
+            success ? 'success' : 'failed',
+            success ? 'Déploiement terminé avec succès' : 'Erreur lors du déploiement'
+          );
+        } catch (error) {
+          console.error('Error updating deployment status:', error);
+        }
+      }, 3000);
+
+      res.status(201).json(deployment);
+    } catch (error: any) {
+      console.error("Create deployment error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/deployments/:id/status", async (req, res) => {
+    try {
+      const { status, buildLog } = req.body;
+      const deployment = await storage.updateDeploymentStatus(req.params.id, status, buildLog);
+      if (!deployment) {
+        return res.status(404).json({ message: "Deployment not found" });
+      }
+      res.json(deployment);
+    } catch (error: any) {
+      console.error("Update deployment status error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/deployments/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteDeployment(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Deployment not found" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error("Delete deployment error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
