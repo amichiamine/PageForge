@@ -224,8 +224,8 @@ export function createComponent(type: string): ComponentDefinition {
           currentSlide: 0,
           autoplay: false,
           animationSpeed: 3000,
-          showDots: true,
-          showArrows: true
+          showDots: false,
+          showArrows: false
         }
       };
 

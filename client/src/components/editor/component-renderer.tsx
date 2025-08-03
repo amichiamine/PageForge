@@ -1342,11 +1342,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const tablePadding = getResponsiveSpacing(6);
       
       // Récupération des données depuis componentData (architecture unifiée)
-      const tableHeaders = componentData?.headers || [];
-      const tableRows = componentData?.rows || [];
-      const isStriped = componentData?.striped || false;
-      const isBordered = componentData?.bordered || false;
-      const isHoverable = componentData?.hoverable || false;
+      const tableHeaders = component.componentData?.headers || [];
+      const tableRows = component.componentData?.rows || [];
+      const isStriped = component.componentData?.striped || false;
+      const isBordered = component.componentData?.bordered || false;
+      const isHoverable = component.componentData?.hoverable || false;
       
       return (
         <div

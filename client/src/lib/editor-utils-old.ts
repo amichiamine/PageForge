@@ -266,8 +266,8 @@ export function createComponent(type: string): ComponentDefinition {
           currentSlide: 0,
           autoplay: true,
           animationSpeed: 3000,
-          showDots: true,
-          showArrows: true
+          showDots: false,
+          showArrows: false
         }
       };
 
@@ -504,7 +504,7 @@ export function createComponent(type: string): ComponentDefinition {
         componentData: {
           title: 'Navigation',
           menuItems: [
-            { text: '🏠 Accueil', link: '#', active: true, id: nanoid() },
+            { text: '🏠 Accueil', link: '#', active: false, id: nanoid() },
             { text: '📊 Analytics', link: '#', active: false, id: nanoid() },
             { text: '⚙️ Paramètres', link: '#', active: false, id: nanoid() }
           ]
@@ -531,7 +531,7 @@ export function createComponent(type: string): ComponentDefinition {
         componentData: {
           brand: 'Brand',
           menuItems: [
-            { text: 'Accueil', link: '#', active: true, id: nanoid() },
+            { text: 'Accueil', link: '#', active: false, id: nanoid() },
             { text: 'Services', link: '#', active: false, id: nanoid() },
             { text: 'Contact', link: '#', active: false, id: nanoid() }
           ]

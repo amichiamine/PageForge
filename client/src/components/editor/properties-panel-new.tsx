@@ -2129,7 +2129,7 @@ export default function PropertiesPanel({
         <div className="flex items-center space-x-2">
           <Checkbox
             id="showDots"
-            checked={localComponent?.componentData?.showDots !== false}
+            checked={localComponent?.componentData?.showDots ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showDots', checked)}
           />
           <Label htmlFor="showDots" className="text-xs">Afficher les points</Label>
@@ -2137,7 +2137,7 @@ export default function PropertiesPanel({
         <div className="flex items-center space-x-2">
           <Checkbox
             id="showArrows"
-            checked={localComponent?.componentData?.showArrows !== false}
+            checked={localComponent?.componentData?.showArrows ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showArrows', checked)}
           />
           <Label htmlFor="showArrows" className="text-xs">Afficher les flèches</Label>
@@ -2400,7 +2400,7 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-2">
         <Checkbox
           id="responsive"
-          checked={localComponent?.componentData?.responsive !== false}
+          checked={localComponent?.componentData?.responsive ?? false}
           onCheckedChange={(checked) => updateProperty('componentData.responsive', checked)}
         />
         <Label htmlFor="responsive" className="text-xs">Image responsive</Label>
@@ -2734,7 +2734,7 @@ export default function PropertiesPanel({
         <div className="flex items-center space-x-2">
           <Checkbox
             id="controls"
-            checked={localComponent?.attributes?.controls !== false}
+            checked={localComponent?.attributes?.controls ?? false}
             onCheckedChange={(checked) => updateProperty('attributes.controls', checked)}
           />
           <Label htmlFor="controls" className="text-xs">Contrôles</Label>
@@ -2780,7 +2780,7 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-2">
         <Checkbox
           id="controls-audio"
-          checked={localComponent?.attributes?.controls !== false}
+          checked={localComponent?.attributes?.controls ?? false}
           onCheckedChange={(checked) => updateProperty('attributes.controls', checked)}
         />
         <Label htmlFor="controls-audio" className="text-xs">Contrôles</Label>
@@ -3107,7 +3107,7 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-2">
         <Checkbox
           id="sticky"
-          checked={localComponent?.componentData?.sticky !== false}
+          checked={localComponent?.componentData?.sticky ?? false}
           onCheckedChange={(checked) => updateProperty('componentData.sticky', checked)}
         />
         <Label htmlFor="sticky" className="text-xs">Navigation collante</Label>
@@ -3680,7 +3680,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Bordure visible</Label>
           <Switch
-            checked={localComponent?.componentData?.showBorder !== false}
+            checked={localComponent?.componentData?.showBorder ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showBorder', checked)}
             className="mt-1"
           />
@@ -3688,7 +3688,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Centré</Label>
           <Switch
-            checked={localComponent?.componentData?.centered !== false}
+            checked={localComponent?.componentData?.centered ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.centered', checked)}
             className="mt-1"
           />
@@ -4265,7 +4265,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Fermeture automatique</Label>
           <Switch
-            checked={localComponent?.componentData?.autoClose !== false}
+            checked={localComponent?.componentData?.autoClose ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.autoClose', checked)}
             className="mt-1"
           />
@@ -4549,7 +4549,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Fermable</Label>
           <Switch
-            checked={localComponent?.componentData?.dismissible !== false}
+            checked={localComponent?.componentData?.dismissible ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.dismissible', checked)}
             className="mt-1"
           />
@@ -4655,7 +4655,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Afficher le texte</Label>
           <Switch
-            checked={localComponent?.componentData?.showText !== false}
+            checked={localComponent?.componentData?.showText ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showText', checked)}
             className="mt-1"
           />
@@ -4830,7 +4830,7 @@ export default function PropertiesPanel({
       <div>
         <Label className="text-xs text-gray-600">Visible en édition</Label>
         <Switch
-          checked={localComponent?.componentData?.showInEditor !== false}
+          checked={localComponent?.componentData?.showInEditor ?? false}
           onCheckedChange={(checked) => updateProperty('componentData.showInEditor', checked)}
           className="mt-1"
         />
@@ -5043,7 +5043,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Marqueur</Label>
           <Switch
-            checked={localComponent?.componentData?.showMarker !== false}
+            checked={localComponent?.componentData?.showMarker ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showMarker', checked)}
             className="mt-1"
           />
@@ -5165,7 +5165,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Événements cliquables</Label>
           <Switch
-            checked={localComponent?.componentData?.eventsClickable !== false}
+            checked={localComponent?.componentData?.eventsClickable ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.eventsClickable', checked)}
             className="mt-1"
           />
@@ -5173,7 +5173,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Navigation</Label>
           <Switch
-            checked={localComponent?.componentData?.showNavigation !== false}
+            checked={localComponent?.componentData?.showNavigation ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showNavigation', checked)}
             className="mt-1"
           />
@@ -5320,7 +5320,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Redimensionnable</Label>
           <Switch
-            checked={localComponent?.componentData?.resizable !== false}
+            checked={localComponent?.componentData?.resizable ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.resizable', checked)}
             className="mt-1"
           />
@@ -5588,7 +5588,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Afficher la valeur</Label>
           <Switch
-            checked={localComponent?.componentData?.showValue !== false}
+            checked={localComponent?.componentData?.showValue ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showValue', checked)}
             className="mt-1"
           />
@@ -5648,7 +5648,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Bouton de recherche</Label>
           <Switch
-            checked={localComponent?.componentData?.showSearchButton !== false}
+            checked={localComponent?.componentData?.showSearchButton ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showSearchButton', checked)}
             className="mt-1"
           />
@@ -5744,7 +5744,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Boutons Précédent/Suivant</Label>
           <Switch
-            checked={localComponent?.componentData?.showPrevNext !== false}
+            checked={localComponent?.componentData?.showPrevNext ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showPrevNext', checked)}
             className="mt-1"
           />
@@ -5817,7 +5817,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Afficher le texte</Label>
           <Switch
-            checked={localComponent?.componentData?.showRatingText !== false}
+            checked={localComponent?.componentData?.showRatingText ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showRatingText', checked)}
             className="mt-1"
           />
@@ -5863,7 +5863,7 @@ export default function PropertiesPanel({
         <div>
           <Label className="text-xs text-gray-600">Glisser-déposer</Label>
           <Switch
-            checked={localComponent?.componentData?.dragDrop !== false}
+            checked={localComponent?.componentData?.dragDrop ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.dragDrop', checked)}
             className="mt-1"
           />
@@ -6053,7 +6053,7 @@ export default function PropertiesPanel({
 
       <div className="flex items-center space-x-2">
         <Checkbox
-          checked={localComponent?.componentData?.showCaptions !== false}
+          checked={localComponent?.componentData?.showCaptions ?? false}
           onCheckedChange={(checked) => updateProperty('componentData.showCaptions', checked)}
         />
         <Label className="text-xs">Afficher les légendes</Label>
