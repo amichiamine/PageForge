@@ -16,7 +16,8 @@ import {
   Smartphone,
   Layers,
   Lightbulb,
-  Keyboard
+  Keyboard,
+  Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -184,20 +185,26 @@ export default function Documentation() {
                     <div className="border-l-4 border-green-500 pl-4">
                       <h4 className="font-medium">2. Ajouter des composants</h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        <strong>Desktop :</strong> Glissez-déposez depuis la palette de gauche<br/>
+                        <strong>Desktop :</strong> Glissez-déposez depuis la palette de gauche (52 composants disponibles)<br/>
                         <strong>Mobile/Tablette :</strong> Double-cliquez sur un composant pour l'ajouter
                       </p>
                     </div>
                     <div className="border-l-4 border-purple-500 pl-4">
                       <h4 className="font-medium">3. Personnaliser</h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        Sélectionnez un composant et modifiez ses propriétés dans le panneau de droite
+                        Sélectionnez un composant et modifiez ses propriétés dans le panneau de droite avec les options dédiées à chaque type
                       </p>
                     </div>
                     <div className="border-l-4 border-orange-500 pl-4">
                       <h4 className="font-medium">4. Prévisualiser et exporter</h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        Utilisez les boutons "Préview" et "Export" dans la barre d'outils
+                        Utilisez "Préview" pour voir le rendu final et "Export" pour télécharger ou "Déploiement" pour publier directement
+                      </p>
+                    </div>
+                    <div className="border-l-4 border-red-500 pl-4">
+                      <h4 className="font-medium">5. Déployer en ligne</h4>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Accédez à "Déploiement" pour publier instantanément sur PageForge.app ou d'autres plateformes
                       </p>
                     </div>
                   </div>
@@ -225,45 +232,160 @@ export default function Documentation() {
                 <div>
                   <h3 className="text-lg font-semibold mb-3 flex items-center">
                     <Layers className="h-5 w-5 mr-2 text-purple-600" />
-                    Composants disponibles
+                    52 Composants disponibles (8 catégories)
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-3">
-                      <div>
-                        <h4 className="font-medium text-blue-600">📐 Layout</h4>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Container - Conteneur de base</li>
-                          <li>• Section - Section de page</li>
-                          <li>• Header - En-tête de page</li>
-                          <li>• Footer - Pied de page</li>
+                      <div className="p-3 border rounded-lg bg-blue-50">
+                        <h4 className="font-medium text-blue-600 mb-2">📝 Typography (7)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Heading - Titres H1-H6</li>
+                          <li>• Paragraph - Paragraphes</li>
+                          <li>• Quote - Citations</li>
+                          <li>• List - Listes à puces</li>
+                          <li>• Code - Blocs de code</li>
+                          <li>• Highlight - Texte surligné</li>
+                          <li>• Callout - Encadrés</li>
                         </ul>
                       </div>
-                      <div>
-                        <h4 className="font-medium text-green-600">📝 Texte</h4>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Titre - Titres H1 à H6</li>
-                          <li>• Paragraphe - Texte de paragraphe</li>
-                          <li>• Liste - Listes à puces ou numérotées</li>
+                      <div className="p-3 border rounded-lg bg-green-50">
+                        <h4 className="font-medium text-green-600 mb-2">📐 Layout (8)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Container - Conteneurs</li>
+                          <li>• Section - Sections</li>
+                          <li>• Header - En-têtes</li>
+                          <li>• Footer - Pieds de page</li>
+                          <li>• Sidebar - Barres latérales</li>
+                          <li>• Grid - Grilles CSS</li>
+                          <li>• Flex - Layouts flexibles</li>
+                          <li>• Spacer - Espacement</li>
                         </ul>
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <div>
-                        <h4 className="font-medium text-purple-600">🎨 Média</h4>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Image - Images et photos</li>
-                          <li>• Vidéo - Lecteur vidéo intégré</li>
-                          <li>• Audio - Lecteur audio</li>
+                      <div className="p-3 border rounded-lg bg-purple-50">
+                        <h4 className="font-medium text-purple-600 mb-2">🧭 Navigation (6)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Navbar - Barres de navigation</li>
+                          <li>• Menu - Menus déroulants</li>
+                          <li>• Breadcrumb - Fil d'Ariane</li>
+                          <li>• Link - Liens hypertexte</li>
+                          <li>• Button Link - Boutons-liens</li>
+                          <li>• Pagination - Navigation pages</li>
                         </ul>
                       </div>
-                      <div>
-                        <h4 className="font-medium text-orange-600">⚡ Interactif</h4>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Bouton - Boutons cliquables</li>
-                          <li>• Lien - Liens hypertexte</li>
-                          <li>• Formulaire - Formulaires de contact</li>
+                      <div className="p-3 border rounded-lg bg-indigo-50">
+                        <h4 className="font-medium text-indigo-600 mb-2">🖼️ Media (7)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Image - Images</li>
+                          <li>• Gallery - Galeries</li>
+                          <li>• Carousel - Carrousels</li>
+                          <li>• Video - Vidéos</li>
+                          <li>• Audio - Audio</li>
+                          <li>• Icon - Icônes</li>
+                          <li>• Avatar - Avatars</li>
                         </ul>
                       </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="p-3 border rounded-lg bg-orange-50">
+                        <h4 className="font-medium text-orange-600 mb-2">📋 Forms (6)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Input - Champs de saisie</li>
+                          <li>• Textarea - Zones de texte</li>
+                          <li>• Select - Listes déroulantes</li>
+                          <li>• Checkbox - Cases à cocher</li>
+                          <li>• Radio - Boutons radio</li>
+                          <li>• Button - Boutons</li>
+                        </ul>
+                      </div>
+                      <div className="p-3 border rounded-lg bg-yellow-50">
+                        <h4 className="font-medium text-yellow-600 mb-2">⚡ Interactive (9)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Tabs - Onglets</li>
+                          <li>• Accordion - Accordéons</li>
+                          <li>• Modal - Fenêtres modales</li>
+                          <li>• Dropdown - Menus déroulants</li>
+                          <li>• Tooltip - Info-bulles</li>
+                          <li>• Progress - Barres de progression</li>
+                          <li>• Badge - Badges</li>
+                          <li>• Alert - Alertes</li>
+                          <li>• Card - Cartes</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="p-3 border rounded-lg bg-red-50">
+                        <h4 className="font-medium text-red-600 mb-2">🛒 E-commerce (5)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• Product Card - Fiches produits</li>
+                          <li>• Price Table - Grilles tarifaires</li>
+                          <li>• Shopping Cart - Paniers</li>
+                          <li>• Checkout - Commandes</li>
+                          <li>• Review - Avis clients</li>
+                        </ul>
+                      </div>
+                      <div className="p-3 border rounded-lg bg-pink-50">
+                        <h4 className="font-medium text-pink-600 mb-2">📢 Marketing (4)</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          <li>• CTA - Appels à l'action</li>
+                          <li>• Testimonial - Témoignages</li>
+                          <li>• Stats - Statistiques</li>
+                          <li>• Feature - Fonctionnalités</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-2">🏗️ Architecture unifiée</h4>
+                    <p className="text-sm text-blue-800">
+                      Tous les composants suivent une architecture standardisée avec des panneaux de configuration dédiés, des presets optimisés et une gestion unifiée via componentData pour une expérience utilisateur cohérente.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Système de déploiement */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    <Upload className="h-5 w-5 mr-2 text-indigo-600" />
+                    Système de déploiement
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="bg-indigo-50 p-4 rounded-lg">
+                      <h4 className="font-medium text-indigo-800 mb-2">🚀 Déploiement en un clic</h4>
+                      <p className="text-sm text-indigo-700 mb-3">
+                        Publiez votre site instantanément avec le système de déploiement intégré
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <h5 className="font-medium text-indigo-800">Options disponibles :</h5>
+                          <ul className="text-indigo-700 space-y-1 mt-1">
+                            <li>• PageForge.app (recommandé)</li>
+                            <li>• Netlify, Vercel, GitHub Pages</li>
+                            <li>• Domaine personnalisé</li>
+                            <li>• Serveurs FTP/cPanel</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-indigo-800">Fonctionnalités :</h5>
+                          <ul className="text-indigo-700 space-y-1 mt-1">
+                            <li>• URL automatique générée</li>
+                            <li>• Suivi en temps réel</li>
+                            <li>• Historique des déploiements</li>
+                            <li>• SSL/TLS automatique</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <h4 className="font-medium text-green-800">📋 Processus de déploiement</h4>
+                      <ol className="text-sm text-green-700 mt-2 space-y-1">
+                        <li>1. Allez dans "Déploiement" depuis la sidebar</li>
+                        <li>2. Sélectionnez votre projet à déployer</li>
+                        <li>3. Choisissez une plateforme (PageForge recommandé)</li>
+                        <li>4. Cliquez "Déployer" et suivez le processus en temps réel</li>
+                        <li>5. Votre site est en ligne avec une URL unique</li>
+                      </ol>
                     </div>
                   </div>
                 </div>
@@ -291,6 +413,12 @@ export default function Documentation() {
                       <h4 className="font-medium text-green-800">📱 Mode responsive</h4>
                       <p className="text-sm text-green-700 mt-1">
                         Testez votre design sur différentes tailles d'écran avec les boutons Desktop/Tablette/Mobile
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 p-3 rounded-lg">
+                      <h4 className="font-medium text-purple-800">🎯 Gestion des composants</h4>
+                      <p className="text-sm text-purple-700 mt-1">
+                        Chaque composant a son panneau de configuration dédié avec des presets pour une personnalisation rapide
                       </p>
                     </div>
                   </div>

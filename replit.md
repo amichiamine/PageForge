@@ -32,7 +32,7 @@ SiteForge is a full-stack visual website builder designed to streamline website 
 ### Key Components
 - **Visual Editor System**: Includes a component palette, live preview canvas, specialized properties panels for each component type, and a template system.
 - **Project Management**: Supports standalone projects, VS Code integration, and importing existing projects. Features a template engine, multi-format export (HTML, CSS, JS), and multi-page management.
-- **Database Schema**: Structured for users, projects, templates, and pages.
+- **Database Schema**: Structured for users, projects, templates, pages, and deployments with full CRUD operations.
 - **Navigation System**: Collapsible sidebar with logo-based toggle, using direct props for state management.
 - **Unified Component Architecture**: All components across categories use specialized configuration panels, with complex components managing sub-elements exclusively via `componentData`.
 - **Component-Specific Configuration**: Each component type has dedicated configuration options (e.g., carousel image management, navbar menu items).
@@ -40,6 +40,8 @@ SiteForge is a full-stack visual website builder designed to streamline website 
 - **Minimalist Editor Interface**: Optimized layout for maximum editing space with a compact header, miniaturized buttons, and panels closed by default.
 - **Preset System Enhancement**: All Typography and Link component presets now use unified applyPreset() function instead of multiple updateProperty() calls for better performance and consistency.
 - **Grid Drag & Drop Integration**: Grid components fully support drag & drop with automatic child positioning using data-component-id detection and proper CSS grid layout.
+- **Complete Deployment System**: Real-time deployment with database integration, supporting multiple platforms (PageForge.app, Netlify, Vercel, custom domains) with status tracking and deployment history.
+- **Updated Documentation**: User guide completely updated to reflect current 52-component architecture and new deployment capabilities.
 
 ### Data Flow
 - **Project Creation**: Template selection leads to project creation and editor redirection.
