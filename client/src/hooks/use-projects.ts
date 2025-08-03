@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Project, InsertProject, UpdateProject } from "@shared/schema";
-import JSZip from "jszip";
 
 export function useProjects() {
   return useQuery<Project[]>({
@@ -100,37 +99,59 @@ export function useExportProject() {
     mutationFn: async (id: string) => {
       const response: any = await apiRequest("POST", `/api/projects/${id}/export`);
       
-      // Create a real ZIP file using JSZip
-      const zip = new JSZip();
-      
-      // Add each file to the ZIP
+      // Download each file individually with proper extension
       if (response.files && Array.isArray(response.files)) {
-        response.files.forEach((file: any) => {
+        response.files.forEach((file: any, index: number) => {
           if (file.path && file.content) {
-            zip.file(file.path, file.content);
+            // Determine MIME type based on file extension
+            let mimeType = "text/plain";
+            const extension = file.path.split('.').pop()?.toLowerCase();
+            
+            switch (extension) {
+              case 'html':
+                mimeType = "text/html";
+                break;
+              case 'css':
+                mimeType = "text/css";
+                break;
+              case 'js':
+                mimeType = "application/javascript";
+                break;
+              case 'json':
+                mimeType = "application/json";
+                break;
+              case 'md':
+                mimeType = "text/markdown";
+                break;
+              default:
+                mimeType = "text/plain";
+            }
+            
+            // Create blob with appropriate MIME type
+            const blob = new Blob([file.content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.path;
+            
+            // Add small delay between downloads to avoid browser blocking
+            setTimeout(() => {
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, index * 200);
           }
         });
       }
       
-      // Generate the ZIP blob
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      
-      // Create and trigger download
-      const url = URL.createObjectURL(zipBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${response.projectName || 'project'}-export.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const fileCount = response.files?.length || 0;
       toast({
         title: "Export réussi",
-        description: "Le projet a été exporté avec succès.",
+        description: `${fileCount} fichier(s) téléchargé(s) individuellement.`,
       });
     },
     onError: () => {
