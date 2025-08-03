@@ -1892,6 +1892,17 @@ export default function PropertiesPanel({
     <div className="space-y-4">
       <h4 className="text-sm font-semibold text-purple-900">Configuration CSS Grid Avancée</h4>
       
+      {/* Guide d'utilisation Grid */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <h5 className="text-xs font-semibold text-blue-800 mb-2">💡 Comment utiliser votre grille</h5>
+        <div className="text-xs text-blue-700 space-y-1">
+          <div><strong>1.</strong> Choisissez un preset ci-dessous pour commencer</div>
+          <div><strong>2.</strong> Glissez des composants (Text, Image, Button) dans la grille</div>
+          <div><strong>3.</strong> Utilisez le slider Gap pour ajuster l'espacement</div>
+          <div><strong>4.</strong> Modifiez colonnes/lignes selon vos besoins</div>
+        </div>
+      </div>
+      
       {/* Presets de layout */}
       <div>
         <Label className="text-xs text-gray-600">Presets de layout</Label>
@@ -2095,16 +2106,30 @@ export default function PropertiesPanel({
       {/* Espacement et Gap */}
       <div className="space-y-3">
         <Label className="text-xs text-gray-600">Espacement</Label>
-        <div className="grid grid-cols-3 gap-3">
-          <div>
+        
+        {/* Slider pour Gap global */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
             <Label className="text-xs">Gap global</Label>
-            <Input
-              value={localComponent?.componentData?.layout?.gap || '16px'}
-              onChange={(e) => updateProperty('componentData.layout.gap', e.target.value)}
-              placeholder="16px, 1rem"
-              className="mt-1 text-xs"
-            />
+            <span className="text-xs text-gray-500">{localComponent?.componentData?.layout?.gap || '16px'}</span>
           </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="2"
+            value={parseInt((localComponent?.componentData?.layout?.gap || '16px').replace('px', '')) || 16}
+            onChange={(e) => updateProperty('componentData.layout.gap', `${e.target.value}px`)}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          />
+          <div className="flex justify-between text-xs text-gray-400 mt-1">
+            <span>0px</span>
+            <span>50px</span>
+            <span>100px</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Gap colonnes</Label>
             <Input
