@@ -520,15 +520,38 @@ export default function Editor() {
   // Fermer le navigateur principal à l'ouverture de l'éditeur
   useEffect(() => {
     console.log('🔧 EDITOR: Force fermeture sidebar principal, état actuel:', hideMainSidebar);
+    
     // Force immédiatement la fermeture du sidebar principal dans l'éditeur
-    setHideMainSidebar(true);
+    // Utilise setTimeout pour s'assurer que le DOM est rendu
+    const timer = setTimeout(() => {
+      console.log('🔧 EDITOR: Déclenchement fermeture sidebar');
+      setHideMainSidebar(true);
+      
+      // Double vérification - force physiquement la fermeture si nécessaire
+      const sidebarElement = document.querySelector('[title="Navigation"]');
+      if (sidebarElement && sidebarElement.parentElement) {
+        const sidebarContainer = sidebarElement.parentElement;
+        if (sidebarContainer.style.display !== 'none') {
+          console.log('🔧 EDITOR: Force fermeture physique du sidebar');
+          sidebarContainer.style.display = 'none';
+        }
+      }
+    }, 100);
     
     // Nettoyer à la fermeture pour le rouvrir dans les autres pages
     return () => {
       console.log('🔧 EDITOR: Cleanup - réouverture sidebar principal');
+      clearTimeout(timer);
       setHideMainSidebar(false);
+      
+      // Restaurer l'affichage physique aussi
+      const sidebarElement = document.querySelector('[title="Navigation"]');
+      if (sidebarElement && sidebarElement.parentElement) {
+        const sidebarContainer = sidebarElement.parentElement;
+        sidebarContainer.style.display = '';
+      }
     };
-  }, [setHideMainSidebar]);
+  }, [hideMainSidebar, setHideMainSidebar]);
 
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
