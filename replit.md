@@ -64,6 +64,12 @@ SiteForge is a full-stack visual website builder, offering a drag-and-drop inter
   - Solution: Simplified flex layout structure and forced default navigation items for empty headers
   - Technical fix: Removed nested div conflicts and applied direct styling to logo/navigation elements
   - Result: Header now displays "Logo" + navigation items in editor preview matching export functionality
+- ✅ **Preview System Unification**: Complete architectural improvement for preview functionality
+  - Problem: Aperçu utilisait generatePreviewHTML() tandis que l'export générait de vrais fichiers
+  - Solution: Nouvelle route API /api/projects/:id/preview qui utilise directement les fichiers générés par l'export
+  - Architecture: Aperçu = Code = Export (système unifié)
+  - Avantages: Plus de divergence entre aperçu et export, tous les composants s'affichent correctement, performance optimisée
+  - Date: 3 janvier 2025
 
 ## System Architecture
 
