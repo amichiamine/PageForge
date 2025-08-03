@@ -42,16 +42,25 @@ export default function Deployment() {
   const deployMutation = useMutation({
     mutationFn: async ({ projectId, platform, customUrl }: { projectId: string; platform: string; customUrl?: string }) => {
       const projectName = projects.find(p => p.id === projectId)?.name || 'Projet';
-      return apiRequest(`/api/deployments`, {
+      const response = await fetch('/api/deployments', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           projectId,
           name: `${projectName} - ${new Date().toLocaleDateString()}`,
           platform,
           url: customUrl,
           config: customUrl ? { customDomain: customUrl } : {}
-        }
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
+      return response.json();
     },
     onSuccess: (deployment) => {
       queryClient.invalidateQueries({ queryKey: ['/api/deployments'] });
@@ -71,9 +80,15 @@ export default function Deployment() {
 
   const deleteMutation = useMutation({
     mutationFn: async (deploymentId: string) => {
-      return apiRequest(`/api/deployments/${deploymentId}`, {
+      const response = await fetch(`/api/deployments/${deploymentId}`, {
         method: 'DELETE'
       });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
+      return response.status === 204 ? null : response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/deployments'] });
