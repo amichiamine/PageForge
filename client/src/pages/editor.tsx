@@ -519,30 +519,21 @@ export default function Editor() {
 
   // Fermer le navigateur principal à l'ouverture de l'éditeur
   useEffect(() => {
-    console.log('🔧 EDITOR: Force fermeture sidebar principal, état actuel:', hideMainSidebar);
-    
-    // Force immédiatement la fermeture du sidebar principal dans l'éditeur
+    // Force la fermeture du sidebar principal dans l'éditeur
     const timer = setTimeout(() => {
-      console.log('🔧 EDITOR: Déclenchement fermeture sidebar');
       setHideMainSidebar(true);
-      
-      // Ne pas manipuler le DOM directement - laisser React gérer l'affichage
       
       // Cliquer sur le bouton de fermeture pour rétracter proprement
       const hideButton = document.querySelector('button[title="Cliquer sur le logo pour masquer la navigation"]');
       if (hideButton) {
-        console.log('🔧 EDITOR: Clic sur bouton fermeture sidebar');
         (hideButton as HTMLButtonElement).click();
       }
     }, 150);
     
     // Nettoyer à la fermeture pour le rouvrir dans les autres pages
     return () => {
-      console.log('🔧 EDITOR: Cleanup - réouverture sidebar principal');
       clearTimeout(timer);
       setHideMainSidebar(false);
-      
-      // React gère automatiquement la réapparition du sidebar
     };
   }, [setHideMainSidebar]);
 
