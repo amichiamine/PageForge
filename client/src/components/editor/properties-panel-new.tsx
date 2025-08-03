@@ -73,19 +73,41 @@ export default function PropertiesPanel({
     }
   }, [component]);
 
+  // Fonction utilitaire pour définir une valeur imbriquée dans un objet
+  const setNestedValue = (obj: any, path: string, value: any) => {
+    const keys = path.split('.');
+    let current = obj;
+    
+    // Naviguer jusqu'à l'avant-dernier niveau
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!(keys[i] in current) || typeof current[keys[i]] !== 'object') {
+        current[keys[i]] = {};
+      }
+      current = current[keys[i]];
+    }
+    
+    // Définir la valeur finale
+    current[keys[keys.length - 1]] = value;
+  };
+
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
 
-    console.log('🔧 GRID UPDATE:', { path, value, componentType: localComponent.type });
+    console.log('🔧 PROPERTY UPDATE:', { path, value, componentType: localComponent.type });
 
     const updatedComponent = { ...localComponent };
 
     if (path.startsWith('styles.')) {
       const styleProp = path.replace('styles.', '');
-      updatedComponent.styles = {
-        ...updatedComponent.styles,
-        [styleProp]: value
-      };
+      if (!updatedComponent.styles) updatedComponent.styles = {};
+      
+      if (styleProp.includes('.')) {
+        // Gérer les chemins imbriqués dans styles
+        setNestedValue(updatedComponent.styles, styleProp, value);
+      } else {
+        updatedComponent.styles[styleProp] = value;
+      }
+      
       console.log('🎨 UPDATE STYLES:', { 
         path, 
         styleProp, 
@@ -94,10 +116,15 @@ export default function PropertiesPanel({
       });
     } else if (path.startsWith('attributes.')) {
       const attrProp = path.replace('attributes.', '');
-      updatedComponent.attributes = {
-        ...updatedComponent.attributes,
-        [attrProp]: value
-      };
+      if (!updatedComponent.attributes) updatedComponent.attributes = {};
+      
+      if (attrProp.includes('.')) {
+        // Gérer les chemins imbriqués dans attributes
+        setNestedValue(updatedComponent.attributes, attrProp, value);
+      } else {
+        updatedComponent.attributes[attrProp] = value;
+      }
+      
       console.log('🔧 UPDATE ATTRIBUTES:', { 
         path, 
         attrProp, 
@@ -106,10 +133,15 @@ export default function PropertiesPanel({
       });
     } else if (path.startsWith('componentData.')) {
       const dataProp = path.replace('componentData.', '');
-      updatedComponent.componentData = {
-        ...updatedComponent.componentData,
-        [dataProp]: value
-      };
+      if (!updatedComponent.componentData) updatedComponent.componentData = {};
+      
+      if (dataProp.includes('.')) {
+        // Gérer les chemins imbriqués dans componentData (layout.direction, container.padding, etc.)
+        setNestedValue(updatedComponent.componentData, dataProp, value);
+      } else {
+        updatedComponent.componentData[dataProp] = value;
+      }
+      
       console.log('📊 UPDATE COMPONENT DATA:', { 
         path, 
         dataProp, 
@@ -117,7 +149,12 @@ export default function PropertiesPanel({
         newComponentData: updatedComponent.componentData 
       });
     } else {
-      (updatedComponent as any)[path] = value;
+      // Gérer les chemins directs ou imbriqués dans l'objet principal
+      if (path.includes('.')) {
+        setNestedValue(updatedComponent, path, value);
+      } else {
+        (updatedComponent as any)[path] = value;
+      }
       console.log('🔄 UPDATE DIRECT PROPERTY:', { path, value });
     }
 

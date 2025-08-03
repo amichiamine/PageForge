@@ -140,6 +140,8 @@ SiteForge is a full-stack visual website builder, offering a drag-and-drop inter
   - Outils guides: Guides visuels, snap-to-grid, distribution automatique pour alignement précis
   - Accessibilité rôles: Group, navigation, main, region, list avec landmarks et aria-label
   - Preview interactif: Aperçu temps réel avec éléments démo dans le panel configuration
+  - BUG CRITIQUE RÉSOLU: Interface affichait configuration basique au lieu d'avancée - fonction renderFlexboxConfiguration remplacée
+  - FONCTIONNALITÉ CORRIGÉE: Fonction updateProperty améliorée pour gérer chemins imbriqués (componentData.layout.direction)
   - Date: 3 janvier 2025
 
 - ✅ **Grid Component Advanced Enhancement**: Professional CSS Grid system following verif-component protocol
