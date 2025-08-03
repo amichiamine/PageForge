@@ -519,16 +519,16 @@ export default function Editor() {
 
   // Fermer le navigateur principal à l'ouverture de l'éditeur
   useEffect(() => {
-    // Force la fermeture du sidebar principal dans l'éditeur
-    if (!hideMainSidebar) {
-      setHideMainSidebar(true);
-    }
+    console.log('🔧 EDITOR: Force fermeture sidebar principal, état actuel:', hideMainSidebar);
+    // Force immédiatement la fermeture du sidebar principal dans l'éditeur
+    setHideMainSidebar(true);
     
     // Nettoyer à la fermeture pour le rouvrir dans les autres pages
     return () => {
+      console.log('🔧 EDITOR: Cleanup - réouverture sidebar principal');
       setHideMainSidebar(false);
     };
-  }, []);
+  }, [setHideMainSidebar]);
 
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
