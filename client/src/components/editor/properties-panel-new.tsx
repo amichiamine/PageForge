@@ -5872,100 +5872,458 @@ export default function PropertiesPanel({
 
   const renderFlexboxConfiguration = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration Flexbox</h4>
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Flexbox Avancée</h4>
       
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs text-gray-600">Direction</Label>
-          <Select
-            value={localComponent?.componentData?.flexDirection || 'row'}
-            onValueChange={(value) => updateProperty('componentData.flexDirection', value)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="row">Horizontal</SelectItem>
-              <SelectItem value="column">Vertical</SelectItem>
-              <SelectItem value="row-reverse">Horizontal inversé</SelectItem>
-              <SelectItem value="column-reverse">Vertical inversé</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs text-gray-600">Justification</Label>
-          <Select
-            value={localComponent?.componentData?.justifyContent || 'flex-start'}
-            onValueChange={(value) => updateProperty('componentData.justifyContent', value)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="flex-start">Début</SelectItem>
-              <SelectItem value="center">Centre</SelectItem>
-              <SelectItem value="flex-end">Fin</SelectItem>
-              <SelectItem value="space-between">Espacement entre</SelectItem>
-              <SelectItem value="space-around">Espacement autour</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs text-gray-600">Alignement</Label>
-          <Select
-            value={localComponent?.componentData?.alignItems || 'stretch'}
-            onValueChange={(value) => updateProperty('componentData.alignItems', value)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="stretch">Étirer</SelectItem>
-              <SelectItem value="flex-start">Début</SelectItem>
-              <SelectItem value="center">Centre</SelectItem>
-              <SelectItem value="flex-end">Fin</SelectItem>
-              <SelectItem value="baseline">Ligne de base</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs text-gray-600">Retour à la ligne</Label>
-          <Select
-            value={localComponent?.componentData?.flexWrap || 'nowrap'}
-            onValueChange={(value) => updateProperty('componentData.flexWrap', value)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="nowrap">Pas de retour</SelectItem>
-              <SelectItem value="wrap">Retour à la ligne</SelectItem>
-              <SelectItem value="wrap-reverse">Retour inversé</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
+      {/* Presets de layout */}
       <div>
-        <Label className="text-xs text-gray-600">Espacement entre éléments</Label>
-        <Select
-          value={localComponent?.componentData?.gap || '16px'}
-          onValueChange={(value) => updateProperty('componentData.gap', value)}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="0">Aucun</SelectItem>
-            <SelectItem value="8px">Petit (8px)</SelectItem>
-            <SelectItem value="16px">Moyen (16px)</SelectItem>
-            <SelectItem value="24px">Grand (24px)</SelectItem>
-            <SelectItem value="32px">Très grand (32px)</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label className="text-xs text-gray-600">Presets de layout</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'navigation');
+              updateProperty('componentData.layout.direction', 'row');
+              updateProperty('componentData.layout.justify', 'space-between');
+              updateProperty('componentData.layout.align', 'center');
+              updateProperty('componentData.layout.gap', '20px');
+              updateProperty('componentData.container.padding', '16px 24px');
+            }}
+            className="text-xs"
+          >
+            🧭 Navigation
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'gallery');
+              updateProperty('componentData.layout.direction', 'row');
+              updateProperty('componentData.layout.justify', 'flex-start');
+              updateProperty('componentData.layout.wrap', 'wrap');
+              updateProperty('componentData.layout.gap', '16px');
+            }}
+            className="text-xs"
+          >
+            🖼️ Galerie
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'dashboard');
+              updateProperty('componentData.layout.direction', 'row');
+              updateProperty('componentData.layout.justify', 'space-evenly');
+              updateProperty('componentData.layout.align', 'stretch');
+              updateProperty('componentData.layout.gap', '24px');
+            }}
+            className="text-xs"
+          >
+            📊 Dashboard
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'sidebar');
+              updateProperty('componentData.layout.direction', 'column');
+              updateProperty('componentData.layout.justify', 'flex-start');
+              updateProperty('componentData.layout.align', 'stretch');
+              updateProperty('componentData.layout.gap', '12px');
+            }}
+            className="text-xs"
+          >
+            📑 Sidebar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'header');
+              updateProperty('componentData.layout.direction', 'row');
+              updateProperty('componentData.layout.justify', 'space-between');
+              updateProperty('componentData.layout.align', 'center');
+              updateProperty('componentData.container.minHeight', '60px');
+            }}
+            className="text-xs"
+          >
+            📰 Header
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'cards');
+              updateProperty('componentData.layout.direction', 'row');
+              updateProperty('componentData.layout.justify', 'center');
+              updateProperty('componentData.layout.wrap', 'wrap');
+              updateProperty('componentData.layout.gap', '20px');
+            }}
+            className="text-xs"
+          >
+            🃏 Cartes
+          </Button>
+        </div>
+      </div>
+
+      {/* Configuration principale du layout */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration principale</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Direction</Label>
+            <Select
+              value={localComponent?.componentData?.layout?.direction || 'row'}
+              onValueChange={(value) => updateProperty('componentData.layout.direction', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="row">→ Ligne</SelectItem>
+                <SelectItem value="column">↓ Colonne</SelectItem>
+                <SelectItem value="row-reverse">← Ligne inversée</SelectItem>
+                <SelectItem value="column-reverse">↑ Colonne inversée</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Wrap</Label>
+            <Select
+              value={localComponent?.componentData?.layout?.wrap || 'nowrap'}
+              onValueChange={(value) => updateProperty('componentData.layout.wrap', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="nowrap">Pas de retour</SelectItem>
+                <SelectItem value="wrap">Retour à la ligne</SelectItem>
+                <SelectItem value="wrap-reverse">Retour inversé</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Alignement */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Alignement</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Justify Content</Label>
+            <Select
+              value={localComponent?.componentData?.layout?.justify || 'flex-start'}
+              onValueChange={(value) => updateProperty('componentData.layout.justify', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="flex-start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="flex-end">Fin</SelectItem>
+                <SelectItem value="space-between">Espacement entre</SelectItem>
+                <SelectItem value="space-around">Espacement autour</SelectItem>
+                <SelectItem value="space-evenly">Espacement équitable</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Align Items</Label>
+            <Select
+              value={localComponent?.componentData?.layout?.align || 'stretch'}
+              onValueChange={(value) => updateProperty('componentData.layout.align', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stretch">Étirement</SelectItem>
+                <SelectItem value="flex-start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="flex-end">Fin</SelectItem>
+                <SelectItem value="baseline">Ligne de base</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        {localComponent?.componentData?.layout?.wrap === 'wrap' && (
+          <div>
+            <Label className="text-xs">Align Content</Label>
+            <Select
+              value={localComponent?.componentData?.layout?.alignContent || 'stretch'}
+              onValueChange={(value) => updateProperty('componentData.layout.alignContent', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stretch">Étirement</SelectItem>
+                <SelectItem value="flex-start">Début</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="flex-end">Fin</SelectItem>
+                <SelectItem value="space-between">Espacement entre</SelectItem>
+                <SelectItem value="space-around">Espacement autour</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      {/* Espacement et Gap */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Espacement</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Gap</Label>
+            <Input
+              value={localComponent?.componentData?.layout?.gap || '16px'}
+              onChange={(e) => updateProperty('componentData.layout.gap', e.target.value)}
+              placeholder="16px, 1rem"
+              className="mt-1 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Padding</Label>
+            <Input
+              value={localComponent?.componentData?.container?.padding || '16px'}
+              onChange={(e) => updateProperty('componentData.container.padding', e.target.value)}
+              placeholder="16px, 1rem 2rem"
+              className="mt-1 text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Options du conteneur */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Style du conteneur</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="background"
+              checked={localComponent?.componentData?.container?.background ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.container.background', checked)}
+            />
+            <Label htmlFor="background" className="text-xs">Fond</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="border"
+              checked={localComponent?.componentData?.container?.border ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.container.border', checked)}
+            />
+            <Label htmlFor="border" className="text-xs">Bordure</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="rounded"
+              checked={localComponent?.componentData?.container?.rounded ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.container.rounded', checked)}
+            />
+            <Label htmlFor="rounded" className="text-xs">Arrondi</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="shadow"
+              checked={localComponent?.componentData?.container?.shadow ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.container.shadow', checked)}
+            />
+            <Label htmlFor="shadow" className="text-xs">Ombre</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Configuration responsive */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration responsive</Label>
+        <div className="space-y-2">
+          <div>
+            <Label className="text-xs">📱 Mobile</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Select
+                value={localComponent?.componentData?.responsive?.mobile?.direction || 'column'}
+                onValueChange={(value) => updateProperty('componentData.responsive.mobile.direction', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="row">Ligne</SelectItem>
+                  <SelectItem value="column">Colonne</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.gap || '12px'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.gap', e.target.value)}
+                placeholder="Gap"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.padding || '12px'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.padding', e.target.value)}
+                placeholder="Padding"
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">📱 Tablet</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Select
+                value={localComponent?.componentData?.responsive?.tablet?.direction || 'row'}
+                onValueChange={(value) => updateProperty('componentData.responsive.tablet.direction', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="row">Ligne</SelectItem>
+                  <SelectItem value="column">Colonne</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.gap || '14px'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.gap', e.target.value)}
+                placeholder="Gap"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.padding || '14px'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.padding', e.target.value)}
+                placeholder="Padding"
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">🖥️ Desktop</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Select
+                value={localComponent?.componentData?.responsive?.desktop?.direction || 'row'}
+                onValueChange={(value) => updateProperty('componentData.responsive.desktop.direction', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="row">Ligne</SelectItem>
+                  <SelectItem value="column">Colonne</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.gap || '16px'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.gap', e.target.value)}
+                placeholder="Gap"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.padding || '16px'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.padding', e.target.value)}
+                placeholder="Padding"
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Outils et guides */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Outils et guides</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-guides"
+              checked={localComponent?.componentData?.templates?.showGuides ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.showGuides', checked)}
+            />
+            <Label htmlFor="show-guides" className="text-xs">Guides visuels</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="snap-to-grid"
+              checked={localComponent?.componentData?.templates?.snapToGrid ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.snapToGrid', checked)}
+            />
+            <Label htmlFor="snap-to-grid" className="text-xs">Snap to grid</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="auto-distribute"
+              checked={localComponent?.componentData?.templates?.autoDistribute ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.templates.autoDistribute', checked)}
+            />
+            <Label htmlFor="auto-distribute" className="text-xs">Distribution auto</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Accessibilité */}
+      <div className="space-y-2">
+        <Label className="text-xs text-gray-600">Accessibilité</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Role</Label>
+            <Select
+              value={localComponent?.componentData?.accessibility?.role || 'group'}
+              onValueChange={(value) => updateProperty('componentData.accessibility.role', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="group">Group</SelectItem>
+                <SelectItem value="navigation">Navigation</SelectItem>
+                <SelectItem value="main">Main</SelectItem>
+                <SelectItem value="region">Region</SelectItem>
+                <SelectItem value="list">List</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="landmark"
+              checked={localComponent?.componentData?.accessibility?.landmark ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.accessibility.landmark', checked)}
+            />
+            <Label htmlFor="landmark" className="text-xs">Landmark</Label>
+          </div>
+        </div>
+        <Input
+          value={localComponent?.componentData?.accessibility?.ariaLabel || ''}
+          onChange={(e) => updateProperty('componentData.accessibility.ariaLabel', e.target.value)}
+          placeholder="Aria-label pour lecteurs d'écran"
+          className="text-xs"
+        />
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu temps réel</Label>
+        <div className="flex items-center justify-center py-2">
+          <div
+            className="border border-dashed border-gray-300 flex transition-all duration-200"
+            style={{
+              flexDirection: localComponent?.componentData?.layout?.direction || 'row',
+              justifyContent: localComponent?.componentData?.layout?.justify || 'space-between',
+              alignItems: localComponent?.componentData?.layout?.align || 'center',
+              flexWrap: localComponent?.componentData?.layout?.wrap || 'nowrap',
+              gap: localComponent?.componentData?.layout?.gap || '16px',
+              padding: localComponent?.componentData?.container?.padding || '16px',
+              backgroundColor: localComponent?.componentData?.container?.background ? '#f8fafc' : 'transparent',
+              borderRadius: localComponent?.componentData?.container?.rounded ? '8px' : '0',
+              boxShadow: localComponent?.componentData?.container?.shadow ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              minHeight: '60px',
+              minWidth: '200px'
+            }}
+          >
+            <div className="w-8 h-8 bg-blue-200 rounded flex-shrink-0"></div>
+            <div className="w-12 h-8 bg-green-200 rounded flex-shrink-0"></div>
+            <div className="w-8 h-8 bg-red-200 rounded flex-shrink-0"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
