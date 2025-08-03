@@ -1260,12 +1260,17 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         navigation: component.componentData?.navigation
       });
       
-      const headerLogo = component.componentData?.logo || 'Logo';
-      const headerNavigation = component.componentData?.navigation || [
-        { text: 'Accueil', link: '#' },
-        { text: 'À propos', link: '#' },
-        { text: 'Contact', link: '#' }
-      ];
+      // Gestion des cas où les données sont vides ou undefined
+      const headerLogo = (component.componentData?.logo && component.componentData.logo.trim() !== '') 
+        ? component.componentData.logo 
+        : 'Logo';
+      const headerNavigation = (component.componentData?.navigation && component.componentData.navigation.length > 0) 
+        ? component.componentData.navigation 
+        : [
+            { text: 'Accueil', link: '#' },
+            { text: 'À propos', link: '#' },
+            { text: 'Contact', link: '#' }
+          ];
       const headerShowSearch = component.componentData?.showSearch || false;
       const headerLogoStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 14, maxSize: 24 });
       const headerNavStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
