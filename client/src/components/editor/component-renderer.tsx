@@ -1251,6 +1251,15 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'header':
+      // DEBUG: Log des données du header
+      console.log('🔍 HEADER DEBUG:', {
+        componentId: component.id,
+        hasComponentData: !!component.componentData,
+        componentData: component.componentData,
+        logo: component.componentData?.logo,
+        navigation: component.componentData?.navigation
+      });
+      
       const headerLogo = component.componentData?.logo || 'Logo';
       const headerNavigation = component.componentData?.navigation || [
         { text: 'Accueil', link: '#' },
