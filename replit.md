@@ -26,6 +26,11 @@ SiteForge is a full-stack visual website builder, offering a drag-and-drop inter
   - Fixed false positives for carousel, navbar, grid, and other complex components
   - Enhanced content analysis to distinguish between simple and complex component types
   - Improved issue detection with component-specific validation rules
+- ✅ **Export Button Integration**: Added export functionality directly in editor header
+  - Export button positioned next to Save button in ultra-compact header
+  - Green styling (bg-green-600) to distinguish from blue Save button
+  - Integrated with existing useExportProject hook for seamless functionality
+  - Compact design with Download icon matching header's minimalist approach
 - ✅ **Specialized Configuration Panels**: All 52 components now have dedicated configuration panels instead of generic text areas
 - ✅ **Unified Architecture Completed**: Complex components (header, footer, navbar, grid, list, accordion, carousel) are created empty and populated via specialized configuration panels
 - ✅ **Enhanced Component System**: Each component type has its own specialized options and real-time configuration capabilities

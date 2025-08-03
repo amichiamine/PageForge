@@ -19,6 +19,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { Project, ComponentDefinition } from "@shared/schema";
 import { createComponent } from "@/lib/editor-utils";
 import { useLocation } from "wouter";
+import { useExportProject } from "@/hooks/use-projects";
 import CodePreview from "@/components/editor/code-preview";
 import { useSidebarContext } from "@/App";
 import ErrorNotification from "@/components/ui/error-notification";
@@ -486,6 +487,7 @@ export default function Editor() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const { hideMainSidebar, setHideMainSidebar } = useSidebarContext();
+  const exportMutation = useExportProject();
 
   const [selectedComponent, setSelectedComponent] = useState<ComponentDefinition | null>(null);
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
@@ -958,6 +960,20 @@ export default function Editor() {
                     <label htmlFor="autoSave" className="text-xs text-gray-600 whitespace-nowrap">Auto</label>
                   </div>
                 </div>
+
+                {/* Export Button */}
+                <Button 
+                  onClick={() => exportMutation.mutate(localProject.id)}
+                  disabled={exportMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700 text-white rounded h-6 px-2"
+                  size="sm"
+                  title="Exporter le projet"
+                >
+                  <Download className="h-3 w-3" />
+                  <span className="ml-1 text-xs hidden sm:inline">
+                    {exportMutation.isPending ? "..." : "Export"}
+                  </span>
+                </Button>
 
                 {/* Save Button */}
                 <Button 
