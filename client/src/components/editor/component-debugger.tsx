@@ -117,22 +117,36 @@ export default function ComponentDebugger({
   const analyzeComponentContent = (component: ComponentDefinition) => {
     const hasContent = component.content && component.content.trim().length > 0;
     const hasChildren = component.children && component.children.length > 0;
+    const hasComponentData = component.componentData && Object.keys(component.componentData).length > 0;
     const childrenCount = component.children?.length || 0;
     
+    // Vérifier si c'est un composant complexe avec componentData
+    const isComplexComponent = ['carousel', 'navbar', 'footer', 'header', 'grid', 'accordion', 'chart', 'form', 'pricing'].includes(component.type);
+    
+    let summary = 'Vide';
+    if (hasContent) {
+      summary = `"${component.content?.substring(0, 30)}${component.content && component.content.length > 30 ? '...' : ''}"`;
+    } else if (hasChildren) {
+      summary = `${childrenCount} enfant(s)`;
+    } else if (hasComponentData && isComplexComponent) {
+      summary = `Configuration via componentData (${Object.keys(component.componentData || {}).length} propriétés)`;
+    }
+    
     return {
-      summary: hasContent ? `"${component.content?.substring(0, 30)}${component.content && component.content.length > 30 ? '...' : ''}"` : 
-               hasChildren ? `${childrenCount} enfant(s)` : 'Vide',
+      summary,
       textContent: {
         hasText: hasContent,
         text: component.content,
         textLength: component.content?.length || 0,
-        isEmpty: !hasContent && !hasChildren
+        isEmpty: !hasContent && !hasChildren && !hasComponentData
       },
       structure: {
         hasChildren: hasChildren,
         childrenCount: childrenCount,
         childrenTypes: component.children?.map(child => child.type) || [],
-        nestingLevel: calculateNestingLevel(component)
+        nestingLevel: calculateNestingLevel(component),
+        hasComponentData: hasComponentData,
+        isComplexComponent: isComplexComponent
       },
       attributes: {
         className: component.attributes?.className,
@@ -146,6 +160,8 @@ export default function ComponentDebugger({
   const detectRenderingIssues = (component: ComponentDefinition) => {
     const issues: string[] = [];
     const styles = component.styles || {};
+    const isComplexComponent = ['carousel', 'navbar', 'footer', 'header', 'grid', 'accordion', 'chart', 'form', 'pricing'].includes(component.type);
+    const hasComponentData = component.componentData && Object.keys(component.componentData).length > 0;
     
     // Problèmes de positionnement
     if (styles.position === 'absolute' && (!styles.left && !styles.right)) {
@@ -160,9 +176,14 @@ export default function ComponentDebugger({
       issues.push('Dimension nulle détectée');
     }
     
-    // Problèmes de contenu
-    if (!component.content && (!component.children || component.children.length === 0)) {
+    // Problèmes de contenu (seulement pour les composants simples)
+    if (!isComplexComponent && !component.content && (!component.children || component.children.length === 0)) {
       issues.push('Composant sans contenu ni enfants');
+    }
+    
+    // Pour les composants complexes, vérifier componentData
+    if (isComplexComponent && !hasComponentData) {
+      issues.push('Composant complexe sans configuration componentData');
     }
     
     // Problèmes de z-index
@@ -170,15 +191,17 @@ export default function ComponentDebugger({
       issues.push('Z-index négatif peut causer des problèmes d\'affichage');
     }
     
-    // Problèmes d'overflow
-    if (styles.overflow === 'hidden' && (styles.width || styles.height)) {
-      issues.push('Overflow hidden peut masquer du contenu');
+    // Problèmes d'overflow (seulement si critique)
+    if (styles.overflow === 'hidden' && styles.height && parseInt(styles.height) < 50) {
+      issues.push('Overflow hidden avec hauteur très faible peut masquer du contenu');
     }
     
     return {
       hasIssues: issues.length > 0,
       issues: issues,
-      severity: issues.length > 2 ? 'HIGH' : issues.length > 0 ? 'MEDIUM' : 'LOW'
+      severity: issues.length > 2 ? 'HIGH' : issues.length > 0 ? 'MEDIUM' : 'LOW',
+      componentType: isComplexComponent ? 'COMPLEX' : 'SIMPLE',
+      hasValidConfiguration: isComplexComponent ? hasComponentData : (!!component.content || (component.children && component.children.length > 0))
     };
   };
 
