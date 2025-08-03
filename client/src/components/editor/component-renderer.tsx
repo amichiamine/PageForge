@@ -1940,8 +1940,14 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
 
     case 'flexbox':
       const flexTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
-      const flexPadding = getResponsiveSpacing(8);
-      const flexGap = getResponsiveSpacing(8);
+      const flexPadding = getResponsiveSpacing(parseInt(component.componentData?.container?.padding?.replace(/[^0-9]/g, '') || '8'));
+      const flexGap = getResponsiveSpacing(parseInt(component.componentData?.layout?.gap?.replace(/[^0-9]/g, '') || '8'));
+      
+      // Utiliser les propriétés de configuration du preset
+      const layoutDirection = component.componentData?.layout?.direction || 'row';
+      const justifyContent = component.componentData?.layout?.justify || 'space-between';
+      const alignItems = component.componentData?.layout?.align || 'center';
+      const flexWrap = component.componentData?.layout?.wrap || 'nowrap';
       
       return (
         <div
@@ -1957,9 +1963,12 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         >
           <div style={{ 
             display: 'flex', 
+            flexDirection: layoutDirection as any,
+            justifyContent: justifyContent as any,
+            alignItems: alignItems as any,
+            flexWrap: flexWrap as any,
             gap: `${flexGap}px`, 
             padding: `${flexPadding}px`, 
-            alignItems: 'center',
             height: '100%',
             width: '100%',
             boxSizing: 'border-box',
