@@ -1024,6 +1024,350 @@ export function createComponent(type: string): ComponentDefinition {
         },
       };
 
+    case 'menu':
+      return {
+        ...baseComponent,
+        tag: 'nav',
+        attributes: { className: 'menu-component' },
+        componentData: {
+          items: [],
+          orientation: 'horizontal',
+          style: 'default'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '60px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'pricing':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'pricing-component' },
+        componentData: {
+          plans: [],
+          featured: 0,
+          currency: 'EUR'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '600px',
+          height: '400px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '24px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'testimonial':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'testimonial-component' },
+        componentData: {
+          quote: '',
+          author: '',
+          role: '',
+          company: '',
+          avatar: ''
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '200px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '24px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'team':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'team-component' },
+        componentData: {
+          members: [],
+          layout: 'grid'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '600px',
+          height: '400px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '24px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'stats':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'stats-component' },
+        componentData: {
+          items: [],
+          layout: 'horizontal'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '500px',
+          height: '150px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '24px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'breadcrumb':
+      return {
+        ...baseComponent,
+        tag: 'nav',
+        attributes: { className: 'breadcrumb-component' },
+        componentData: {
+          items: [],
+          separator: '/'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '40px',
+          backgroundColor: 'transparent',
+          padding: '8px 0',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'pagination':
+      return {
+        ...baseComponent,
+        tag: 'nav',
+        attributes: { className: 'pagination-component' },
+        componentData: {
+          currentPage: 1,
+          totalPages: 10,
+          showNumbers: true
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '50px',
+          backgroundColor: 'transparent',
+          padding: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'tabs':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'tabs-component' },
+        componentData: {
+          tabs: [],
+          activeTab: 0
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '500px',
+          height: '300px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'contact':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'contact-component' },
+        componentData: {
+          title: '',
+          items: []
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '200px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'map':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'map-component' },
+        componentData: {
+          address: '',
+          zoom: 15,
+          type: 'roadmap'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '300px',
+          backgroundColor: '#f3f4f6',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px'
+        },
+      };
+
+    case 'faq':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'faq-component' },
+        componentData: {
+          items: []
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '500px',
+          height: '400px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'blog':
+      return {
+        ...baseComponent,
+        tag: 'article',
+        attributes: { className: 'blog-component' },
+        componentData: {
+          title: '',
+          excerpt: '',
+          author: '',
+          date: '',
+          image: ''
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '300px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '20px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'product':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'product-component' },
+        componentData: {
+          name: '',
+          price: '',
+          image: '',
+          description: '',
+          rating: 0
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '300px',
+          height: '400px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'cart':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'cart-component' },
+        componentData: {
+          items: [],
+          total: 0,
+          currency: 'EUR'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '400px',
+          height: '300px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'filters':
+      return {
+        ...baseComponent,
+        tag: 'div',
+        attributes: { className: 'filters-component' },
+        componentData: {
+          filters: [],
+          layout: 'vertical'
+        },
+        styles: {
+          ...baseComponent.styles,
+          width: '250px',
+          height: '400px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
+    case 'section':
+      return {
+        ...baseComponent,
+        tag: 'section',
+        content: '',
+        attributes: { className: 'section-component' },
+        styles: {
+          ...baseComponent.styles,
+          width: '600px',
+          height: '200px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '24px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        },
+      };
+
     default:
       // ❌ ERREUR : Composant non supporté dans createComponent
       console.error(`🚨 EDITOR-UTILS: Composant '${type}' non supporté dans createComponent !`);
