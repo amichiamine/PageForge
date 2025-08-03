@@ -1086,6 +1086,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
+        content: '',
         attributes: { className: 'icon-component' },
         styles: {
           ...baseComponent.styles,
@@ -1101,9 +1102,57 @@ export function createComponent(type: string): ComponentDefinition {
           color: '#3b82f6',
           cursor: 'pointer',
           transition: 'all 0.2s ease-in-out',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
-        content: ''
+        componentData: {
+          preset: 'basic',
+          library: 'lucide',
+          iconName: 'star',
+          customSvg: '',
+          size: 'medium',
+          styling: {
+            variant: 'circle',
+            background: true,
+            border: true,
+            shadow: true,
+            rounded: true
+          },
+          colors: {
+            icon: '#3b82f6',
+            background: '#f3f4f6',
+            border: '#d1d5db',
+            hoverIcon: '#2563eb',
+            hoverBackground: '#e5e7eb'
+          },
+          animation: {
+            type: 'none',
+            speed: 'normal',
+            trigger: 'hover',
+            duration: '0.2s'
+          },
+          interaction: {
+            clickable: false,
+            link: '',
+            tooltip: '',
+            badge: {
+              show: false,
+              text: '',
+              position: 'top-right',
+              color: '#ef4444'
+            }
+          },
+          accessibility: {
+            ariaLabel: '',
+            role: 'img',
+            title: ''
+          },
+          responsive: {
+            mobile: { size: '24px', containerSize: '60px' },
+            tablet: { size: '32px', containerSize: '80px' },
+            desktop: { size: '32px', containerSize: '80px' }
+          }
+        }
       };
 
     case 'flexbox':

@@ -7388,63 +7388,587 @@ export default function PropertiesPanel({
 
   const renderIconConfiguration = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration Icône</h4>
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Icon Avancée</h4>
       
+      {/* Presets thématiques */}
+      <div>
+        <Label className="text-xs text-gray-600">Presets thématiques</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'social');
+              updateProperty('componentData.library', 'lucide');
+              updateProperty('componentData.iconName', 'share-2');
+              updateProperty('componentData.styling.variant', 'circle');
+              updateProperty('componentData.colors.icon', '#1da1f2');
+            }}
+            className="text-xs"
+          >
+            📱 Social
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'navigation');
+              updateProperty('componentData.library', 'lucide');
+              updateProperty('componentData.iconName', 'menu');
+              updateProperty('componentData.styling.variant', 'square');
+              updateProperty('componentData.colors.icon', '#374151');
+            }}
+            className="text-xs"
+          >
+            🧭 Navigation
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'action');
+              updateProperty('componentData.library', 'lucide');
+              updateProperty('componentData.iconName', 'play');
+              updateProperty('componentData.styling.variant', 'circle');
+              updateProperty('componentData.animation.type', 'pulse');
+            }}
+            className="text-xs"
+          >
+            ⚡ Action
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'status');
+              updateProperty('componentData.library', 'lucide');
+              updateProperty('componentData.iconName', 'check-circle');
+              updateProperty('componentData.colors.icon', '#10b981');
+              updateProperty('componentData.styling.background', false);
+            }}
+            className="text-xs"
+          >
+            ✅ Status
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'ecommerce');
+              updateProperty('componentData.library', 'lucide');
+              updateProperty('componentData.iconName', 'shopping-cart');
+              updateProperty('componentData.interaction.badge.show', true);
+              updateProperty('componentData.interaction.badge.text', '3');
+            }}
+            className="text-xs"
+          >
+            🛒 E-commerce
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'minimal');
+              updateProperty('componentData.library', 'lucide');
+              updateProperty('componentData.iconName', 'heart');
+              updateProperty('componentData.styling.background', false);
+              updateProperty('componentData.styling.border', false);
+            }}
+            className="text-xs"
+          >
+            ⭕ Minimal
+          </Button>
+        </div>
+      </div>
+
+      {/* Bibliothèque et icône */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label className="text-xs text-gray-600">Type d'icône</Label>
+          <Label className="text-xs text-gray-600">Bibliothèque</Label>
           <Select
-            value={localComponent?.componentData?.iconType || 'lucide'}
-            onValueChange={(value) => updateProperty('componentData.iconType', value)}
+            value={localComponent?.componentData?.library || 'lucide'}
+            onValueChange={(value) => updateProperty('componentData.library', value)}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="lucide">Lucide Icons</SelectItem>
+              <SelectItem value="heroicons">Heroicons</SelectItem>
               <SelectItem value="fontawesome">Font Awesome</SelectItem>
-              <SelectItem value="feather">Feather Icons</SelectItem>
-              <SelectItem value="custom">Personnalisé</SelectItem>
+              <SelectItem value="emoji">Emoji</SelectItem>
+              <SelectItem value="custom">SVG personnalisé</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label className="text-xs text-gray-600">Taille</Label>
           <Select
-            value={localComponent?.componentData?.iconSize || '24'}
-            onValueChange={(value) => updateProperty('componentData.iconSize', value)}
+            value={localComponent?.componentData?.size || 'medium'}
+            onValueChange={(value) => updateProperty('componentData.size', value)}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="16">Petit (16px)</SelectItem>
-              <SelectItem value="24">Moyen (24px)</SelectItem>
-              <SelectItem value="32">Grand (32px)</SelectItem>
-              <SelectItem value="48">Très grand (48px)</SelectItem>
+              <SelectItem value="micro">Micro (16px)</SelectItem>
+              <SelectItem value="small">Petit (20px)</SelectItem>
+              <SelectItem value="medium">Moyen (24px)</SelectItem>
+              <SelectItem value="large">Grand (32px)</SelectItem>
+              <SelectItem value="xl">XL (40px)</SelectItem>
+              <SelectItem value="xxl">XXL (48px)</SelectItem>
+              <SelectItem value="giant">Géant (64px)</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
-      
+
+      {/* Sélection d'icône */}
       <div>
-        <Label className="text-xs text-gray-600">Nom de l'icône</Label>
+        <Label className="text-xs text-gray-600">
+          {localComponent?.componentData?.library === 'emoji' ? 'Emoji' : 'Nom de l\'icône'}
+        </Label>
         <Input
-          value={localComponent?.componentData?.iconName || 'heart'}
+          value={localComponent?.componentData?.iconName || 'star'}
           onChange={(e) => updateProperty('componentData.iconName', e.target.value)}
-          placeholder="Ex: heart, star, home"
+          placeholder={
+            localComponent?.componentData?.library === 'emoji' ? '⭐ 🚀 💡 ❤️' :
+            localComponent?.componentData?.library === 'lucide' ? 'heart, star, home, user' :
+            'search, bell, menu, settings'
+          }
           className="mt-1 text-sm"
         />
+        
+        {/* Suggestions rapides d'icônes */}
+        <div className="mt-2">
+          <Label className="text-xs text-gray-500">Suggestions populaires :</Label>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {localComponent?.componentData?.library === 'emoji' ? 
+              ['⭐', '🚀', '💡', '❤️', '🎯', '🔥', '⚡', '🎨'].map(emoji => (
+                <button
+                  key={emoji}
+                  onClick={() => updateProperty('componentData.iconName', emoji)}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  {emoji}
+                </button>
+              )) :
+              ['heart', 'star', 'home', 'user', 'settings', 'search', 'bell', 'menu'].map(icon => (
+                <button
+                  key={icon}
+                  onClick={() => updateProperty('componentData.iconName', icon)}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  {icon}
+                </button>
+              ))
+            }
+          </div>
+        </div>
       </div>
-      
+
+      {/* SVG personnalisé */}
+      {localComponent?.componentData?.library === 'custom' && (
+        <div>
+          <Label className="text-xs text-gray-600">Code SVG personnalisé</Label>
+          <textarea
+            value={localComponent?.componentData?.customSvg || ''}
+            onChange={(e) => updateProperty('componentData.customSvg', e.target.value)}
+            placeholder="<svg>...</svg>"
+            className="mt-1 w-full h-20 text-xs border rounded p-2"
+          />
+        </div>
+      )}
+
+      {/* Style d'affichage */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Variant</Label>
+          <Select
+            value={localComponent?.componentData?.styling?.variant || 'circle'}
+            onValueChange={(value) => updateProperty('componentData.styling.variant', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="circle">Cercle</SelectItem>
+              <SelectItem value="square">Carré</SelectItem>
+              <SelectItem value="rounded">Arrondi</SelectItem>
+              <SelectItem value="none">Sans fond</SelectItem>
+              <SelectItem value="badge">Badge</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Options d'affichage</Label>
+          <div className="grid grid-cols-2 gap-1 mt-1">
+            <div className="flex items-center space-x-1">
+              <Checkbox
+                id="background"
+                checked={localComponent?.componentData?.styling?.background ?? true}
+                onCheckedChange={(checked) => updateProperty('componentData.styling.background', checked)}
+              />
+              <Label htmlFor="background" className="text-xs">Fond</Label>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Checkbox
+                id="border"
+                checked={localComponent?.componentData?.styling?.border ?? true}
+                onCheckedChange={(checked) => updateProperty('componentData.styling.border', checked)}
+              />
+              <Label htmlFor="border" className="text-xs">Bordure</Label>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Checkbox
+                id="shadow"
+                checked={localComponent?.componentData?.styling?.shadow ?? true}
+                onCheckedChange={(checked) => updateProperty('componentData.styling.shadow', checked)}
+              />
+              <Label htmlFor="shadow" className="text-xs">Ombre</Label>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Checkbox
+                id="rounded"
+                checked={localComponent?.componentData?.styling?.rounded ?? true}
+                onCheckedChange={(checked) => updateProperty('componentData.styling.rounded', checked)}
+              />
+              <Label htmlFor="rounded" className="text-xs">Arrondi</Label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Couleurs */}
       <div>
-        <Label className="text-xs text-gray-600">Couleur</Label>
+        <Label className="text-xs text-gray-600">Couleurs</Label>
+        <div className="grid grid-cols-2 gap-3 mt-1">
+          <div>
+            <Label className="text-xs">Icône</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.colors?.icon || '#3b82f6'}
+              onChange={(e) => updateProperty('componentData.colors.icon', e.target.value)}
+              className="mt-1 h-8"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Icône (hover)</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.colors?.hoverIcon || '#2563eb'}
+              onChange={(e) => updateProperty('componentData.colors.hoverIcon', e.target.value)}
+              className="mt-1 h-8"
+            />
+          </div>
+          {localComponent?.componentData?.styling?.background && (
+            <>
+              <div>
+                <Label className="text-xs">Fond</Label>
+                <Input
+                  type="color"
+                  value={localComponent?.componentData?.colors?.background || '#f3f4f6'}
+                  onChange={(e) => updateProperty('componentData.colors.background', e.target.value)}
+                  className="mt-1 h-8"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Fond (hover)</Label>
+                <Input
+                  type="color"
+                  value={localComponent?.componentData?.colors?.hoverBackground || '#e5e7eb'}
+                  onChange={(e) => updateProperty('componentData.colors.hoverBackground', e.target.value)}
+                  className="mt-1 h-8"
+                />
+              </div>
+            </>
+          )}
+          {localComponent?.componentData?.styling?.border && (
+            <div className="col-span-2">
+              <Label className="text-xs">Bordure</Label>
+              <Input
+                type="color"
+                value={localComponent?.componentData?.colors?.border || '#d1d5db'}
+                onChange={(e) => updateProperty('componentData.colors.border', e.target.value)}
+                className="mt-1 h-8"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Animations */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Animation</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Type</Label>
+            <Select
+              value={localComponent?.componentData?.animation?.type || 'none'}
+              onValueChange={(value) => updateProperty('componentData.animation.type', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Aucune</SelectItem>
+                <SelectItem value="pulse">Pulsation</SelectItem>
+                <SelectItem value="bounce">Rebond</SelectItem>
+                <SelectItem value="rotate">Rotation</SelectItem>
+                <SelectItem value="shake">Secousse</SelectItem>
+                <SelectItem value="glow">Lueur</SelectItem>
+                <SelectItem value="scale">Agrandissement</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Déclencheur</Label>
+            <Select
+              value={localComponent?.componentData?.animation?.trigger || 'hover'}
+              onValueChange={(value) => updateProperty('componentData.animation.trigger', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="always">Toujours</SelectItem>
+                <SelectItem value="hover">Au survol</SelectItem>
+                <SelectItem value="click">Au clic</SelectItem>
+                <SelectItem value="focus">Au focus</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Vitesse</Label>
+            <Select
+              value={localComponent?.componentData?.animation?.speed || 'normal'}
+              onValueChange={(value) => updateProperty('componentData.animation.speed', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="slow">Lente</SelectItem>
+                <SelectItem value="normal">Normale</SelectItem>
+                <SelectItem value="fast">Rapide</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Durée</Label>
+            <Input
+              value={localComponent?.componentData?.animation?.duration || '0.2s'}
+              onChange={(e) => updateProperty('componentData.animation.duration', e.target.value)}
+              placeholder="0.2s"
+              className="mt-1 text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Interactivité */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Interactivité</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="clickable"
+              checked={localComponent?.componentData?.interaction?.clickable ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.interaction.clickable', checked)}
+            />
+            <Label htmlFor="clickable" className="text-xs">Cliquable</Label>
+          </div>
+          {localComponent?.componentData?.interaction?.clickable && (
+            <div>
+              <Input
+                value={localComponent?.componentData?.interaction?.link || ''}
+                onChange={(e) => updateProperty('componentData.interaction.link', e.target.value)}
+                placeholder="URL de destination"
+                className="text-xs"
+              />
+            </div>
+          )}
+        </div>
+        
+        <div>
+          <Input
+            value={localComponent?.componentData?.interaction?.tooltip || ''}
+            onChange={(e) => updateProperty('componentData.interaction.tooltip', e.target.value)}
+            placeholder="Texte d'info-bulle (optionnel)"
+            className="text-xs"
+          />
+        </div>
+      </div>
+
+      {/* Badge */}
+      <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="show-badge"
+            checked={localComponent?.componentData?.interaction?.badge?.show ?? false}
+            onCheckedChange={(checked) => updateProperty('componentData.interaction.badge.show', checked)}
+          />
+          <Label htmlFor="show-badge" className="text-xs">Afficher un badge</Label>
+        </div>
+        
+        {localComponent?.componentData?.interaction?.badge?.show && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={localComponent?.componentData?.interaction?.badge?.text || ''}
+                onChange={(e) => updateProperty('componentData.interaction.badge.text', e.target.value)}
+                placeholder="1, !, NEW"
+                className="text-xs"
+              />
+              <Select
+                value={localComponent?.componentData?.interaction?.badge?.position || 'top-right'}
+                onValueChange={(value) => updateProperty('componentData.interaction.badge.position', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="top-right">Haut-droite</SelectItem>
+                  <SelectItem value="top-left">Haut-gauche</SelectItem>
+                  <SelectItem value="bottom-right">Bas-droite</SelectItem>
+                  <SelectItem value="bottom-left">Bas-gauche</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.interaction?.badge?.color || '#ef4444'}
+              onChange={(e) => updateProperty('componentData.interaction.badge.color', e.target.value)}
+              className="h-8"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Accessibilité */}
+      <div className="space-y-2">
+        <Label className="text-xs text-gray-600">Accessibilité</Label>
         <Input
-          type="color"
-          value={localComponent?.componentData?.iconColor || '#374151'}
-          onChange={(e) => updateProperty('componentData.iconColor', e.target.value)}
-          className="mt-1 h-8"
+          value={localComponent?.componentData?.accessibility?.ariaLabel || ''}
+          onChange={(e) => updateProperty('componentData.accessibility.ariaLabel', e.target.value)}
+          placeholder="Description pour lecteurs d'écran"
+          className="text-xs"
         />
+        <Input
+          value={localComponent?.componentData?.accessibility?.title || ''}
+          onChange={(e) => updateProperty('componentData.accessibility.title', e.target.value)}
+          placeholder="Titre (tooltip natif)"
+          className="text-xs"
+        />
+      </div>
+
+      {/* Configuration responsive */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration responsive</Label>
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <Label className="text-xs">📱 Mobile</Label>
+            <Input
+              value={localComponent?.componentData?.responsive?.mobile?.size || '24px'}
+              onChange={(e) => updateProperty('componentData.responsive.mobile.size', e.target.value)}
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">📱 Tablet</Label>
+            <Input
+              value={localComponent?.componentData?.responsive?.tablet?.size || '32px'}
+              onChange={(e) => updateProperty('componentData.responsive.tablet.size', e.target.value)}
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">🖥️ Desktop</Label>
+            <Input
+              value={localComponent?.componentData?.responsive?.desktop?.size || '32px'}
+              onChange={(e) => updateProperty('componentData.responsive.desktop.size', e.target.value)}
+              className="text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu temps réel</Label>
+        <div className="flex items-center justify-center py-4">
+          <div
+            className="relative inline-flex items-center justify-center transition-all duration-200"
+            style={{
+              width: localComponent?.componentData?.size === 'micro' ? '40px' :
+                     localComponent?.componentData?.size === 'small' ? '50px' :
+                     localComponent?.componentData?.size === 'medium' ? '60px' :
+                     localComponent?.componentData?.size === 'large' ? '70px' :
+                     localComponent?.componentData?.size === 'xl' ? '80px' :
+                     localComponent?.componentData?.size === 'xxl' ? '90px' :
+                     localComponent?.componentData?.size === 'giant' ? '100px' : '60px',
+              height: localComponent?.componentData?.size === 'micro' ? '40px' :
+                      localComponent?.componentData?.size === 'small' ? '50px' :
+                      localComponent?.componentData?.size === 'medium' ? '60px' :
+                      localComponent?.componentData?.size === 'large' ? '70px' :
+                      localComponent?.componentData?.size === 'xl' ? '80px' :
+                      localComponent?.componentData?.size === 'xxl' ? '90px' :
+                      localComponent?.componentData?.size === 'giant' ? '100px' : '60px',
+              backgroundColor: localComponent?.componentData?.styling?.background ? 
+                localComponent?.componentData?.colors?.background || '#f3f4f6' : 'transparent',
+              borderWidth: localComponent?.componentData?.styling?.border ? '2px' : '0',
+              borderColor: localComponent?.componentData?.colors?.border || '#d1d5db',
+              borderStyle: 'solid',
+              borderRadius: localComponent?.componentData?.styling?.variant === 'circle' ? '50%' :
+                           localComponent?.componentData?.styling?.variant === 'rounded' ? '12px' :
+                           localComponent?.componentData?.styling?.variant === 'square' ? '8px' : '0',
+              boxShadow: localComponent?.componentData?.styling?.shadow ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+              color: localComponent?.componentData?.colors?.icon || '#3b82f6',
+              fontSize: localComponent?.componentData?.size === 'micro' ? '14px' :
+                       localComponent?.componentData?.size === 'small' ? '18px' :
+                       localComponent?.componentData?.size === 'medium' ? '22px' :
+                       localComponent?.componentData?.size === 'large' ? '28px' :
+                       localComponent?.componentData?.size === 'xl' ? '34px' :
+                       localComponent?.componentData?.size === 'xxl' ? '40px' :
+                       localComponent?.componentData?.size === 'giant' ? '48px' : '22px'
+            }}
+          >
+            {/* Icône */}
+            <span>
+              {localComponent?.componentData?.library === 'emoji' ? 
+                localComponent?.componentData?.iconName || '⭐' :
+                localComponent?.componentData?.iconName === 'heart' ? '♥' :
+                localComponent?.componentData?.iconName === 'star' ? '★' :
+                localComponent?.componentData?.iconName === 'home' ? '🏠' :
+                localComponent?.componentData?.iconName === 'user' ? '👤' :
+                localComponent?.componentData?.iconName === 'settings' ? '⚙️' :
+                localComponent?.componentData?.iconName === 'search' ? '🔍' :
+                localComponent?.componentData?.iconName === 'bell' ? '🔔' :
+                localComponent?.componentData?.iconName === 'menu' ? '☰' :
+                localComponent?.componentData?.iconName || '★'
+              }
+            </span>
+            
+            {/* Badge */}
+            {localComponent?.componentData?.interaction?.badge?.show && (
+              <span
+                className="absolute text-xs font-bold text-white rounded-full min-w-[16px] h-4 flex items-center justify-center px-1"
+                style={{
+                  backgroundColor: localComponent?.componentData?.interaction?.badge?.color || '#ef4444',
+                  fontSize: '10px',
+                  top: localComponent?.componentData?.interaction?.badge?.position?.includes('top') ? '-2px' : 'auto',
+                  bottom: localComponent?.componentData?.interaction?.badge?.position?.includes('bottom') ? '-2px' : 'auto',
+                  right: localComponent?.componentData?.interaction?.badge?.position?.includes('right') ? '-2px' : 'auto',
+                  left: localComponent?.componentData?.interaction?.badge?.position?.includes('left') ? '-2px' : 'auto'
+                }}
+              >
+                {localComponent?.componentData?.interaction?.badge?.text || '1'}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

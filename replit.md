@@ -9,112 +9,6 @@ SiteForge is a full-stack visual website builder, offering a drag-and-drop inter
 - Technical approach: Problem-solving with persistence and deep debugging
 - Component architecture: Unified components with sub-elements managed via componentData only, no separate children in elements section
 
-## Recent Changes (January 2025)
-- ✅ **Codebase Optimization & Cleanup**: Major codebase simplification and redundancy elimination
-  - Removed SiteJet-Distribution folder: 2.2MB space savings, eliminated code duplication
-  - Deleted obsolete files: editor-utils-old.ts, visual-editor-old.tsx (1250+ lines of dead code)
-  - Cleaned distribution scripts: removed PowerShell and Windows-specific install scripts
-  - Removed unused validation scripts: automated validation now handled by integrated dev tools
-  - Project size reduced from complex dual-structure to streamlined single codebase
-- ✅ **Project Rebranding**: Complete transition from SiteJet to SiteForge
-  - Updated all user-facing text in sidebar and documentation
-  - Renamed all references in guides and manuals
-  - Maintained compatibility with existing functionality
-  - Updated export utilities and component metadata
-- ✅ **Enhanced Component Debugger**: Improved intelligent debugging system
-  - Added recognition for complex components using componentData architecture
-  - Fixed false positives for carousel, navbar, grid, and other complex components
-  - Enhanced content analysis to distinguish between simple and complex component types
-  - Improved issue detection with component-specific validation rules
-- ✅ **Export Button Integration**: Added export functionality directly in editor header
-  - Export button positioned next to Save button in ultra-compact header
-  - Green styling (bg-green-600) to distinguish from blue Save button
-  - Integrated with existing useExportProject hook for seamless functionality
-  - Compact design with Download icon matching header's minimalist approach
-  - Individual file downloads: Each file (HTML, CSS, JS, package.json, README.md) downloads separately with proper extension
-  - MIME type detection: Correct content-type headers for each file format
-- ✅ **Specialized Configuration Panels**: All 52 components now have dedicated configuration panels instead of generic text areas
-- ✅ **Unified Architecture Completed**: Complex components (header, footer, navbar, grid, list, accordion, carousel) are created empty and populated via specialized configuration panels
-- ✅ **Enhanced Component System**: Each component type has its own specialized options and real-time configuration capabilities
-- ✅ **Code Quality Improvements**: Resolved all syntax errors and duplicate function declarations
-- ✅ **Responsive Component Integration**: All components use componentData as the single source of truth for content and configuration
-- ✅ **Conditional CSS/JS Generation System**: Complete implementation of conditional code generation where styles and scripts are only included when specific components are present in the project
-  - 18 component types with specialized conditional styles (carousel, accordion, grid, modal, card, form, button, table, navbar, text, image, video, list, header, footer, sidebar, chart)
-  - Component detection system that analyzes project structure to determine which components are actually used
-  - Elimination of code bloat through precise conditional inclusion
-  - Separate CSS and JavaScript files with clean separation of concerns
-- ✅ **Grid Component Resolution**: Successfully diagnosed and fixed critical configuration issue
-  - Problem: Conflict between generic CSS grid properties and specialized component configuration
-  - Solution: Unified componentData structure using gridItems with {title, content} format
-  - Enhancement: Added verification procedure document for systematic component debugging
-- ✅ **Minimalist Editor Interface**: Complete optimization of editor layout for maximum editing space
-  - Ultra-compact header: 32px height with miniaturized buttons (6x6px) and small icons (3x3px)
-  - All panels closed by default: component palette, properties panel, and main navigation sidebar retracted
-  - Smart sidebar management: main navigation automatically retracts in editor, reopens in other pages
-  - Automatic sidebar control: React state management + button click simulation for proper retraction
-  - Preserved functionality: all panels accessible via toggle buttons when needed
-  - Maximized canvas space: clean interface focused on visual editing workflow
-- ✅ **Component Rendering System Fixed**: Resolved header component display issue in editor preview
-  - Problem: Header component displayed correctly in export but showed empty in editor
-  - Solution: Fixed client-side component renderer to properly handle header componentData
-  - Architecture: Unified rendering system between server-side export and client-side preview
-  - Verification: All complex components now display consistently in both editor and export
-- ✅ **Header Component Display Resolution**: Final correction of header rendering in editor preview
-  - Problem: Header showed empty content despite correct data in componentData
-  - Solution: Simplified flex layout structure and forced default navigation items for empty headers
-  - Technical fix: Removed nested div conflicts and applied direct styling to logo/navigation elements
-  - Result: Header now displays "Logo" + navigation items in editor preview matching export functionality
-- ✅ **Preview System Unification**: Complete architectural improvement for preview functionality
-  - Problem: Aperçu utilisait generatePreviewHTML() tandis que l'export générait de vrais fichiers
-  - Solution: Nouvelle route API /api/projects/:id/preview qui utilise directement les fichiers générés par l'export
-  - Architecture: Aperçu = Code = Export (système unifié)
-  - Avantages: Plus de divergence entre aperçu et export, tous les composants s'affichent correctement, performance optimisée
-  - Date: 3 janvier 2025
-- ✅ **Container Component Advanced Enhancement**: Major upgrade of Container component following verif-component protocol
-  - Protocol compliance: Container inserted empty, all configuration via componentData section only
-  - Presets rapides: 4 templates (Hero, Content, Sidebar, Grid 3) avec configuration automatique
-  - Grille intégrée: Support 1-4 colonnes avec gap personnalisable et distribution intelligente
-  - Template CSS Grid: Configuration manuelle grid-template-columns pour layouts complexes
-  - Contraintes enfants: Système de limitation des types de composants acceptés (text, heading, button, image, card)
-  - Overflow intelligent: Gestion visible/hidden/scroll/auto avec padding uniforme
-  - Guides visuels: Affichage des limites, grille et magnétisme dans l'éditeur
-  - Configuration responsive: Settings séparés mobile/tablet/desktop pour padding, colonnes, maxWidth
-  - Date: 3 janvier 2025
-- ✅ **Divider Component Complete Enhancement**: Advanced upgrade following verif-component protocol
-  - Protocol compliance: Divider inserted empty, all configuration via componentData section only
-  - Presets prédéfinis: 4 styles (Minimal, Bold, Décoratif, Branded) avec application automatique
-  - Dividers avec texte: Support texte central (OU, ET, SECTION) avec style personnalisable
-  - Motifs décoratifs: Points, vagues, zigzag, ornements avec paramètres configurables
-  - Orientation complète: Support horizontal et vertical pour layouts en colonnes
-  - Styles avancés: 6 types de lignes (solid, dashed, dotted, double, groove, ridge)
-  - Effets visuels: Ombre, lueur, gradient avec animations (fadeIn, slideIn, pulse, draw)
-  - Preview temps réel: Aperçu immédiat dans le panel de configuration
-  - Configuration responsive: Adaptations mobile/tablet/desktop automatiques
-  - Date: 3 janvier 2025
-- ✅ **Spacer Component Advanced Enhancement**: Professional upgrade following verif-component protocol
-  - Protocol compliance: Spacer inserted empty, all configuration via componentData section only
-  - Presets intelligents: 6 types (Petit, Moyen, Grand, Section, Flexible, Horizontal) avec configuration automatique
-  - Types d'espacement: Vertical, horizontal, section, page avec dimensions adaptées
-  - Espacement flexible: Support flex-grow/flex-shrink pour adaptation dynamique
-  - Visibilité contrôlée: Affichage séparé éditeur/export avec guides visuels
-  - Contraintes avancées: Min/max height, responsive design mobile/tablet/desktop
-  - Cas d'usage documentés: Guide intégré pour utilisation optimale selon contexte
-  - Preview interactif: Aperçu temps réel avec dimensions dans le panel configuration
-  - Architecture responsive: Settings automatiques selon type d'appareil
-  - Date: 3 janvier 2025
-- ✅ **Link Component Professional Enhancement**: Complete upgrade following verif-component protocol
-  - Protocol compliance: Link inserted empty, all configuration via componentData section only
-  - Presets spécialisés: 6 types (Externe, Interne, Email, Téléphone, Téléchargement, Social) avec configuration automatique
-  - Styles avancés: 5 variants (classique, bouton, badge, carte, minimal) avec tailles multiples
-  - États interactifs: Couleurs personnalisables (normal, hover, visited, active) avec transitions
-  - Validation URL: Vérification automatique format et statut avec indicateurs visuels
-  - Icônes intégrées: 6 types d'icônes avec positions configurables et tailles ajustables
-  - Analytics UTM: Suivi des clics avec paramètres utm_source, utm_medium, utm_campaign, utm_content
-  - Accessibilité complète: Aria-label, title tooltips, support lecteurs d'écran
-  - Sécurité renforcée: Gestion rel attributes (noopener, noreferrer, nofollow, sponsored, ugc)
-  - Preview temps réel: Aperçu interactif avec tous les styles et icônes dans le panel
-  - Date: 3 janvier 2025
-
 ## System Architecture
 
 ### Frontend Architecture
@@ -139,14 +33,17 @@ SiteForge is a full-stack visual website builder, offering a drag-and-drop inter
 - **Project Management**: Support for standalone, VS Code integration, and existing project imports. Includes a template engine, multi-format export (HTML, CSS, JS), and multi-page management.
 - **Database Schema**: Structured for users, projects, templates, and pages.
 - **Navigation System**: Collapsible sidebar with logo-based toggle functionality using direct props instead of React Context for reliable state management.
-- **Unified Component Architecture**: All 52 components across 8 categories have specialized configuration panels. Complex components (carousel, navbar, footer, card, form, chart, video, grid, sidebar, header, list, accordion) are created empty and their sub-elements are managed exclusively via componentData in the configuration section, not as separate elements in the elements section.
+- **Unified Component Architecture**: All 52 components across 8 categories have specialized configuration panels. Complex components (carousel, navbar, footer, card, form, chart, video, grid, sidebar, header, list, accordion) are created empty and their sub-elements are managed exclusively via componentData in the configuration section.
 - **Component-Specific Configuration**: Each component type has dedicated configuration options (e.g., carousel with image management and text positioning, navbar with menu items and branding, accordion with Q&A management).
+- **Conditional CSS/JS Generation System**: Styles and scripts are only included when specific components are present in the project, analyzing project structure to eliminate code bloat.
+- **Minimalist Editor Interface**: Optimized layout for maximum editing space with an ultra-compact header, miniaturized buttons, and all panels closed by default.
 
 ### Data Flow
 - **Project Creation**: Template selection initiates project creation and redirects to the editor.
 - **Visual Editing**: Drag-and-drop components, update properties, and see real-time previews.
 - **Content Management**: WYSIWYG editing, component tree manipulation, style adjustments, and auto-save.
 - **Export Process**: Project validation, code generation, file packaging, and download/deployment.
+- **Preview System Unification**: The preview system uses generated files directly from the export process, ensuring consistency between preview and export.
 
 ### Deployment Strategy
 - **Development**: Local Vite dev server with HMR; PostgreSQL via Neon Database.
