@@ -53,11 +53,11 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
   
   // Convertir les styles CSS en objet React avec adaptation automatique du contenu
   const inlineStyles: React.CSSProperties = {
-    position: styles.position as any || 'absolute',
-    left: styles.left || '50px',
-    top: styles.top || '50px',
-    width: styles.width || '200px',
-    height: styles.height || '100px',
+    position: 'static', // Pour les composants dans ResizableComponent
+    left: '0',
+    top: '0', 
+    width: '100%',
+    height: '100%',
     backgroundColor: styles.backgroundColor || 'transparent',
     color: styles.color || '#000000',
     fontSize: styles.fontSize || '16px',
@@ -1266,19 +1266,26 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       
 
       
+
+      
       return (
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`header-component ${className || ''}`}
           style={{
-            ...inlineStyles,
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            backgroundColor: styles.backgroundColor || '#1f2937',
+            color: styles.color || '#ffffff',
             overflow: 'visible',
-            position: inlineStyles.position || 'relative',
             minHeight: '60px',
             padding: '0',
-            display: 'flex',  // Force flex display
+            display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            fontFamily: styles.fontFamily || 'Inter, sans-serif',
+            fontSize: styles.fontSize || '16px'
           }}
           onClick={onClick}
           {...otherAttributes}
