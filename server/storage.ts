@@ -1979,7 +1979,7 @@ function smoothScrollTo(target) {
     let navItems = '';
     if (navigation.length > 0) {
       navItems = navigation.map((item: any) => 
-        `<a href="${item.url || '#'}" style="color: inherit; text-decoration: none; margin: 0 1rem;">${item.label || 'Lien'}</a>`
+        `<a href="${item.link || '#'}" style="color: inherit; text-decoration: none; margin: 0 1rem;">${item.text || 'Lien'}</a>`
       ).join('');
     }
     

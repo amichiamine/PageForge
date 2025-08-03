@@ -1296,7 +1296,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                 headerNavigation.map((item: any, index: number) => (
                   <a
                     key={index}
-                    href={item.url || '#'}
+                    href={item.link || '#'}
                     style={{
                       ...headerNavStyles,
                       color: 'inherit',
@@ -1304,7 +1304,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    {item.label || `Menu ${index + 1}`}
+                    {item.text || `Menu ${index + 1}`}
                   </a>
                 ))
               ) : (

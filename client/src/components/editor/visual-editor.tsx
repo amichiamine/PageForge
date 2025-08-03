@@ -37,7 +37,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
 }) => {
   const [draggedComponent, setDraggedComponent] = useState<ComponentDefinition | null>(null);
   const [guides, setGuides] = useState<{ x: number[], y: number[] }>({ x: [], y: [] });
-  const [debuggerVisible, setDebuggerVisible] = useState(true);
+  const [debuggerVisible, setDebuggerVisible] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
   const [{ isOver, canDrop }, drop] = useDrop({
