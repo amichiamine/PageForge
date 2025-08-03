@@ -8,6 +8,7 @@ SiteForge is a full-stack visual website builder designed to streamline website 
 - Interface language: French
 - Technical approach: Problem-solving with persistence and deep debugging
 - Component architecture: Unified components with sub-elements managed via componentData only, no separate children in elements section
+- Systematic component enhancement approach: Apply learned debugging methods across all 52 components
 
 ## System Architecture
 
@@ -37,6 +38,8 @@ SiteForge is a full-stack visual website builder designed to streamline website 
 - **Component-Specific Configuration**: Each component type has dedicated configuration options (e.g., carousel image management, navbar menu items).
 - **Conditional CSS/JS Generation System**: Styles and scripts are included only when relevant components are present, minimizing code bloat.
 - **Minimalist Editor Interface**: Optimized layout for maximum editing space with a compact header, miniaturized buttons, and panels closed by default.
+- **Preset System Enhancement**: All Typography and Link component presets now use unified applyPreset() function instead of multiple updateProperty() calls for better performance and consistency.
+- **Grid Drag & Drop Integration**: Grid components fully support drag & drop with automatic child positioning using data-component-id detection and proper CSS grid layout.
 
 ### Data Flow
 - **Project Creation**: Template selection leads to project creation and editor redirection.

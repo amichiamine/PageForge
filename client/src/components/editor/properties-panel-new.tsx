@@ -2878,13 +2878,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'body');
-              updateProperty('componentData.typography.variant', 'body');
-              updateProperty('componentData.typography.size', '16px');
-              updateProperty('componentData.typography.weight', '400');
-              updateProperty('componentData.typography.lineHeight', '1.5');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'body',
+              'componentData.typography.variant': 'body',
+              'componentData.typography.size': '16px',
+              'componentData.typography.weight': '400',
+              'componentData.typography.lineHeight': '1.5'
+            })}
             className="text-xs"
           >
             📝 Body
@@ -2892,13 +2892,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'caption');
-              updateProperty('componentData.typography.variant', 'caption');
-              updateProperty('componentData.typography.size', '14px');
-              updateProperty('componentData.typography.weight', '300');
-              updateProperty('componentData.typography.lineHeight', '1.4');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'caption',
+              'componentData.typography.variant': 'caption',
+              'componentData.typography.size': '14px',
+              'componentData.typography.weight': '300',
+              'componentData.typography.lineHeight': '1.4'
+            })}
             className="text-xs"
           >
             📱 Caption
@@ -2906,13 +2906,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'subtitle');
-              updateProperty('componentData.typography.variant', 'subtitle');
-              updateProperty('componentData.typography.size', '18px');
-              updateProperty('componentData.typography.weight', '500');
-              updateProperty('componentData.typography.lineHeight', '1.4');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'subtitle',
+              'componentData.typography.variant': 'subtitle',
+              'componentData.typography.size': '18px',
+              'componentData.typography.weight': '500',
+              'componentData.typography.lineHeight': '1.4'
+            })}
             className="text-xs"
           >
             📖 Subtitle
@@ -2920,13 +2920,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'display');
-              updateProperty('componentData.typography.variant', 'display');
-              updateProperty('componentData.typography.size', '24px');
-              updateProperty('componentData.typography.weight', '700');
-              updateProperty('componentData.typography.lineHeight', '1.2');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'display',
+              'componentData.typography.variant': 'display',
+              'componentData.typography.size': '24px',
+              'componentData.typography.weight': '700',
+              'componentData.typography.lineHeight': '1.2'
+            })}
             className="text-xs"
           >
             🎯 Display
@@ -2934,13 +2934,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'code');
-              updateProperty('componentData.typography.variant', 'code');
-              updateProperty('componentData.typography.size', '14px');
-              updateProperty('componentData.typography.family', 'Monaco');
-              updateProperty('componentData.formatting.code', true);
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'code',
+              'componentData.typography.variant': 'code',
+              'componentData.typography.size': '14px',
+              'componentData.typography.family': 'Monaco',
+              'componentData.formatting.code': true
+            })}
             className="text-xs"
           >
             💻 Code
@@ -2948,13 +2948,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'quote');
-              updateProperty('componentData.typography.variant', 'quote');
-              updateProperty('componentData.typography.size', '18px');
-              updateProperty('componentData.formatting.italic', true);
-              updateProperty('componentData.appearance.alignment', 'center');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'quote',
+              'componentData.typography.variant': 'quote',
+              'componentData.typography.size': '18px',
+              'componentData.formatting.italic': true,
+              'componentData.appearance.alignment': 'center'
+            })}
             className="text-xs"
           >
             💬 Quote
@@ -4469,14 +4469,14 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'external');
-              updateProperty('componentData.linkType', 'url');
-              updateProperty('componentData.target', '_blank');
-              updateProperty('componentData.rel', 'noopener noreferrer');
-              updateProperty('componentData.icon.show', true);
-              updateProperty('componentData.icon.type', 'external');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'external',
+              'componentData.linkType': 'url',
+              'componentData.target': '_blank',
+              'componentData.rel': 'noopener noreferrer',
+              'componentData.icon.show': true,
+              'componentData.icon.type': 'external'
+            })}
             className="text-xs"
           >
             🌐 Externe
@@ -4484,13 +4484,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'internal');
-              updateProperty('componentData.linkType', 'internal');
-              updateProperty('componentData.target', '_self');
-              updateProperty('componentData.rel', '');
-              updateProperty('componentData.icon.show', false);
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'internal',
+              'componentData.linkType': 'internal',
+              'componentData.target': '_self',
+              'componentData.rel': '',
+              'componentData.icon.show': false
+            })}
             className="text-xs"
           >
             🏠 Interne
@@ -4498,13 +4498,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'email');
-              updateProperty('componentData.linkType', 'email');
-              updateProperty('componentData.href', 'mailto:');
-              updateProperty('componentData.icon.show', true);
-              updateProperty('componentData.icon.type', 'mail');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'email',
+              'componentData.linkType': 'email',
+              'componentData.href': 'mailto:',
+              'componentData.icon.show': true,
+              'componentData.icon.type': 'mail'
+            })}
             className="text-xs"
           >
             📧 Email
@@ -4512,13 +4512,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'phone');
-              updateProperty('componentData.linkType', 'phone');
-              updateProperty('componentData.href', 'tel:');
-              updateProperty('componentData.icon.show', true);
-              updateProperty('componentData.icon.type', 'phone');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'phone',
+              'componentData.linkType': 'phone',
+              'componentData.href': 'tel:',
+              'componentData.icon.show': true,
+              'componentData.icon.type': 'phone'
+            })}
             className="text-xs"
           >
             📞 Téléphone
@@ -4526,13 +4526,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'download');
-              updateProperty('componentData.linkType', 'download');
-              updateProperty('componentData.attributes.download', true);
-              updateProperty('componentData.icon.show', true);
-              updateProperty('componentData.icon.type', 'download');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'download',
+              'componentData.linkType': 'download',
+              'componentData.attributes.download': true,
+              'componentData.icon.show': true,
+              'componentData.icon.type': 'download'
+            })}
             className="text-xs"
           >
             📥 Téléchargement
@@ -4540,12 +4540,12 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'social');
-              updateProperty('componentData.linkType', 'social');
-              updateProperty('componentData.styling.variant', 'button');
-              updateProperty('componentData.icon.show', true);
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'social',
+              'componentData.linkType': 'social',
+              'componentData.styling.variant': 'button',
+              'componentData.icon.show': true
+            })}
             className="text-xs"
           >
             📱 Social
