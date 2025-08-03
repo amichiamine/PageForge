@@ -168,7 +168,7 @@ Ouvrez votre navigateur sur : **http://localhost:3000**
 ### 🏠 Hébergement Partagé
 - **cPanel/Plesk** compatibles
 - **Upload FTP** simple
-- **Base de données** MySQL/PostgreSQL
+- **Base de données** PostgreSQL
 
 ### ☁️ Cloud Moderne
 - **Vercel** : Déploiement en 1 clic
@@ -250,7 +250,7 @@ Ouvrez votre navigateur sur : **http://localhost:3000**
 ### 👨‍💻 Crédits
 - **Développement** : SiteForge Technologies
 - **UI Framework** : React + TypeScript
-- **Base de données** : PostgreSQL/MySQL
+- **Base de données** : PostgreSQL
 - **Hébergement** : Compatible tous fournisseurs
 
 ### 📈 Version
