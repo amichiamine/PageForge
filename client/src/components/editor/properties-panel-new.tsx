@@ -90,6 +90,46 @@ export default function PropertiesPanel({
     current[keys[keys.length - 1]] = value;
   };
 
+  // Fonction pour appliquer plusieurs propriétés avec une seule mise à jour
+  const applyPreset = (updates: Record<string, any>) => {
+    if (!localComponent) return;
+
+    console.log('🎨 PRESET APPLICATION:', { updates, componentType: localComponent.type });
+
+    const updatedComponent = { ...localComponent };
+
+    // Appliquer toutes les mises à jour
+    Object.entries(updates).forEach(([path, value]) => {
+      if (path.startsWith('styles.')) {
+        const styleProp = path.replace('styles.', '');
+        if (!updatedComponent.styles) updatedComponent.styles = {};
+        
+        if (styleProp.includes('.')) {
+          setNestedValue(updatedComponent.styles, styleProp, value);
+        } else {
+          updatedComponent.styles[styleProp] = value;
+        }
+      } else if (path.startsWith('componentData.')) {
+        const componentDataPath = path.replace('componentData.', '');
+        if (!updatedComponent.componentData) updatedComponent.componentData = {};
+        setNestedValue(updatedComponent.componentData, componentDataPath, value);
+      } else {
+        // Chemin direct sur le composant
+        if (path.includes('.')) {
+          setNestedValue(updatedComponent, path, value);
+        } else {
+          (updatedComponent as any)[path] = value;
+        }
+      }
+    });
+
+    console.log('✅ PRESET APPLIED:', { componentId: updatedComponent.id, componentType: updatedComponent.type, updatedComponent });
+
+    // Mettre à jour l'état local et notifier le parent
+    setLocalComponent(updatedComponent);
+    onComponentUpdate(updatedComponent);
+  };
+
   const updateProperty = (path: string, value: any) => {
     if (!localComponent) return;
 
@@ -1291,14 +1331,14 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'navigation');
-              updateProperty('componentData.layout.direction', 'row');
-              updateProperty('componentData.layout.justify', 'space-between');
-              updateProperty('componentData.layout.align', 'center');
-              updateProperty('componentData.layout.gap', '20px');
-              updateProperty('componentData.container.padding', '16px 24px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'navigation',
+              'componentData.layout.direction': 'row',
+              'componentData.layout.justify': 'space-between',
+              'componentData.layout.align': 'center',
+              'componentData.layout.gap': '20px',
+              'componentData.container.padding': '16px 24px'
+            })}
             className="text-xs"
           >
             🧭 Navigation
