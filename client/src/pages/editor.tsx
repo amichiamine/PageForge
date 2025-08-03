@@ -492,7 +492,7 @@ export default function Editor() {
   const [showCode, setShowCode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [hideComponentPanel, setHideComponentPanel] = useState(true); // Par défaut fermé
-  const [hideRightPanel, setHideRightPanel] = useState(false);
+  const [hideRightPanel, setHideRightPanel] = useState(true); // Par défaut fermé
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
@@ -813,7 +813,7 @@ export default function Editor() {
         {/* Enhanced Header */}
         <div className="flex flex-col w-full">
           <div className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-2 space-y-2 lg:space-y-0">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between px-3 sm:px-6 py-1 space-y-1 lg:space-y-0">
               {/* Project Info */}
               <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
                 <div className="flex items-center space-x-2 min-w-0">
