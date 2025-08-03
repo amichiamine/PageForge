@@ -1346,13 +1346,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'gallery');
-              updateProperty('componentData.layout.direction', 'row');
-              updateProperty('componentData.layout.justify', 'flex-start');
-              updateProperty('componentData.layout.wrap', 'wrap');
-              updateProperty('componentData.layout.gap', '16px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'gallery',
+              'componentData.layout.direction': 'row',
+              'componentData.layout.justify': 'flex-start',
+              'componentData.layout.wrap': 'wrap',
+              'componentData.layout.gap': '16px'
+            })}
             className="text-xs"
           >
             🖼️ Galerie
@@ -1360,13 +1360,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'dashboard');
-              updateProperty('componentData.layout.direction', 'row');
-              updateProperty('componentData.layout.justify', 'space-evenly');
-              updateProperty('componentData.layout.align', 'stretch');
-              updateProperty('componentData.layout.gap', '24px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'dashboard',
+              'componentData.layout.direction': 'row',
+              'componentData.layout.justify': 'space-evenly',
+              'componentData.layout.align': 'stretch',
+              'componentData.layout.gap': '24px'
+            })}
             className="text-xs"
           >
             📊 Dashboard
@@ -1374,13 +1374,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'sidebar');
-              updateProperty('componentData.layout.direction', 'column');
-              updateProperty('componentData.layout.justify', 'flex-start');
-              updateProperty('componentData.layout.align', 'stretch');
-              updateProperty('componentData.layout.gap', '12px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'sidebar',
+              'componentData.layout.direction': 'column',
+              'componentData.layout.justify': 'flex-start',
+              'componentData.layout.align': 'stretch',
+              'componentData.layout.gap': '12px'
+            })}
             className="text-xs"
           >
             📑 Sidebar
@@ -1388,13 +1388,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'header');
-              updateProperty('componentData.layout.direction', 'row');
-              updateProperty('componentData.layout.justify', 'space-between');
-              updateProperty('componentData.layout.align', 'center');
-              updateProperty('componentData.container.minHeight', '60px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'header',
+              'componentData.layout.direction': 'row',
+              'componentData.layout.justify': 'space-between',
+              'componentData.layout.align': 'center',
+              'componentData.container.minHeight': '60px'
+            })}
             className="text-xs"
           >
             📰 Header
@@ -1402,13 +1402,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'cards');
-              updateProperty('componentData.layout.direction', 'row');
-              updateProperty('componentData.layout.justify', 'center');
-              updateProperty('componentData.layout.wrap', 'wrap');
-              updateProperty('componentData.layout.gap', '20px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'cards',
+              'componentData.layout.direction': 'row',
+              'componentData.layout.justify': 'center',
+              'componentData.layout.wrap': 'wrap',
+              'componentData.layout.gap': '20px'
+            })}
             className="text-xs"
           >
             🃏 Cartes
@@ -1899,17 +1899,17 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'dashboard');
-              updateProperty('componentData.layout.columns', '200px 1fr');
-              updateProperty('componentData.layout.rows', 'auto 1fr auto');
-              updateProperty('componentData.layout.areas.enabled', true);
-              updateProperty('componentData.layout.areas.template', [
+            onClick={() => applyPreset({
+              'componentData.preset': 'dashboard',
+              'componentData.layout.columns': '200px 1fr',
+              'componentData.layout.rows': 'auto 1fr auto',
+              'componentData.layout.areas.enabled': true,
+              'componentData.layout.areas.template': [
                 'header header',
                 'sidebar main',
                 'footer footer'
-              ]);
-            }}
+              ]
+            })}
             className="text-xs"
           >
             📊 Dashboard
@@ -1917,13 +1917,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'gallery');
-              updateProperty('componentData.layout.columns', 'repeat(auto-fit, minmax(200px, 1fr))');
-              updateProperty('componentData.layout.rows', 'auto');
-              updateProperty('componentData.layout.autoFlow', 'row dense');
-              updateProperty('componentData.layout.gap', '16px');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'gallery',
+              'componentData.layout.columns': 'repeat(auto-fit, minmax(200px, 1fr))',
+              'componentData.layout.rows': 'auto',
+              'componentData.layout.autoFlow': 'row dense',
+              'componentData.layout.gap': '16px'
+            })}
             className="text-xs"
           >
             🖼️ Galerie
@@ -1931,17 +1931,17 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'blog');
-              updateProperty('componentData.layout.columns', '1fr 300px');
-              updateProperty('componentData.layout.rows', 'auto 1fr auto');
-              updateProperty('componentData.layout.areas.enabled', true);
-              updateProperty('componentData.layout.areas.template', [
+            onClick={() => applyPreset({
+              'componentData.preset': 'blog',
+              'componentData.layout.columns': '1fr 300px',
+              'componentData.layout.rows': 'auto 1fr auto',
+              'componentData.layout.areas.enabled': true,
+              'componentData.layout.areas.template': [
                 'header header',
                 'content sidebar',
                 'footer footer'
-              ]);
-            }}
+              ]
+            })}
             className="text-xs"
           >
             📝 Blog
@@ -1949,13 +1949,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'portfolio');
-              updateProperty('componentData.layout.columns', 'repeat(4, 1fr)');
-              updateProperty('componentData.layout.rows', 'repeat(3, 200px)');
-              updateProperty('componentData.layout.gap', '20px');
-              updateProperty('componentData.layout.dense', true);
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'portfolio',
+              'componentData.layout.columns': 'repeat(4, 1fr)',
+              'componentData.layout.rows': 'repeat(3, 200px)',
+              'componentData.layout.gap': '20px',
+              'componentData.layout.dense': true
+            })}
             className="text-xs"
           >
             🎨 Portfolio
@@ -1963,18 +1963,18 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'magazine');
-              updateProperty('componentData.layout.columns', 'repeat(6, 1fr)');
-              updateProperty('componentData.layout.rows', 'auto auto 1fr auto');
-              updateProperty('componentData.layout.areas.enabled', true);
-              updateProperty('componentData.layout.areas.template', [
+            onClick={() => applyPreset({
+              'componentData.preset': 'magazine',
+              'componentData.layout.columns': 'repeat(6, 1fr)',
+              'componentData.layout.rows': 'auto auto 1fr auto',
+              'componentData.layout.areas.enabled': true,
+              'componentData.layout.areas.template': [
                 'header header header header header header',
                 'nav nav nav nav nav nav',
                 'article article article article aside aside',
                 'footer footer footer footer footer footer'
-              ]);
-            }}
+              ]
+            })}
             className="text-xs"
           >
             📰 Magazine
@@ -1982,13 +1982,13 @@ export default function PropertiesPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              updateProperty('componentData.preset', 'ecommerce');
-              updateProperty('componentData.layout.columns', 'repeat(auto-fill, minmax(250px, 1fr))');
-              updateProperty('componentData.layout.rows', 'auto');
-              updateProperty('componentData.layout.gap', '24px');
-              updateProperty('componentData.alignment.justifyItems', 'center');
-            }}
+            onClick={() => applyPreset({
+              'componentData.preset': 'ecommerce',
+              'componentData.layout.columns': 'repeat(auto-fill, minmax(250px, 1fr))',
+              'componentData.layout.rows': 'auto',
+              'componentData.layout.gap': '24px',
+              'componentData.alignment.justifyItems': 'center'
+            })}
             className="text-xs"
           >
             🛒 E-commerce
