@@ -1027,7 +1027,7 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.showLabel ?? true}
+            checked={localComponent?.componentData?.showLabel ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showLabel', checked)}
           />
           <Label className="text-xs">Afficher le pourcentage</Label>
@@ -1250,7 +1250,7 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.allowHalfRating ?? true}
+            checked={localComponent?.componentData?.allowHalfRating ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.allowHalfRating', checked)}
           />
           <Label className="text-xs">Demi-notes</Label>
@@ -1411,7 +1411,7 @@ export default function PropertiesPanel({
 
       <div className="flex items-center space-x-2">
         <Checkbox
-          checked={localComponent?.componentData?.showNumbers ?? true}
+          checked={localComponent?.componentData?.showNumbers ?? false}
           onCheckedChange={(checked) => updateProperty('componentData.showNumbers', checked)}
         />
         <Label className="text-xs">Afficher les numéros</Label>
@@ -1475,7 +1475,7 @@ export default function PropertiesPanel({
 
       <div className="flex items-center space-x-2">
         <Checkbox
-          checked={localComponent?.componentData?.overlay ?? true}
+          checked={localComponent?.componentData?.overlay ?? false}
           onCheckedChange={(checked) => updateProperty('componentData.overlay', checked)}
         />
         <Label className="text-xs">Overlay sombre</Label>
@@ -1540,14 +1540,14 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.dismissible ?? true}
+            checked={localComponent?.componentData?.dismissible ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.dismissible', checked)}
           />
           <Label className="text-xs">Peut être fermée</Label>
         </div>
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.icon ?? true}
+            checked={localComponent?.componentData?.icon ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.icon', checked)}
           />
           <Label className="text-xs">Afficher l'icône</Label>
@@ -1822,7 +1822,7 @@ export default function PropertiesPanel({
         </div>
         <div className="flex items-center space-x-2 mt-4">
           <Checkbox
-            checked={localComponent?.componentData?.collapsible ?? true}
+            checked={localComponent?.componentData?.collapsible ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.collapsible', checked)}
           />
           <Label className="text-xs">Repliable</Label>
@@ -2003,7 +2003,7 @@ export default function PropertiesPanel({
         </div>
         <div className="flex items-center space-x-2 mt-4">
           <Checkbox
-            checked={localComponent?.componentData?.showLegend ?? true}
+            checked={localComponent?.componentData?.showLegend ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showLegend', checked)}
           />
           <Label className="text-xs">Afficher la légende</Label>
@@ -2119,7 +2119,7 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.striped ?? true}
+            checked={localComponent?.componentData?.striped ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.striped', checked)}
           />
           <Label className="text-xs">Lignes alternées</Label>
@@ -2508,14 +2508,14 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.showLegend ?? true}
+            checked={localComponent?.componentData?.showLegend ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showLegend', checked)}
           />
           <Label className="text-xs">Afficher la légende</Label>
         </div>
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.showGrid ?? true}
+            checked={localComponent?.componentData?.showGrid ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.showGrid', checked)}
           />
           <Label className="text-xs">Afficher la grille</Label>
@@ -2577,14 +2577,14 @@ export default function PropertiesPanel({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.striped ?? true}
+            checked={localComponent?.componentData?.striped ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.striped', checked)}
           />
           <Label className="text-xs">Lignes alternées</Label>
         </div>
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={localComponent?.componentData?.bordered ?? true}
+            checked={localComponent?.componentData?.bordered ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.bordered', checked)}
           />
           <Label className="text-xs">Bordures</Label>
