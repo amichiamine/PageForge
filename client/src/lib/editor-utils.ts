@@ -339,9 +339,9 @@ export function createComponent(type: string): ComponentDefinition {
           type: 'bar',
           title: '',
           data: [],
-          colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
-          showLegend: true,
-          showGrid: true
+          colors: [],
+          showLegend: false,
+          showGrid: false
         }
       };
 
@@ -392,7 +392,7 @@ export function createComponent(type: string): ComponentDefinition {
           title: '',
           autoplay: false,
           loop: false,
-          volume: 0.5
+          volume: 1.0
         }
       };
 
@@ -414,9 +414,9 @@ export function createComponent(type: string): ComponentDefinition {
         componentData: {
           headers: [],
           rows: [],
-          striped: true,
-          bordered: true,
-          hoverable: true
+          striped: false,
+          bordered: false,
+          hoverable: false
         }
       };
 
@@ -687,7 +687,7 @@ export function createComponent(type: string): ComponentDefinition {
           steps: [],
           currentStep: 0,
           orientation: 'horizontal',
-          showNumbers: true
+          showNumbers: false
         }
       };
 
@@ -1161,9 +1161,9 @@ export function createComponent(type: string): ComponentDefinition {
         tag: 'nav',
         attributes: { className: 'pagination-component' },
         componentData: {
-          currentPage: 1,
-          totalPages: 10,
-          showNumbers: true
+          currentPage: 0,
+          totalPages: 0,
+          showNumbers: false
         },
         styles: {
           ...baseComponent.styles,
@@ -1226,7 +1226,7 @@ export function createComponent(type: string): ComponentDefinition {
         attributes: { className: 'map-component' },
         componentData: {
           address: '',
-          zoom: 15,
+          zoom: 0,
           type: 'roadmap'
         },
         styles: {
