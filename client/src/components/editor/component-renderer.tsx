@@ -168,25 +168,13 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     ));
   };
 
-  // DEBUG: Log du type de composant
-  if (component.type === 'gallery') {
-    console.log('🔍 COMPONENT-RENDERER: Gallery détectée!', { 
-      type: component.type, 
-      id: component.id,
-      componentData: component.componentData 
-    });
-  }
+  // Traitement spécial pour les galleries
 
   // Cas spéciaux pour certains types de composants avec adaptation responsive complète
   switch (component.type) {
     case 'image':
       const imageContentStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 24 });
-      console.log('🖼️ IMAGE DEBUG:', { 
-        componentId: component.id, 
-        attributesSrc: attributes.src, 
-        hasAttributes: !!component.attributes,
-        fullAttributes: component.attributes 
-      });
+
       if (attributes.src) {
         return (
           <img
@@ -797,7 +785,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'gallery':
-      console.log('🎯 CASE GALLERY ATTEINT!', { componentId: component.id });
+
       const galleryTitleStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 12, maxSize: 28 });
       const galleryIconStyles = getResponsiveContentStyles({ baseSize: 20, minSize: 16, maxSize: 32, scaleFactor: 1.2 });
       const gallerySpacing = getResponsiveSpacing(8);

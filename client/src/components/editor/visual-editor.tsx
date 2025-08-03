@@ -83,9 +83,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
   const handleComponentAdd = useCallback((componentType: string, x: number, y: number) => {
     if (!project || !project.content?.pages?.[0]) return;
 
-    console.log('Adding component of type:', componentType);
     const newComponent = createComponent(componentType);
-    console.log('Created component:', newComponent);
     
     // Tailles réduites pour tous les composants
     const baseWidths: Record<string, string> = {
@@ -183,7 +181,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
       }
     };
 
-    console.log('Updating component:', updatedComponent);
+
 
     const updatedStructure = updateComponentInTree(currentStructure, componentId, updatedComponent);
 
@@ -208,7 +206,7 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
   const handleComponentAddToGrid = useCallback((componentType: string, gridId: string) => {
     if (!project || !project.content?.pages?.[0]) return;
 
-    console.log('Adding component to grid:', { componentType, gridId });
+
     const newComponent = createComponent(componentType);
     
     // Configuration spéciale pour les composants dans une grille
@@ -263,14 +261,12 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     };
 
     onComponentUpdate(updatedProject);
-    console.log('Component added to grid successfully');
   }, [project, onComponentUpdate]);
 
   // Déplacer un composant existant vers une grille
   const handleComponentMoveToGrid = useCallback((componentId: string, gridId: string) => {
     if (!project || !project.content?.pages?.[0]) return;
 
-    console.log('Moving component to grid:', { componentId, gridId });
     const currentStructure = project.content.pages[0].content.structure || [];
     
     // Trouver le composant et la grille
@@ -320,7 +316,6 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     };
 
     onComponentUpdate(updatedProject);
-    console.log('Component moved to grid successfully');
   }, [project, onComponentUpdate]);
 
   const handleComponentUpdate = useCallback((updatedComponent: ComponentDefinition) => {
