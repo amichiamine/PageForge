@@ -2764,6 +2764,495 @@ export default function PropertiesPanel({
     </div>
   );
 
+  // Configuration typographie avancée pour composant Text
+  const renderTextConfiguration = () => (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-indigo-900">Configuration Typographie Avancée</h4>
+      
+      {/* Presets typographiques */}
+      <div>
+        <Label className="text-xs text-gray-600">Presets typographiques</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'body');
+              updateProperty('componentData.typography.variant', 'body');
+              updateProperty('componentData.typography.size', '16px');
+              updateProperty('componentData.typography.weight', '400');
+              updateProperty('componentData.typography.lineHeight', '1.5');
+            }}
+            className="text-xs"
+          >
+            📝 Body
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'caption');
+              updateProperty('componentData.typography.variant', 'caption');
+              updateProperty('componentData.typography.size', '14px');
+              updateProperty('componentData.typography.weight', '300');
+              updateProperty('componentData.typography.lineHeight', '1.4');
+            }}
+            className="text-xs"
+          >
+            📱 Caption
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'subtitle');
+              updateProperty('componentData.typography.variant', 'subtitle');
+              updateProperty('componentData.typography.size', '18px');
+              updateProperty('componentData.typography.weight', '500');
+              updateProperty('componentData.typography.lineHeight', '1.4');
+            }}
+            className="text-xs"
+          >
+            📖 Subtitle
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'display');
+              updateProperty('componentData.typography.variant', 'display');
+              updateProperty('componentData.typography.size', '24px');
+              updateProperty('componentData.typography.weight', '700');
+              updateProperty('componentData.typography.lineHeight', '1.2');
+            }}
+            className="text-xs"
+          >
+            🎯 Display
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'code');
+              updateProperty('componentData.typography.variant', 'code');
+              updateProperty('componentData.typography.size', '14px');
+              updateProperty('componentData.typography.family', 'Monaco');
+              updateProperty('componentData.formatting.code', true);
+            }}
+            className="text-xs"
+          >
+            💻 Code
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'quote');
+              updateProperty('componentData.typography.variant', 'quote');
+              updateProperty('componentData.typography.size', '18px');
+              updateProperty('componentData.formatting.italic', true);
+              updateProperty('componentData.appearance.alignment', 'center');
+            }}
+            className="text-xs"
+          >
+            💬 Quote
+          </Button>
+        </div>
+      </div>
+
+      {/* Contenu du texte */}
+      <div>
+        <Label className="text-xs text-gray-600">Contenu du texte</Label>
+        <textarea
+          value={localComponent?.componentData?.content || ''}
+          onChange={(e) => updateProperty('componentData.content', e.target.value)}
+          placeholder="Saisissez votre texte ici..."
+          className="w-full mt-1 text-xs border rounded p-2 h-20"
+          rows={3}
+        />
+      </div>
+
+      {/* Typographie principale */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Typographie</Label>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <Label className="text-xs">Taille</Label>
+            <Input
+              value={localComponent?.componentData?.typography?.size || '16px'}
+              onChange={(e) => updateProperty('componentData.typography.size', e.target.value)}
+              placeholder="16px, 1rem, 120%"
+              className="mt-1 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Poids</Label>
+            <Select
+              value={localComponent?.componentData?.typography?.weight || '400'}
+              onValueChange={(value) => updateProperty('componentData.typography.weight', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="100">100 - Thin</SelectItem>
+                <SelectItem value="200">200 - Light</SelectItem>
+                <SelectItem value="300">300 - Light</SelectItem>
+                <SelectItem value="400">400 - Normal</SelectItem>
+                <SelectItem value="500">500 - Medium</SelectItem>
+                <SelectItem value="600">600 - Semi Bold</SelectItem>
+                <SelectItem value="700">700 - Bold</SelectItem>
+                <SelectItem value="800">800 - Extra Bold</SelectItem>
+                <SelectItem value="900">900 - Black</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Hauteur ligne</Label>
+            <Input
+              value={localComponent?.componentData?.typography?.lineHeight || '1.5'}
+              onChange={(e) => updateProperty('componentData.typography.lineHeight', e.target.value)}
+              placeholder="1.5, 24px, normal"
+              className="mt-1 text-xs"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Espacement lettres</Label>
+            <Input
+              value={localComponent?.componentData?.typography?.letterSpacing || 'normal'}
+              onChange={(e) => updateProperty('componentData.typography.letterSpacing', e.target.value)}
+              placeholder="normal, 0.5px, 0.1em"
+              className="mt-1 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Transformation</Label>
+            <Select
+              value={localComponent?.componentData?.typography?.transform || 'none'}
+              onValueChange={(value) => updateProperty('componentData.typography.transform', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Aucune</SelectItem>
+                <SelectItem value="capitalize">Capitaliser</SelectItem>
+                <SelectItem value="uppercase">MAJUSCULES</SelectItem>
+                <SelectItem value="lowercase">minuscules</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div>
+          <Label className="text-xs">Police</Label>
+          <Select
+            value={localComponent?.componentData?.typography?.family || 'Inter'}
+            onValueChange={(value) => updateProperty('componentData.typography.family', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Inter">Inter</SelectItem>
+              <SelectItem value="Arial">Arial</SelectItem>
+              <SelectItem value="Helvetica">Helvetica</SelectItem>
+              <SelectItem value="Georgia">Georgia</SelectItem>
+              <SelectItem value="Times">Times New Roman</SelectItem>
+              <SelectItem value="Monaco">Monaco (Code)</SelectItem>
+              <SelectItem value="Roboto">Roboto</SelectItem>
+              <SelectItem value="Open Sans">Open Sans</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Formatage du texte */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Formatage</Label>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="text-bold"
+              checked={localComponent?.componentData?.formatting?.bold ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.formatting.bold', checked)}
+            />
+            <Label htmlFor="text-bold" className="text-xs font-bold">B</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="text-italic"
+              checked={localComponent?.componentData?.formatting?.italic ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.formatting.italic', checked)}
+            />
+            <Label htmlFor="text-italic" className="text-xs italic">I</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="text-underline"
+              checked={localComponent?.componentData?.formatting?.underline ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.formatting.underline', checked)}
+            />
+            <Label htmlFor="text-underline" className="text-xs underline">U</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="text-strikethrough"
+              checked={localComponent?.componentData?.formatting?.strikethrough ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.formatting.strikethrough', checked)}
+            />
+            <Label htmlFor="text-strikethrough" className="text-xs line-through">S</Label>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="text-highlight"
+              checked={localComponent?.componentData?.formatting?.highlight ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.formatting.highlight', checked)}
+            />
+            <Label htmlFor="text-highlight" className="text-xs">Surligner</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="text-code"
+              checked={localComponent?.componentData?.formatting?.code ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.formatting.code', checked)}
+            />
+            <Label htmlFor="text-code" className="text-xs font-mono">Code</Label>
+          </div>
+        </div>
+        {localComponent?.componentData?.formatting?.highlight && (
+          <div>
+            <Label className="text-xs">Couleur surlignage</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.formatting?.highlightColor || '#ffeb3b'}
+              onChange={(e) => updateProperty('componentData.formatting.highlightColor', e.target.value)}
+              className="mt-1 h-8 w-full"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Apparence */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Apparence</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Couleur texte</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.appearance?.color || '#1f2937'}
+              onChange={(e) => updateProperty('componentData.appearance.color', e.target.value)}
+              className="mt-1 h-8 w-full"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Alignement</Label>
+            <Select
+              value={localComponent?.componentData?.appearance?.alignment || 'left'}
+              onValueChange={(value) => updateProperty('componentData.appearance.alignment', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Gauche</SelectItem>
+                <SelectItem value="center">Centre</SelectItem>
+                <SelectItem value="right">Droite</SelectItem>
+                <SelectItem value="justify">Justifié</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div>
+          <Label className="text-xs">Décoration</Label>
+          <Select
+            value={localComponent?.componentData?.appearance?.decoration || 'none'}
+            onValueChange={(value) => updateProperty('componentData.appearance.decoration', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              <SelectItem value="underline">Soulignement</SelectItem>
+              <SelectItem value="overline">Ligne au-dessus</SelectItem>
+              <SelectItem value="line-through">Barré</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Configuration responsive */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration responsive</Label>
+        <div className="space-y-2">
+          <div>
+            <Label className="text-xs">📱 Mobile</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.size || '14px'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.size', e.target.value)}
+                placeholder="Taille"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.lineHeight || '1.4'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.lineHeight', e.target.value)}
+                placeholder="Hauteur ligne"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.weight || '400'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.weight', e.target.value)}
+                placeholder="Poids"
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">📱 Tablet</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.size || '15px'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.size', e.target.value)}
+                placeholder="Taille"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.lineHeight || '1.45'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.lineHeight', e.target.value)}
+                placeholder="Hauteur ligne"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.weight || '400'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.weight', e.target.value)}
+                placeholder="Poids"
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">🖥️ Desktop</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.size || '16px'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.size', e.target.value)}
+                placeholder="Taille"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.lineHeight || '1.5'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.lineHeight', e.target.value)}
+                placeholder="Hauteur ligne"
+                className="text-xs"
+              />
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.weight || '400'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.weight', e.target.value)}
+                placeholder="Poids"
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Accessibilité */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Accessibilité</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Rôle sémantique</Label>
+            <Select
+              value={localComponent?.componentData?.accessibility?.role || 'text'}
+              onValueChange={(value) => updateProperty('componentData.accessibility.role', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="text">Texte</SelectItem>
+                <SelectItem value="heading">Titre</SelectItem>
+                <SelectItem value="paragraph">Paragraphe</SelectItem>
+                <SelectItem value="caption">Légende</SelectItem>
+                <SelectItem value="label">Étiquette</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Niveau accessibilité</Label>
+            <Select
+              value={localComponent?.componentData?.accessibility?.level || 'body'}
+              onValueChange={(value) => updateProperty('componentData.accessibility.level', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="body">Corps</SelectItem>
+                <SelectItem value="important">Important</SelectItem>
+                <SelectItem value="critical">Critique</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <Input
+          value={localComponent?.componentData?.accessibility?.ariaLabel || ''}
+          onChange={(e) => updateProperty('componentData.accessibility.ariaLabel', e.target.value)}
+          placeholder="Aria-label pour lecteurs d'écran"
+          className="text-xs"
+        />
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="screen-reader"
+            checked={localComponent?.componentData?.accessibility?.screenReader ?? true}
+            onCheckedChange={(checked) => updateProperty('componentData.accessibility.screenReader', checked)}
+          />
+          <Label htmlFor="screen-reader" className="text-xs">Compatible lecteurs d'écran</Label>
+        </div>
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu du texte</Label>
+        <div className="flex items-center justify-center py-4">
+          <div
+            className="transition-all duration-200 p-2"
+            style={{
+              fontSize: localComponent?.componentData?.typography?.size || '16px',
+              fontWeight: localComponent?.componentData?.typography?.weight || '400',
+              lineHeight: localComponent?.componentData?.typography?.lineHeight || '1.5',
+              letterSpacing: localComponent?.componentData?.typography?.letterSpacing || 'normal',
+              textTransform: localComponent?.componentData?.typography?.transform || 'none',
+              color: localComponent?.componentData?.appearance?.color || '#1f2937',
+              textAlign: localComponent?.componentData?.appearance?.alignment || 'left',
+              textDecoration: localComponent?.componentData?.appearance?.decoration || 'none',
+              fontFamily: `${localComponent?.componentData?.typography?.family || 'Inter'}, sans-serif`,
+              fontStyle: localComponent?.componentData?.formatting?.italic ? 'italic' : 'normal',
+              backgroundColor: localComponent?.componentData?.formatting?.highlight ? 
+                              (localComponent?.componentData?.formatting?.highlightColor || '#ffeb3b') : 'transparent',
+              padding: localComponent?.componentData?.formatting?.code ? '4px 8px' : '0',
+              borderRadius: localComponent?.componentData?.formatting?.code ? '4px' : '0',
+              border: localComponent?.componentData?.formatting?.code ? '1px solid #e5e7eb' : 'none'
+            }}
+          >
+            {localComponent?.componentData?.content || 'Texte d\'exemple'}
+          </div>
+        </div>
+        <div className="mt-2 text-xs text-gray-500">
+          <strong>Preset actuel:</strong> {localComponent?.componentData?.preset || 'body'} | 
+          <strong> Famille:</strong> {localComponent?.componentData?.typography?.family || 'Inter'} | 
+          <strong> Taille:</strong> {localComponent?.componentData?.typography?.size || '16px'}
+        </div>
+      </div>
+    </div>
+  );
+
   // Configuration spécifique au composant
   const renderComponentSpecificConfiguration = () => {
     if (!localComponent) return null;
@@ -4834,79 +5323,7 @@ export default function PropertiesPanel({
     </div>
   );
 
-  const renderTextConfiguration = () => (
-    <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration du Texte</h4>
-      
-      <div>
-        <Label className="text-xs text-gray-600">Contenu du texte</Label>
-        <Textarea
-          value={localComponent?.content || 'Votre texte ici...'}
-          onChange={(e) => updateProperty('content', e.target.value)}
-          className="mt-1 text-sm resize-none"
-          rows={4}
-          placeholder="Saisissez votre texte..."
-        />
-      </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs text-gray-600">Taille de police</Label>
-          <Select value={localComponent?.styles?.fontSize || '16px'} onValueChange={(value) => updateProperty('styles.fontSize', value)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="12px">12px</SelectItem>
-              <SelectItem value="14px">14px</SelectItem>
-              <SelectItem value="16px">16px</SelectItem>
-              <SelectItem value="18px">18px</SelectItem>
-              <SelectItem value="20px">20px</SelectItem>
-              <SelectItem value="24px">24px</SelectItem>
-              <SelectItem value="32px">32px</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs text-gray-600">Alignement</Label>
-          <Select value={localComponent?.styles?.textAlign || 'left'} onValueChange={(value) => updateProperty('styles.textAlign', value)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="left">Gauche</SelectItem>
-              <SelectItem value="center">Centre</SelectItem>
-              <SelectItem value="right">Droite</SelectItem>
-              <SelectItem value="justify">Justifié</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      
-      <div className="space-y-3 pt-3 border-t">
-        <h5 className="text-sm font-semibold text-gray-700">Personnalisation visuelle</h5>
-        {renderAdvancedColorPicker('styles.color', 'Couleur du texte', '#000000')}
-        {renderAdvancedColorPicker('styles.backgroundColor', 'Arrière-plan', 'transparent')}
-        
-        <div>
-          <Label className="text-xs">Style de police</Label>
-          <Select 
-            value={localComponent?.styles?.fontWeight || 'normal'} 
-            onValueChange={(value) => updateProperty('styles.fontWeight', value)}
-          >
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="bold">Gras</SelectItem>
-              <SelectItem value="lighter">Léger</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderHeadingConfiguration = () => (
     <div className="space-y-4">

@@ -170,6 +170,7 @@ const componentCategories = [
     name: "Texte",
     icon: <Type size={12} />,
     components: [
+      { type: 'text', label: 'Texte', icon: <Type />, color: '#6366f1', description: 'Texte simple et formaté' },
       { type: 'heading', label: 'Titre', icon: <Type />, color: '#dc2626', description: 'Titre (H1-H6)' },
       { type: 'paragraph', label: 'Paragraphe', icon: <FileText />, color: '#059669', description: 'Texte de paragraphe' },
       { type: 'list', label: 'Liste', icon: <Menu />, color: '#d97706', description: 'Liste à puces ou numérotée' },

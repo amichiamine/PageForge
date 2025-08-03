@@ -49,6 +49,117 @@ export function createComponent(type: string): ComponentDefinition {
         },
       };
 
+    case 'text':
+      return {
+        ...baseComponent,
+        tag: 'span',
+        content: '',
+        attributes: { className: 'text-component' },
+        styles: {
+          ...baseComponent.styles,
+          fontSize: '16px',
+          lineHeight: '1.5',
+          color: '#1f2937',
+          width: '200px',
+          height: 'auto',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          margin: '0',
+          padding: '4px 8px',
+          display: 'inline-block',
+          fontWeight: '400',
+          letterSpacing: 'normal',
+          textTransform: 'none',
+          textDecoration: 'none'
+        },
+        componentData: {
+          preset: 'body',
+          content: '',
+          typography: {
+            variant: 'body',
+            size: '16px',
+            weight: '400',
+            lineHeight: '1.5',
+            letterSpacing: 'normal',
+            transform: 'none',
+            family: 'Inter'
+          },
+          formatting: {
+            bold: false,
+            italic: false,
+            underline: false,
+            strikethrough: false,
+            highlight: false,
+            highlightColor: '#ffeb3b',
+            code: false,
+            mark: false
+          },
+          appearance: {
+            color: '#1f2937',
+            alignment: 'left',
+            decoration: 'none',
+            shadow: false,
+            shadowColor: '#000000',
+            shadowBlur: '0px',
+            shadowOffset: '0px 0px',
+            gradient: false,
+            gradientFrom: '#3b82f6',
+            gradientTo: '#8b5cf6',
+            gradientDirection: 'to right'
+          },
+          responsive: {
+            mobile: { 
+              size: '14px', 
+              lineHeight: '1.4',
+              letterSpacing: 'normal',
+              weight: '400'
+            },
+            tablet: { 
+              size: '15px', 
+              lineHeight: '1.45',
+              letterSpacing: 'normal',
+              weight: '400'
+            },
+            desktop: { 
+              size: '16px', 
+              lineHeight: '1.5',
+              letterSpacing: 'normal',
+              weight: '400'
+            }
+          },
+          animation: {
+            enabled: false,
+            type: 'none',
+            duration: '0.3s',
+            delay: '0s',
+            iteration: '1',
+            direction: 'normal'
+          },
+          accessibility: {
+            role: 'text',
+            level: 'body',
+            contrast: 'auto',
+            ariaLabel: '',
+            screenReader: true
+          },
+          effects: {
+            outline: false,
+            outlineColor: '#3b82f6',
+            outlineWidth: '1px',
+            glow: false,
+            glowColor: '#3b82f6',
+            glowSize: '4px'
+          },
+          advanced: {
+            writingMode: 'horizontal-tb',
+            textOrientation: 'mixed',
+            wordBreak: 'normal',
+            wordSpacing: 'normal',
+            whiteSpace: 'normal',
+            userSelect: 'auto'
+          }
+        }
+      };
+
     case 'paragraph':
       return {
         ...baseComponent,

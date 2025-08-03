@@ -3164,35 +3164,123 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'text':
-      const textStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 20 });
-      const textPadding = getResponsiveSpacing(8);
+      const textData = component.componentData || {};
+      const typography = textData.typography || {};
+      const formatting = textData.formatting || {};
+      const appearance = textData.appearance || {};
+      const responsive = textData.responsive || {};
+      const animation = textData.animation || {};
+      const effects = textData.effects || {};
+      const advanced = textData.advanced || {};
+      
+      // Configuration responsive selon l'appareil
+      const getResponsiveConfig = () => {
+        const width = window.innerWidth;
+        if (width <= 768) return responsive.mobile || {};
+        if (width <= 1024) return responsive.tablet || {};
+        return responsive.desktop || {};
+      };
+      
+      const responsiveConfig = getResponsiveConfig();
+      
+      // Styles typographiques avancés
+      const advancedTextStyles: React.CSSProperties = {
+        fontSize: responsiveConfig.size || typography.size || '16px',
+        fontWeight: responsiveConfig.weight || typography.weight || '400',
+        lineHeight: responsiveConfig.lineHeight || typography.lineHeight || '1.5',
+        letterSpacing: typography.letterSpacing || 'normal',
+        textTransform: typography.transform || 'none',
+        fontFamily: `${typography.family || 'Inter'}, sans-serif`,
+        color: appearance.color || '#1f2937',
+        textAlign: appearance.alignment || 'left',
+        textDecoration: appearance.decoration || 'none',
+        fontStyle: formatting.italic ? 'italic' : 'normal',
+        wordBreak: advanced.wordBreak || 'normal',
+        whiteSpace: advanced.whiteSpace || 'normal',
+        userSelect: advanced.userSelect || 'auto',
+        writingMode: advanced.writingMode || 'horizontal-tb',
+        textOrientation: advanced.textOrientation || 'mixed',
+        wordSpacing: advanced.wordSpacing || 'normal'
+      };
+      
+      // Effets formatage
+      if (formatting.bold) advancedTextStyles.fontWeight = 'bold';
+      if (formatting.underline || formatting.strikethrough) {
+        advancedTextStyles.textDecoration = formatting.underline ? 'underline' : 'line-through';
+      }
+      if (formatting.highlight) {
+        advancedTextStyles.backgroundColor = formatting.highlightColor || '#ffeb3b';
+        advancedTextStyles.padding = '2px 4px';
+        advancedTextStyles.borderRadius = '2px';
+      }
+      if (formatting.code) {
+        advancedTextStyles.fontFamily = 'Monaco, Consolas, monospace';
+        advancedTextStyles.backgroundColor = '#f3f4f6';
+        advancedTextStyles.padding = '2px 6px';
+        advancedTextStyles.borderRadius = '4px';
+        advancedTextStyles.border = '1px solid #e5e7eb';
+        advancedTextStyles.fontSize = '0.9em';
+      }
+      
+      // Effets visuels
+      if (appearance.shadow) {
+        advancedTextStyles.textShadow = `${appearance.shadowOffset || '2px 2px'} 4px ${appearance.shadowColor || '#000000'}40`;
+      }
+      if (appearance.gradient) {
+        advancedTextStyles.background = `linear-gradient(${appearance.gradientDirection || 'to right'}, ${appearance.gradientFrom || '#3b82f6'}, ${appearance.gradientTo || '#8b5cf6'})`;
+        advancedTextStyles.WebkitBackgroundClip = 'text';
+        advancedTextStyles.WebkitTextFillColor = 'transparent';
+        advancedTextStyles.backgroundClip = 'text';
+      }
+      if (effects.outline) {
+        advancedTextStyles.textShadow = `
+          -${effects.outlineWidth || '1px'} -${effects.outlineWidth || '1px'} 0 ${effects.outlineColor || '#3b82f6'},
+          ${effects.outlineWidth || '1px'} -${effects.outlineWidth || '1px'} 0 ${effects.outlineColor || '#3b82f6'},
+          -${effects.outlineWidth || '1px'} ${effects.outlineWidth || '1px'} 0 ${effects.outlineColor || '#3b82f6'},
+          ${effects.outlineWidth || '1px'} ${effects.outlineWidth || '1px'} 0 ${effects.outlineColor || '#3b82f6'}
+        `;
+      }
+      if (effects.glow) {
+        advancedTextStyles.textShadow = `0 0 ${effects.glowSize || '4px'} ${effects.glowColor || '#3b82f6'}`;
+      }
+      
+      // Animation CSS
+      let animationStyle = '';
+      if (animation.enabled && animation.type !== 'none') {
+        const animationName = `textAnimation-${animation.type}`;
+        animationStyle = `${animationName} ${animation.duration || '0.3s'} ${animation.delay || '0s'} ${animation.iteration || '1'} ${animation.direction || 'normal'}`;
+        advancedTextStyles.animation = animationStyle;
+      }
+      
+      // Styles d'accessibilité
+      const accessibilityProps: any = {};
+      if (textData.accessibility?.ariaLabel) {
+        accessibilityProps['aria-label'] = textData.accessibility.ariaLabel;
+      }
+      if (textData.accessibility?.role && textData.accessibility.role !== 'text') {
+        accessibilityProps.role = textData.accessibility.role;
+      }
+      if (!textData.accessibility?.screenReader) {
+        accessibilityProps['aria-hidden'] = 'true';
+      }
       
       return (
-        <div
-          ref={containerRef as React.RefObject<HTMLDivElement>}
-          className={`text-element ${className || ''}`}
+        <span
+          ref={containerRef as React.RefObject<HTMLSpanElement>}
+          className={`text-component ${className || ''}`}
           style={{
             ...inlineStyles,
-            fontWeight: styles.fontWeight || 'normal',
-            color: styles.color || '#374151',
-            fontFamily: styles.fontFamily || 'inherit',
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            padding: `${textPadding}px`,
-            boxSizing: 'border-box',
-            height: '100%',
-            width: '100%',
-            position: 'relative',
-            ...textStyles,
-            lineHeight: 1.4
+            ...advancedTextStyles,
+            display: 'inline-block',
+            minHeight: '1em',
+            transition: 'all 0.2s ease-in-out'
           }}
           onClick={onClick}
+          {...accessibilityProps}
           {...otherAttributes}
         >
-          {content || 'Texte'}
-        </div>
+          {textData.content || component.content || 'Texte'}
+        </span>
       );
 
     case 'filters':
