@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark';
 
-interface ThemeColors {
+interface Colors {
   primary: string;
   secondary: string;
   accent: string;
@@ -16,27 +16,26 @@ interface ThemeColors {
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
-  colors: ThemeColors;
-  updateColors: (colors: Partial<ThemeColors>) => void;
+  colors: Colors;
+  updateColors: (newColors: Partial<Colors>) => void;
   resetColors: () => void;
 }
 
-const defaultLightColors: ThemeColors = {
-  primary: '#6366f1',
-  secondary: '#8b5cf6',
-  accent: '#10b981',
+const defaultColors: Colors = {
+  primary: '#3b82f6',
+  secondary: '#64748b',
+  accent: '#8b5cf6',
   background: '#ffffff',
   surface: '#f8fafc',
-  text: '#1f2937',
-  textSecondary: '#6b7280',
-  border: '#e5e7eb'
+  text: '#1e293b',
+  textSecondary: '#64748b',
+  border: '#e2e8f0'
 };
 
-const defaultDarkColors: ThemeColors = {
-  primary: '#818cf8',
-  secondary: '#a78bfa',
-  accent: '#34d399',
+const defaultDarkColors: Colors = {
+  primary: '#60a5fa',
+  secondary: '#94a3b8',
+  accent: '#a78bfa',
   background: '#0f172a',
   surface: '#1e293b',
   text: '#f1f5f9',
@@ -47,76 +46,80 @@ const defaultDarkColors: ThemeColors = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'light';
-    return (localStorage.getItem('pageforge-theme') as Theme) || 'light';
-  });
-
-  const [colors, setColors] = useState<ThemeColors>(() => {
-    if (typeof window === 'undefined') return defaultLightColors;
-    const saved = localStorage.getItem('pageforge-colors');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return theme === 'dark' ? defaultDarkColors : defaultLightColors;
-      }
-    }
-    return theme === 'dark' ? defaultDarkColors : defaultLightColors;
-  });
+  const [theme, setTheme] = useState<Theme>('light');
+  const [colors, setColors] = useState<Colors>(defaultColors);
 
   useEffect(() => {
-    const root = document.documentElement;
-    
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    // Charger le thème depuis localStorage
+    const savedTheme = localStorage.getItem('pageforge-theme') as Theme;
+    if (savedTheme) {
+      setTheme(savedTheme);
     }
 
-    // Apply custom CSS variables
-    root.style.setProperty('--color-primary', colors.primary);
-    root.style.setProperty('--color-secondary', colors.secondary);
-    root.style.setProperty('--color-accent', colors.accent);
-    root.style.setProperty('--color-background', colors.background);
-    root.style.setProperty('--color-surface', colors.surface);
-    root.style.setProperty('--color-text', colors.text);
-    root.style.setProperty('--color-text-secondary', colors.textSecondary);
-    root.style.setProperty('--color-border', colors.border);
+    // Charger les couleurs depuis localStorage
+    const savedColors = localStorage.getItem('pageforge-colors');
+    if (savedColors) {
+      try {
+        setColors(JSON.parse(savedColors));
+      } catch (error) {
+        console.error('Erreur lors du chargement des couleurs:', error);
+      }
+    }
+  }, []);
 
-    localStorage.setItem('pageforge-theme', theme);
-    localStorage.setItem('pageforge-colors', JSON.stringify(colors));
+  useEffect(() => {
+    // Appliquer le thème à la racine du document
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    
+    // Mettre à jour les variables CSS
+    const root = document.documentElement;
+    const currentColors = theme === 'dark' ? { ...defaultDarkColors, ...colors } : colors;
+    
+    root.style.setProperty('--color-primary', currentColors.primary);
+    root.style.setProperty('--color-secondary', currentColors.secondary);
+    root.style.setProperty('--color-accent', currentColors.accent);
+    root.style.setProperty('--color-background', currentColors.background);
+    root.style.setProperty('--color-surface', currentColors.surface);
+    root.style.setProperty('--color-text', currentColors.text);
+    root.style.setProperty('--color-text-secondary', currentColors.textSecondary);
+    root.style.setProperty('--color-border', currentColors.border);
   }, [theme, colors]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    setThemeState(newTheme);
-    // Switch to default colors for the new theme
-    setColors(newTheme === 'dark' ? defaultDarkColors : defaultLightColors);
+    setTheme(newTheme);
+    localStorage.setItem('pageforge-theme', newTheme);
+    
+    // Mettre à jour les couleurs pour le nouveau thème
+    if (newTheme === 'dark') {
+      setColors(defaultDarkColors);
+    } else {
+      setColors(defaultColors);
+    }
   };
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    setColors(newTheme === 'dark' ? defaultDarkColors : defaultLightColors);
-  };
-
-  const updateColors = (newColors: Partial<ThemeColors>) => {
-    setColors(prev => ({ ...prev, ...newColors }));
+  const updateColors = (newColors: Partial<Colors>) => {
+    const updatedColors = { ...colors, ...newColors };
+    setColors(updatedColors);
+    localStorage.setItem('pageforge-colors', JSON.stringify(updatedColors));
   };
 
   const resetColors = () => {
-    setColors(theme === 'dark' ? defaultDarkColors : defaultLightColors);
+    const resetColors = theme === 'dark' ? defaultDarkColors : defaultColors;
+    setColors(resetColors);
+    localStorage.setItem('pageforge-colors', JSON.stringify(resetColors));
   };
 
   return (
-    <ThemeContext.Provider value={{
-      theme,
-      toggleTheme,
-      setTheme,
-      colors,
-      updateColors,
-      resetColors
-    }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        colors,
+        updateColors,
+        resetColors,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

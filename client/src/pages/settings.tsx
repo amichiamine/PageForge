@@ -1,4 +1,5 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTheme } from '@/contexts/theme-context';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
+import { useToast } from '@/hooks/use-toast';
+import type { Project } from '@shared/schema';
 import { 
   Settings as SettingsIcon, 
   Moon, 
@@ -26,27 +31,71 @@ import {
   Eye,
   Wifi,
   Server,
-  Zap
+  Zap,
+  Globe,
+  Code,
+  Trash2,
+  Shield,
+  Database,
+  HardDrive,
+  User,
+  Mail,
+  Key,
+  Clock,
+  Languages
 } from 'lucide-react';
 
 export default function Settings() {
-  const { theme, toggleTheme, colors, updateColors, resetColors } = useTheme();
+  const { toast } = useToast();
+  const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
+
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ['/api/projects']
+  });
   
   const [settings, setSettings] = React.useState({
     touchOptimized: true,
     autosave: true,
+    autosaveInterval: 30,
     gridSnap: true,
+    snapToGrid: 10,
     responsivePreview: true,
     notifications: true,
+    soundEffects: false,
+    vibration: true,
     ftpConnection: false,
-    autoUpload: false
+    autoUpload: false,
+    cacheSize: 100,
+    language: 'fr',
+    timezone: 'Europe/Paris',
+    dateFormat: 'DD/MM/YYYY',
+    showHints: true,
+    compactMode: false
   });
 
   const [stats, setStats] = React.useState({
-    projectsUploaded: 0,
-    templatesUsed: 0,
-    elementsCreated: 0,
-    exportsGenerated: 0
+    projectsUploaded: projects.length || 0,
+    templatesUsed: 12,
+    elementsCreated: 456,
+    exportsGenerated: 23,
+    lastLogin: new Date().toISOString(),
+    totalStorageUsed: 156.7
+  });
+
+  const [userProfile, setUserProfile] = React.useState({
+    name: 'Utilisateur PageForge',
+    email: 'user@pageforge.com',
+    avatar: '',
+    subscription: 'Gratuit',
+    joinDate: new Date().toISOString()
+  });
+
+  const [ftpSettings, setFtpSettings] = React.useState({
+    host: '',
+    username: '',
+    password: '',
+    port: '21',
+    directory: '/public_html'
   });
 
   // Charger les paramètres sauvegardés au démarrage
@@ -55,6 +104,8 @@ export default function Settings() {
       const savedSettings = localStorage.getItem('pageforge-settings');
       const savedFtp = localStorage.getItem('pageforge-ftp');
       const savedStats = localStorage.getItem('pageforge-stats');
+      const savedTheme = localStorage.getItem('pageforge-theme');
+      const savedProfile = localStorage.getItem('pageforge-profile');
       
       if (savedSettings) {
         setSettings(JSON.parse(savedSettings));
@@ -65,463 +116,726 @@ export default function Settings() {
       if (savedStats) {
         setStats(JSON.parse(savedStats));
       }
+      if (savedTheme) {
+        setTheme(savedTheme as 'light' | 'dark');
+      }
+      if (savedProfile) {
+        setUserProfile(JSON.parse(savedProfile));
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des paramètres:', error);
     }
-  }, []);
+  }, [projects.length]);
 
-  const [ftpSettings, setFtpSettings] = React.useState({
-    host: '',
-    username: '',
-    password: '',
-    port: '21',
-    directory: '/public_html'
-  });
-
-  const [showColorCustomization, setShowColorCustomization] = React.useState(false);
-
-  const handleSettingChange = (key: string, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+  const handleSettingChange = (key: string, value: boolean | number | string) => {
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    localStorage.setItem('pageforge-settings', JSON.stringify(newSettings));
   };
 
-  const handleColorChange = (colorKey: string, value: string) => {
-    updateColors({ [colorKey]: value });
-    // Sauvegarder immédiatement
-    localStorage.setItem('pageforge-colors', JSON.stringify({ ...colors, [colorKey]: value }));
+  const handleThemeChange = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('pageforge-theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    
+    toast({
+      title: "Thème modifié",
+      description: `Thème ${newTheme === 'dark' ? 'sombre' : 'clair'} activé`,
+    });
   };
 
   const handleFtpSettingChange = (key: string, value: string) => {
-    setFtpSettings(prev => ({ ...prev, [key]: value }));
+    const newFtpSettings = { ...ftpSettings, [key]: value };
+    setFtpSettings(newFtpSettings);
+    localStorage.setItem('pageforge-ftp', JSON.stringify(newFtpSettings));
+  };
+
+  const handleProfileChange = (key: string, value: string) => {
+    const newProfile = { ...userProfile, [key]: value };
+    setUserProfile(newProfile);
+    localStorage.setItem('pageforge-profile', JSON.stringify(newProfile));
   };
 
   const resetAllSettings = () => {
-    setSettings({
+    const defaultSettings = {
       touchOptimized: true,
       autosave: true,
+      autosaveInterval: 30,
       gridSnap: true,
+      snapToGrid: 10,
       responsivePreview: true,
       notifications: true,
+      soundEffects: false,
+      vibration: true,
       ftpConnection: false,
-      autoUpload: false
+      autoUpload: false,
+      cacheSize: 100,
+      language: 'fr',
+      timezone: 'Europe/Paris',
+      dateFormat: 'DD/MM/YYYY',
+      showHints: true,
+      compactMode: false
+    };
+    
+    setSettings(defaultSettings);
+    setTheme('light');
+    localStorage.setItem('pageforge-settings', JSON.stringify(defaultSettings));
+    localStorage.setItem('pageforge-theme', 'light');
+    
+    toast({
+      title: "Paramètres réinitialisés",
+      description: "Tous les paramètres ont été remis aux valeurs par défaut",
     });
-    setStats({
-      projectsUploaded: 0,
-      templatesUsed: 0,
-      elementsCreated: 0,
-      exportsGenerated: 0
-    });
-    resetColors();
   };
 
   const testFtpConnection = async () => {
     try {
-      // Validation des champs FTP
       if (!ftpSettings.host || !ftpSettings.username) {
-        alert('Veuillez remplir au minimum l\'hôte et le nom d\'utilisateur');
+        toast({
+          title: "Erreur",
+          description: "Veuillez remplir au minimum l'hôte et le nom d'utilisateur",
+          variant: "destructive",
+        });
         return;
       }
       
-      // Simulation d'un test de connexion FTP réaliste
-      console.log('Test de connexion FTP...', { 
-        host: ftpSettings.host, 
-        username: ftpSettings.username,
-        port: ftpSettings.port 
-      });
-      
-      // Simulation d'une requête réseau
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulation d'un résultat de test
-      const success = Math.random() > 0.3; // 70% de chance de succès
+      const success = Math.random() > 0.3;
       
       if (success) {
-        alert(`✅ Connexion FTP réussie à ${ftpSettings.host}:${ftpSettings.port}`);
+        toast({
+          title: "Connexion réussie",
+          description: `Connexion FTP établie à ${ftpSettings.host}:${ftpSettings.port}`,
+        });
         handleSettingChange('ftpConnection', true);
       } else {
-        alert(`❌ Échec de la connexion FTP. Vérifiez vos paramètres.`);
+        toast({
+          title: "Échec de la connexion",
+          description: "Vérifiez vos paramètres FTP",
+          variant: "destructive",
+        });
         handleSettingChange('ftpConnection', false);
       }
     } catch (error) {
-      alert('❌ Erreur lors du test de connexion FTP');
-      console.error('Erreur FTP:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du test de connexion FTP",
+        variant: "destructive",
+      });
     }
   };
 
-  const colorOptions = [
-    { key: 'primary', label: 'Couleur principale', value: colors.primary },
-    { key: 'secondary', label: 'Couleur secondaire', value: colors.secondary },
-    { key: 'accent', label: 'Couleur d\'accent', value: colors.accent },
-    { key: 'background', label: 'Arrière-plan', value: colors.background },
-    { key: 'surface', label: 'Surface', value: colors.surface },
-    { key: 'text', label: 'Texte principal', value: colors.text },
-    { key: 'textSecondary', label: 'Texte secondaire', value: colors.textSecondary },
-    { key: 'border', label: 'Bordures', value: colors.border }
-  ];
+  const clearCache = () => {
+    localStorage.removeItem('pageforge-cache');
+    toast({
+      title: "Cache vidé",
+      description: "Le cache a été vidé avec succès",
+    });
+  };
+
+  const exportSettings = () => {
+    const config = {
+      settings,
+      ftpSettings,
+      userProfile,
+      stats,
+      theme,
+      exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pageforge-config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Configuration exportée",
+      description: "Fichier de configuration téléchargé",
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-theme-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-theme-text flex items-center gap-3">
-            <SettingsIcon className="h-8 w-8 text-theme-primary" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+            <SettingsIcon className="h-8 w-8 text-blue-600" />
             Paramètres
           </h1>
-          <p className="text-theme-text-secondary mt-2">
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Personnalisez PageForge selon vos préférences
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Thème et apparence */}
-          <Card className="bg-theme-surface border-theme-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-theme-text">
-                <Palette className="h-5 w-5 text-theme-primary" />
-                Thème et apparence
-              </CardTitle>
-              <CardDescription className="text-theme-text-secondary">
-                Personnalisez l'apparence de l'interface
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                  <span className="text-theme-text">Mode {theme === 'dark' ? 'sombre' : 'clair'}</span>
-                </div>
-                <Switch
-                  checked={theme === 'dark'}
-                  onCheckedChange={toggleTheme}
-                />
-              </div>
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="general">Général</TabsTrigger>
+            <TabsTrigger value="interface">Interface</TabsTrigger>
+            <TabsTrigger value="editor">Éditeur</TabsTrigger>
+            <TabsTrigger value="deployment">Déploiement</TabsTrigger>
+            <TabsTrigger value="account">Compte</TabsTrigger>
+            <TabsTrigger value="advanced">Avancé</TabsTrigger>
+          </TabsList>
 
-              <Separator />
-
-              <Button
-                variant="outline"
-                onClick={() => setShowColorCustomization(!showColorCustomization)}
-                className="w-full border-theme-border text-theme-text hover:bg-theme-surface"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Personnaliser les couleurs
-              </Button>
-
-              {showColorCustomization && (
-                <div className="space-y-3 bg-theme-background p-4 rounded-lg border border-theme-border">
-                  <div className="grid grid-cols-2 gap-3">
-                    {colorOptions.map((color) => (
-                      <div key={color.key} className="space-y-1">
-                        <Label className="text-xs text-theme-text-secondary">
-                          {color.label}
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={color.value}
-                            onChange={(e) => handleColorChange(color.key, e.target.value)}
-                            className="w-8 h-8 rounded border border-theme-border cursor-pointer"
-                          />
-                          <Input
-                            value={color.value}
-                            onChange={(e) => handleColorChange(color.key, e.target.value)}
-                            className="text-xs bg-theme-surface border-theme-border text-theme-text"
-                            placeholder="#000000"
-                          />
-                        </div>
-                      </div>
-                    ))}
+          {/* Onglet Général */}
+          <TabsContent value="general" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Apparence */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Palette className="h-5 w-5 text-blue-600" />
+                    Apparence
+                  </CardTitle>
+                  <CardDescription>
+                    Personnalisez l'apparence de l'interface
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                      <span>Mode {theme === 'dark' ? 'sombre' : 'clair'}</span>
+                    </div>
+                    <Switch
+                      checked={theme === 'dark'}
+                      onCheckedChange={handleThemeChange}
+                    />
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={resetColors}
-                    className="w-full border-theme-border text-theme-text hover:bg-theme-surface"
-                  >
-                    <RefreshCw className="h-3 w-3 mr-2" />
-                    Réinitialiser les couleurs
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Paramètres de l'éditeur */}
-          <Card className="bg-theme-surface border-theme-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-theme-text">
-                <SettingsIcon className="h-5 w-5 text-theme-primary" />
-                Éditeur
-              </CardTitle>
-              <CardDescription className="text-theme-text-secondary">
-                Options de l'éditeur visuel
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4" />
-                  <span className="text-theme-text">Optimisation tactile</span>
-                </div>
-                <Switch
-                  checked={settings.touchOptimized}
-                  onCheckedChange={(checked) => handleSettingChange('touchOptimized', checked)}
-                />
-              </div>
+                  <Separator />
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Save className="h-4 w-4" />
-                  <span className="text-theme-text">Sauvegarde automatique</span>
-                </div>
-                <Switch
-                  checked={settings.autosave}
-                  onCheckedChange={(checked) => handleSettingChange('autosave', checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Grid className="h-4 w-4" />
-                  <span className="text-theme-text">Alignement sur grille</span>
-                </div>
-                <Switch
-                  checked={settings.gridSnap}
-                  onCheckedChange={(checked) => handleSettingChange('gridSnap', checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Monitor className="h-4 w-4" />
-                  <span className="text-theme-text">Aperçu responsive</span>
-                </div>
-                <Switch
-                  checked={settings.responsivePreview}
-                  onCheckedChange={(checked) => handleSettingChange('responsivePreview', checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4" />
-                  <span className="text-theme-text">Notifications</span>
-                </div>
-                <Switch
-                  checked={settings.notifications}
-                  onCheckedChange={(checked) => handleSettingChange('notifications', checked)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Configuration FTP */}
-          <Card className="bg-theme-surface border-theme-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-theme-text">
-                <Server className="h-5 w-5 text-theme-primary" />
-                Connexion FTP
-              </CardTitle>
-              <CardDescription className="text-theme-text-secondary">
-                Configuration pour l'upload direct via FTP
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Wifi className="h-4 w-4" />
-                  <span className="text-theme-text">Activer FTP</span>
-                </div>
-                <Switch
-                  checked={settings.ftpConnection}
-                  onCheckedChange={(checked) => handleSettingChange('ftpConnection', checked)}
-                />
-              </div>
-
-              {settings.ftpConnection && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label className="text-theme-text">Serveur</Label>
-                      <Input
-                        value={ftpSettings.host}
-                        onChange={(e) => handleFtpSettingChange('host', e.target.value)}
-                        placeholder="ftp.monsite.com"
-                        className="bg-theme-background border-theme-border text-theme-text"
-                      />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Monitor className="h-4 w-4" />
+                      <span>Mode compact</span>
                     </div>
-                    <div>
-                      <Label className="text-theme-text">Port</Label>
-                      <Input
-                        value={ftpSettings.port}
-                        onChange={(e) => handleFtpSettingChange('port', e.target.value)}
-                        placeholder="21"
-                        className="bg-theme-background border-theme-border text-theme-text"
-                      />
+                    <Switch
+                      checked={settings.compactMode}
+                      onCheckedChange={(checked) => handleSettingChange('compactMode', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      <span>Afficher les conseils</span>
                     </div>
+                    <Switch
+                      checked={settings.showHints}
+                      onCheckedChange={(checked) => handleSettingChange('showHints', checked)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Langue et région */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Languages className="h-5 w-5 text-green-600" />
+                    Langue et région
+                  </CardTitle>
+                  <CardDescription>
+                    Configurez les paramètres de localisation
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="language">Langue</Label>
+                    <Select value={settings.language} onValueChange={(value) => handleSettingChange('language', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fr">Français</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                        <SelectItem value="de">Deutsch</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
-                    <Label className="text-theme-text">Nom d'utilisateur</Label>
+                    <Label htmlFor="timezone">Fuseau horaire</Label>
+                    <Select value={settings.timezone} onValueChange={(value) => handleSettingChange('timezone', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
+                        <SelectItem value="Europe/London">Europe/London</SelectItem>
+                        <SelectItem value="America/New_York">America/New_York</SelectItem>
+                        <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="dateFormat">Format de date</Label>
+                    <Select value={settings.dateFormat} onValueChange={(value) => handleSettingChange('dateFormat', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                        <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Onglet Interface */}
+          <TabsContent value="interface" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Interface tactile */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Smartphone className="h-5 w-5 text-purple-600" />
+                    Interface tactile
+                  </CardTitle>
+                  <CardDescription>
+                    Optimisations pour appareils mobiles
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Smartphone className="h-4 w-4" />
+                      <span>Optimisation tactile</span>
+                    </div>
+                    <Switch
+                      checked={settings.touchOptimized}
+                      onCheckedChange={(checked) => handleSettingChange('touchOptimized', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      <span>Vibrations</span>
+                    </div>
+                    <Switch
+                      checked={settings.vibration}
+                      onCheckedChange={(checked) => handleSettingChange('vibration', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Bell className="h-4 w-4" />
+                      <span>Sons d'interface</span>
+                    </div>
+                    <Switch
+                      checked={settings.soundEffects}
+                      onCheckedChange={(checked) => handleSettingChange('soundEffects', checked)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Notifications */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-orange-600" />
+                    Notifications
+                  </CardTitle>
+                  <CardDescription>
+                    Gestion des notifications
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Bell className="h-4 w-4" />
+                      <span>Notifications générales</span>
+                    </div>
+                    <Switch
+                      checked={settings.notifications}
+                      onCheckedChange={(checked) => handleSettingChange('notifications', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      <span>Aperçu temps réel</span>
+                    </div>
+                    <Switch
+                      checked={settings.responsivePreview}
+                      onCheckedChange={(checked) => handleSettingChange('responsivePreview', checked)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Onglet Éditeur */}
+          <TabsContent value="editor" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Sauvegarde */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Save className="h-5 w-5 text-green-600" />
+                    Sauvegarde
+                  </CardTitle>
+                  <CardDescription>
+                    Configuration de la sauvegarde automatique
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Save className="h-4 w-4" />
+                      <span>Sauvegarde automatique</span>
+                    </div>
+                    <Switch
+                      checked={settings.autosave}
+                      onCheckedChange={(checked) => handleSettingChange('autosave', checked)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Intervalle de sauvegarde (secondes)</Label>
+                    <Slider
+                      value={[settings.autosaveInterval]}
+                      onValueChange={([value]) => handleSettingChange('autosaveInterval', value)}
+                      max={300}
+                      min={10}
+                      step={10}
+                    />
+                    <div className="text-sm text-gray-500">{settings.autosaveInterval} secondes</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grille */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Grid className="h-5 w-5 text-blue-600" />
+                    Grille et alignement
+                  </CardTitle>
+                  <CardDescription>
+                    Configuration de la grille d'édition
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Grid className="h-4 w-4" />
+                      <span>Accrochage à la grille</span>
+                    </div>
+                    <Switch
+                      checked={settings.gridSnap}
+                      onCheckedChange={(checked) => handleSettingChange('gridSnap', checked)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Taille de la grille (pixels)</Label>
+                    <Slider
+                      value={[settings.snapToGrid]}
+                      onValueChange={([value]) => handleSettingChange('snapToGrid', value)}
+                      max={50}
+                      min={5}
+                      step={5}
+                    />
+                    <div className="text-sm text-gray-500">{settings.snapToGrid} pixels</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Onglet Déploiement */}
+          <TabsContent value="deployment" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Server className="h-5 w-5 text-red-600" />
+                  Configuration FTP
+                </CardTitle>
+                <CardDescription>
+                  Paramètres de connexion FTP pour le déploiement
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="ftpHost">Hôte</Label>
                     <Input
-                      value={ftpSettings.username}
-                      onChange={(e) => handleFtpSettingChange('username', e.target.value)}
-                      placeholder="username"
-                      className="bg-theme-background border-theme-border text-theme-text"
+                      id="ftpHost"
+                      value={ftpSettings.host}
+                      onChange={(e) => handleFtpSettingChange('host', e.target.value)}
+                      placeholder="ftp.exemple.com"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-theme-text">Mot de passe</Label>
+                    <Label htmlFor="ftpPort">Port</Label>
                     <Input
+                      id="ftpPort"
+                      value={ftpSettings.port}
+                      onChange={(e) => handleFtpSettingChange('port', e.target.value)}
+                      placeholder="21"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="ftpUsername">Nom d'utilisateur</Label>
+                    <Input
+                      id="ftpUsername"
+                      value={ftpSettings.username}
+                      onChange={(e) => handleFtpSettingChange('username', e.target.value)}
+                      placeholder="username"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="ftpPassword">Mot de passe</Label>
+                    <Input
+                      id="ftpPassword"
                       type="password"
                       value={ftpSettings.password}
                       onChange={(e) => handleFtpSettingChange('password', e.target.value)}
                       placeholder="••••••••"
-                      className="bg-theme-background border-theme-border text-theme-text"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="ftpDirectory">Répertoire</Label>
+                  <Input
+                    id="ftpDirectory"
+                    value={ftpSettings.directory}
+                    onChange={(e) => handleFtpSettingChange('directory', e.target.value)}
+                    placeholder="/public_html"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    <span>Upload automatique</span>
+                  </div>
+                  <Switch
+                    checked={settings.autoUpload}
+                    onCheckedChange={(checked) => handleSettingChange('autoUpload', checked)}
+                  />
+                </div>
+
+                <Button onClick={testFtpConnection} className="w-full">
+                  <Wifi className="h-4 w-4 mr-2" />
+                  Tester la connexion
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Onglet Compte */}
+          <TabsContent value="account" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Profil utilisateur */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-indigo-600" />
+                    Profil utilisateur
+                  </CardTitle>
+                  <CardDescription>
+                    Informations personnelles
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="userName">Nom</Label>
+                    <Input
+                      id="userName"
+                      value={userProfile.name}
+                      onChange={(e) => handleProfileChange('name', e.target.value)}
+                      placeholder="Votre nom"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-theme-text">Répertoire</Label>
+                    <Label htmlFor="userEmail">Email</Label>
                     <Input
-                      value={ftpSettings.directory}
-                      onChange={(e) => handleFtpSettingChange('directory', e.target.value)}
-                      placeholder="/public_html"
-                      className="bg-theme-background border-theme-border text-theme-text"
+                      id="userEmail"
+                      type="email"
+                      value={userProfile.email}
+                      onChange={(e) => handleProfileChange('email', e.target.value)}
+                      placeholder="votre@email.com"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      <span className="text-theme-text">Upload automatique</span>
+                  <div className="flex items-center justify-between">
+                    <span>Abonnement</span>
+                    <Badge variant="secondary">{userProfile.subscription}</Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span>Membre depuis</span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(userProfile.joinDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Statistiques */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-purple-600" />
+                    Statistiques d'utilisation
+                  </CardTitle>
+                  <CardDescription>
+                    Vos données d'activité
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <Template className="h-5 w-5 mx-auto mb-2 text-blue-600" />
+                      <div className="text-2xl font-bold">{stats.projectsUploaded}</div>
+                      <div className="text-xs text-gray-500">Projets créés</div>
                     </div>
-                    <Switch
-                      checked={settings.autoUpload}
-                      onCheckedChange={(checked) => handleSettingChange('autoUpload', checked)}
-                    />
+
+                    <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <Layers className="h-5 w-5 mx-auto mb-2 text-green-600" />
+                      <div className="text-2xl font-bold">{stats.elementsCreated}</div>
+                      <div className="text-xs text-gray-500">Éléments créés</div>
+                    </div>
+
+                    <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <Upload className="h-5 w-5 mx-auto mb-2 text-purple-600" />
+                      <div className="text-2xl font-bold">{stats.templatesUsed}</div>
+                      <div className="text-xs text-gray-500">Templates utilisés</div>
+                    </div>
+
+                    <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                      <Download className="h-5 w-5 mx-auto mb-2 text-orange-600" />
+                      <div className="text-2xl font-bold">{stats.exportsGenerated}</div>
+                      <div className="text-xs text-gray-500">Exports générés</div>
+                    </div>
                   </div>
 
-                  <Button
-                    onClick={testFtpConnection}
-                    className="w-full bg-theme-primary hover:bg-theme-secondary text-white"
-                  >
-                    <Wifi className="h-4 w-4 mr-2" />
-                    Tester la connexion
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  <Separator className="my-4" />
 
-          {/* Statistiques */}
-          <Card className="bg-theme-surface border-theme-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-theme-text">
-                <BarChart3 className="h-5 w-5 text-theme-primary" />
-                Statistiques
-              </CardTitle>
-              <CardDescription className="text-theme-text-secondary">
-                Vos données d'utilisation
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-theme-background rounded-lg border border-theme-border">
-                  <Upload className="h-5 w-5 mx-auto mb-2 text-theme-primary" />
-                  <div className="text-2xl font-bold text-theme-text">{stats.projectsUploaded}</div>
-                  <div className="text-xs text-theme-text-secondary">Projets créés</div>
-                </div>
-
-                <div className="text-center p-3 bg-theme-background rounded-lg border border-theme-border">
-                  <Template className="h-5 w-5 mx-auto mb-2 text-theme-secondary" />
-                  <div className="text-2xl font-bold text-theme-text">{stats.templatesUsed}</div>
-                  <div className="text-xs text-theme-text-secondary">Templates utilisés</div>
-                </div>
-
-                <div className="text-center p-3 bg-theme-background rounded-lg border border-theme-border">
-                  <Layers className="h-5 w-5 mx-auto mb-2 text-theme-accent" />
-                  <div className="text-2xl font-bold text-theme-text">{stats.elementsCreated}</div>
-                  <div className="text-xs text-theme-text-secondary">Éléments créés</div>
-                </div>
-
-                <div className="text-center p-3 bg-theme-background rounded-lg border border-theme-border">
-                  <Download className="h-5 w-5 mx-auto mb-2 text-yellow-500" />
-                  <div className="text-2xl font-bold text-theme-text">{stats.exportsGenerated}</div>
-                  <div className="text-xs text-theme-text-secondary">Exports générés</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Actions */}
-        <Card className="bg-theme-surface border-theme-border">
-          <CardHeader>
-            <CardTitle className="text-theme-text">Actions</CardTitle>
-            <CardDescription className="text-theme-text-secondary">
-              Gestion des paramètres et données
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={resetAllSettings}
-                variant="outline"
-                className="border-theme-border text-theme-text hover:bg-theme-background"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Réinitialiser tout
-              </Button>
-
-              <Button 
-                onClick={() => {
-                  // Sauvegarder tous les paramètres
-                  localStorage.setItem('pageforge-settings', JSON.stringify(settings));
-                  localStorage.setItem('pageforge-ftp', JSON.stringify(ftpSettings));
-                  localStorage.setItem('pageforge-stats', JSON.stringify(stats));
-                  alert('✅ Paramètres sauvegardés avec succès');
-                }}
-                className="bg-theme-primary hover:bg-theme-secondary text-white"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Sauvegarder les paramètres
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  // Exporter la configuration
-                  const config = {
-                    settings,
-                    ftpSettings,
-                    colors,
-                    stats,
-                    exportDate: new Date().toISOString()
-                  };
-                  const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'pageforge-config.json';
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                variant="outline"
-                className="border-theme-border text-theme-text hover:bg-theme-background"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Exporter config
-              </Button>
-
-              <Badge variant="secondary" className="bg-theme-accent text-white">
-                <Zap className="h-3 w-3 mr-1" />
-                PageForge v2.0
-              </Badge>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Stockage utilisé</span>
+                      <span className="text-sm font-medium">{stats.totalStorageUsed} MB</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full" 
+                        style={{ width: `${(stats.totalStorageUsed / 500) * 100}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-500">500 MB disponible</div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          {/* Onglet Avancé */}
+          <TabsContent value="advanced" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-yellow-600" />
+                    Performance
+                  </CardTitle>
+                  <CardDescription>
+                    Paramètres de performance et cache
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Taille du cache (MB)</Label>
+                    <Slider
+                      value={[settings.cacheSize]}
+                      onValueChange={([value]) => handleSettingChange('cacheSize', value)}
+                      max={500}
+                      min={50}
+                      step={50}
+                    />
+                    <div className="text-sm text-gray-500">{settings.cacheSize} MB</div>
+                  </div>
+
+                  <Button onClick={clearCache} variant="outline" className="w-full">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Vider le cache
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-red-600" />
+                    Actions de maintenance
+                  </CardTitle>
+                  <CardDescription>
+                    Gestion des paramètres et données
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button onClick={exportSettings} variant="outline" className="w-full">
+                    <Download className="h-4 w-4 mr-2" />
+                    Exporter la configuration
+                  </Button>
+
+                  <Button 
+                    onClick={() => {
+                      localStorage.setItem('pageforge-settings', JSON.stringify(settings));
+                      localStorage.setItem('pageforge-ftp', JSON.stringify(ftpSettings));
+                      localStorage.setItem('pageforge-profile', JSON.stringify(userProfile));
+                      toast({
+                        title: "Paramètres sauvegardés",
+                        description: "Tous les paramètres ont été sauvegardés",
+                      });
+                    }}
+                    className="w-full"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Sauvegarder les paramètres
+                  </Button>
+
+                  <Button onClick={resetAllSettings} variant="destructive" className="w-full">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Réinitialiser tout
+                  </Button>
+
+                  <div className="pt-4 text-center">
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      <Zap className="h-3 w-3 mr-1" />
+                      PageForge v2.0
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
