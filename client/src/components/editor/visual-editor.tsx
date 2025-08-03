@@ -54,12 +54,24 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
       const x = Math.max(10, offset.x - editorRect.left - 10);
       const y = Math.max(10, offset.y - editorRect.top - 10);
 
+      // Détecter si on drop dans un conteneur Grid
+      const targetElement = document.elementFromPoint(offset.x, offset.y);
+      const gridContainer = targetElement?.closest('.grid-component');
+      
       if (item.isExisting && item.id) {
         // Moving existing component
-        handleComponentMove(item.id, x, y);
+        if (gridContainer) {
+          handleComponentMoveToGrid(item.id, gridContainer.getAttribute('data-component-id') || '');
+        } else {
+          handleComponentMove(item.id, x, y);
+        }
       } else if (item.componentType || item.type) {
         // Adding new component
-        handleComponentAdd(item.componentType || item.type, x, y);
+        if (gridContainer) {
+          handleComponentAddToGrid(item.componentType || item.type, gridContainer.getAttribute('data-component-id') || '');
+        } else {
+          handleComponentAdd(item.componentType || item.type, x, y);
+        }
       }
     },
     collect: (monitor) => ({
@@ -190,6 +202,125 @@ const VisualEditor: React.FC<VisualEditorProps> = ({
     };
 
     onComponentUpdate(updatedProject);
+  }, [project, onComponentUpdate]);
+
+  // Ajouter un composant dans une grille
+  const handleComponentAddToGrid = useCallback((componentType: string, gridId: string) => {
+    if (!project || !project.content?.pages?.[0]) return;
+
+    console.log('Adding component to grid:', { componentType, gridId });
+    const newComponent = createComponent(componentType);
+    
+    // Configuration spéciale pour les composants dans une grille
+    newComponent.styles = {
+      ...newComponent.styles,
+      position: 'relative', // Utiliser relative au lieu d'absolute
+      left: 'auto',
+      top: 'auto',
+      width: 'auto', // Laisser la grille gérer les dimensions
+      height: 'auto',
+      backgroundColor: newComponent.styles?.backgroundColor || 'transparent',
+      color: newComponent.styles?.color || '#000000',
+      fontSize: newComponent.styles?.fontSize || '14px',
+      fontFamily: newComponent.styles?.fontFamily || 'Inter, sans-serif',
+      padding: newComponent.styles?.padding || '8px',
+      margin: newComponent.styles?.margin || '0px',
+      border: newComponent.styles?.border || '1px solid #e5e7eb',
+      borderRadius: newComponent.styles?.borderRadius || '6px',
+      zIndex: 'auto',
+      gridArea: 'auto' // Laisser CSS Grid placer automatiquement
+    };
+
+    // Trouver la grille cible et ajouter le composant comme enfant
+    const currentStructure = project.content.pages[0].content.structure || [];
+    const gridComponent = findComponentById(currentStructure, gridId);
+    
+    if (!gridComponent) {
+      console.error('Grid component not found:', gridId);
+      return;
+    }
+
+    // Mettre à jour la grille avec le nouvel enfant
+    const updatedGrid = {
+      ...gridComponent,
+      children: [...(gridComponent.children || []), newComponent]
+    };
+
+    const updatedStructure = updateComponentInTree(currentStructure, gridId, updatedGrid);
+
+    const updatedProject = {
+      ...project,
+      content: {
+        ...project.content,
+        pages: [{
+          ...project.content.pages[0],
+          content: {
+            ...project.content.pages[0].content,
+            structure: updatedStructure
+          }
+        }]
+      }
+    };
+
+    onComponentUpdate(updatedProject);
+    console.log('Component added to grid successfully');
+  }, [project, onComponentUpdate]);
+
+  // Déplacer un composant existant vers une grille
+  const handleComponentMoveToGrid = useCallback((componentId: string, gridId: string) => {
+    if (!project || !project.content?.pages?.[0]) return;
+
+    console.log('Moving component to grid:', { componentId, gridId });
+    const currentStructure = project.content.pages[0].content.structure || [];
+    
+    // Trouver le composant et la grille
+    const componentToMove = findComponentById(currentStructure, componentId);
+    const gridComponent = findComponentById(currentStructure, gridId);
+    
+    if (!componentToMove || !gridComponent) {
+      console.error('Component or grid not found:', { componentId, gridId });
+      return;
+    }
+
+    // Modifier le composant pour la grille
+    const updatedComponent = {
+      ...componentToMove,
+      styles: {
+        ...componentToMove.styles,
+        position: 'relative',
+        left: 'auto',
+        top: 'auto',
+        gridArea: 'auto'
+      }
+    };
+
+    // Supprimer le composant de son emplacement actuel
+    const structureWithoutComponent = removeComponentFromTree(currentStructure, componentId);
+    
+    // Ajouter le composant à la grille
+    const updatedGrid = {
+      ...gridComponent,
+      children: [...(gridComponent.children || []), updatedComponent]
+    };
+
+    const finalStructure = updateComponentInTree(structureWithoutComponent, gridId, updatedGrid);
+
+    const updatedProject = {
+      ...project,
+      content: {
+        ...project.content,
+        pages: [{
+          ...project.content.pages[0],
+          content: {
+            ...project.content.pages[0].content,
+            structure: finalStructure
+          }
+        }]
+      }
+    };
+
+    onComponentUpdate(updatedProject);
+    console.log('Component moved to grid successfully');
   }, [project, onComponentUpdate]);
 
   const handleComponentUpdate = useCallback((updatedComponent: ComponentDefinition) => {
