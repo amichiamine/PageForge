@@ -5332,34 +5332,345 @@ export default function PropertiesPanel({
 
   const renderSpacerConfiguration = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration Espacement</h4>
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Spacer Avancée</h4>
       
+      {/* Presets rapides */}
       <div>
-        <Label className="text-xs text-gray-600">Hauteur d'espacement</Label>
-        <Select
-          value={localComponent?.componentData?.spacerHeight || '20px'}
-          onValueChange={(value) => updateProperty('componentData.spacerHeight', value)}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10px">Petit (10px)</SelectItem>
-            <SelectItem value="20px">Moyen (20px)</SelectItem>
-            <SelectItem value="30px">Grand (30px)</SelectItem>
-            <SelectItem value="50px">Très grand (50px)</SelectItem>
-            <SelectItem value="80px">Extra grand (80px)</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label className="text-xs text-gray-600">Espacements prédéfinis</Label>
+        <div className="grid grid-cols-3 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'small');
+              updateProperty('componentData.size.height', '10px');
+              updateProperty('componentData.type', 'vertical');
+            }}
+            className="text-xs"
+          >
+            📏 Petit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'medium');
+              updateProperty('componentData.size.height', '30px');
+              updateProperty('componentData.type', 'vertical');
+            }}
+            className="text-xs"
+          >
+            📐 Moyen
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'large');
+              updateProperty('componentData.size.height', '60px');
+              updateProperty('componentData.type', 'vertical');
+            }}
+            className="text-xs"
+          >
+            📏 Grand
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'section');
+              updateProperty('componentData.size.height', '80px');
+              updateProperty('componentData.type', 'section');
+            }}
+            className="text-xs"
+          >
+            🔲 Section
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'flexible');
+              updateProperty('componentData.advanced.flexGrow', true);
+              updateProperty('componentData.size.height', '20px');
+            }}
+            className="text-xs"
+          >
+            🔄 Flexible
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'horizontal');
+              updateProperty('componentData.type', 'horizontal');
+              updateProperty('componentData.size.width', '30px');
+              updateProperty('componentData.size.height', '100%');
+            }}
+            className="text-xs"
+          >
+            ↔️ Horizontal
+          </Button>
+        </div>
       </div>
-      
-      <div>
-        <Label className="text-xs text-gray-600">Visible en édition</Label>
-        <Switch
-          checked={localComponent?.componentData?.showInEditor ?? false}
-          onCheckedChange={(checked) => updateProperty('componentData.showInEditor', checked)}
-          className="mt-1"
-        />
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Type d'espacement</Label>
+          <Select
+            value={localComponent?.componentData?.type || 'vertical'}
+            onValueChange={(value) => updateProperty('componentData.type', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="vertical">Vertical</SelectItem>
+              <SelectItem value="horizontal">Horizontal</SelectItem>
+              <SelectItem value="section">Section</SelectItem>
+              <SelectItem value="page">Page</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Preset actuel</Label>
+          <div className="mt-1 px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">
+            {localComponent?.componentData?.preset || 'custom'}
+          </div>
+        </div>
+      </div>
+
+      {/* Dimensions personnalisées */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Dimensions personnalisées</Label>
+        
+        {localComponent?.componentData?.type === 'horizontal' ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Largeur</Label>
+              <Select
+                value={localComponent?.componentData?.size?.width || '30px'}
+                onValueChange={(value) => updateProperty('componentData.size.width', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10px">10px</SelectItem>
+                  <SelectItem value="20px">20px</SelectItem>
+                  <SelectItem value="30px">30px</SelectItem>
+                  <SelectItem value="50px">50px</SelectItem>
+                  <SelectItem value="80px">80px</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Hauteur</Label>
+              <Input
+                value={localComponent?.componentData?.size?.height || '100%'}
+                onChange={(e) => updateProperty('componentData.size.height', e.target.value)}
+                placeholder="100%"
+                className="mt-1 text-xs"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Hauteur</Label>
+              <Select
+                value={localComponent?.componentData?.size?.height || '20px'}
+                onValueChange={(value) => updateProperty('componentData.size.height', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5px">Micro (5px)</SelectItem>
+                  <SelectItem value="10px">Petit (10px)</SelectItem>
+                  <SelectItem value="15px">Fin (15px)</SelectItem>
+                  <SelectItem value="20px">Normal (20px)</SelectItem>
+                  <SelectItem value="30px">Moyen (30px)</SelectItem>
+                  <SelectItem value="40px">Large (40px)</SelectItem>
+                  <SelectItem value="60px">Grand (60px)</SelectItem>
+                  <SelectItem value="80px">Très grand (80px)</SelectItem>
+                  <SelectItem value="120px">Énorme (120px)</SelectItem>
+                  <SelectItem value="200px">Géant (200px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Largeur</Label>
+              <Select
+                value={localComponent?.componentData?.size?.width || '100%'}
+                onValueChange={(value) => updateProperty('componentData.size.width', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="100%">Pleine largeur</SelectItem>
+                  <SelectItem value="80%">80%</SelectItem>
+                  <SelectItem value="60%">60%</SelectItem>
+                  <SelectItem value="40%">40%</SelectItem>
+                  <SelectItem value="300px">Fixe (300px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+        
+        <div>
+          <Input
+            value={localComponent?.componentData?.size?.height || '20px'}
+            onChange={(e) => updateProperty('componentData.size.height', e.target.value)}
+            placeholder="Valeur personnalisée (ex: 45px, 3rem, 5vh)"
+            className="text-xs"
+          />
+        </div>
+      </div>
+
+      {/* Visibilité et affichage */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Visibilité et affichage</Label>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-editor"
+              checked={localComponent?.componentData?.visibility?.showInEditor ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.visibility.showInEditor', checked)}
+            />
+            <Label htmlFor="show-editor" className="text-xs">Visible en édition</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-export"
+              checked={localComponent?.componentData?.visibility?.showInExport ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.visibility.showInExport', checked)}
+            />
+            <Label htmlFor="show-export" className="text-xs">Visible à l'export</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-guides"
+              checked={localComponent?.componentData?.visibility?.showGuides ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.visibility.showGuides', checked)}
+            />
+            <Label htmlFor="show-guides" className="text-xs">Afficher guides</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="flex-grow"
+              checked={localComponent?.componentData?.advanced?.flexGrow ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.advanced.flexGrow', checked)}
+            />
+            <Label htmlFor="flex-grow" className="text-xs">Espacement flexible</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Configuration responsive */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration responsive</Label>
+        
+        <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <Label className="text-xs">📱 Mobile</Label>
+              <Input
+                value={localComponent?.componentData?.responsive?.mobile?.height || '15px'}
+                onChange={(e) => updateProperty('componentData.responsive.mobile.height', e.target.value)}
+                className="text-xs"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">📱 Tablet</Label>
+              <Input
+                value={localComponent?.componentData?.responsive?.tablet?.height || '20px'}
+                onChange={(e) => updateProperty('componentData.responsive.tablet.height', e.target.value)}
+                className="text-xs"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">🖥️ Desktop</Label>
+              <Input
+                value={localComponent?.componentData?.responsive?.desktop?.height || '20px'}
+                onChange={(e) => updateProperty('componentData.responsive.desktop.height', e.target.value)}
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contraintes avancées */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Contraintes avancées</Label>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs">Hauteur min</Label>
+            <Input
+              value={localComponent?.componentData?.advanced?.minHeight || '5px'}
+              onChange={(e) => updateProperty('componentData.advanced.minHeight', e.target.value)}
+              className="mt-1 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Hauteur max</Label>
+            <Input
+              value={localComponent?.componentData?.advanced?.maxHeight || '500px'}
+              onChange={(e) => updateProperty('componentData.advanced.maxHeight', e.target.value)}
+              className="mt-1 text-xs"
+            />
+          </div>
+        </div>
+        
+        <div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="flex-shrink"
+              checked={localComponent?.componentData?.advanced?.flexShrink ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.advanced.flexShrink', checked)}
+            />
+            <Label htmlFor="flex-shrink" className="text-xs">Permettre la réduction automatique</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Cas d'usage courants */}
+      <div className="border rounded p-3 bg-blue-50">
+        <Label className="text-xs text-blue-800 mb-2 block">💡 Cas d'usage suggérés</Label>
+        <div className="text-xs text-blue-700 space-y-1">
+          <div><strong>Vertical (5-20px):</strong> Espacement entre éléments</div>
+          <div><strong>Section (40-80px):</strong> Séparation de sections</div>
+          <div><strong>Horizontal (20-50px):</strong> Colonnes et sidebars</div>
+          <div><strong>Flexible:</strong> S'adapte à l'espace disponible</div>
+          <div><strong>Page (100-200px):</strong> Espacement entre pages</div>
+        </div>
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu temps réel</Label>
+        <div className="flex items-center justify-center py-2">
+          <div
+            className="bg-blue-200 border-2 border-dashed border-blue-400 flex items-center justify-center"
+            style={{
+              width: localComponent?.componentData?.type === 'horizontal' ? 
+                localComponent?.componentData?.size?.width || '30px' : '100px',
+              height: localComponent?.componentData?.type === 'horizontal' ? 
+                '30px' : localComponent?.componentData?.size?.height || '20px',
+              maxWidth: '200px',
+              maxHeight: '60px'
+            }}
+          >
+            <span className="text-xs text-blue-600 font-mono">
+              {localComponent?.componentData?.size?.height || '20px'}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

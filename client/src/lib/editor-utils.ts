@@ -963,14 +963,48 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
-        attributes: { className: 'spacer' },
+        content: '',
+        attributes: { className: 'spacer-component' },
         styles: {
           ...baseComponent.styles,
-          width: '100px',
-          height: '50px',
+          width: '100%',
+          height: '20px',
           backgroundColor: 'transparent',
-          border: '1px dashed #cbd5e1'
+          border: 'none',
+          position: 'relative',
+          display: 'block',
+          flexShrink: '0',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         },
+        componentData: {
+          preset: 'small',
+          type: 'vertical',
+          size: {
+            height: '20px',
+            width: '100%'
+          },
+          visibility: {
+            showInEditor: true,
+            showInExport: false,
+            showGuides: true
+          },
+          responsive: {
+            mobile: { height: '15px' },
+            tablet: { height: '20px' },
+            desktop: { height: '20px' }
+          },
+          advanced: {
+            flexGrow: false,
+            flexShrink: true,
+            minHeight: '5px',
+            maxHeight: '500px'
+          },
+          styling: {
+            editorBorder: '1px dashed #cbd5e1',
+            editorBackground: '#f8fafc',
+            exportDisplay: 'block'
+          }
+        }
       };
 
     case 'link':
