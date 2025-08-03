@@ -519,13 +519,16 @@ export default function Editor() {
 
   // Fermer le navigateur principal à l'ouverture de l'éditeur
   useEffect(() => {
-    setHideMainSidebar(true);
+    // Force la fermeture du sidebar principal dans l'éditeur
+    if (!hideMainSidebar) {
+      setHideMainSidebar(true);
+    }
     
-    // Nettoyer à la fermeture (optionnel)
+    // Nettoyer à la fermeture pour le rouvrir dans les autres pages
     return () => {
       setHideMainSidebar(false);
     };
-  }, [setHideMainSidebar]);
+  }, []);
 
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
