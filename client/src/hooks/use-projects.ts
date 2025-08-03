@@ -99,9 +99,20 @@ export function useExportProject() {
     mutationFn: async (id: string) => {
       const response: any = await apiRequest("POST", `/api/projects/${id}/export`);
       
+      console.log("🔍 EXPORT RESPONSE:", response);
+      console.log("📂 RESPONSE STRUCTURE:", {
+        hasFiles: !!response.files,
+        filesType: typeof response.files,
+        isArray: Array.isArray(response.files),
+        filesLength: response.files?.length,
+        allKeys: Object.keys(response)
+      });
+      
       // Download each file individually with proper extension
       if (response.files && Array.isArray(response.files)) {
+        console.log("📁 FILES TO EXPORT:", response.files);
         response.files.forEach((file: any, index: number) => {
+          console.log(`📄 PROCESSING FILE ${index}:`, { path: file.path, hasContent: !!file.content, contentLength: file.content?.length });
           if (file.path && file.content) {
             // Determine MIME type based on file extension
             let mimeType = "text/plain";
@@ -140,9 +151,25 @@ export function useExportProject() {
               link.click();
               document.body.removeChild(link);
               URL.revokeObjectURL(url);
+              console.log(`✅ DOWNLOADED FILE ${index}: ${file.path}`);
             }, index * 200);
+          } else {
+            console.log(`❌ SKIPPED FILE ${index}: Missing path or content`, file);
           }
         });
+      } else {
+        console.log("❌ NO FILES FOUND OR INVALID STRUCTURE");
+        // Fallback: try to download the response as JSON for debugging
+        const blob = new Blob([JSON.stringify(response, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "export-debug.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        console.log("📥 Downloaded debug file with full response");
       }
       
       return response;
