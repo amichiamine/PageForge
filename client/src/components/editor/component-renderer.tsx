@@ -1258,83 +1258,89 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       const headerNavStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
       const headerPadding = getResponsiveSpacing(16);
       
+
+      
       return (
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
           className={`header-component ${className || ''}`}
           style={{
             ...inlineStyles,
-            overflow: 'hidden'
+            overflow: 'visible',
+            position: inlineStyles.position || 'relative',
+            minHeight: '60px',
+            padding: '0',
+            display: 'flex',  // Force flex display
+            alignItems: 'center',
+            justifyContent: 'space-between'
           }}
           onClick={onClick}
           {...otherAttributes}
         >
+          {/* Logo side */}
+          <div style={{
+            ...headerLogoStyles,
+            fontWeight: 'bold',
+            color: inlineStyles.color || '#ffffff',
+            padding: `${headerPadding}px`,
+            whiteSpace: 'nowrap',
+            flexShrink: 0
+          }}>
+            {headerLogo}
+          </div>
+          
+          {/* Navigation side */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            height: '100%',
-            padding: `0 ${headerPadding}px`
+            gap: `${headerPadding}px`,
+            padding: `${headerPadding}px`,
+            flexShrink: 0
           }}>
-            {/* Logo */}
-            <div style={{
-              ...headerLogoStyles,
-              fontWeight: 'bold',
-              color: 'inherit'
-            }}>
-              {headerLogo}
-            </div>
-            
-            {/* Navigation */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: `${headerPadding}px`
-            }}>
-              {headerNavigation.length > 0 ? (
-                headerNavigation.map((item: any, index: number) => (
-                  <a
-                    key={index}
-                    href={item.link || '#'}
-                    style={{
-                      ...headerNavStyles,
-                      color: 'inherit',
-                      textDecoration: 'none',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {item.text || `Menu ${index + 1}`}
-                  </a>
-                ))
-              ) : (
-                <span style={{
-                  ...headerNavStyles,
-                  color: 'inherit',
-                  opacity: 0.7
-                }}>
-                  Navigation
-                </span>
-              )}
-              
-              {/* Search */}
-              {headerShowSearch && (
-                <input
-                  type="search"
-                  placeholder="Rechercher..."
+            {headerNavigation.length > 0 ? (
+              headerNavigation.map((item: any, index: number) => (
+                <a
+                  key={index}
+                  href={item.link || '#'}
                   style={{
-                    padding: `${headerPadding / 3}px ${headerPadding / 2}px`,
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    borderRadius: '4px',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    color: 'inherit',
-                    fontSize: `${Math.max(12, containerWidth / 25)}px`,
-                    width: `${Math.max(80, containerWidth / 4)}px`
+                    ...headerNavStyles,
+                    color: inlineStyles.color || '#ffffff',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer'
                   }}
-                />
-              )}
-            </div>
+                >
+                  {item.text || `Menu ${index + 1}`}
+                </a>
+              ))
+            ) : (
+              <span style={{
+                ...headerNavStyles,
+                color: inlineStyles.color || '#ffffff',
+                opacity: 0.7
+              }}>
+                Navigation
+              </span>
+            )}
+            
+            {/* Search */}
+            {headerShowSearch && (
+              <input
+                type="search"
+                placeholder="Rechercher..."
+                style={{
+                  padding: `${headerPadding / 3}px ${headerPadding / 2}px`,
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'inherit',
+                  fontSize: `${Math.max(12, containerWidth / 25)}px`,
+                  width: `${Math.max(80, containerWidth / 4)}px`
+                }}
+              />
+            )}
           </div>
+
         </div>
       );
 
