@@ -222,7 +222,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
                       <SelectValue placeholder="Créer de zéro ou choisir un projet" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
+                      <SelectItem value="none">
                         <span className="flex items-center gap-2">
                           <Plus className="w-4 h-4" />
                           Créer de zéro

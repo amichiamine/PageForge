@@ -2840,7 +2840,7 @@ export default function PropertiesPanel({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Aucun</SelectItem>
+              <SelectItem value="none">Aucun</SelectItem>
               <SelectItem value="nofollow">Nofollow</SelectItem>
               <SelectItem value="noopener">Noopener</SelectItem>
               <SelectItem value="noreferrer">Noreferrer</SelectItem>
