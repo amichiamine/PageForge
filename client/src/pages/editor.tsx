@@ -526,16 +526,9 @@ export default function Editor() {
       console.log('🔧 EDITOR: Déclenchement fermeture sidebar');
       setHideMainSidebar(true);
       
-      // Force physiquement la fermeture en ciblant la classe du sidebar
-      const sidebarContainers = document.querySelectorAll('.flex-shrink-0');
-      sidebarContainers.forEach(container => {
-        if (container.textContent?.includes('SiteJet') || container.querySelector('[title="Navigation"]')) {
-          console.log('🔧 EDITOR: Sidebar trouvé, fermeture physique');
-          (container as HTMLElement).style.display = 'none';
-        }
-      });
+      // Ne pas manipuler le DOM directement - laisser React gérer l'affichage
       
-      // Aussi essayer de cliquer sur le bouton de fermeture s'il existe
+      // Cliquer sur le bouton de fermeture pour rétracter proprement
       const hideButton = document.querySelector('button[title="Cliquer sur le logo pour masquer la navigation"]');
       if (hideButton) {
         console.log('🔧 EDITOR: Clic sur bouton fermeture sidebar');
@@ -549,13 +542,7 @@ export default function Editor() {
       clearTimeout(timer);
       setHideMainSidebar(false);
       
-      // Restaurer l'affichage physique
-      const sidebarContainers = document.querySelectorAll('.flex-shrink-0');
-      sidebarContainers.forEach(container => {
-        if (container.textContent?.includes('SiteJet') || container.querySelector('[title="Navigation"]')) {
-          (container as HTMLElement).style.display = '';
-        }
-      });
+      // React gère automatiquement la réapparition du sidebar
     };
   }, [setHideMainSidebar]);
 
