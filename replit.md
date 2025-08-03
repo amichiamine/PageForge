@@ -1,7 +1,17 @@
-# SiteForge - Visual Website Builder
+# PageForge & MagBuilder - Dual Website Builders
+
+## PageForge (Éditeur Principal)
+Éditeur visuel de sites web avec interface 3-panneaux et 52 composants.
+
+## MagBuilder (Nouvel Éditeur)
+Éditeur professionnel inspiré de SiteJet avec interface 4-zones et fonctionnalités premium.
 
 ## Overview
-SiteForge is a full-stack visual website builder designed to streamline website creation. It offers a drag-and-drop interface, template system, visual editing capabilities, and multi-format export functionality. The project aims to provide a comprehensive solution for standalone web design and seamless integration with development environments like VS Code, enabling efficient creation and deployment of professional websites.
+Ce projet contient deux éditeurs web complémentaires :
+
+**PageForge** : Éditeur visuel principal avec interface 3-panneaux, 52 composants organisés, système de templates et export multi-format.
+
+**MagBuilder** : Nouvel éditeur professionnel inspiré de SiteJet avec interface 4-zones, CMS Collections intégré, éditeurs de code HTML/CSS/JS, système de collaboration multi-utilisateurs et fonctionnalités premium avancées. Développé comme fork intelligent de PageForge pour maximiser la réutilisation de code.
 
 ## User Preferences
 - Preferred communication style: Simple, everyday language
@@ -43,6 +53,7 @@ SiteForge is a full-stack visual website builder designed to streamline website 
 - **Complete Deployment System**: Real-time deployment with database integration, supporting multiple platforms (PageForge.app, Netlify, Vercel, custom domains) with status tracking and deployment history.
 - **Updated Documentation**: User guide completely updated to reflect current 52-component architecture and new deployment capabilities.
 - **Code Optimization (August 2025)**: Complete project cleanup removing backup files, unused imports, duplicate providers, and development console.log statements while preserving intentional debugging tools.
+- **MagBuilder Development (August 2025)**: Nouveau éditeur professionnel inspiré de SiteJet en cours de développement. Fork intelligent de PageForge avec interface 4-zones, CMS Collections, éditeurs de code intégrés et collaboration multi-utilisateurs.
 
 ### Data Flow
 - **Project Creation**: Template selection leads to project creation and editor redirection.

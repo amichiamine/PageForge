@@ -1,7 +1,7 @@
-# 🎯 PROJET SITEJET EDITOR - PLAN DE DÉVELOPPEMENT
+# 🎯 MAGBUILDER - PLAN DE DÉVELOPPEMENT DÉTAILLÉ
 
 ## Vue d'ensemble
-Création d'un éditeur web professionnel inspiré de SiteJet avec toutes les fonctionnalités premium, développé comme projet séparé avec architecture dédiée.
+MagBuilder est un éditeur web professionnel inspiré de SiteJet, développé comme fork avancé de PageForge. Il combine l'architecture solide existante avec l'interface sophistiquée et les fonctionnalités premium de SiteJet.
 
 ## Architecture Technique
 
@@ -14,31 +14,35 @@ Création d'un éditeur web professionnel inspiré de SiteJet avec toutes les fo
 - **Animations**: Framer Motion + Lottie React
 - **State Management**: Zustand + TanStack Query
 
-### Structure Projet
+### Structure Projet (Fork de PageForge)
 ```
-sitejet-editor/
-├── client/                 # Frontend React
+magbuilder/ (fork de pageforge)
+├── client/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── editor/     # Interface 4-zones SiteJet
-│   │   │   ├── panels/     # Panels spécialisés
-│   │   │   ├── collections/ # CMS Collections
-│   │   │   ├── code-editors/ # HTML/CSS/JS
-│   │   │   └── collaboration/ # Multi-user
-│   │   ├── stores/         # Zustand stores
-│   │   └── pages/          # Routes principales
-├── server/                 # Backend Express
-├── shared/                 # Types & Schemas partagés
-└── docs/                   # Documentation
+│   │   │   ├── editor/           # Éditeur PageForge existant
+│   │   │   ├── magbuilder/       # Nouvel éditeur MagBuilder
+│   │   │   │   ├── interface/    # Interface 4-zones
+│   │   │   │   ├── panels/       # Panels SiteJet
+│   │   │   │   ├── collections/  # CMS Collections
+│   │   │   │   ├── code-editors/ # HTML/CSS/JS
+│   │   │   │   └── collaboration/ # Multi-user
+│   │   └── pages/
+│   │       ├── editor.tsx        # PageForge existant
+│   │       └── magbuilder.tsx    # Nouvel éditeur MagBuilder
+├── server/                       # Backend Express partagé
+├── shared/                       # Types & Schemas étendus
+└── docs/                        # Documentation des deux éditeurs
 ```
 
-## PHASES DE DÉVELOPPEMENT
+## PHASES DE DÉVELOPPEMENT MAGBUILDER
 
 ### 🏗️ PHASE 1: Interface Core (5 jours)
-**Objectif**: Interface 4-zones SiteJet fonctionnelle
+**Objectif**: Interface 4-zones MagBuilder fonctionnelle
 
-#### Jour 1: Layout & Structure
-- [ ] Setup projet base (Vite + React + TypeScript)
+#### Jour 1: Setup Fork & Structure
+- [ ] Création route /magbuilder dans PageForge existant
+- [ ] Duplication composants essentiels avec suffix -magbuilder
 - [ ] Layout 4-zones principal (Left Panel, Top Bar, Canvas, Bottom Bar)  
 - [ ] Système de panels redimensionnables
 - [ ] Navigation basique entre panels
@@ -67,15 +71,15 @@ sitejet-editor/
 - [ ] Inspecteur d'éléments
 - [ ] Console debug intégré
 
-**Livrables**: Interface SiteJet complète avec navigation fonctionnelle
+**Livrables**: Interface MagBuilder complète avec navigation fonctionnelle et compatibilité PageForge
 
 ### 🗄️ PHASE 2: CMS Collections (7 jours)
 **Objectif**: Système de base de données intégré pour contenu dynamique
 
 #### Jour 6-7: Architecture Collections
-- [ ] Schéma base de données (Collections, Items, Fields)
-- [ ] API REST pour Collections
-- [ ] Interface de gestion Collections
+- [ ] Extension schéma Drizzle existant (Collections, Items, Fields)
+- [ ] API REST pour Collections (extension server/routes.ts)
+- [ ] Interface de gestion Collections (nouveau panel MagBuilder)
 - [ ] Types de champs (Text, Rich Text, Image, Date, Checkbox)
 
 #### Jour 8-9: Éditeur Collections
@@ -171,7 +175,7 @@ sitejet-editor/
 - [ ] Export/Import projets
 - [ ] Documentation finale
 
-**Livrables**: Éditeur SiteJet complet avec toutes les fonctionnalités premium
+**Livrables**: MagBuilder complet avec toutes les fonctionnalités premium et compatibilité PageForge
 
 ## PLANNING GLOBAL
 - **Durée totale**: 28 jours (4 semaines)
@@ -187,4 +191,4 @@ sitejet-editor/
 - Performance et optimisation continue
 
 ## PROCHAINE ÉTAPE
-Création du projet base et début Phase 1 - Interface Core
+Début immédiat Phase 1 - Création route /magbuilder et interface 4-zones dans le projet PageForge existant
