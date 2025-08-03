@@ -10,6 +10,12 @@ PageForge is a full-stack visual website builder, offering a drag-and-drop inter
 - Component architecture: Unified components with sub-elements managed via componentData only, no separate children in elements section
 
 ## Recent Changes (January 2025)
+- ✅ **Codebase Optimization & Cleanup**: Major codebase simplification and redundancy elimination
+  - Removed SiteJet-Distribution folder: 2.2MB space savings, eliminated code duplication
+  - Deleted obsolete files: editor-utils-old.ts, visual-editor-old.tsx (1250+ lines of dead code)
+  - Cleaned distribution scripts: removed PowerShell and Windows-specific install scripts
+  - Removed unused validation scripts: automated validation now handled by integrated dev tools
+  - Project size reduced from complex dual-structure to streamlined single codebase
 - ✅ **Specialized Configuration Panels**: All 52 components now have dedicated configuration panels instead of generic text areas
 - ✅ **Unified Architecture Completed**: Complex components (header, footer, navbar, grid, list, accordion, carousel) are created empty and populated via specialized configuration panels
 - ✅ **Enhanced Component System**: Each component type has its own specialized options and real-time configuration capabilities
