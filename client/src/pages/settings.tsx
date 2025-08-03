@@ -75,16 +75,16 @@ export default function Settings() {
 
   const [stats, setStats] = React.useState({
     projectsUploaded: projects.length || 0,
-    templatesUsed: 12,
-    elementsCreated: 456,
-    exportsGenerated: 23,
+    templatesUsed: 0,
+    elementsCreated: 0,
+    exportsGenerated: 0,
     lastLogin: new Date().toISOString(),
-    totalStorageUsed: 156.7
+    totalStorageUsed: 0
   });
 
   const [userProfile, setUserProfile] = React.useState({
-    name: 'Utilisateur PageForge',
-    email: 'user@pageforge.com',
+    name: '',
+    email: '',
     avatar: '',
     subscription: 'Gratuit',
     joinDate: new Date().toISOString()
@@ -157,6 +157,35 @@ export default function Settings() {
     localStorage.setItem('pageforge-profile', JSON.stringify(newProfile));
   };
 
+  const resetAccountData = () => {
+    const resetStats = {
+      projectsUploaded: 0,
+      templatesUsed: 0,
+      elementsCreated: 0,
+      exportsGenerated: 0,
+      lastLogin: new Date().toISOString(),
+      totalStorageUsed: 0
+    };
+    
+    const resetProfile = {
+      name: '',
+      email: '',
+      avatar: '',
+      subscription: 'Gratuit',
+      joinDate: new Date().toISOString()
+    };
+    
+    setStats(resetStats);
+    setUserProfile(resetProfile);
+    localStorage.setItem('pageforge-stats', JSON.stringify(resetStats));
+    localStorage.setItem('pageforge-profile', JSON.stringify(resetProfile));
+    
+    toast({
+      title: "Données du compte réinitialisées",
+      description: "Les statistiques et le profil ont été remis à zéro",
+    });
+  };
+
   const resetAllSettings = () => {
     const defaultSettings = {
       touchOptimized: true,
@@ -180,6 +209,7 @@ export default function Settings() {
     
     setSettings(defaultSettings);
     setTheme('light');
+    resetAccountData();
     localStorage.setItem('pageforge-settings', JSON.stringify(defaultSettings));
     localStorage.setItem('pageforge-theme', 'light');
     
@@ -666,7 +696,7 @@ export default function Settings() {
                       id="userName"
                       value={userProfile.name}
                       onChange={(e) => handleProfileChange('name', e.target.value)}
-                      placeholder="Votre nom"
+                      placeholder="Entrez votre nom"
                     />
                   </div>
 
@@ -677,7 +707,7 @@ export default function Settings() {
                       type="email"
                       value={userProfile.email}
                       onChange={(e) => handleProfileChange('email', e.target.value)}
-                      placeholder="votre@email.com"
+                      placeholder="votre.email@exemple.com"
                     />
                   </div>
 
@@ -692,6 +722,15 @@ export default function Settings() {
                       {new Date(userProfile.joinDate).toLocaleDateString()}
                     </span>
                   </div>
+
+                  <Button 
+                    onClick={resetAccountData} 
+                    variant="outline" 
+                    className="w-full mt-4"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Réinitialiser les données du compte
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -738,12 +777,12 @@ export default function Settings() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-sm">Stockage utilisé</span>
-                      <span className="text-sm font-medium">{stats.totalStorageUsed} MB</span>
+                      <span className="text-sm font-medium">{stats.totalStorageUsed.toFixed(1)} MB</span>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div 
                         className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${(stats.totalStorageUsed / 500) * 100}%` }}
+                        style={{ width: `${Math.max((stats.totalStorageUsed / 500) * 100, 1)}%` }}
                       ></div>
                     </div>
                     <div className="text-xs text-gray-500">500 MB disponible</div>
