@@ -1251,12 +1251,18 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
       );
 
     case 'header':
-      const headerLogo = component.componentData?.logo || 'SiteForge';
-      const headerNavigation = component.componentData?.navigation || [];
+      const headerLogo = component.componentData?.logo || 'Logo';
+      const headerNavigation = component.componentData?.navigation || [
+        { text: 'Accueil', link: '#' },
+        { text: 'À propos', link: '#' },
+        { text: 'Contact', link: '#' }
+      ];
       const headerShowSearch = component.componentData?.showSearch || false;
       const headerLogoStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 14, maxSize: 24 });
       const headerNavStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
       const headerPadding = getResponsiveSpacing(16);
+      
+
       
 
       
