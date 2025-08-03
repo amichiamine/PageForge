@@ -2608,7 +2608,7 @@ export default function PropertiesPanel({
         <div className="flex items-center space-x-2">
           <Checkbox
             id="striped"
-            checked={localComponent?.componentData?.striped !== false}
+            checked={localComponent?.componentData?.striped ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.striped', checked)}
           />
           <Label htmlFor="striped" className="text-xs">Lignes alternées</Label>
@@ -2616,7 +2616,7 @@ export default function PropertiesPanel({
         <div className="flex items-center space-x-2">
           <Checkbox
             id="bordered"
-            checked={localComponent?.componentData?.bordered !== false}
+            checked={localComponent?.componentData?.bordered ?? false}
             onCheckedChange={(checked) => updateProperty('componentData.bordered', checked)}
           />
           <Label htmlFor="bordered" className="text-xs">Bordures</Label>

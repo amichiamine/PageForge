@@ -1340,11 +1340,13 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     case 'table':
       const tableTextStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 18 });
       const tablePadding = getResponsiveSpacing(6);
-      const tableData = [
-        ['Jean Dupont', 'jean@example.com', 'Actif'],
-        ['Marie Martin', 'marie@example.com', 'Inactif']
-      ];
-      const tableHeaders = ['Nom', 'Email', 'Statut'];
+      
+      // Récupération des données depuis componentData (architecture unifiée)
+      const tableHeaders = componentData?.headers || [];
+      const tableRows = componentData?.rows || [];
+      const isStriped = componentData?.striped || false;
+      const isBordered = componentData?.bordered || false;
+      const isHoverable = componentData?.hoverable || false;
       
       return (
         <div
@@ -1357,43 +1359,68 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           onClick={onClick}
           {...otherAttributes}
         >
-          <table style={{ 
-            width: '100%', 
-            height: '100%',
-            borderCollapse: 'collapse',
-            overflow: 'hidden',
-            ...tableTextStyles
-          }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f3f4f6' }}>
-                {tableHeaders.map((header, index) => (
-                  <th key={index} style={{ 
-                    padding: `${tablePadding}px`, 
-                    border: '1px solid #d1d5db', 
-                    textAlign: 'left',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <td key={cellIndex} style={{ 
-                      padding: `${tablePadding}px`, 
-                      border: '1px solid #d1d5db',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>{cell}</td>
+          {tableHeaders.length > 0 || tableRows.length > 0 ? (
+            <table style={{ 
+              width: '100%', 
+              height: '100%',
+              borderCollapse: 'collapse',
+              overflow: 'hidden',
+              ...tableTextStyles
+            }}>
+              {tableHeaders.length > 0 && (
+                <thead>
+                  <tr style={{ backgroundColor: '#f3f4f6' }}>
+                    {tableHeaders.map((header: string, index: number) => (
+                      <th key={index} style={{ 
+                        padding: `${tablePadding}px`, 
+                        border: isBordered ? '1px solid #d1d5db' : 'none', 
+                        textAlign: 'left',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>{header}</th>
+                    ))}
+                  </tr>
+                </thead>
+              )}
+              {tableRows.length > 0 && (
+                <tbody>
+                  {tableRows.map((row: string[], rowIndex: number) => (
+                    <tr key={rowIndex} style={{
+                      backgroundColor: isStriped && rowIndex % 2 === 1 ? '#f9fafb' : 'transparent'
+                    }}>
+                      {row.map((cell: string, cellIndex: number) => (
+                        <td key={cellIndex} style={{ 
+                          padding: `${tablePadding}px`, 
+                          border: isBordered ? '1px solid #d1d5db' : 'none',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>{cell}</td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </tbody>
+              )}
+            </table>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              width: '100%',
+              color: '#9ca3af',
+              fontSize: '14px',
+              textAlign: 'center',
+              padding: `${tablePadding}px`,
+              boxSizing: 'border-box',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px'
+            }}>
+              Tableau vide - Ajoutez des colonnes et lignes via la configuration
+            </div>
+          )}
         </div>
       );
 
