@@ -1159,6 +1159,7 @@ export function createComponent(type: string): ComponentDefinition {
       return {
         ...baseComponent,
         tag: 'div',
+        content: '',
         attributes: { className: 'flexbox-component' },
         styles: {
           ...baseComponent.styles,
@@ -1172,14 +1173,68 @@ export function createComponent(type: string): ComponentDefinition {
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '16px',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          flexWrap: 'nowrap',
+          overflow: 'visible'
         },
         componentData: {
-          direction: 'row',
-          justify: 'space-between',
-          align: 'center',
-          gap: '16px',
-          items: []
+          preset: 'basic',
+          layout: {
+            direction: 'row',
+            justify: 'space-between',
+            align: 'center',
+            wrap: 'nowrap',
+            gap: '16px',
+            alignContent: 'stretch'
+          },
+          container: {
+            padding: '16px',
+            background: true,
+            border: true,
+            rounded: true,
+            shadow: false,
+            minHeight: 'auto',
+            maxWidth: '100%',
+            overflow: 'visible'
+          },
+          items: [],
+          itemDefaults: {
+            flexGrow: '0',
+            flexShrink: '1',
+            flexBasis: 'auto',
+            alignSelf: 'auto',
+            order: '0'
+          },
+          responsive: {
+            mobile: { 
+              direction: 'column', 
+              gap: '12px', 
+              padding: '12px',
+              wrap: 'nowrap'
+            },
+            tablet: { 
+              direction: 'row', 
+              gap: '14px', 
+              padding: '14px',
+              wrap: 'nowrap'
+            },
+            desktop: { 
+              direction: 'row', 
+              gap: '16px', 
+              padding: '16px',
+              wrap: 'nowrap'
+            }
+          },
+          templates: {
+            showGuides: true,
+            snapToGrid: false,
+            autoDistribute: false
+          },
+          accessibility: {
+            role: 'group',
+            ariaLabel: '',
+            landmark: false
+          }
         }
       };
 
