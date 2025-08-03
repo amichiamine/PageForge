@@ -2791,33 +2791,344 @@ export default function PropertiesPanel({
   // Configuration lien
   const renderLinkConfiguration = () => (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-purple-900">Configuration du Lien</h4>
+      <h4 className="text-sm font-semibold text-purple-900">Configuration Link Avancée</h4>
       
+      {/* Presets rapides */}
       <div>
-        <Label className="text-xs text-gray-600">URL du lien</Label>
-        <Input
-          value={localComponent?.attributes?.href || ''}
-          onChange={(e) => updateProperty('attributes.href', e.target.value)}
-          placeholder="https://example.com"
-          className="mt-1 text-sm"
-        />
+        <Label className="text-xs text-gray-600">Types de liens prédéfinis</Label>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'external');
+              updateProperty('componentData.linkType', 'url');
+              updateProperty('componentData.target', '_blank');
+              updateProperty('componentData.rel', 'noopener noreferrer');
+              updateProperty('componentData.icon.show', true);
+              updateProperty('componentData.icon.type', 'external');
+            }}
+            className="text-xs"
+          >
+            🌐 Externe
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'internal');
+              updateProperty('componentData.linkType', 'internal');
+              updateProperty('componentData.target', '_self');
+              updateProperty('componentData.rel', '');
+              updateProperty('componentData.icon.show', false);
+            }}
+            className="text-xs"
+          >
+            🏠 Interne
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'email');
+              updateProperty('componentData.linkType', 'email');
+              updateProperty('componentData.href', 'mailto:');
+              updateProperty('componentData.icon.show', true);
+              updateProperty('componentData.icon.type', 'mail');
+            }}
+            className="text-xs"
+          >
+            📧 Email
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'phone');
+              updateProperty('componentData.linkType', 'phone');
+              updateProperty('componentData.href', 'tel:');
+              updateProperty('componentData.icon.show', true);
+              updateProperty('componentData.icon.type', 'phone');
+            }}
+            className="text-xs"
+          >
+            📞 Téléphone
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'download');
+              updateProperty('componentData.linkType', 'download');
+              updateProperty('componentData.attributes.download', true);
+              updateProperty('componentData.icon.show', true);
+              updateProperty('componentData.icon.type', 'download');
+            }}
+            className="text-xs"
+          >
+            📥 Téléchargement
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              updateProperty('componentData.preset', 'social');
+              updateProperty('componentData.linkType', 'social');
+              updateProperty('componentData.styling.variant', 'button');
+              updateProperty('componentData.icon.show', true);
+            }}
+            className="text-xs"
+          >
+            📱 Social
+          </Button>
+        </div>
       </div>
 
-      <div>
-        <Label className="text-xs text-gray-600">Texte du lien</Label>
-        <Input
-          value={localComponent?.content || ''}
-          onChange={(e) => updateProperty('content', e.target.value)}
-          className="mt-1 text-sm"
-        />
+      {/* Configuration de base */}
+      <div className="space-y-3">
+        <div>
+          <Label className="text-xs text-gray-600">Texte du lien</Label>
+          <Input
+            value={localComponent?.componentData?.text || ''}
+            onChange={(e) => updateProperty('componentData.text', e.target.value)}
+            placeholder="Texte affiché..."
+            className="mt-1 text-sm"
+          />
+        </div>
+
+        <div>
+          <Label className="text-xs text-gray-600">URL ou lien</Label>
+          <Input
+            value={localComponent?.componentData?.href || ''}
+            onChange={(e) => {
+              updateProperty('componentData.href', e.target.value);
+              updateProperty('attributes.href', e.target.value);
+            }}
+            placeholder={
+              localComponent?.componentData?.linkType === 'email' ? 'mailto:contact@example.com' :
+              localComponent?.componentData?.linkType === 'phone' ? 'tel:+33123456789' :
+              'https://example.com'
+            }
+            className="mt-1 text-sm"
+          />
+          {localComponent?.componentData?.validation?.autoValidate && (
+            <div className="mt-1 text-xs text-gray-500">
+              {localComponent?.componentData?.href ? (
+                localComponent?.componentData?.href.startsWith('http') || 
+                localComponent?.componentData?.href.startsWith('mailto:') || 
+                localComponent?.componentData?.href.startsWith('tel:') ? 
+                  <span className="text-green-600">✓ URL valide</span> : 
+                  <span className="text-orange-600">⚠ Format d'URL à vérifier</span>
+              ) : null}
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Style de lien */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label className="text-xs text-gray-600">Target</Label>
+          <Label className="text-xs text-gray-600">Style de lien</Label>
           <Select
-            value={ensureSelectValue(localComponent?.attributes?.target, '_self')}
-            onValueChange={(value) => updateProperty('attributes.target', value)}
+            value={localComponent?.componentData?.styling?.variant || 'link'}
+            onValueChange={(value) => updateProperty('componentData.styling.variant', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="link">Lien classique</SelectItem>
+              <SelectItem value="button">Bouton</SelectItem>
+              <SelectItem value="badge">Badge</SelectItem>
+              <SelectItem value="card">Carte cliquable</SelectItem>
+              <SelectItem value="minimal">Minimal</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Taille</Label>
+          <Select
+            value={localComponent?.componentData?.styling?.size || 'medium'}
+            onValueChange={(value) => updateProperty('componentData.styling.size', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Petit</SelectItem>
+              <SelectItem value="medium">Moyen</SelectItem>
+              <SelectItem value="large">Grand</SelectItem>
+              <SelectItem value="xl">Extra grand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Couleurs personnalisées */}
+      <div>
+        <Label className="text-xs text-gray-600">Couleurs</Label>
+        <div className="grid grid-cols-2 gap-3 mt-1">
+          <div>
+            <Label className="text-xs">Normal</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.styling?.color || '#3b82f6'}
+              onChange={(e) => updateProperty('componentData.styling.color', e.target.value)}
+              className="mt-1 h-8"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Hover</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.styling?.hoverColor || '#2563eb'}
+              onChange={(e) => updateProperty('componentData.styling.hoverColor', e.target.value)}
+              className="mt-1 h-8"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Visité</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.styling?.visitedColor || '#7c3aed'}
+              onChange={(e) => updateProperty('componentData.styling.visitedColor', e.target.value)}
+              className="mt-1 h-8"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Actif</Label>
+            <Input
+              type="color"
+              value={localComponent?.componentData?.styling?.activeColor || '#1d4ed8'}
+              onChange={(e) => updateProperty('componentData.styling.activeColor', e.target.value)}
+              className="mt-1 h-8"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Décoration et poids */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Décoration</Label>
+          <Select
+            value={localComponent?.componentData?.styling?.decoration || 'underline'}
+            onValueChange={(value) => updateProperty('componentData.styling.decoration', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              <SelectItem value="underline">Souligné</SelectItem>
+              <SelectItem value="overline">Ligne au-dessus</SelectItem>
+              <SelectItem value="line-through">Barré</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-600">Épaisseur</Label>
+          <Select
+            value={localComponent?.componentData?.styling?.weight || 'normal'}
+            onValueChange={(value) => updateProperty('componentData.styling.weight', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="light">Léger</SelectItem>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="medium">Moyen</SelectItem>
+              <SelectItem value="semibold">Semi-gras</SelectItem>
+              <SelectItem value="bold">Gras</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Configuration des icônes */}
+      <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="show-icon"
+            checked={localComponent?.componentData?.icon?.show ?? false}
+            onCheckedChange={(checked) => updateProperty('componentData.icon.show', checked)}
+          />
+          <Label htmlFor="show-icon" className="text-xs">Afficher une icône</Label>
+        </div>
+        
+        {localComponent?.componentData?.icon?.show && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <Label className="text-xs">Position</Label>
+                <Select
+                  value={localComponent?.componentData?.icon?.position || 'left'}
+                  onValueChange={(value) => updateProperty('componentData.icon.position', value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="left">Gauche</SelectItem>
+                    <SelectItem value="right">Droite</SelectItem>
+                    <SelectItem value="top">Haut</SelectItem>
+                    <SelectItem value="bottom">Bas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Type</Label>
+                <Select
+                  value={localComponent?.componentData?.icon?.type || 'external'}
+                  onValueChange={(value) => updateProperty('componentData.icon.type', value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="external">🌐 Externe</SelectItem>
+                    <SelectItem value="mail">📧 Email</SelectItem>
+                    <SelectItem value="phone">📞 Téléphone</SelectItem>
+                    <SelectItem value="download">📥 Téléchargement</SelectItem>
+                    <SelectItem value="arrow">➡️ Flèche</SelectItem>
+                    <SelectItem value="share">🔗 Partage</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Taille</Label>
+                <Select
+                  value={localComponent?.componentData?.icon?.size || '16px'}
+                  onValueChange={(value) => updateProperty('componentData.icon.size', value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12px">12px</SelectItem>
+                    <SelectItem value="14px">14px</SelectItem>
+                    <SelectItem value="16px">16px</SelectItem>
+                    <SelectItem value="20px">20px</SelectItem>
+                    <SelectItem value="24px">24px</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Comportement du lien */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-gray-600">Cible</Label>
+          <Select
+            value={localComponent?.componentData?.target || '_blank'}
+            onValueChange={(value) => {
+              updateProperty('componentData.target', value);
+              updateProperty('attributes.target', value);
+            }}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
@@ -2825,28 +3136,205 @@ export default function PropertiesPanel({
             <SelectContent>
               <SelectItem value="_self">Même onglet</SelectItem>
               <SelectItem value="_blank">Nouvel onglet</SelectItem>
-              <SelectItem value="_parent">Parent</SelectItem>
-              <SelectItem value="_top">Top</SelectItem>
+              <SelectItem value="_parent">Fenêtre parent</SelectItem>
+              <SelectItem value="_top">Fenêtre principale</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label className="text-xs text-gray-600">Rel</Label>
+          <Label className="text-xs text-gray-600">Attribut Rel</Label>
           <Select
-            value={ensureSelectValue(localComponent?.attributes?.rel, '')}
-            onValueChange={(value) => updateProperty('attributes.rel', value)}
+            value={localComponent?.componentData?.rel || 'noopener noreferrer'}
+            onValueChange={(value) => {
+              updateProperty('componentData.rel', value);
+              updateProperty('attributes.rel', value);
+            }}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Aucun</SelectItem>
+              <SelectItem value="">Aucun</SelectItem>
               <SelectItem value="nofollow">Nofollow</SelectItem>
               <SelectItem value="noopener">Noopener</SelectItem>
               <SelectItem value="noreferrer">Noreferrer</SelectItem>
               <SelectItem value="noopener noreferrer">Noopener Noreferrer</SelectItem>
+              <SelectItem value="sponsored">Sponsored</SelectItem>
+              <SelectItem value="ugc">UGC</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      {/* Validation automatique */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Validation et sécurité</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="auto-validate"
+              checked={localComponent?.componentData?.validation?.autoValidate ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.validation.autoValidate', checked)}
+            />
+            <Label htmlFor="auto-validate" className="text-xs">Validation auto</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-status"
+              checked={localComponent?.componentData?.validation?.showStatus ?? true}
+              onCheckedChange={(checked) => updateProperty('componentData.validation.showStatus', checked)}
+            />
+            <Label htmlFor="show-status" className="text-xs">Afficher statut</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="require-https"
+              checked={localComponent?.componentData?.validation?.requireHttps ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.validation.requireHttps', checked)}
+            />
+            <Label htmlFor="require-https" className="text-xs">Exiger HTTPS</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="track-clicks"
+              checked={localComponent?.componentData?.analytics?.trackClicks ?? false}
+              onCheckedChange={(checked) => updateProperty('componentData.analytics.trackClicks', checked)}
+            />
+            <Label htmlFor="track-clicks" className="text-xs">Suivi des clics</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Paramètres UTM (Analytics) */}
+      {localComponent?.componentData?.analytics?.trackClicks && (
+        <div className="space-y-3">
+          <Label className="text-xs text-gray-600">Paramètres de suivi UTM</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              value={localComponent?.componentData?.analytics?.utmSource || ''}
+              onChange={(e) => updateProperty('componentData.analytics.utmSource', e.target.value)}
+              placeholder="utm_source"
+              className="text-xs"
+            />
+            <Input
+              value={localComponent?.componentData?.analytics?.utmMedium || ''}
+              onChange={(e) => updateProperty('componentData.analytics.utmMedium', e.target.value)}
+              placeholder="utm_medium"
+              className="text-xs"
+            />
+            <Input
+              value={localComponent?.componentData?.analytics?.utmCampaign || ''}
+              onChange={(e) => updateProperty('componentData.analytics.utmCampaign', e.target.value)}
+              placeholder="utm_campaign"
+              className="text-xs"
+            />
+            <Input
+              value={localComponent?.componentData?.analytics?.utmContent || ''}
+              onChange={(e) => updateProperty('componentData.analytics.utmContent', e.target.value)}
+              placeholder="utm_content"
+              className="text-xs"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Accessibilité */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Accessibilité</Label>
+        <div className="space-y-2">
+          <Input
+            value={localComponent?.componentData?.accessibility?.ariaLabel || ''}
+            onChange={(e) => updateProperty('componentData.accessibility.ariaLabel', e.target.value)}
+            placeholder="Aria-label pour lecteurs d'écran"
+            className="text-xs"
+          />
+          <Input
+            value={localComponent?.componentData?.accessibility?.title || ''}
+            onChange={(e) => updateProperty('componentData.accessibility.title', e.target.value)}
+            placeholder="Titre (tooltip au survol)"
+            className="text-xs"
+          />
+          {localComponent?.componentData?.linkType === 'download' && (
+            <Input
+              value={localComponent?.componentData?.accessibility?.downloadFileName || ''}
+              onChange={(e) => updateProperty('componentData.accessibility.downloadFileName', e.target.value)}
+              placeholder="Nom de fichier suggéré"
+              className="text-xs"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Configuration responsive */}
+      <div className="space-y-3">
+        <Label className="text-xs text-gray-600">Configuration responsive</Label>
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <Label className="text-xs">📱 Mobile</Label>
+            <Input
+              value={localComponent?.componentData?.responsive?.mobile?.fontSize || '14px'}
+              onChange={(e) => updateProperty('componentData.responsive.mobile.fontSize', e.target.value)}
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">📱 Tablet</Label>
+            <Input
+              value={localComponent?.componentData?.responsive?.tablet?.fontSize || '16px'}
+              onChange={(e) => updateProperty('componentData.responsive.tablet.fontSize', e.target.value)}
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">🖥️ Desktop</Label>
+            <Input
+              value={localComponent?.componentData?.responsive?.desktop?.fontSize || '16px'}
+              onChange={(e) => updateProperty('componentData.responsive.desktop.fontSize', e.target.value)}
+              className="text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Preview en temps réel */}
+      <div className="border rounded p-3 bg-gray-50">
+        <Label className="text-xs text-gray-600 mb-2 block">Aperçu temps réel</Label>
+        <div className="flex items-center justify-center py-2">
+          <a
+            href="#"
+            onClick={(e) => e.preventDefault()}
+            className="inline-flex items-center gap-1 transition-colors duration-200"
+            style={{
+              color: localComponent?.componentData?.styling?.color || '#3b82f6',
+              textDecoration: localComponent?.componentData?.styling?.decoration || 'underline',
+              fontWeight: localComponent?.componentData?.styling?.weight || 'normal',
+              fontSize: localComponent?.componentData?.styling?.size === 'small' ? '14px' :
+                       localComponent?.componentData?.styling?.size === 'large' ? '18px' :
+                       localComponent?.componentData?.styling?.size === 'xl' ? '20px' : '16px'
+            }}
+          >
+            {localComponent?.componentData?.icon?.show && localComponent?.componentData?.icon?.position === 'left' && (
+              <span style={{ fontSize: localComponent?.componentData?.icon?.size || '16px' }}>
+                {localComponent?.componentData?.icon?.type === 'external' ? '🌐' :
+                 localComponent?.componentData?.icon?.type === 'mail' ? '📧' :
+                 localComponent?.componentData?.icon?.type === 'phone' ? '📞' :
+                 localComponent?.componentData?.icon?.type === 'download' ? '📥' :
+                 localComponent?.componentData?.icon?.type === 'arrow' ? '➡️' :
+                 localComponent?.componentData?.icon?.type === 'share' ? '🔗' : '🌐'}
+              </span>
+            )}
+            {localComponent?.componentData?.text || 'Lien d\'exemple'}
+            {localComponent?.componentData?.icon?.show && localComponent?.componentData?.icon?.position === 'right' && (
+              <span style={{ fontSize: localComponent?.componentData?.icon?.size || '16px' }}>
+                {localComponent?.componentData?.icon?.type === 'external' ? '🌐' :
+                 localComponent?.componentData?.icon?.type === 'mail' ? '📧' :
+                 localComponent?.componentData?.icon?.type === 'phone' ? '📞' :
+                 localComponent?.componentData?.icon?.type === 'download' ? '📥' :
+                 localComponent?.componentData?.icon?.type === 'arrow' ? '➡️' :
+                 localComponent?.componentData?.icon?.type === 'share' ? '🔗' : '🌐'}
+              </span>
+            )}
+          </a>
         </div>
       </div>
     </div>

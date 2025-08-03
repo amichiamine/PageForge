@@ -1014,8 +1014,9 @@ export function createComponent(type: string): ComponentDefinition {
         content: '',
         attributes: { 
           href: '',
-          className: 'styled-link',
-          target: '_blank'
+          className: 'link-component',
+          target: '_blank',
+          rel: 'noopener noreferrer'
         },
         styles: {
           ...baseComponent.styles,
@@ -1024,10 +1025,61 @@ export function createComponent(type: string): ComponentDefinition {
           fontSize: '16px',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
           width: '180px',
-          height: '24px',
-          transition: 'color 0.2s ease-in-out',
-          cursor: 'pointer'
+          height: 'auto',
+          display: 'inline-flex',
+          alignItems: 'center',
+          transition: 'all 0.2s ease-in-out',
+          cursor: 'pointer',
+          borderRadius: '4px',
+          padding: '4px'
         },
+        componentData: {
+          preset: 'external',
+          linkType: 'url',
+          href: '',
+          text: '',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          styling: {
+            variant: 'link',
+            size: 'medium',
+            color: '#3b82f6',
+            hoverColor: '#2563eb',
+            visitedColor: '#7c3aed',
+            activeColor: '#1d4ed8',
+            decoration: 'underline',
+            weight: 'normal'
+          },
+          icon: {
+            show: false,
+            position: 'left',
+            type: 'external',
+            size: '16px',
+            color: 'inherit'
+          },
+          validation: {
+            autoValidate: true,
+            showStatus: true,
+            requireHttps: false
+          },
+          analytics: {
+            trackClicks: false,
+            utmSource: '',
+            utmMedium: '',
+            utmCampaign: '',
+            utmContent: ''
+          },
+          accessibility: {
+            ariaLabel: '',
+            title: '',
+            downloadFileName: ''
+          },
+          responsive: {
+            mobile: { fontSize: '14px' },
+            tablet: { fontSize: '16px' },
+            desktop: { fontSize: '16px' }
+          }
+        }
       };
 
     case 'icon':
