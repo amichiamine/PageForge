@@ -1043,7 +1043,7 @@ export default function Editor() {
                     <iframe
                       title="Preview"
                       className="w-full h-full border-0 rounded-xl"
-                      srcDoc={generatePreviewHTML(localProject)}
+                      src={`/api/projects/${projectId}/preview`}
                       style={{ minHeight: '600px' }}
                     />
                   </div>

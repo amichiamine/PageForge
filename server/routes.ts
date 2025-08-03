@@ -243,6 +243,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route pour générer l'aperçu HTML (utilise la même logique que l'export)
+  app.get("/api/projects/:id/preview", async (req, res) => {
+    try {
+      const exportData = await storage.exportProject(req.params.id, {
+        includeCSS: true,
+        includeJS: true,
+        responsive: true,
+        seoOptimized: true,
+        cacheVersion: Date.now().toString()
+      });
+      
+      // Extraire le fichier HTML de l'export
+      const htmlFile = exportData.files?.find((file: any) => file.path === 'index.html');
+      
+      if (!htmlFile) {
+        return res.status(500).json({ message: "No HTML file generated" });
+      }
+      
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(htmlFile.content);
+    } catch (error: any) {
+      console.error("Preview error:", error);
+      const statusCode = error.message.includes('introuvable') || error.message.includes('not found') ? 404 : 500;
+      res.status(statusCode).json({ 
+        message: error.message || "Failed to generate preview",
+        error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
+  });
+
   // Health check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
