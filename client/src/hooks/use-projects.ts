@@ -97,21 +97,32 @@ export function useExportProject() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const response: any = await apiRequest("POST", `/api/projects/${id}/export`);
+      const response = await fetch(`/api/projects/${id}/export`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
       
-      console.log("🔍 EXPORT RESPONSE:", response);
-      console.log("📂 RESPONSE STRUCTURE:", {
-        hasFiles: !!response.files,
-        filesType: typeof response.files,
-        isArray: Array.isArray(response.files),
-        filesLength: response.files?.length,
-        allKeys: Object.keys(response)
+      console.log("🔍 EXPORT DATA:", data);
+      console.log("📂 DATA STRUCTURE:", {
+        hasFiles: !!data.files,
+        filesType: typeof data.files,
+        isArray: Array.isArray(data.files),
+        filesLength: data.files?.length,
+        allKeys: Object.keys(data)
       });
       
       // Download each file individually with proper extension
-      if (response.files && Array.isArray(response.files)) {
-        console.log("📁 FILES TO EXPORT:", response.files);
-        response.files.forEach((file: any, index: number) => {
+      if (data.files && Array.isArray(data.files)) {
+        console.log("📁 FILES TO EXPORT:", data.files);
+        data.files.forEach((file: any, index: number) => {
           console.log(`📄 PROCESSING FILE ${index}:`, { path: file.path, hasContent: !!file.content, contentLength: file.content?.length });
           if (file.path && file.content) {
             // Determine MIME type based on file extension
@@ -159,8 +170,8 @@ export function useExportProject() {
         });
       } else {
         console.log("❌ NO FILES FOUND OR INVALID STRUCTURE");
-        // Fallback: try to download the response as JSON for debugging
-        const blob = new Blob([JSON.stringify(response, null, 2)], { type: "application/json" });
+        // Fallback: try to download the data as JSON for debugging
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
@@ -169,13 +180,13 @@ export function useExportProject() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        console.log("📥 Downloaded debug file with full response");
+        console.log("📥 Downloaded debug file with full data");
       }
       
-      return response;
+      return data;
     },
-    onSuccess: (response) => {
-      const fileCount = response.files?.length || 0;
+    onSuccess: (data) => {
+      const fileCount = data.files?.length || 0;
       toast({
         title: "Export réussi",
         description: `${fileCount} fichier(s) téléchargé(s) individuellement.`,
