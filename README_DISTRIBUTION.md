@@ -1,12 +1,12 @@
-# 🚀 SiteJet - Package de Distribution
+# 🚀 SiteForge - Package de Distribution
 
 ## 📦 Contenu du Package
 
-Ce package contient tout le nécessaire pour installer et utiliser SiteJet, l'éditeur visuel de sites web le plus avancé.
+Ce package contient tout le nécessaire pour installer et utiliser SiteForge, l'éditeur visuel de sites web le plus avancé.
 
 ### 📁 Structure du Package
 ```
-SiteJet-Distribution/
+SiteForge-Distribution/
 ├── app/                          # Application principale
 ├── docs/                         # Documentation complète
 ├── scripts/                      # Scripts d'installation automatique
@@ -33,7 +33,7 @@ SiteJet-Distribution/
 2. **Suivez** les instructions automatiques
 3. **Lancez** avec `npm run dev` dans le dossier `app/`
 
-### 🌐 Accès à SiteJet
+### 🌐 Accès à SiteForge
 Ouvrez votre navigateur sur : **http://localhost:3000**
 
 ## 📋 Prérequis Système
@@ -226,9 +226,9 @@ Ouvrez votre navigateur sur : **http://localhost:3000**
 
 ### 🔗 Liens Utiles
 - **Documentation** : Dossier `docs/`
-- **Support Email** : support@sitejet.com
-- **Communauté** : forum.sitejet.com
-- **Tutoriels** : youtube.com/sitejet
+- **Support Email** : support@siteforge.com
+- **Communauté** : forum.siteforge.com
+- **Tutoriels** : youtube.com/siteforge
 
 ### 🚨 Problèmes Courants
 1. **Node.js non trouvé** → Installez depuis nodejs.org
@@ -237,7 +237,7 @@ Ouvrez votre navigateur sur : **http://localhost:3000**
 4. **Composants ne s'affichent pas** → Videz le cache navigateur
 
 ### 📞 Contact Support
-- **Email** : support@sitejet.com
+- **Email** : support@siteforge.com
 - **Téléphone** : +33 1 23 45 67 89
 - **Chat** : Disponible dans l'application
 - **Horaires** : Lun-Ven 9h-18h (CET)
@@ -248,7 +248,7 @@ Ouvrez votre navigateur sur : **http://localhost:3000**
 **MIT License** - Libre d'utilisation commerciale et personnelle
 
 ### 👨‍💻 Crédits
-- **Développement** : SiteJet Technologies
+- **Développement** : SiteForge Technologies
 - **UI Framework** : React + TypeScript
 - **Base de données** : PostgreSQL/MySQL
 - **Hébergement** : Compatible tous fournisseurs
@@ -282,4 +282,4 @@ npm run dev
 
 **✨ Bienvenue dans l'avenir de la création web ! ✨**
 
-*SiteJet - Créez. Publiez. Réussissez.*
+*SiteForge - Créez. Publiez. Réussissez.*

@@ -63,7 +63,7 @@ export default function Sidebar({ onHideSidebar }: SidebarProps) {
               <Code className="w-3 h-3 text-white" />
             </button>
             {/* Texte non cliquable */}
-            <span className="text-gray-900 font-semibold text-xs truncate">SiteJet</span>
+            <span className="text-gray-900 font-semibold text-xs truncate">SiteForge</span>
           </div>
         </div>
 

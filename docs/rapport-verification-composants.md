@@ -1,4 +1,4 @@
-# Rapport de Vérification Complète - Composants PageForge
+# Rapport de Vérification Complète - Composants SiteForge
 
 **Date de début :** Janvier 2025  
 **Protocole appliqué :** verif-component.md  

@@ -1,4 +1,4 @@
-# ⚡ Guide de Démarrage Rapide SiteJet
+# ⚡ Guide de Démarrage Rapide SiteForge
 
 ## En 5 Minutes : Créez Votre Premier Site Web
 
@@ -9,18 +9,18 @@ Ce guide ultra-rapide vous permet de créer et publier votre premier site en moi
 ## 🚀 Étape 1 : Démarrage (30 secondes)
 
 ### Windows
-1. Double-cliquez sur l'icône SiteJet
+1. Double-cliquez sur l'icône SiteForge
 2. Attendez le chargement automatique
 
 ### Linux/macOS
 ```bash
-cd ~/Projets/sitejet
+cd ~/Projets/siteforge
 npm run dev
 ```
 
 ### Accès
 - Ouvrez : http://localhost:3000
-- SiteJet s'affiche automatiquement
+- SiteForge s'affiche automatiquement
 
 ---
 
@@ -126,7 +126,7 @@ Vous avez maintenant :
 
 ### Support
 - 💬 Chat dans l'application
-- 📧 Email : support@sitejet.com
-- 🌐 Documentation : docs.sitejet.com
+- 📧 Email : support@siteforge.com
+- 🌐 Documentation : docs.siteforge.com
 
-**Félicitations ! Vous maîtrisez les bases de SiteJet !** 🎉
+**Félicitations ! Vous maîtrisez les bases de SiteForge !** 🎉

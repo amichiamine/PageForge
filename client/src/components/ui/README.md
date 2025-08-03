@@ -1,4 +1,4 @@
-# UI Components Library - PageForge
+# UI Components Library - SiteForge
 
 ## 📊 Composants disponibles (42 composants)
 
@@ -59,7 +59,7 @@
 - `table` - Tableaux de données
 - `calendar` - Calendrier et événements
 
-## 🎨 **Utilisation dans PageForge**
+## 🎨 **Utilisation dans SiteForge**
 
 ### **Templates Business**
 - `accordion` pour FAQ
@@ -111,5 +111,5 @@ import { Accordion } from "@/components/ui/accordion"
 - **42 composants** au lieu de 49 (-7 composants)
 - **Bundle plus léger** (~30KB économisés)
 - **Maintenance simplifiée** (moins de redondances)
-- **Focus sur l'essentiel** (composants utiles pour PageForge)
+- **Focus sur l'essentiel** (composants utiles pour SiteForge)
 - **Toutes les fonctionnalités conservées**

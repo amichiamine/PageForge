@@ -1,34 +1,34 @@
-# 📖 Manuel d'Utilisation SiteJet
+# 📖 Manuel d'Utilisation SiteForge
 
 ## Guide Complet pour Créer des Sites Web sans Code
 
-SiteJet est un éditeur visuel intuitif qui vous permet de créer des sites web professionnels sans connaissances en programmation.
+SiteForge est un éditeur visuel intuitif qui vous permet de créer des sites web professionnels sans connaissances en programmation.
 
 ---
 
 ## 🚀 Premiers Pas
 
-### Lancement de SiteJet
+### Lancement de SiteForge
 1. **Sur Windows** :
-   - Double-cliquez sur l'icône SiteJet sur le bureau
+   - Double-cliquez sur l'icône SiteForge sur le bureau
    - OU ouvrez l'invite de commande, naviguez vers le dossier et tapez `npm run dev`
 
 2. **Sur Linux/macOS** :
    - Ouvrez le terminal
-   - Naviguez vers le dossier SiteJet : `cd ~/Projets/sitejet`
+   - Naviguez vers le dossier SiteForge : `cd ~/Projets/siteforge`
    - Tapez : `npm run dev`
 
 3. **Accès à l'interface** :
    - Ouvrez votre navigateur web
    - Allez sur : http://localhost:3000
-   - SiteJet s'ouvre automatiquement
+   - SiteForge s'ouvre automatiquement
 
 ### Interface Principale
 
-L'interface SiteJet se compose de 4 zones principales :
+L'interface SiteForge se compose de 4 zones principales :
 
 #### 1. **Barre de Navigation** (en haut)
-- **Logo SiteJet** : Retour à l'accueil
+- **Logo SiteForge** : Retour à l'accueil
 - **Nom du Projet** : Indique le projet en cours
 - **Boutons d'Action** :
   - 💾 Sauvegarder
@@ -174,7 +174,7 @@ Templates disponibles :
 - **Z-index** : Ordre de superposition
 
 ### Système Responsive Automatique
-SiteJet adapte automatiquement votre design :
+SiteForge adapte automatiquement votre design :
 - **Desktop** (1200px+) : Design principal
 - **Tablette** (768px-1199px) : Adaptation automatique
 - **Mobile** (moins de 768px) : Version optimisée
@@ -283,10 +283,10 @@ Pour prévisualiser :
 
 ## 🌐 Publication en Ligne
 
-### Option 1 : Hébergement Automatique SiteJet
-1. **Compte SiteJet Pro** requis
+### Option 1 : Hébergement Automatique SiteForge
+1. **Compte SiteForge Pro** requis
 2. **Un clic** pour publier
-3. **URL fournie** : votresite.sitejet.com
+3. **URL fournie** : votresite.siteforge.com
 4. **Domaine personnalisé** possible
 
 ### Option 2 : Hébergement Personnel
@@ -305,7 +305,7 @@ Pour prévisualiser :
 ## 🔍 SEO et Référencement
 
 ### Optimisation Automatique
-SiteJet optimise automatiquement :
+SiteForge optimise automatiquement :
 - **Balises meta** : Titre et description
 - **URLs propres** : Sans caractères spéciaux
 - **Sitemap** : Génération automatique
@@ -356,7 +356,7 @@ SiteJet optimise automatiquement :
 1. Vérifiez votre connexion internet
 2. Rafraîchissez la page (Ctrl+F5)
 3. Videz le cache du navigateur
-4. Redémarrez SiteJet
+4. Redémarrez SiteForge
 
 #### **Composant qui ne s'affiche pas correctement**
 1. Cliquez sur le composant
@@ -376,17 +376,17 @@ SiteJet optimise automatiquement :
 ### Support et Aide
 
 #### **Documentation**
-- **Wiki complet** : docs.sitejet.com
-- **Tutoriels vidéo** : youtube.com/sitejet
+- **Wiki complet** : docs.siteforge.com
+- **Tutoriels vidéo** : youtube.com/siteforge
 - **Blog** : Articles et conseils
 
 #### **Communauté**
-- **Forum** : forum.sitejet.com
+- **Forum** : forum.siteforge.com
 - **Discord** : Chat en temps réel
 - **Facebook** : Groupe d'utilisateurs
 
 #### **Contact Direct**
-- **Email** : support@sitejet.com
+- **Email** : support@siteforge.com
 - **Chat** : Disponible dans l'application
 - **Téléphone** : Uniquement pour comptes Pro
 
@@ -407,7 +407,7 @@ SiteJet optimise automatiquement :
 4. **Images** : Utilisez des visuels de qualité
 
 ### Performance
-1. **Images optimisées** : SiteJet s'en charge automatiquement
+1. **Images optimisées** : SiteForge s'en charge automatiquement
 2. **Pages rapides** : Évitez la surcharge de composants
 3. **Mobile-first** : Pensez d'abord mobile
 4. **Test régulier** : Vérifiez sur différents appareils
@@ -430,7 +430,7 @@ SiteJet optimise automatiquement :
 
 ### Formation Avancée
 - **Webinaires** : Sessions de formation en direct
-- **Certification** : Devenez expert SiteJet
+- **Certification** : Devenez expert SiteForge
 - **Partenariat** : Programme pour agences
 
 ### API et Intégrations
@@ -440,4 +440,4 @@ SiteJet optimise automatiquement :
 
 ---
 
-Félicitations ! Vous maîtrisez maintenant SiteJet. Créez des sites web exceptionnels sans une ligne de code !
+Félicitations ! Vous maîtrisez maintenant SiteForge. Créez des sites web exceptionnels sans une ligne de code !

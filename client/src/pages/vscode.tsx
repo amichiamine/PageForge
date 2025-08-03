@@ -23,7 +23,7 @@ export default function VSCode() {
                   Installation
                 </CardTitle>
                 <CardDescription>
-                  Intégrez PageForge dans votre environnement VS Code
+                  Intégrez SiteForge dans votre environnement VS Code
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -59,7 +59,7 @@ export default function VSCode() {
                   Configuration
                 </CardTitle>
                 <CardDescription>
-                  Configurez PageForge pour votre projet
+                  Configurez SiteForge pour votre projet
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

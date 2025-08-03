@@ -130,7 +130,7 @@ check_disk_space() {
     
     if [ "$AVAILABLE_SPACE" -lt "$REQUIRED_SPACE" ]; then
         log_warning "Espace disque faible ($(echo "scale=1; $AVAILABLE_SPACE/1024/1024" | bc)GB disponible)"
-        log_warning "SiteJet nécessite au moins 2 Go d'espace libre."
+        log_warning "SiteForge nécessite au moins 2 Go d'espace libre."
         echo -n "Continuer malgré tout ? (o/N) "
         read -r CONTINUE
         if [[ ! "$CONTINUE" =~ ^[oO]$ ]]; then
@@ -177,7 +177,7 @@ main_install() {
     # Vérification de package.json
     if [ ! -f "package.json" ]; then
         log_error "Fichier package.json introuvable !"
-        log_error "Le package SiteJet semble incomplet."
+        log_error "Le package SiteForge semble incomplet."
         exit 1
     fi
     
@@ -223,7 +223,7 @@ EOF
         log_success "Base de données initialisée !"
     else
         log_warning "Erreur lors de l'initialisation de la base de données"
-        log_warning "SiteJet fonctionnera mais certaines fonctionnalités peuvent être limitées."
+        log_warning "SiteForge fonctionnera mais certaines fonctionnalités peuvent être limitées."
     fi
     
     # Test rapide
@@ -248,11 +248,11 @@ finalize_install() {
     echo -e "INSTALLATION TERMINÉE AVEC SUCCÈS !"
     echo -e "========================================${NC}"
     echo
-    echo -e "${WHITE}SiteJet est maintenant installé et prêt à utiliser !${NC}"
+    echo -e "${WHITE}SiteForge est maintenant installé et prêt à utiliser !${NC}"
     echo
     echo -e "${CYAN}PROCHAINES ÉTAPES :${NC}"
     echo
-    echo -e "${YELLOW}1. Pour DÉMARRER SiteJet :${NC}"
+    echo -e "${YELLOW}1. Pour DÉMARRER SiteForge :${NC}"
     echo -e "   ${WHITE}> npm run dev${NC}"
     echo
     echo -e "${YELLOW}2. Puis ouvrez votre navigateur sur :${NC}"
@@ -264,8 +264,8 @@ finalize_install() {
     echo -e "   ${WHITE}> Démarrage rapide : docs/QUICK_START_GUIDE.md${NC}"
     echo
     echo -e "${YELLOW}4. SUPPORT :${NC}"
-    echo -e "   ${WHITE}> Email : support@sitejet.com${NC}"
-    echo -e "   ${WHITE}> Documentation : https://docs.sitejet.com${NC}"
+    echo -e "   ${WHITE}> Email : support@siteforge.com${NC}"
+    echo -e "   ${WHITE}> Documentation : https://docs.siteforge.com${NC}"
     echo
     echo -e "${CYAN}INFORMATIONS SYSTÈME :${NC}"
     echo -e "${WHITE}> Node.js : $(node --version)${NC}"
@@ -274,16 +274,16 @@ finalize_install() {
     echo -e "${WHITE}> Date installation : $(date)${NC}"
     echo
     echo -e "${GREEN}========================================"
-    echo -e "Félicitations ! Bienvenue dans SiteJet !"
+    echo -e "Félicitations ! Bienvenue dans SiteForge !"
     echo -e "========================================${NC}"
     echo
     
     # Proposer de démarrer immédiatement
-    echo -n "Voulez-vous démarrer SiteJet maintenant ? (o/N) "
+    echo -n "Voulez-vous démarrer SiteForge maintenant ? (o/N) "
     read -r START_NOW
     if [[ "$START_NOW" =~ ^[oO]$ ]]; then
         echo
-        echo "Démarrage de SiteJet..."
+        echo "Démarrage de SiteForge..."
         echo "Appuyez sur Ctrl+C pour arrêter le serveur"
         echo
         sleep 3
@@ -291,7 +291,7 @@ finalize_install() {
     fi
     
     echo
-    echo -e "${CYAN}Merci d'avoir choisi SiteJet !${NC}"
+    echo -e "${CYAN}Merci d'avoir choisi SiteForge !${NC}"
     echo -e "${CYAN}N'hésitez pas à nous contacter pour toute question.${NC}"
     echo
 }

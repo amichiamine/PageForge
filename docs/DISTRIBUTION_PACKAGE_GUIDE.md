@@ -1,14 +1,14 @@
-# 📦 Guide de Création de Package de Distribution SiteJet
+# 📦 Guide de Création de Package de Distribution SiteForge
 
-## Manuel Complet pour Créer et Distribuer SiteJet
+## Manuel Complet pour Créer et Distribuer SiteForge
 
-Ce guide explique comment créer un package de distribution professionnel de SiteJet pour d'autres utilisateurs.
+Ce guide explique comment créer un package de distribution professionnel de SiteForge pour d'autres utilisateurs.
 
 ---
 
 ## 🎯 Vue d'ensemble du Package de Distribution
 
-Le package de distribution SiteJet comprend :
+Le package de distribution SiteForge comprend :
 - **Application compilée** prête à déployer
 - **Manuel d'installation** pas à pas
 - **Scripts d'installation automatique**
@@ -57,7 +57,7 @@ npm run dev
 
 ### 2.1 Création de la structure de distribution
 ```
-SiteJet-Distribution/
+SiteForge-Distribution/
 ├── app/                          # Application principale
 │   ├── dist/                     # Fichiers compilés
 │   ├── package.json              # Dépendances
@@ -97,16 +97,16 @@ async function createDistribution() {
     
     // 1. Nettoyage
     console.log('📁 Nettoyage des anciens fichiers...');
-    await fs.remove('SiteJet-Distribution');
+    await fs.remove('SiteForge-Distribution');
     
     // 2. Création de la structure
     console.log('🏗  Création de la structure...');
     const dirs = [
-        'SiteJet-Distribution/app',
-        'SiteJet-Distribution/docs',
-        'SiteJet-Distribution/scripts',
-        'SiteJet-Distribution/config',
-        'SiteJet-Distribution/examples'
+        'SiteForge-Distribution/app',
+        'SiteForge-Distribution/docs',
+        'SiteForge-Distribution/scripts',
+        'SiteForge-Distribution/config',
+        'SiteForge-Distribution/examples'
     ];
     
     for (const dir of dirs) {
@@ -119,11 +119,11 @@ async function createDistribution() {
     
     // 4. Copie des fichiers principaux
     console.log('📋 Copie des fichiers...');
-    await fs.copy('dist', 'SiteJet-Distribution/app/dist');
-    await fs.copy('server', 'SiteJet-Distribution/app/server');
-    await fs.copy('shared', 'SiteJet-Distribution/app/shared');
-    await fs.copy('package.json', 'SiteJet-Distribution/app/package.json');
-    await fs.copy('docs', 'SiteJet-Distribution/docs');
+    await fs.copy('dist', 'SiteForge-Distribution/app/dist');
+    await fs.copy('server', 'SiteForge-Distribution/app/server');
+    await fs.copy('shared', 'SiteForge-Distribution/app/shared');
+    await fs.copy('package.json', 'SiteForge-Distribution/app/package.json');
+    await fs.copy('docs', 'SiteForge-Distribution/docs');
     
     // 5. Création des scripts d'installation
     console.log('📜 Création des scripts...');
@@ -142,7 +142,7 @@ async function createDistribution() {
     await createArchives();
     
     console.log('\n✅ Package de distribution créé avec succès !');
-    console.log('📁 Dossier : SiteJet-Distribution/');
+    console.log('📁 Dossier : SiteForge-Distribution/');
     console.log('📦 Archives : SiteJet-Windows.zip, SiteJet-Linux.tar.gz');
 }
 
@@ -174,7 +174,7 @@ echo Pour demarrer : npm run dev
 pause
 `;
     
-    await fs.writeFile('SiteJet-Distribution/scripts/install-windows.bat', windowsScript);
+    await fs.writeFile('SiteForge-Distribution/scripts/install-windows.bat', windowsScript);
     
     // Script Linux
     const linuxScript = `#!/bin/bash
@@ -201,8 +201,8 @@ echo "Installation terminée !"
 echo "Pour démarrer : npm run dev"
 `;
     
-    await fs.writeFile('SiteJet-Distribution/scripts/install-linux.sh', linuxScript);
-    await fs.chmod('SiteJet-Distribution/scripts/install-linux.sh', '755');
+    await fs.writeFile('SiteForge-Distribution/scripts/install-linux.sh', linuxScript);
+    await fs.chmod('SiteForge-Distribution/scripts/install-linux.sh', '755');
 }
 
 async function createConfigFiles() {
@@ -218,7 +218,7 @@ APP_NAME=SiteJet
 DEBUG=false
 `;
     
-    await fs.writeFile('SiteJet-Distribution/config/.env.example', envExample);
+    await fs.writeFile('SiteForge-Distribution/config/.env.example', envExample);
     
     // Configuration Nginx
     const nginxConfig = `server {
@@ -235,7 +235,7 @@ DEBUG=false
     }
 }`;
     
-    await fs.writeFile('SiteJet-Distribution/config/nginx.conf.example', nginxConfig);
+    await fs.writeFile('SiteForge-Distribution/config/nginx.conf.example', nginxConfig);
 }
 
 async function createDocumentation() {
@@ -280,7 +280,7 @@ SiteJet est un éditeur visuel puissant pour créer des sites web sans code. Il 
 MIT License - Voir le fichier LICENSE pour plus de détails.
 `;
     
-    await fs.writeFile('SiteJet-Distribution/README.md', mainReadme);
+    await fs.writeFile('SiteForge-Distribution/README.md', mainReadme);
     
     const quickInstall = `INSTALLATION RAPIDE SITEJET
 ============================
@@ -310,7 +310,7 @@ AIDE :
 - Email : support@sitejet.com
 `;
     
-    await fs.writeFile('SiteJet-Distribution/INSTALL.txt', quickInstall);
+    await fs.writeFile('SiteForge-Distribution/INSTALL.txt', quickInstall);
 }
 
 async function createArchives() {
@@ -325,11 +325,11 @@ async function createArchives() {
     });
     
     archiveZip.pipe(outputZip);
-    archiveZip.directory('SiteJet-Distribution/', false);
+    archiveZip.directory('SiteForge-Distribution/', false);
     await archiveZip.finalize();
     
     // Archive Linux (TAR.GZ)
-    execSync('tar -czf SiteJet-Linux.tar.gz SiteJet-Distribution/', { stdio: 'inherit' });
+    execSync('tar -czf SiteJet-Linux.tar.gz SiteForge-Distribution/', { stdio: 'inherit' });
     console.log('📦 SiteJet-Linux.tar.gz créé');
 }
 

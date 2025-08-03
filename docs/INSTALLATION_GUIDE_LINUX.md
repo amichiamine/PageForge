@@ -1,8 +1,8 @@
-# 🐧 Guide d'Installation SiteJet - Linux
+# 🐧 Guide d'Installation SiteForge - Linux
 
 ## Guide Complet pour Débutants - Version Linux (Ubuntu/Debian)
 
-Ce guide vous explique pas à pas comment exporter, télécharger, modifier et installer SiteJet sur Linux.
+Ce guide vous explique pas à pas comment exporter, télécharger, modifier et installer SiteForge sur Linux.
 
 ---
 
@@ -12,7 +12,7 @@ Ce guide vous explique pas à pas comment exporter, télécharger, modifier et i
 1. Ouvrez votre navigateur web (Firefox, Chrome, Chromium)
 2. Allez sur https://replit.com
 3. Connectez-vous à votre compte
-4. Cliquez sur votre projet SiteJet pour l'ouvrir
+4. Cliquez sur votre projet SiteForge pour l'ouvrir
 
 ### 1.2 Exportation vers GitHub
 1. Dans l'interface Replit, regardez dans la barre latérale gauche
@@ -23,7 +23,7 @@ Ce guide vous explique pas à pas comment exporter, télécharger, modifier et i
    - Cliquez "Sign up" et créez votre compte
    - Revenez à Replit
 5. Autorisez la connexion entre Replit et GitHub
-6. Donnez un nom à votre repository GitHub (ex: "sitejet-editor")
+6. Donnez un nom à votre repository GitHub (ex: "siteforge-editor")
 7. Cliquez "Create Repository"
 8. Attendez la synchronisation (quelques minutes)
 
@@ -57,11 +57,11 @@ Ce guide vous explique pas à pas comment exporter, télécharger, modifier et i
    ```
 2. Clonez votre repository (remplacez "votre-nom" par votre nom d'utilisateur GitHub) :
    ```bash
-   git clone https://github.com/votre-nom/sitejet-editor.git
+   git clone https://github.com/votre-nom/siteforge-editor.git
    ```
 3. Entrez dans le dossier :
    ```bash
-   cd sitejet-editor
+   cd siteforge-editor
    ```
 
 ### 2.3 Alternative : Téléchargement ZIP
@@ -123,7 +123,7 @@ sudo snap install code --classic
 ### 4.1 Ouverture depuis le terminal
 1. Naviguez vers votre projet :
    ```bash
-   cd ~/Projets/sitejet-editor
+   cd ~/Projets/siteforge-editor
    ```
 2. Ouvrez VS Code dans ce dossier :
    ```bash
@@ -152,10 +152,10 @@ sudo snap install code --classic
    ```
 3. Créez une base de données :
    ```bash
-   sudo -u postgres createdb sitejet_db
-   sudo -u postgres createuser sitejet_user
-   sudo -u postgres psql -c "ALTER USER sitejet_user WITH PASSWORD 'motdepasse123';"
-   sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sitejet_db TO sitejet_user;"
+   sudo -u postgres createdb siteforge_db
+   sudo -u postgres createuser siteforge_user
+   sudo -u postgres psql -c "ALTER USER siteforge_user WITH PASSWORD 'motdepasse123';"
+   sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE siteforge_db TO siteforge_user;"
    ```
 
 ### 4.4 Configuration des variables d'environnement
@@ -169,7 +169,7 @@ sudo snap install code --classic
    ```
 3. Ajoutez :
    ```
-   DATABASE_URL=postgresql://sitejet_user:motdepasse123@localhost:5432/sitejet_db
+   DATABASE_URL=postgresql://siteforge_user:motdepasse123@localhost:5432/siteforge_db
    NODE_ENV=development
    ```
 4. Sauvegardez : Ctrl + X, puis Y, puis Entrée
@@ -218,19 +218,19 @@ sudo npm install -g pm2
 
 ### 5.3 Configuration de la base de données
 ```bash
-sudo -u postgres createdb sitejet_production
-sudo -u postgres createuser sitejet_app
-sudo -u postgres psql -c "ALTER USER sitejet_app WITH PASSWORD 'mot_de_passe_fort';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sitejet_production TO sitejet_app;"
+sudo -u postgres createdb siteforge_production
+sudo -u postgres createuser siteforge_app
+sudo -u postgres psql -c "ALTER USER siteforge_app WITH PASSWORD 'mot_de_passe_fort';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE siteforge_production TO siteforge_app;"
 ```
 
 ### 5.4 Déploiement de l'application
 1. Clonez votre projet :
    ```bash
    cd /var/www/
-   sudo git clone https://github.com/votre-nom/sitejet-editor.git
-   sudo chown -R www-data:www-data sitejet-editor
-   cd sitejet-editor
+   sudo git clone https://github.com/votre-nom/siteforge-editor.git
+   sudo chown -R www-data:www-data siteforge-editor
+   cd siteforge-editor
    ```
 
 2. Installez les dépendances :
@@ -244,7 +244,7 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sitejet_production TO
    ```
    Contenu :
    ```
-   DATABASE_URL=postgresql://sitejet_app:mot_de_passe_fort@localhost:5432/sitejet_production
+   DATABASE_URL=postgresql://siteforge_app:mot_de_passe_fort@localhost:5432/siteforge_production
    NODE_ENV=production
    PORT=3000
    ```
@@ -262,7 +262,7 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sitejet_production TO
 ### 5.5 Configuration de PM2
 ```bash
 # Démarrez l'application avec PM2
-sudo -u www-data pm2 start npm --name "sitejet" -- start
+sudo -u www-data pm2 start npm --name "siteforge" -- start
 
 # Sauvegardez la configuration PM2
 sudo -u www-data pm2 save
@@ -274,7 +274,7 @@ sudo -u www-data pm2 startup
 ### 5.6 Configuration de Nginx
 1. Créez un fichier de configuration :
    ```bash
-   sudo nano /etc/nginx/sites-available/sitejet
+   sudo nano /etc/nginx/sites-available/siteforge
    ```
 
 2. Ajoutez la configuration :
@@ -299,7 +299,7 @@ sudo -u www-data pm2 startup
 
 3. Activez le site :
    ```bash
-   sudo ln -s /etc/nginx/sites-available/sitejet /etc/nginx/sites-enabled/
+   sudo ln -s /etc/nginx/sites-available/siteforge /etc/nginx/sites-enabled/
    sudo nginx -t
    sudo systemctl reload nginx
    ```
@@ -326,7 +326,7 @@ sudo certbot --nginx -d votre-domaine.com
 2. Contenu du script :
    ```bash
    #!/bin/bash
-   echo "Building SiteJet Release Package..."
+   echo "Building SiteForge Release Package..."
    
    # Nettoyage
    rm -rf release/
@@ -343,9 +343,9 @@ sudo certbot --nginx -d votre-domaine.com
    cp README.md release/
    
    # Création de l'archive
-   tar -czf SiteJet-v1.0-Linux.tar.gz release/
+   tar -czf SiteForge-v1.0-Linux.tar.gz release/
    
-   echo "Package créé : SiteJet-v1.0-Linux.tar.gz"
+   echo "Package créé : SiteForge-v1.0-Linux.tar.gz"
    ```
 
 3. Rendez le script exécutable :
@@ -367,7 +367,7 @@ sudo certbot --nginx -d votre-domaine.com
 2. Contenu de l'installateur :
    ```bash
    #!/bin/bash
-   echo "=== Installation de SiteJet ==="
+   echo "=== Installation de SiteForge ==="
    
    # Vérification des prérequis
    if ! command -v node &> /dev/null; then
@@ -400,7 +400,7 @@ sudo certbot --nginx -d votre-domaine.com
 ### Problème : Permission denied
 **Solution :**
 ```bash
-sudo chown -R $USER:$USER ~/Projets/sitejet-editor
+sudo chown -R $USER:$USER ~/Projets/siteforge-editor
 ```
 
 ### Problème : Port 5000 occupé
@@ -444,11 +444,11 @@ sudo journalctl -u nginx
 ```bash
 # Vérifier les logs
 sudo journalctl -u nginx -f
-pm2 logs sitejet
+pm2 logs siteforge
 
 # Redémarrer les services
 sudo systemctl restart nginx
-pm2 restart sitejet
+pm2 restart siteforge
 
 # Vérifier l'état du système
 df -h  # Espace disque
@@ -462,4 +462,4 @@ htop  # Processus
 - Documentation Nginx : https://nginx.org/docs
 - Documentation PM2 : https://pm2.keymetrics.io
 
-Cette documentation vous guide à travers toutes les étapes nécessaires pour installer et déployer SiteJet sur Linux !
+Cette documentation vous guide à travers toutes les étapes nécessaires pour installer et déployer SiteForge sur Linux !

@@ -1,7 +1,7 @@
 # Protocole-Component : Mécanisme Standard d'Intégration des Composants Complexes
 
 ## Vue d'ensemble
-Ce document décrit le protocole standard utilisé par PageForge pour l'intégration complète des composants complexes, basé sur l'analyse du composant carrousel qui sert de référence.
+Ce document décrit le protocole standard utilisé par SiteForge pour l'intégration complète des composants complexes, basé sur l'analyse du composant carrousel qui sert de référence.
 
 ## Architecture Unifiée : Les 4 Piliers
 
@@ -332,4 +332,4 @@ Un composant respecte le protocole si :
 - ✅ Exporte du HTML sémantique
 - ✅ Maintient la cohérence entre tous les systèmes
 
-Ce protocole garantit une architecture unifiée, maintenable et évolutive pour tous les composants complexes de PageForge.
+Ce protocole garantit une architecture unifiée, maintenable et évolutive pour tous les composants complexes de SiteForge.

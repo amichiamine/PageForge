@@ -1,8 +1,8 @@
-# 🌐 Guide de Déploiement et Hébergement SiteJet
+# 🌐 Guide de Déploiement et Hébergement SiteForge
 
-## Manuel Complet pour Déployer SiteJet sur Différents Hébergeurs
+## Manuel Complet pour Déployer SiteForge sur Différents Hébergeurs
 
-Ce guide détaille toutes les méthodes de déploiement de SiteJet, depuis l'hébergement partagé jusqu'aux serveurs cloud.
+Ce guide détaille toutes les méthodes de déploiement de SiteForge, depuis l'hébergement partagé jusqu'aux serveurs cloud.
 
 ---
 
@@ -36,13 +36,13 @@ Ce guide détaille toutes les méthodes de déploiement de SiteJet, depuis l'hé
 - Base de données MySQL/PostgreSQL
 
 ### Étape 1 : Préparation des Fichiers
-1. **Sur votre ordinateur**, dans le dossier SiteJet :
+1. **Sur votre ordinateur**, dans le dossier SiteForge :
    ```bash
    # Build pour production
    npm run build
    
    # Création d'une archive
-   zip -r sitejet-production.zip dist/ package.json server/ shared/
+   zip -r siteforge-production.zip dist/ package.json server/ shared/
    ```
 
 ### Étape 2 : Configuration cPanel
@@ -52,28 +52,28 @@ Ce guide détaille toutes les méthodes de déploiement de SiteJet, depuis l'hé
 
 2. **Création de la base de données** :
    - Cliquez sur "MySQL Databases"
-   - Créez une base : `sitejet_db`
-   - Créez un utilisateur : `sitejet_user`
+   - Créez une base : `siteforge_db`
+   - Créez un utilisateur : `siteforge_user`
    - Associez l'utilisateur à la base avec tous les privilèges
 
 3. **Configuration Node.js** (si supporté) :
    - Cherchez "Node.js" dans cPanel
    - Créez une nouvelle application :
      - Version : 18.x ou plus récente
-     - Dossier : `public_html/sitejet`
+     - Dossier : `public_html/siteforge`
      - Fichier de démarrage : `server/index.js`
 
 ### Étape 3 : Upload des Fichiers
 1. **File Manager** :
    - Ouvrez "File Manager" dans cPanel
-   - Naviguez vers `public_html/sitejet/`
-   - Uploadez `sitejet-production.zip`
+   - Naviguez vers `public_html/siteforge/`
+   - Uploadez `siteforge-production.zip`
    - Extrayez l'archive (clic droit → Extract)
 
 2. **Configuration des variables d'environnement** :
    - Créez un fichier `.env` :
    ```
-   DATABASE_URL=mysql://sitejet_user:motdepasse@localhost:3306/sitejet_db
+   DATABASE_URL=mysql://siteforge_user:motdepasse@localhost:3306/siteforge_db
    NODE_ENV=production
    PORT=3000
    ```
@@ -81,7 +81,7 @@ Ce guide détaille toutes les méthodes de déploiement de SiteJet, depuis l'hé
 ### Étape 4 : Installation et Démarrage
 1. **Terminal cPanel** (si disponible) :
    ```bash
-   cd public_html/sitejet
+   cd public_html/siteforge
    npm install
    npm run db:push
    npm start
@@ -129,27 +129,27 @@ npm --version
 ### Étape 3 : Configuration Base de Données
 ```bash
 # Configuration PostgreSQL
-sudo -u postgres psql -c "CREATE DATABASE sitejet_production;"
-sudo -u postgres psql -c "CREATE USER sitejet_app WITH PASSWORD 'mot_de_passe_fort';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sitejet_production TO sitejet_app;"
-sudo -u postgres psql -c "ALTER USER sitejet_app CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE siteforge_production;"
+sudo -u postgres psql -c "CREATE USER siteforge_app WITH PASSWORD 'mot_de_passe_fort';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE siteforge_production TO siteforge_app;"
+sudo -u postgres psql -c "ALTER USER siteforge_app CREATEDB;"
 ```
 
 ### Étape 4 : Déploiement de l'Application
 ```bash
 # Création du dossier applicatif
-mkdir -p /var/www/sitejet
-cd /var/www/sitejet
+mkdir -p /var/www/siteforge
+cd /var/www/siteforge
 
 # Clonage du projet (ou upload)
-git clone https://github.com/votre-nom/sitejet-editor.git .
+git clone https://github.com/votre-nom/siteforge-editor.git .
 
 # Installation des dépendances
 npm install
 
 # Configuration environnement
 cat > .env << EOF
-DATABASE_URL=postgresql://sitejet_app:mot_de_passe_fort@localhost:5432/sitejet_production
+DATABASE_URL=postgresql://siteforge_app:mot_de_passe_fort@localhost:5432/siteforge_production
 NODE_ENV=production
 PORT=3000
 EOF
@@ -170,7 +170,7 @@ npm install -g pm2
 cat > ecosystem.config.js << EOF
 module.exports = {
   apps: [{
-    name: 'sitejet',
+    name: 'siteforge',
     script: 'server/index.js',
     instances: 'max',
     exec_mode: 'cluster',
@@ -191,7 +191,7 @@ pm2 startup
 ### Étape 6 : Configuration Nginx
 ```bash
 # Configuration Nginx
-cat > /etc/nginx/sites-available/sitejet << EOF
+cat > /etc/nginx/sites-available/siteforge << EOF
 server {
     listen 80;
     server_name votre-domaine.com www.votre-domaine.com;
@@ -211,7 +211,7 @@ server {
 EOF
 
 # Activation du site
-ln -s /etc/nginx/sites-available/sitejet /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/siteforge /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
@@ -326,7 +326,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://sitejet:password@db:5432/sitejet
+      - DATABASE_URL=postgresql://siteforge:password@db:5432/siteforge
       - NODE_ENV=production
     depends_on:
       - db
@@ -335,8 +335,8 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: sitejet
-      POSTGRES_USER: sitejet
+      POSTGRES_DB: siteforge
+      POSTGRES_USER: siteforge
       POSTGRES_PASSWORD: password
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -438,7 +438,7 @@ server {
 ### Monitoring et Logs
 ```bash
 # Logs PM2
-pm2 logs sitejet
+pm2 logs siteforge
 
 # Monitoring PM2
 pm2 monit
@@ -454,13 +454,13 @@ tail -f /var/log/nginx/error.log
 # backup.sh
 
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/backups/sitejet"
+BACKUP_DIR="/backups/siteforge"
 
 # Sauvegarde base de données
-pg_dump sitejet_production > "$BACKUP_DIR/db_$DATE.sql"
+pg_dump siteforge_production > "$BACKUP_DIR/db_$DATE.sql"
 
 # Sauvegarde fichiers
-tar -czf "$BACKUP_DIR/files_$DATE.tar.gz" /var/www/sitejet
+tar -czf "$BACKUP_DIR/files_$DATE.tar.gz" /var/www/siteforge
 
 # Nettoyage (garder 30 jours)
 find $BACKUP_DIR -name "*.sql" -mtime +30 -delete
@@ -486,7 +486,7 @@ PORT=8000
 #### Problème de Base de Données
 ```bash
 # Test de connexion
-psql -h localhost -U sitejet_app -d sitejet_production
+psql -h localhost -U siteforge_app -d siteforge_production
 
 # Réinitialisation
 npm run db:reset
@@ -496,8 +496,8 @@ npm run db:push
 #### Erreurs de Permissions
 ```bash
 # Correction des permissions
-chown -R www-data:www-data /var/www/sitejet
-chmod -R 755 /var/www/sitejet
+chown -R www-data:www-data /var/www/siteforge
+chmod -R 755 /var/www/siteforge
 ```
 
 ### Monitoring de Production
@@ -513,4 +513,4 @@ df -h
 free -h
 ```
 
-Ce guide couvre toutes les méthodes principales pour déployer SiteJet en production. Choisissez la méthode qui correspond le mieux à vos besoins et compétences techniques.
+Ce guide couvre toutes les méthodes principales pour déployer SiteForge en production. Choisissez la méthode qui correspond le mieux à vos besoins et compétences techniques.

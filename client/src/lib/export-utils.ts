@@ -66,7 +66,7 @@ export function exportProject(project: Project, options: ExportOptions = {}): Ex
     content: JSON.stringify({
       name: project.name.toLowerCase().replace(/\s+/g, '-'),
       version: "1.0.0",
-      description: project.description || "Exported from PageForge",
+      description: project.description || "Exported from SiteForge",
       main: "index.html",
       scripts: {
         start: "npx serve .",
@@ -74,7 +74,7 @@ export function exportProject(project: Project, options: ExportOptions = {}): Ex
         dev: "npx serve . -l 3000"
       },
       keywords: ["website", "exported", "pageforge"],
-      author: "PageForge",
+      author: "SiteForge",
       license: "MIT",
       devDependencies: {
         "serve": "^14.0.0"
@@ -88,7 +88,7 @@ export function exportProject(project: Project, options: ExportOptions = {}): Ex
     path: "README.md",
     content: `# ${project.name}
 
-${project.description || "Projet exporté depuis PageForge"}
+${project.description || "Projet exporté depuis SiteForge"}
 
 ## Installation
 
@@ -117,7 +117,7 @@ Ce projet est prêt pour le déploiement sur n'importe quel serveur web statique
 - \`styles.css\` - Feuilles de style (si séparées)
 - \`script.js\` - Scripts JavaScript (si inclus)
 
-Généré avec PageForge - ${new Date().toLocaleDateString()}
+Généré avec SiteForge - ${new Date().toLocaleDateString()}
 `,
     type: "md"
   });
@@ -567,7 +567,7 @@ ${indentStr}</div>`;
     : '';
 
   const seoMeta = options.seoOptimized 
-    ? `  <meta name="description" content="${description}">\n  <meta name="author" content="PageForge">\n`
+    ? `  <meta name="description" content="${description}">\n  <meta name="author" content="SiteForge">\n`
     : '';
 
   return `<!DOCTYPE html>
@@ -1719,7 +1719,7 @@ function generateCSS(project: Project, page: any, options: ExportOptions): strin
     return styles;
   };
   
-  let css = `/* Styles générés par PageForge */
+  let css = `/* Styles générés par SiteForge */
 * {
   margin: 0;
   padding: 0;
@@ -1808,7 +1808,7 @@ function generateJS(project: Project, page: any, options: ExportOptions): string
   
   const usedTypes = getUsedComponentTypes(pageStructure);
   
-  let js = `// Scripts générés par PageForge
+  let js = `// Scripts générés par SiteForge
 document.addEventListener('DOMContentLoaded', function() {
   console.log('${project.name} chargé avec succès');`;
 
