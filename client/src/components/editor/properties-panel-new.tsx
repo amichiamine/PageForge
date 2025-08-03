@@ -3362,11 +3362,11 @@ export default function PropertiesPanel({
       case 'container':
         return renderContainerConfiguration();
       case 'grid':
-        return renderGridConfiguration();
+        return renderGridProperties();
       case 'flex':
-        return renderFlexboxConfiguration();
+        return renderFlexboxProperties();
       case 'flexbox':
-        return renderFlexboxConfiguration();
+        return renderFlexboxProperties();
       case 'sidebar':
         return renderSidebarConfiguration();
       case 'header':
