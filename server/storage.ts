@@ -1935,10 +1935,215 @@ function smoothScrollTo(target) {
         .join(' ');
       
       const children = component.children ? this.renderComponents(component.children) : '';
-      const content = component.content || '';
+      let content = component.content || '';
+      
+      // Générer le contenu basé sur componentData pour les composants complexes
+      if (component.componentData && component.type) {
+        content = this.generateComponentContent(component.type, component.componentData);
+      }
       
       return `<${tag} ${attributesString} ${styles}>${content}${children}</${tag}>`;
     }).join('\n');
+  }
+
+  private generateComponentContent(type: string, componentData: any): string {
+    switch (type) {
+      case 'header':
+        return this.generateHeaderContent(componentData);
+      case 'footer':
+        return this.generateFooterContent(componentData);
+      case 'navbar':
+        return this.generateNavbarContent(componentData);
+      case 'carousel':
+        return this.generateCarouselContent(componentData);
+      case 'grid':
+        return this.generateGridContent(componentData);
+      case 'list':
+        return this.generateListContent(componentData);
+      case 'accordion':
+        return this.generateAccordionContent(componentData);
+      case 'card':
+        return this.generateCardContent(componentData);
+      case 'chart':
+        return this.generateChartContent(componentData);
+      default:
+        return '';
+    }
+  }
+
+  private generateHeaderContent(data: any): string {
+    const logo = data.logo || 'Logo';
+    const navigation = data.navigation || [];
+    const showSearch = data.showSearch || false;
+    
+    let navItems = '';
+    if (navigation.length > 0) {
+      navItems = navigation.map((item: any) => 
+        `<a href="${item.url || '#'}" style="color: inherit; text-decoration: none; margin: 0 1rem;">${item.label || 'Lien'}</a>`
+      ).join('');
+    }
+    
+    const searchBox = showSearch ? 
+      '<input type="search" placeholder="Rechercher..." style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">' : '';
+    
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%;">
+        <div style="font-weight: bold; font-size: 1.2em;">${logo}</div>
+        <nav style="display: flex; align-items: center; gap: 1rem;">
+          ${navItems}
+          ${searchBox}
+        </nav>
+      </div>
+    `;
+  }
+
+  private generateFooterContent(data: any): string {
+    const company = data.company || 'Mon Entreprise';
+    const links = data.links || [];
+    const socialMedia = data.socialMedia || [];
+    const copyright = data.copyright || `© ${new Date().getFullYear()} ${company}`;
+    
+    const linksList = links.map((link: any) => 
+      `<a href="${link.url || '#'}" style="color: inherit; text-decoration: none; margin: 0 0.5rem;">${link.label || 'Lien'}</a>`
+    ).join('');
+    
+    const socialList = socialMedia.map((social: any) => 
+      `<a href="${social.url || '#'}" style="color: inherit; text-decoration: none; margin: 0 0.5rem;">${social.platform || 'Social'}</a>`
+    ).join('');
+    
+    return `
+      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; text-align: center;">
+        <div style="margin-bottom: 1rem;">
+          ${linksList}
+        </div>
+        <div style="margin-bottom: 1rem;">
+          ${socialList}
+        </div>
+        <div style="font-size: 0.9em;">
+          ${copyright}
+        </div>
+      </div>
+    `;
+  }
+
+  private generateNavbarContent(data: any): string {
+    const brand = data.brand || 'Brand';
+    const items = data.items || [];
+    
+    const navItems = items.map((item: any) => 
+      `<a href="${item.url || '#'}" style="color: inherit; text-decoration: none; padding: 0.5rem 1rem;">${item.label || 'Item'}</a>`
+    ).join('');
+    
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%;">
+        <div style="font-weight: bold;">${brand}</div>
+        <nav style="display: flex; align-items: center;">
+          ${navItems}
+        </nav>
+      </div>
+    `;
+  }
+
+  private generateCarouselContent(data: any): string {
+    const images = data.images || [];
+    if (images.length === 0) return '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">Carrousel vide</div>';
+    
+    return `
+      <div style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+        <img src="${images[0].src || 'https://via.placeholder.com/400x200'}" 
+             alt="${images[0].alt || 'Image'}" 
+             style="width: 100%; height: 100%; object-fit: cover;">
+        <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8em;">
+          1/${images.length}
+        </div>
+      </div>
+    `;
+  }
+
+  private generateGridContent(data: any): string {
+    const items = data.gridItems || [];
+    if (items.length === 0) return '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">Grille vide</div>';
+    
+    const gridItems = items.map((item: any) => 
+      `<div style="padding: 1rem; border: 1px solid #e0e0e0;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1em;">${item.title || 'Titre'}</h3>
+        <p style="margin: 0; font-size: 0.9em;">${item.content || 'Contenu'}</p>
+      </div>`
+    ).join('');
+    
+    return `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; width: 100%; height: 100%;">
+        ${gridItems}
+      </div>
+    `;
+  }
+
+  private generateListContent(data: any): string {
+    const items = data.items || [];
+    if (items.length === 0) return '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">Liste vide</div>';
+    
+    const listItems = items.map((item: any) => 
+      `<li style="padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0;">${item.text || item}</li>`
+    ).join('');
+    
+    return `
+      <ul style="list-style: none; padding: 1rem; margin: 0; width: 100%; height: 100%; overflow-y: auto;">
+        ${listItems}
+      </ul>
+    `;
+  }
+
+  private generateAccordionContent(data: any): string {
+    const items = data.items || [];
+    if (items.length === 0) return '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">Accordéon vide</div>';
+    
+    const accordionItems = items.map((item: any, index: number) => 
+      `<div style="border-bottom: 1px solid #e0e0e0;">
+        <div style="padding: 1rem; background: #f8f9fa; font-weight: bold; cursor: pointer;" onclick="toggleAccordion(${index})">
+          ${item.question || 'Question'}
+        </div>
+        <div id="accordion-${index}" style="padding: 1rem; display: ${index === 0 ? 'block' : 'none'};">
+          ${item.answer || 'Réponse'}
+        </div>
+      </div>`
+    ).join('');
+    
+    return `
+      <div style="width: 100%; height: 100%; overflow-y: auto;">
+        ${accordionItems}
+      </div>
+    `;
+  }
+
+  private generateCardContent(data: any): string {
+    const title = data.title || 'Titre de la carte';
+    const content = data.content || 'Contenu de la carte';
+    const imageUrl = data.imageUrl || '';
+    
+    const imageHtml = imageUrl ? 
+      `<img src="${imageUrl}" alt="${title}" style="width: 100%; height: 150px; object-fit: cover; margin-bottom: 1rem;">` : '';
+    
+    return `
+      <div style="padding: 1rem; width: 100%; height: 100%; display: flex; flex-direction: column;">
+        ${imageHtml}
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.2em;">${title}</h3>
+        <p style="margin: 0; flex: 1; font-size: 0.9em;">${content}</p>
+      </div>
+    `;
+  }
+
+  private generateChartContent(data: any): string {
+    const chartType = data.chartType || 'bar';
+    const title = data.title || 'Graphique';
+    
+    return `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 1rem;">
+        <h3 style="margin: 0 0 1rem 0;">${title}</h3>
+        <div style="width: 100%; height: 60%; background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd;">
+          <span style="background: white; padding: 0.5rem; border-radius: 4px;">Graphique ${chartType}</span>
+        </div>
+      </div>
+    `;
   }
 
   private styleObjectToString(styles: Record<string, any>): string {

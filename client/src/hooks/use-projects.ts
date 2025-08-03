@@ -111,19 +111,10 @@ export function useExportProject() {
       const data = await response.json();
       
       console.log("🔍 EXPORT DATA:", data);
-      console.log("📂 DATA STRUCTURE:", {
-        hasFiles: !!data.files,
-        filesType: typeof data.files,
-        isArray: Array.isArray(data.files),
-        filesLength: data.files?.length,
-        allKeys: Object.keys(data)
-      });
       
       // Download each file individually with proper extension
       if (data.files && Array.isArray(data.files)) {
-        console.log("📁 FILES TO EXPORT:", data.files);
         data.files.forEach((file: any, index: number) => {
-          console.log(`📄 PROCESSING FILE ${index}:`, { path: file.path, hasContent: !!file.content, contentLength: file.content?.length });
           if (file.path && file.content) {
             // Determine MIME type based on file extension
             let mimeType = "text/plain";
@@ -162,25 +153,10 @@ export function useExportProject() {
               link.click();
               document.body.removeChild(link);
               URL.revokeObjectURL(url);
-              console.log(`✅ DOWNLOADED FILE ${index}: ${file.path}`);
+
             }, index * 200);
-          } else {
-            console.log(`❌ SKIPPED FILE ${index}: Missing path or content`, file);
           }
         });
-      } else {
-        console.log("❌ NO FILES FOUND OR INVALID STRUCTURE");
-        // Fallback: try to download the data as JSON for debugging
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "export-debug.json";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        console.log("📥 Downloaded debug file with full data");
       }
       
       return data;

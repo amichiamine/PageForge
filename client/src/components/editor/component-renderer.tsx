@@ -1250,6 +1250,94 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
         </div>
       );
 
+    case 'header':
+      const headerLogo = component.componentData?.logo || 'SiteForge';
+      const headerNavigation = component.componentData?.navigation || [];
+      const headerShowSearch = component.componentData?.showSearch || false;
+      const headerLogoStyles = getResponsiveContentStyles({ baseSize: 18, minSize: 14, maxSize: 24 });
+      const headerNavStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 10, maxSize: 18 });
+      const headerPadding = getResponsiveSpacing(16);
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`header-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            overflow: 'hidden'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            height: '100%',
+            padding: `0 ${headerPadding}px`
+          }}>
+            {/* Logo */}
+            <div style={{
+              ...headerLogoStyles,
+              fontWeight: 'bold',
+              color: 'inherit'
+            }}>
+              {headerLogo}
+            </div>
+            
+            {/* Navigation */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: `${headerPadding}px`
+            }}>
+              {headerNavigation.length > 0 ? (
+                headerNavigation.map((item: any, index: number) => (
+                  <a
+                    key={index}
+                    href={item.url || '#'}
+                    style={{
+                      ...headerNavStyles,
+                      color: 'inherit',
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {item.label || `Menu ${index + 1}`}
+                  </a>
+                ))
+              ) : (
+                <span style={{
+                  ...headerNavStyles,
+                  color: 'inherit',
+                  opacity: 0.7
+                }}>
+                  Navigation
+                </span>
+              )}
+              
+              {/* Search */}
+              {headerShowSearch && (
+                <input
+                  type="search"
+                  placeholder="Rechercher..."
+                  style={{
+                    padding: `${headerPadding / 3}px ${headerPadding / 2}px`,
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    color: 'inherit',
+                    fontSize: `${Math.max(12, containerWidth / 25)}px`,
+                    width: `${Math.max(80, containerWidth / 4)}px`
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      );
+
     case 'accordion':
       const accordionTextStyles = getResponsiveContentStyles({ baseSize: 14, minSize: 9, maxSize: 20 });
       const accordionIconStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 12, maxSize: 24 });
@@ -1656,84 +1744,6 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
           </div>
           {renderChildren()}
         </section>
-      );
-
-    case 'header':
-      const headerTitleStyles = getResponsiveContentStyles({ baseSize: 16, minSize: 10, maxSize: 22 });
-      const headerNavStyles = getResponsiveContentStyles({ baseSize: 12, minSize: 8, maxSize: 16 });
-      const headerPadding = getResponsiveSpacing(12);
-      const headerGap = getResponsiveSpacing(8);
-      
-      // Récupération des données depuis componentData (architecture unifiée)
-      const logo = component.componentData?.logo || 'Site';
-      const navigation = component.componentData?.navigation || [];
-      
-      return (
-        <header
-          ref={containerRef as React.RefObject<HTMLElement>}
-          className={`header ${className || ''}`}
-          style={{
-            ...inlineStyles,
-            overflow: 'hidden',
-            position: 'relative'
-          }}
-          onClick={onClick}
-          {...otherAttributes}
-        >
-          <div style={{ 
-            width: '100%', 
-            height: '100%', 
-            padding: `${headerPadding}px`, 
-            backgroundColor: '#1f2937', 
-            color: 'white', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            boxSizing: 'border-box',
-            margin: '0',
-            overflow: 'hidden',
-            position: 'absolute',
-            top: 0,
-            left: 0
-          }}>
-            <div style={{ 
-              ...headerTitleStyles,
-              fontWeight: 'bold',
-              maxWidth: '60%',
-              flexShrink: 0,
-              lineHeight: 1.2
-            }}>
-              {logo}
-            </div>
-            <nav style={{ 
-              display: 'flex', 
-              gap: `${headerGap}px`,
-              maxWidth: '40%',
-              overflow: containerWidth < 200 ? 'visible' : 'hidden',
-              minWidth: 0,
-              flexWrap: containerWidth < 200 ? 'wrap' : 'nowrap'
-            }}>
-              {navigation.length > 0 ? navigation.map((item: any, index: number) => (
-                <a key={index} href={item.link || '#'} style={{ 
-                  color: 'white', 
-                  textDecoration: 'none',
-                  ...headerNavStyles,
-                  flexShrink: containerWidth < 200 ? 1 : 0,
-                  lineHeight: 1.2,
-                  fontSize: containerWidth < 150 ? '9px' : headerNavStyles.fontSize
-                }}>{item.text}</a>
-              )) : (
-                <span style={{ 
-                  color: '#9ca3af', 
-                  ...headerNavStyles,
-                  flexShrink: 0,
-                  lineHeight: 1.2,
-                  fontSize: containerWidth < 150 ? '9px' : headerNavStyles.fontSize
-                }}>Menu</span>
-              )}
-            </nav>
-          </div>
-        </header>
       );
 
     case 'footer':
