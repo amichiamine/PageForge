@@ -3298,7 +3298,7 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
     case 'code':
       const codeTextStyles = getResponsiveContentStyles({ baseSize: 13, minSize: 10, maxSize: 16, multiline: true });
       const codePadding = getResponsiveSpacing(16);
-      const codeContent = component.componentData?.content || 'console.log("Hello World!");';
+      const codeContent = component.componentData?.content || '';
       const codeLanguage = component.componentData?.language || 'javascript';
       
       return (
@@ -3377,6 +3377,501 @@ export default function ComponentRenderer({ component, isSelected, onClick }: Co
               </pre>
             </div>
           </div>
+        </div>
+      );
+
+    case 'alert':
+      const alertData = component.componentData || {};
+      const alertType = alertData.type || 'info';
+      const alertMessage = alertData.message || '';
+      const alertTitle = alertData.title || '';
+      
+      const alertColors = {
+        success: { bg: '#dcfce7', border: '#16a34a', text: '#15803d' },
+        warning: { bg: '#fef3c7', border: '#d97706', text: '#92400e' },
+        error: { bg: '#fee2e2', border: '#dc2626', text: '#b91c1c' },
+        info: { bg: '#dbeafe', border: '#2563eb', text: '#1d4ed8' }
+      };
+      
+      const alertColor = alertColors[alertType as keyof typeof alertColors] || alertColors.info;
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`alert-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            backgroundColor: alertColor.bg,
+            border: `1px solid ${alertColor.border}`,
+            borderRadius: '8px',
+            padding: '12px 16px',
+            color: alertColor.text
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {alertTitle && (
+            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+              {alertTitle}
+            </div>
+          )}
+          <div>{alertMessage}</div>
+        </div>
+      );
+
+    case 'badge':
+      const badgeData = component.componentData || {};
+      const badgeText = badgeData.text || '';
+      const badgeVariant = badgeData.variant || 'default';
+      
+      const badgeColors = {
+        default: { bg: '#f3f4f6', text: '#374151' },
+        primary: { bg: '#dbeafe', text: '#1d4ed8' },
+        success: { bg: '#dcfce7', text: '#15803d' },
+        warning: { bg: '#fef3c7', text: '#92400e' },
+        danger: { bg: '#fee2e2', text: '#b91c1c' }
+      };
+      
+      const badgeColor = badgeColors[badgeVariant as keyof typeof badgeColors] || badgeColors.default;
+      
+      return (
+        <span
+          ref={containerRef as React.RefObject<HTMLSpanElement>}
+          className={`badge-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            backgroundColor: badgeColor.bg,
+            color: badgeColor.text,
+            borderRadius: '12px',
+            padding: '4px 8px',
+            fontSize: '12px',
+            fontWeight: '500',
+            display: 'inline-flex',
+            alignItems: 'center'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {badgeText}
+        </span>
+      );
+
+    case 'banner':
+      const bannerData = component.componentData || {};
+      const bannerMessage = bannerData.message || '';
+      const bannerType = bannerData.type || 'info';
+      const bannerDismissible = bannerData.dismissible || false;
+      
+      const bannerColors = {
+        success: { bg: '#dcfce7', border: '#16a34a', text: '#15803d' },
+        warning: { bg: '#fef3c7', border: '#d97706', text: '#92400e' },
+        error: { bg: '#fee2e2', border: '#dc2626', text: '#b91c1c' },
+        info: { bg: '#dbeafe', border: '#2563eb', text: '#1d4ed8' }
+      };
+      
+      const bannerColor = bannerColors[bannerType as keyof typeof bannerColors] || bannerColors.info;
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`banner-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            backgroundColor: bannerColor.bg,
+            border: `1px solid ${bannerColor.border}`,
+            borderRadius: '8px',
+            padding: '12px 16px',
+            color: bannerColor.text,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <div>{bannerMessage}</div>
+          {bannerDismissible && (
+            <button style={{
+              background: 'none',
+              border: 'none',
+              color: bannerColor.text,
+              cursor: 'pointer',
+              padding: '0',
+              marginLeft: '12px'
+            }}>
+              ×
+            </button>
+          )}
+        </div>
+      );
+
+    case 'hero':
+      const heroData = component.componentData || {};
+      const heroTitle = heroData.title || '';
+      const heroSubtitle = heroData.subtitle || '';
+      const heroButtonText = heroData.buttonText || '';
+      const heroBackgroundImage = heroData.backgroundImage || '';
+      
+      return (
+        <section
+          ref={containerRef as React.RefObject<HTMLElement>}
+          className={`hero-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            backgroundColor: heroBackgroundImage ? 'transparent' : '#1f2937',
+            backgroundImage: heroBackgroundImage ? `url(${heroBackgroundImage})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            color: '#ffffff',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '60px 20px'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {heroTitle && (
+            <h1 style={{
+              fontSize: '48px',
+              fontWeight: 'bold',
+              marginBottom: '16px',
+              textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+            }}>
+              {heroTitle}
+            </h1>
+          )}
+          {heroSubtitle && (
+            <p style={{
+              fontSize: '20px',
+              marginBottom: '32px',
+              maxWidth: '600px',
+              textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+            }}>
+              {heroSubtitle}
+            </p>
+          )}
+          {heroButtonText && (
+            <button style={{
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}>
+              {heroButtonText}
+            </button>
+          )}
+        </section>
+      );
+
+    case 'divider':
+      const dividerData = component.componentData || {};
+      const dividerType = dividerData.type || 'line';
+      const dividerText = dividerData.text || '';
+      
+      if (dividerType === 'text' && dividerText) {
+        return (
+          <div
+            ref={containerRef as React.RefObject<HTMLDivElement>}
+            className={`divider-component ${className || ''}`}
+            style={{
+              ...inlineStyles,
+              display: 'flex',
+              alignItems: 'center',
+              textAlign: 'center'
+            }}
+            onClick={onClick}
+            {...otherAttributes}
+          >
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+            <span style={{ padding: '0 16px', color: '#6b7280', fontSize: '14px' }}>
+              {dividerText}
+            </span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+          </div>
+        );
+      }
+      
+      return (
+        <hr
+          ref={containerRef as React.RefObject<HTMLHRElement>}
+          className={`divider-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            border: 'none',
+            height: '1px',
+            backgroundColor: '#e5e7eb',
+            margin: '16px 0'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        />
+      );
+
+    case 'spacer':
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`spacer-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            backgroundColor: 'transparent'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        />
+      );
+
+    case 'rating':
+      const ratingData = component.componentData || {};
+      const ratingValue = ratingData.value || 0;
+      const ratingMax = ratingData.max || 5;
+      const ratingReadonly = ratingData.readonly || true;
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`rating-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {Array.from({ length: ratingMax }, (_, i) => (
+            <span
+              key={i}
+              style={{
+                color: i < ratingValue ? '#fbbf24' : '#d1d5db',
+                fontSize: '20px',
+                cursor: ratingReadonly ? 'default' : 'pointer'
+              }}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+      );
+
+    case 'slider':
+      const sliderData = component.componentData || {};
+      const sliderValue = sliderData.value || 50;
+      const sliderMin = sliderData.min || 0;
+      const sliderMax = sliderData.max || 100;
+      const sliderStep = sliderData.step || 1;
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`slider-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '20px'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <input
+            type="range"
+            min={sliderMin}
+            max={sliderMax}
+            step={sliderStep}
+            value={sliderValue}
+            style={{
+              width: '100%',
+              height: '4px',
+              borderRadius: '2px',
+              background: '#ddd',
+              outline: 'none',
+              opacity: '0.7',
+              transition: 'opacity 0.2s'
+            }}
+            readOnly
+          />
+        </div>
+      );
+
+    case 'toggle':
+      const toggleData = component.componentData || {};
+      const toggleChecked = toggleData.checked || false;
+      const toggleLabel = toggleData.label || '';
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`toggle-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <div
+            style={{
+              width: '44px',
+              height: '24px',
+              backgroundColor: toggleChecked ? '#3b82f6' : '#d1d5db',
+              borderRadius: '12px',
+              position: 'relative',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+          >
+            <div
+              style={{
+                width: '20px',
+                height: '20px',
+                backgroundColor: 'white',
+                borderRadius: '50%',
+                position: 'absolute',
+                top: '2px',
+                left: toggleChecked ? '22px' : '2px',
+                transition: 'left 0.2s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }}
+            />
+          </div>
+          {toggleLabel && <span>{toggleLabel}</span>}
+        </div>
+      );
+
+    case 'stepper':
+      const stepperData = component.componentData || {};
+      const stepperSteps = stepperData.steps || [];
+      const stepperCurrentStep = stepperData.currentStep || 0;
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`stepper-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '16px'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          {stepperSteps.map((step: any, index: number) => (
+            <React.Fragment key={index}>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: index <= stepperCurrentStep ? '#3b82f6' : '#e5e7eb',
+                  color: index <= stepperCurrentStep ? 'white' : '#6b7280',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                {index + 1}
+              </div>
+              {index < stepperSteps.length - 1 && (
+                <div
+                  style={{
+                    flex: 1,
+                    height: '2px',
+                    backgroundColor: index < stepperCurrentStep ? '#3b82f6' : '#e5e7eb',
+                    margin: '0 8px'
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+
+    case 'tooltip':
+      const tooltipData = component.componentData || {};
+      const tooltipText = tooltipData.text || '';
+      const tooltipContent = tooltipData.content || '';
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`tooltip-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            position: 'relative',
+            display: 'inline-block'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <span style={{ cursor: 'help' }}>{tooltipContent}</span>
+          {tooltipText && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#1f2937',
+                color: 'white',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                whiteSpace: 'nowrap',
+                marginBottom: '8px',
+                opacity: 0.9,
+                pointerEvents: 'none'
+              }}
+            >
+              {tooltipText}
+            </div>
+          )}
+        </div>
+      );
+
+    case 'calendar':
+      const calendarData = component.componentData || {};
+      const calendarSelectedDate = calendarData.selectedDate || new Date().toISOString().split('T')[0];
+      
+      return (
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className={`calendar-component ${className || ''}`}
+          style={{
+            ...inlineStyles,
+            padding: '16px',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px'
+          }}
+          onClick={onClick}
+          {...otherAttributes}
+        >
+          <input
+            type="date"
+            value={calendarSelectedDate}
+            style={{
+              width: '100%',
+              padding: '8px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              fontSize: '14px'
+            }}
+            readOnly
+          />
         </div>
       );
 

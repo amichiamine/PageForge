@@ -99,8 +99,8 @@ export function createComponent(type: string): ComponentDefinition {
         ...baseComponent,
         tag: 'img',
         attributes: {
-          src: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-          alt: 'Image de démonstration',
+          src: '',
+          alt: '',
           className: 'responsive-image',
           loading: 'lazy'
         },
@@ -176,7 +176,7 @@ export function createComponent(type: string): ComponentDefinition {
         tag: 'textarea',
         content: '',
         attributes: { 
-          placeholder: 'Écrivez votre texte ici...', 
+          placeholder: '', 
           className: 'styled-textarea',
           rows: 5,
           'aria-label': 'Zone de texte'
@@ -911,7 +911,7 @@ export function createComponent(type: string): ComponentDefinition {
         tag: 'a',
         content: '',
         attributes: { 
-          href: '#',
+          href: '',
           className: 'styled-link',
           target: '_blank'
         },
@@ -949,7 +949,7 @@ export function createComponent(type: string): ComponentDefinition {
           transition: 'all 0.2s ease-in-out',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         },
-        content: '⭐'
+        content: ''
       };
 
     case 'flexbox':

@@ -173,7 +173,7 @@ const componentCategories = [
       { type: 'heading', label: 'Titre', icon: <Type />, color: '#dc2626', description: 'Titre (H1-H6)' },
       { type: 'paragraph', label: 'Paragraphe', icon: <FileText />, color: '#059669', description: 'Texte de paragraphe' },
       { type: 'list', label: 'Liste', icon: <Menu />, color: '#d97706', description: 'Liste à puces ou numérotée' },
-      { type: 'quote', label: 'Citation', icon: <Type />, color: '#7c3aed', description: 'Citation ou témoignage' },
+
       { type: 'code', label: 'Code', icon: <Code />, color: '#374151', description: 'Bloc de code' },
       { type: 'table', label: 'Tableau', icon: <Grid />, color: '#059669', description: 'Tableau de données' },
     ]
@@ -220,8 +220,7 @@ const componentCategories = [
       { type: 'testimonial', label: 'Témoignage', icon: <Heart />, color: '#dc2626', description: 'Avis client' },
       { type: 'team', label: 'Équipe', icon: <Users />, color: '#2563eb', description: 'Présentation équipe' },
       { type: 'stats', label: 'Statistics', icon: <TrendingUp />, color: '#8b5cf6', description: 'Statistiques' },
-      { type: 'features', label: 'Features', icon: <CheckCircle />, color: '#10b981', description: 'Liste d\'avantages' },
-      { type: 'cta', label: 'CTA', icon: <Zap />, color: '#f59e0b', description: 'Call-to-action' },
+
     ]
   },
   {
@@ -233,7 +232,7 @@ const componentCategories = [
       { type: 'pagination', label: 'Pagination', icon: <MoreHorizontal />, color: '#059669', description: 'Navigation pages' },
       { type: 'tabs', label: 'Onglets', icon: <Folder />, color: '#3b82f6', description: 'Système d\'onglets' },
       { type: 'accordion', label: 'Accordéon', icon: <Plus />, color: '#8b5cf6', description: 'Contenu repliable' },
-      { type: 'search', label: 'Recherche', icon: <Search />, color: '#6366f1', description: 'Barre de recherche' },
+
     ]
   },
   {
@@ -243,7 +242,7 @@ const componentCategories = [
       { type: 'calendar', label: 'Calendrier', icon: <Calendar />, color: '#16a34a', description: 'Calendrier d\'événements' },
       { type: 'contact', label: 'Contact', icon: <Phone />, color: '#2563eb', description: 'Informations de contact' },
       { type: 'map', label: 'Carte', icon: <MapPin />, color: '#dc2626', description: 'Carte interactive' },
-      { type: 'social', label: 'Social', icon: <Heart />, color: '#1da1f2', description: 'Réseaux sociaux' },
+
       { type: 'faq', label: 'FAQ', icon: <HelpCircle />, color: '#059669', description: 'Questions fréquentes' },
       { type: 'blog', label: 'Blog', icon: <FileText />, color: '#7c3aed', description: 'Article de blog' },
     ]
@@ -254,9 +253,7 @@ const componentCategories = [
     components: [
       { type: 'product', label: 'Produit', icon: <Package />, color: '#ea580c', description: 'Fiche produit' },
       { type: 'cart', label: 'Panier', icon: <ShoppingCart />, color: '#16a34a', description: 'Panier d\'achat' },
-      { type: 'checkout', label: 'Commande', icon: <CreditCard />, color: '#dc2626', description: 'Processus commande' },
-      { type: 'reviews', label: 'Avis', icon: <Star />, color: '#f59e0b', description: 'Avis produits' },
-      { type: 'wishlist', label: 'Favoris', icon: <Heart />, color: '#ec4899', description: 'Liste de souhaits' },
+
       { type: 'filters', label: 'Filtres', icon: <Filter />, color: '#6366f1', description: 'Filtres de produits' },
     ]
   }
