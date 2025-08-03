@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { 
   BookOpen, 
   Search, 
@@ -17,47 +19,111 @@ import {
   Layers,
   Lightbulb,
   Keyboard,
-  Upload
+  Upload,
+  Plus,
+  Rocket,
+  Eye,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import type { Project, Template } from '@shared/schema';
 
 export default function Documentation() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
-  const quickStart = [
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ['/api/projects']
+  });
+
+  const { data: templates = [] } = useQuery<Template[]>({
+    queryKey: ['/api/templates']
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: async ({ name, templateId }: { name: string; templateId?: string }) => {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          templateId,
+          type: 'standalone'
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (project) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: "Projet créé !",
+        description: `Le projet "${project.name}" a été créé avec succès.`,
+      });
+      setLocation(`/editor/${project.id}`);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de créer le projet.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const quickActions = [
     {
-      title: "Créer votre premier projet",
-      description: "Guide étape par étape pour débuter",
-      duration: "5 min",
-      icon: Play,
-      category: "Débutant"
+      title: "Créer un nouveau projet",
+      description: "Commencer avec un projet vierge",
+      icon: Plus,
+      action: () => {
+        const projectName = `Mon Site ${new Date().toLocaleDateString()}`;
+        createProjectMutation.mutate({ name: projectName });
+      },
+      color: "bg-blue-500 hover:bg-blue-600",
+      disabled: createProjectMutation.isPending
     },
     {
-      title: "Interface de l'éditeur",
-      description: "Découvrez les outils disponibles",
-      duration: "8 min",
+      title: "Utiliser un template",
+      description: "Démarrer avec un modèle prêt",
       icon: Palette,
-      category: "Débutant"
+      action: () => setLocation('/templates'),
+      color: "bg-green-500 hover:bg-green-600",
+      disabled: false
     },
     {
-      title: "Système de composants",
-      description: "Comprendre les éléments de design",
-      duration: "12 min",
-      icon: Code,
-      category: "Intermédiaire"
+      title: "Mes projets",
+      description: "Voir tous vos projets",
+      icon: FileText,
+      action: () => setLocation('/projects'),
+      color: "bg-purple-500 hover:bg-purple-600", 
+      disabled: false
     },
     {
-      title: "Déploiement et publication",
-      description: "Mettre votre site en ligne",
-      duration: "6 min",
-      icon: Settings,
-      category: "Débutant"
+      title: "Déploiement",
+      description: "Publier un site en ligne",
+      icon: Rocket,
+      action: () => setLocation('/deployment'),
+      color: "bg-orange-500 hover:bg-orange-600",
+      disabled: false
     }
   ];
+
+  const recentProjects = projects.slice(0, 3);
+  const featuredTemplates = templates.slice(0, 3);
 
   const categories = [
     {
@@ -450,39 +516,196 @@ export default function Documentation() {
 
           {/* Quick Start Tab */}
           <TabsContent value="quick-start" className="space-y-6">
+            {/* Actions rapides */}
             <Card>
               <CardHeader>
-                <CardTitle>Guides de Démarrage Rapide</CardTitle>
+                <CardTitle>Actions rapides</CardTitle>
                 <CardDescription>
-                  Commencez rapidement avec ces tutoriels essentiels
+                  Commencez immédiatement avec ces actions directes
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {quickStart.map((guide, index) => (
-                    <div key={index} className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group">
-                      <div className="flex items-start space-x-4">
-                        <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                          <guide.icon className="h-5 w-5 text-blue-600" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {quickActions.map((action, index) => (
+                    <Button
+                      key={index}
+                      onClick={action.action}
+                      disabled={action.disabled}
+                      className={`h-auto p-4 flex flex-col items-center space-y-2 text-white ${action.color} transition-all`}
+                    >
+                      <action.icon className="h-8 w-8" />
+                      <div className="text-center">
+                        <p className="font-medium text-sm">{action.title}</p>
+                        <p className="text-xs opacity-90">{action.description}</p>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Projets récents */}
+            {recentProjects.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Projets récents</CardTitle>
+                  <CardDescription>
+                    Continuez votre travail là où vous l'avez laissé
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {recentProjects.map((project) => (
+                      <div 
+                        key={project.id} 
+                        className="p-4 border rounded-lg hover:shadow-md transition-all cursor-pointer group"
+                        onClick={() => setLocation(`/editor/${project.id}`)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium group-hover:text-blue-600 transition-colors">
+                            {project.name}
+                          </h3>
+                          <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                              {guide.title}
-                            </h3>
-                            <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">{guide.description}</p>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {guide.category}
-                            </Badge>
-                            <span className="text-xs text-gray-500">{guide.duration}</span>
-                          </div>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Modifié le {new Date(project.updatedAt).toLocaleDateString()}
+                        </p>
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLocation(`/editor/${project.id}`);
+                            }}
+                          >
+                            <Code className="h-3 w-3 mr-1" />
+                            Éditer
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`/preview/${project.id}`, '_blank');
+                            }}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            Aperçu
+                          </Button>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Templates populaires */}
+            {featuredTemplates.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Templates populaires</CardTitle>
+                  <CardDescription>
+                    Démarrez avec des modèles professionnels
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {featuredTemplates.map((template) => (
+                      <div 
+                        key={template.id} 
+                        className="p-4 border rounded-lg hover:shadow-md transition-all cursor-pointer group"
+                        onClick={() => {
+                          const projectName = `${template.name} - ${new Date().toLocaleDateString()}`;
+                          createProjectMutation.mutate({ name: projectName, templateId: template.id });
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium group-hover:text-blue-600 transition-colors">
+                            {template.name}
+                          </h3>
+                          <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">
+                          {template.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <Badge variant="secondary" className="text-xs">
+                            {template.category}
+                          </Badge>
+                          <Button 
+                            size="sm" 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            disabled={createProjectMutation.isPending}
+                          >
+                            {createProjectMutation.isPending ? 'Création...' : 'Utiliser'}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Guide de premiers pas */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Guide de premiers pas</CardTitle>
+                <CardDescription>
+                  Suivez ces étapes pour créer votre premier site
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-lg">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                      1
                     </div>
-                  ))}
+                    <div>
+                      <h4 className="font-medium text-blue-900">Créer un projet</h4>
+                      <p className="text-sm text-blue-800 mt-1">
+                        Utilisez le bouton "Créer un nouveau projet" ci-dessus ou choisissez un template
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4 p-4 bg-green-50 rounded-lg">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                      2
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-green-900">Ajouter des composants</h4>
+                      <p className="text-sm text-green-800 mt-1">
+                        Glissez-déposez des composants depuis la palette de gauche (52 composants disponibles)
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4 p-4 bg-purple-50 rounded-lg">
+                    <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                      3
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-900">Personnaliser</h4>
+                      <p className="text-sm text-purple-800 mt-1">
+                        Modifiez les propriétés dans le panneau de droite avec des presets ou des réglages personnalisés
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4 p-4 bg-orange-50 rounded-lg">
+                    <div className="flex-shrink-0 w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                      4
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-orange-900">Publier</h4>
+                      <p className="text-sm text-orange-800 mt-1">
+                        Utilisez "Préview" pour tester puis "Déploiement" pour publier sur PageForge.app
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
