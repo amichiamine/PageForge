@@ -522,21 +522,26 @@ export default function Editor() {
     console.log('🔧 EDITOR: Force fermeture sidebar principal, état actuel:', hideMainSidebar);
     
     // Force immédiatement la fermeture du sidebar principal dans l'éditeur
-    // Utilise setTimeout pour s'assurer que le DOM est rendu
     const timer = setTimeout(() => {
       console.log('🔧 EDITOR: Déclenchement fermeture sidebar');
       setHideMainSidebar(true);
       
-      // Double vérification - force physiquement la fermeture si nécessaire
-      const sidebarElement = document.querySelector('[title="Navigation"]');
-      if (sidebarElement && sidebarElement.parentElement) {
-        const sidebarContainer = sidebarElement.parentElement;
-        if (sidebarContainer.style.display !== 'none') {
-          console.log('🔧 EDITOR: Force fermeture physique du sidebar');
-          sidebarContainer.style.display = 'none';
+      // Force physiquement la fermeture en ciblant la classe du sidebar
+      const sidebarContainers = document.querySelectorAll('.flex-shrink-0');
+      sidebarContainers.forEach(container => {
+        if (container.textContent?.includes('SiteJet') || container.querySelector('[title="Navigation"]')) {
+          console.log('🔧 EDITOR: Sidebar trouvé, fermeture physique');
+          (container as HTMLElement).style.display = 'none';
         }
+      });
+      
+      // Aussi essayer de cliquer sur le bouton de fermeture s'il existe
+      const hideButton = document.querySelector('button[title="Cliquer sur le logo pour masquer la navigation"]');
+      if (hideButton) {
+        console.log('🔧 EDITOR: Clic sur bouton fermeture sidebar');
+        (hideButton as HTMLButtonElement).click();
       }
-    }, 100);
+    }, 150);
     
     // Nettoyer à la fermeture pour le rouvrir dans les autres pages
     return () => {
@@ -544,14 +549,15 @@ export default function Editor() {
       clearTimeout(timer);
       setHideMainSidebar(false);
       
-      // Restaurer l'affichage physique aussi
-      const sidebarElement = document.querySelector('[title="Navigation"]');
-      if (sidebarElement && sidebarElement.parentElement) {
-        const sidebarContainer = sidebarElement.parentElement;
-        sidebarContainer.style.display = '';
-      }
+      // Restaurer l'affichage physique
+      const sidebarContainers = document.querySelectorAll('.flex-shrink-0');
+      sidebarContainers.forEach(container => {
+        if (container.textContent?.includes('SiteJet') || container.querySelector('[title="Navigation"]')) {
+          (container as HTMLElement).style.display = '';
+        }
+      });
     };
-  }, [hideMainSidebar, setHideMainSidebar]);
+  }, [setHideMainSidebar]);
 
   const { data: project, isLoading: isProjectLoading } = useQuery<Project>({
     queryKey: ["/api/projects", projectId],
