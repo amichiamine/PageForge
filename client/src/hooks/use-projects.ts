@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Project, InsertProject, UpdateProject } from "@shared/schema";
+import JSZip from "jszip";
 
 export function useProjects() {
   return useQuery<Project[]>({
@@ -99,11 +100,23 @@ export function useExportProject() {
     mutationFn: async (id: string) => {
       const response: any = await apiRequest("POST", `/api/projects/${id}/export`);
       
+      // Create a real ZIP file using JSZip
+      const zip = new JSZip();
+      
+      // Add each file to the ZIP
+      if (response.files && Array.isArray(response.files)) {
+        response.files.forEach((file: any) => {
+          if (file.path && file.content) {
+            zip.file(file.path, file.content);
+          }
+        });
+      }
+      
+      // Generate the ZIP blob
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      
       // Create and trigger download
-      const blob = new Blob([JSON.stringify(response.files, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(zipBlob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `${response.projectName || 'project'}-export.zip`;
