@@ -3,7 +3,11 @@
     "ms-vscode.vscode-typescript-next",
     "bradlc.vscode-tailwindcss",
     "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "formulahendry.auto-rename-tag",
+    "ms-vscode.vscode-json",
     "ms-vscode.vscode-eslint",
-    "formulahendry.auto-rename-tag"
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-typescript-next"
   ]
 }

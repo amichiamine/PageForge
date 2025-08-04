@@ -1,31 +1,106 @@
 INSTALLATION WINDOWS - PageForge v2.0.0
-==================================================
+=====================================================
 
-INSTALLATION RAPIDE :
+INSTALLATION ULTRA-RAPIDE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-1. DOUBLE-CLIC
-   - Exécuter start-installer.bat
-   - Le navigateur s'ouvrira automatiquement
+1. DOUBLE-CLIC sur start-installer.bat
+2. Votre navigateur s'ouvre automatiquement
+3. Suivre l'assistant d'installation
+4. PageForge est prêt !
 
-2. INTERFACE WEB
-   - Suivre l'assistant d'installation
-   - Configuration automatique Windows
+INSTALLATION DÉTAILLÉE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-3. ALTERNATIVE MANUELLE
-   - Ouvrir terminal dans le dossier
+1. PRÉREQUIS WINDOWS
+   - Windows 10/11 recommandé (8.1 supporté)
+   - PHP 7.4+ (voir section installation PHP)
+   - Node.js 16+ recommandé
+   - 200MB d'espace disque libre
+
+2. INSTALLATION PHP
+   
+   OPTION A - XAMPP (Le plus simple)
+   - Télécharger: https://www.apachefriends.org/
+   - Installer avec tous les composants
+   - PHP sera disponible automatiquement
+   
+   OPTION B - PHP Direct
+   - Télécharger: https://windows.php.net/
+   - Choisir "Thread Safe" version
+   - Extraire dans C:\php
+   - Ajouter C:\php au PATH Windows
+
+3. INSTALLATION NODE.JS (Optionnel)
+   - Télécharger: https://nodejs.org/
+   - Choisir version LTS
+   - Installation automatique
+
+4. DÉMARRAGE PAGEFORGE
+   
+   MÉTHODE 1 - Interface graphique
+   - Double-clic: start-installer.bat
+   - Navigateur s'ouvre sur: http://localhost:8000/install.php
+   
+   MÉTHODE 2 - Ligne de commande
+   - Ouvrir CMD dans le dossier PageForge
+   - Taper: start-installer.bat
+   
+   MÉTHODE 3 - Manuel
+   - Ouvrir CMD dans le dossier
    - Taper: php -S localhost:8000
-   - Aller sur: http://localhost:8000/install.php
+   - Ouvrir: http://localhost:8000/install.php
 
-PRÉREQUIS :
-- Windows 10/11
-- PHP 7.4+ (télécharger sur php.net)
-- Node.js 18+ (sera installé automatiquement)
+5. ASSISTANT D'INSTALLATION WEB
+   - Vérification automatique des prérequis
+   - Configuration base de données SQLite
+   - Installation dépendances Node.js
+   - Configuration environnement
+   - Test de l'installation
 
-APRÈS INSTALLATION :
-- PageForge accessible sur http://localhost:5000
-- Créer vos premiers projets
-- Exporter en HTML/CSS/JS
+6. ACCÈS À PAGEFORGE
+   - Interface utilisateur: http://localhost:3000
+   - 52 composants visuels disponibles
+   - Système de templates intégré
+   - Export HTML/CSS/JS
 
-PROBLÈMES COURANTS :
-- Si PHP manque: installer depuis php.net
-- Si port occupé: modifier dans .env
+DÉPANNAGE WINDOWS :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+❌ "PHP n'est pas reconnu"
+→ PHP non installé ou pas dans le PATH
+→ Installer XAMPP ou ajouter PHP au PATH
+
+❌ "Node n'est pas reconnu"  
+→ Node.js non installé
+→ Télécharger depuis nodejs.org
+
+❌ Port 8000 déjà utilisé
+→ Changer de port: php -S localhost:8080
+→ Ou arrêter l'autre application
+
+❌ Erreur permissions
+→ Exécuter en tant qu'administrateur
+→ Vérifier antivirus (peut bloquer)
+
+FONCTIONNALITÉS COMPLÈTES :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+✅ 52 composants visuels prêts à l'emploi
+✅ Système de templates professionnel
+✅ Éditeur visuel drag & drop
+✅ Export multi-format (HTML, CSS, JS)
+✅ Base de données SQLite intégrée
+✅ Interface responsive moderne
+✅ Mode développement avec hot reload
+✅ Système de sauvegarde automatique
+
+SUPPORT & AIDE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+📚 Documentation complète dans l'interface
+🔧 Configuration automatique
+🎯 Installation testée sur Windows 10/11
+💡 Interface intuitive et moderne
+
+Pour questions spécifiques, consultez README.md

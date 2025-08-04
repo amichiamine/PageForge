@@ -1,40 +1,144 @@
-INSTALLATION LINUX - PageForge v2.0.0
-===============================================
+INSTALLATION LINUX/MACOS - PageForge v2.0.0
+========================================================
 
-INSTALLATION RAPIDE :
+INSTALLATION ULTRA-RAPIDE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-1. TERMINAL
+tar -xzf pageforge-linux-v2.0.0.tar.gz
+cd pageforge-linux-v2.0.0
+./start-installer.sh
+
+INSTALLATION DÉTAILLÉE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+1. PRÉREQUIS SYSTÈME
+
+   Ubuntu/Debian:
+   sudo apt update
+   sudo apt install php php-sqlite3 php-curl php-zip php-json php-gd
+   
+   CentOS/RHEL/Fedora:
+   sudo yum install php php-pdo php-json php-curl php-zip
+   # ou avec dnf: sudo dnf install php php-pdo php-json php-curl
+   
+   Arch Linux:
+   sudo pacman -S php php-sqlite
+   
+   macOS:
+   brew install php
+   
+   Alpine Linux:
+   sudo apk add php php-sqlite3 php-curl php-zip php-json
+
+2. INSTALLATION NODE.JS (Recommandé)
+
+   Ubuntu/Debian:
+   curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+   
+   CentOS/RHEL:
+   curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+   sudo yum install -y nodejs
+   
+   macOS:
+   brew install node
+   
+   Arch Linux:
+   sudo pacman -S nodejs npm
+   
+   Alpine:
+   sudo apk add nodejs npm
+
+3. EXTRACTION ET DÉMARRAGE
+
+   # Extraire l'archive
+   tar -xzf pageforge-linux-v2.0.0.tar.gz
+   cd pageforge-linux-v2.0.0
+   
+   # Rendre les scripts exécutables
+   chmod +x *.sh
+   
+   # Lancer l'installateur
    ./start-installer.sh
    
-2. NAVIGATEUR
-   - Ouvre automatiquement l'installateur
-   - Interface web interactive
+   # Ou installation CLI directe
+   ./install-cli.sh
 
-3. ALTERNATIVE MANUELLE
+4. ASSISTANT D'INSTALLATION WEB
+   - Navigateur s'ouvre sur: http://localhost:8000/install.php
+   - Vérification automatique des prérequis Unix
+   - Configuration base de données SQLite
+   - Installation dépendances Node.js
+   - Configuration environnement Linux/macOS
+   - Test de l'installation
+
+5. MÉTHODES D'INSTALLATION ALTERNATIVES
+
+   MÉTHODE A - Interface web (Recommandée)
+   ./start-installer.sh
+   
+   MÉTHODE B - Ligne de commande pure
+   php install.php
+   
+   MÉTHODE C - Manuel
    php -S localhost:8000
-   # Aller sur: http://localhost:8000/install.php
+   # Puis ouvrir http://localhost:8000/install.php
 
-PRÉREQUIS PAR DISTRIBUTION :
+6. ACCÈS À PAGEFORGE
+   - Interface utilisateur: http://localhost:3000
+   - 52 composants visuels disponibles
+   - Système de templates intégré
+   - Export HTML/CSS/JS
 
-Ubuntu/Debian:
-  sudo apt update
-  sudo apt install php php-zip php-curl nodejs npm
+SPÉCIFICITÉS LINUX/MACOS :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-CentOS/RHEL:
-  sudo yum install php php-zip php-curl nodejs npm
+✅ Support natif toutes distributions Linux
+✅ Optimisations macOS spécifiques
+✅ Scripts shell avec détection automatique OS
+✅ Gestion permissions Unix appropriée
+✅ Support environnements serveur Linux
+✅ Compatible conteneurs Docker
+✅ Installation sans privilèges root possible
 
-Arch Linux:
-  sudo pacman -S php php-zip php-curl nodejs npm
+DÉPANNAGE UNIX :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-macOS (Homebrew):
-  brew install php node
+❌ "php: command not found"
+→ PHP non installé, voir section prérequis
+→ Vérifier PATH: echo $PATH
 
-APRÈS INSTALLATION :
-- PageForge sur http://localhost:5000
-- Scripts disponibles dans le projet
-- Base de données configurée
+❌ "Permission denied" sur scripts
+→ chmod +x *.sh
+→ Vérifier propriétaire: ls -la
 
-PERMISSIONS :
-Si erreur de permissions:
-  chmod +x start-installer.sh
-  chmod 755 dossier-installation/
+❌ Erreur port 8000 occupé
+→ Changer port: php -S localhost:8080
+→ Vérifier: netstat -tulpn | grep :8000
+
+❌ Extensions PHP manquantes
+→ Installer selon votre distribution
+→ Redémarrer après installation
+
+❌ Problèmes SQLite
+→ Vérifier: php -m | grep sqlite
+→ Permissions dossier: chmod 755 .
+
+ENVIRONNEMENTS SUPPORTÉS :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+🐧 Linux: Ubuntu, Debian, CentOS, RHEL, Fedora, Arch, Alpine
+🍎 macOS: 10.15+ (Intel et M1/M2)
+🐳 Docker: Images officielles PHP/Node.js
+☁️  Cloud: AWS, Google Cloud, Azure, DigitalOcean
+🖥️  Serveurs: Apache, Nginx, serveur PHP intégré
+
+SUPPORT & COMMUNAUTÉ :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+📚 Documentation complète dans l'interface
+🔧 Configuration automatique multi-OS
+🎯 Installation testée sur 10+ distributions
+💡 Interface responsive et moderne
+
+Pour questions spécifiques, consultez README.md

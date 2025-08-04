@@ -1,290 +1,78 @@
-# 💻 GUIDE CONFIGURATION VS CODE - PageForge
+# PageForge v2.0.0 - Package VS Code
 
-## Installation PHP Interactive pour Développement
+## Environnement de Développement VS Code
 
-### 🎯 Objectif
-Configurer automatiquement un environnement de développement PageForge optimisé pour VS Code avec toutes les configurations professionnelles.
+### 🚀 Configuration Automatique
 
-### 📋 Prérequis
-- **PHP 7.4+** (pour l'installateur)
-- **Node.js 18+** (sera vérifié automatiquement)
-- **VS Code** (recommandé)
-- **Git** (optionnel mais recommandé)
-- **PostgreSQL** (pour la base de données)
-
-### 🚀 Installation Rapide
-
-#### Étape 1 : Préparation
 ```bash
-# Si vous avez les sources PageForge
-mkdir pageforge-setup
-cd pageforge-setup
+# Extraire le package
+unzip pageforge-vscode-v2.0.0.zip
+cd pageforge-vscode-v2.0.0
 
-# Copier l'installateur
-cp /path/to/install-vscode.php .
-```
+# Configuration automatique
+php setup.php
 
-#### Étape 2 : Lancement
-```bash
-# Démarrer le serveur PHP
-php -S localhost:8080
-
-# Ouvrir dans le navigateur
-open http://localhost:8080/install-vscode.php
-```
-
-#### Étape 3 : Configuration Guidée
-Suivre l'assistant web 7 étapes :
-1. **💻 Accueil** - Présentation configuration
-2. **🔧 Environnement** - Vérification outils développement
-3. **📁 Projet** - Structure projet et fichiers
-4. **⚙️ VS Code** - Configuration IDE optimisée
-5. **🗄️ Base données** - Configuration PostgreSQL/Drizzle
-6. **🧩 Extensions** - Liste extensions recommandées
-7. **✅ Prêt** - Projet configuré pour développement
-
-### 🎨 Interface de Configuration
-
-#### Design VS Code Theme
-- **Couleurs** : Thème sombre VS Code (bleu #007acc)
-- **Interface** : Style éditeur avec terminal intégré
-- **Animations** : Transitions fluides et professionnelles
-- **Responsive** : Compatible mobile pour configuration nomade
-
-#### Fonctionnalités Avancées
-- **Détection automatique** des outils installés
-- **Configuration intelligente** selon l'OS détecté
-- **Génération automatique** de tous les fichiers config
-- **Validation** en temps réel des prérequis
-
-### ⚙️ Configurations Générées
-
-#### Structure Projet Complète
-```
-pageforge-dev/
-├── .vscode/                    # Configuration VS Code
-│   ├── settings.json           # Paramètres optimisés
-│   ├── launch.json             # Debug client/serveur
-│   ├── tasks.json              # Tâches automatisées
-│   ├── extensions.json         # Extensions auto-install
-│   └── snippets/               # Snippets PageForge
-├── client/                     # Frontend React+Vite
-├── server/                     # Backend Express+TypeScript
-├── shared/                     # Code partagé
-├── docs/                       # Documentation développement
-├── package.json                # Scripts et dépendances
-├── .env.development            # Variables environnement
-└── README.md                   # Guide projet
-```
-
-#### VS Code Settings.json
-```json
-{
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "tailwindCSS.includeLanguages": {
-    "typescript": "typescript",
-    "typescriptreact": "typescriptreact"
-  }
-}
-```
-
-#### Launch.json (Debug)
-```json
-{
-  "configurations": [
-    {
-      "name": "Debug Server",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/server/index.ts",
-      "runtimeArgs": ["-r", "tsx/cjs"]
-    },
-    {
-      "name": "Debug Client", 
-      "type": "chrome",
-      "url": "http://localhost:3000"
-    }
-  ]
-}
-```
-
-#### Tasks.json (Automatisation)
-```json
-{
-  "tasks": [
-    {
-      "label": "Start Development",
-      "command": "npm run dev",
-      "group": "build"
-    },
-    {
-      "label": "Database Push",
-      "command": "npm run db:push"
-    }
-  ]
-}
-```
-
-### 🧩 Extensions Automatiques
-
-#### Extensions Essentielles
-- **TypeScript Importer** - Support TypeScript avancé
-- **Tailwind CSS IntelliSense** - Autocomplétion Tailwind
-- **Prettier** - Formatage automatique
-- **ESLint** - Linting JavaScript/TypeScript
-- **Auto Rename Tag** - Renommage balises HTML/JSX
-- **JSON Tools** - Support JSON avancé
-
-#### Installation Automatique
-Le fichier `.vscode/extensions.json` généré permet l'installation automatique de toutes les extensions lors de l'ouverture du projet dans VS Code.
-
-### 🗄️ Configuration Base de Données
-
-#### Drizzle ORM Setup
-```typescript
-// drizzle.config.ts généré
-export default {
-  schema: './shared/schema.ts',
-  out: './migrations',
-  driver: 'pg',
-  dbCredentials: {
-    connectionString: process.env.DATABASE_URL!,
-  },
-} satisfies Config;
-```
-
-#### Schema TypeScript
-```typescript
-// shared/schema.ts généré
-export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  email: text('email').notNull().unique(),
-  name: text('name').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-});
-
-export const projects = pgTable('projects', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  name: text('name').notNull(),
-  userId: uuid('user_id').references(() => users.id),
-  data: json('data'),
-});
-```
-
-### 🛠️ Scripts de Développement
-
-#### Package.json Généré
-```json
-{
-  "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:client": "cd client && vite",
-    "dev:server": "cd server && tsx watch index.ts",
-    "build": "npm run build:client && npm run build:server",
-    "db:push": "drizzle-kit push:pg",
-    "lint": "eslint . --ext .ts,.tsx",
-    "format": "prettier --write ."
-  }
-}
-```
-
-#### Script de Démarrage (start-dev.sh)
-```bash
-#!/bin/bash
-echo "🚀 Démarrage PageForge Development"
-
-# Vérifications automatiques
-if [ ! -d "node_modules" ]; then
-    npm install
-fi
-
-# Lancement développement
-npm run dev
-```
-
-### 🔧 Utilisation Post-Configuration
-
-#### Ouverture dans VS Code
-```bash
-cd pageforge-dev
+# Ouvrir dans VS Code
 code .
-
-# VS Code proposera automatiquement :
-# - Installation des extensions recommandées
-# - Configuration du workspace
-# - Activation du debugger
 ```
 
-#### Commandes de Développement
+### 📋 Prérequis Développement
+
+- **VS Code** : Version récente
+- **PHP** : 7.4+ avec extensions : PDO, JSON, cURL
+- **Node.js** : 16+ avec NPM
+- **Git** : Pour le versioning (recommandé)
+
+### 🔧 Extensions VS Code Incluses
+
+- TypeScript support avancé
+- Tailwind CSS IntelliSense
+- ESLint & Prettier
+- Auto Rename Tag
+- Path Intellisense
+- GitLens (recommandé)
+
+### 🛠️ Configuration Incluse
+
+- **Settings.json** : Configuration optimisée PageForge
+- **Launch.json** : Debug client/serveur intégré
+- **Extensions.json** : Extensions recommandées
+- **Snippets** : Raccourcis PageForge personnalisés
+
+### 🚀 Développement
+
 ```bash
-# Démarrage complet (client + serveur)
+# Démarrer le serveur de développement
 npm run dev
 
-# Client seulement (React + Vite)
-npm run dev:client
+# Build production
+npm run build
 
-# Serveur seulement (Express + TypeScript)
-npm run dev:server
-
-# Base de données
-npm run db:push      # Appliquer schéma
-npm run db:generate  # Générer migrations
+# Tests
+npm run test
 ```
 
-#### Debug dans VS Code
-1. **F5** - Démarrer debug serveur
-2. **Ctrl+Shift+D** - Panneau debug
-3. **Breakpoints** - Clic gauche dans la marge
-4. **Variables** - Inspection en temps réel
-5. **Console** - Évaluation expressions
+### 📁 Structure Projet
 
-### 📚 Documentation Générée
+```
+pageforge-vscode-v2.0.0/
+├── client/          # Frontend React + TypeScript
+├── server/          # Backend Node.js + Express
+├── shared/          # Types et schémas partagés
+├── docs/           # Documentation développement
+├── .vscode/        # Configuration VS Code
+└── setup.php       # Configurateur automatique
+```
 
-#### README.md Projet
-Guide complet d'utilisation du projet avec :
-- Instructions d'installation
-- Commandes de développement
-- URLs d'accès (client/serveur)
-- Configuration VS Code
+### 🎯 Fonctionnalités Développement
 
-#### DEVELOPMENT.md
-Documentation développeur détaillée :
-- Architecture du projet
-- Workflow de développement
-- Bonnes pratiques
-- Guide debugging
-- Processus de déploiement
+- Hot reload complet (client + serveur)
+- Debug intégré VS Code
+- ESLint et Prettier configurés
+- Path mapping TypeScript
+- Snippets personnalisés PageForge
+- Git hooks pré-configurés
 
-### 🎯 Avantages de Cette Configuration
+### 🆘 Support
 
-#### Productivité
-- **Setup en 5 minutes** via interface web
-- **Hot reload** automatique client/serveur
-- **Debug intégré** avec breakpoints
-- **Snippets personnalisés** PageForge
-
-#### Qualité Code
-- **Linting automatique** ESLint + Prettier
-- **TypeScript strict** avec auto-imports
-- **Validation Tailwind** avec IntelliSense
-- **Tests intégrés** dans VS Code
-
-#### Collaboration
-- **Configuration partagée** via .vscode/
-- **Extensions standardisées** pour l'équipe
-- **Scripts uniformes** sur tous les environnements
-- **Documentation complète** pour nouveaux développeurs
-
-### 🔄 Mise à Jour Configuration
-
-Pour mettre à jour la configuration :
-1. Re-lancer l'installateur VS Code
-2. Choisir "Remplacer configuration existante"
-3. Nouvelles fonctionnalités seront ajoutées automatiquement
-
-**🎉 Environnement de développement professionnel prêt en quelques clics !**
+Consultez `DEVELOPMENT.txt` pour le guide complet de développement.

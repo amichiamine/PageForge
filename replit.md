@@ -56,6 +56,7 @@ Ce projet contient deux éditeurs web complémentaires :
 - **MagBuilder Development (August 2025)**: Nouveau éditeur professionnel inspiré de SiteJet en cours de développement. Fork intelligent de PageForge avec interface 4-zones, CMS Collections, éditeurs de code intégrés et collaboration multi-utilisateurs.
 - **Production Optimization (August 2025)**: Projet nettoyé et optimisé pour déploiement VS Code et hébergement web externe via cPanel. Configuration production complète avec guides de déploiement.
 - **PHP Installation Automation (August 2025)**: Suite complète d'installateurs PHP interactifs pour tous les environnements - cPanel hébergement (install-interactive.php), installation locale universelle (install-local.php), et configuration VS Code développement (install-vscode.php). Interfaces web modernes sans ligne de commande.
+- **Complete Project Reorganization (August 2025)**: Réorganisation complète du projet avec système de build unifié. Documentation consolidée dans docs/, anciens scripts dans build-scripts-old/, nouveau système build-scripts/ avec installateurs cPanel Node.js Selector, générateur de packages Python/Shell, et .gitignore professionnel. 4 packages générés (cPanel, Windows, Linux, VS Code) totaux 818.2 KB prêts pour distribution GitHub.
 
 ### Data Flow
 - **Project Creation**: Template selection leads to project creation and editor redirection.

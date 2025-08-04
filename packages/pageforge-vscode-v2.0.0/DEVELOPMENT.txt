@@ -1,47 +1,215 @@
-CONFIGURATION VS CODE - PageForge v2.0.0
-===================================================
+GUIDE DÉVELOPPEMENT VS CODE - PageForge v2.0.0
+============================================================
 
-DÉMARRAGE RAPIDE :
+CONFIGURATION AUTOMATIQUE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-1. EXTRACTION
-   - Extraire dans votre workspace
-   - cd pageforge-dev
+1. EXTRACTION ET SETUP
+   unzip pageforge-vscode-v2.0.0.zip
+   cd pageforge-vscode-v2.0.0
+   php setup.php
+   code .
 
-2. CONFIGURATION
-   - Lancer: php -S localhost:8080
-   - Aller sur: http://localhost:8080/setup.php
-   - Suivre l'assistant 7 étapes
+2. PRÉREQUIS DÉVELOPPEMENT
+   - VS Code version récente
+   - PHP 7.4+ (avec extensions PDO, JSON, cURL, ZIP)
+   - Node.js 16+ avec NPM
+   - Git (recommandé pour versioning)
 
-3. OUVERTURE VS CODE
-   - code .
-   - Accepter l'installation des extensions
-   - Configuration automatiquement appliquée
+ENVIRONNEMENT DE DÉVELOPPEMENT :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
-FONCTIONNALITÉS CONFIGURÉES :
+3. STRUCTURE PROJET COMPLÈTE
 
-✓ Debug client/serveur (F5)
-✓ Tasks automatisées (Ctrl+Shift+P > Tasks)
-✓ Extensions recommandées installées
-✓ Snippets PageForge personnalisés
-✓ Formatting automatique (Prettier + ESLint)
-✓ Support Tailwind CSS complet
+   pageforge-vscode-v2.0.0/
+   ├── client/                    # Frontend React + TypeScript
+   │   ├── src/
+   │   │   ├── components/        # Composants React
+   │   │   ├── pages/            # Pages de l'application
+   │   │   ├── lib/              # Utilitaires et helpers
+   │   │   └── types/            # Types TypeScript
+   │   ├── public/               # Assets statiques
+   │   └── index.html            # Point d'entrée HTML
+   │
+   ├── server/                   # Backend Node.js + Express
+   │   ├── routes/               # Routes API
+   │   ├── middleware/           # Middlewares Express
+   │   ├── models/               # Modèles de données
+   │   └── index.ts              # Serveur principal
+   │
+   ├── shared/                   # Code partagé
+   │   ├── schema.ts             # Schémas Drizzle ORM
+   │   └── types.ts              # Types partagés
+   │
+   ├── docs/                     # Documentation
+   ├── .vscode/                  # Configuration VS Code
+   │   ├── settings.json         # Paramètres éditeur
+   │   ├── launch.json           # Configuration debug
+   │   ├── extensions.json       # Extensions recommandées
+   │   └── snippets/             # Snippets personnalisés
+   │
+   ├── package.json              # Dépendances Node.js
+   ├── tsconfig.json             # Configuration TypeScript
+   ├── vite.config.ts            # Configuration Vite
+   ├── tailwind.config.ts        # Configuration Tailwind
+   └── .env                      # Variables d'environnement
 
-COMMANDES DE DÉVELOPPEMENT :
+4. EXTENSIONS VS CODE CONFIGURÉES
 
-npm run dev          # Client + Serveur
-npm run dev:client   # React + Vite
-npm run dev:server   # Express + TypeScript
-npm run build        # Build production
-npm run db:push      # Base de données
+   Extensions automatiquement recommandées :
+   ✅ TypeScript + JavaScript Language Features
+   ✅ Tailwind CSS IntelliSense
+   ✅ Prettier - Code formatter
+   ✅ ESLint
+   ✅ Auto Rename Tag
+   ✅ Path Intellisense
+   ✅ GitLens (si Git disponible)
 
-DEBUGGING :
-- F5 : Debug serveur
-- Breakpoints supportés
-- Variables inspectables
-- Console intégrée
+5. COMMANDES DÉVELOPPEMENT
 
-PRÉREQUIS :
-- VS Code installé
-- Node.js 18+
-- Git (recommandé)
-- PostgreSQL (local)
+   # Installation dépendances
+   npm install
+   
+   # Démarrage développement (hot reload)
+   npm run dev
+   
+   # Build production
+   npm run build
+   
+   # Preview production
+   npm run preview
+   
+   # Linting
+   npm run lint
+   
+   # Formatage code
+   npm run format
+   
+   # Tests (si configurés)
+   npm run test
+
+DÉVELOPPEMENT AVANCÉ :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+6. DEBUG INTÉGRÉ VS CODE
+
+   Configuration debug incluse pour :
+   - 🔍 Debug client React (port 3000)
+   - 🔍 Debug serveur Node.js (port 5000)
+   - 🔍 Debug fullstack simultané
+   
+   Utilisation :
+   - F5 pour démarrer le debug
+   - Points d'arrêt dans VS Code
+   - Variables et call stack visibles
+   - Hot reload conservé en mode debug
+
+7. SNIPPETS PERSONNALISÉS PAGEFORGE
+
+   Raccourcis clavier intégrés :
+   - pfc → Composant PageForge de base
+   - pfp → Page PageForge complète  
+   - pfh → Hook PageForge personnalisé
+   - pft → Type TypeScript PageForge
+   - pfa → API route PageForge
+
+8. CONFIGURATION TAILWIND AVANCÉE
+
+   - IntelliSense complet classes CSS
+   - Autocomplétion couleurs personnalisées
+   - Preview hover des classes
+   - Validation syntaxe en temps réel
+   - Support des variantes responsive
+
+9. TYPESCRIPT CONFIGURATION
+
+   - Path mapping configuré (@/ → src/)
+   - Strict mode activé
+   - Imports relatifs optimisés
+   - Types partagés client/serveur
+   - Build incrémental pour performances
+
+WORKFLOW DÉVELOPPEMENT :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+10. DÉMARRAGE QUOTIDIEN
+
+    1. Ouvrir VS Code dans le dossier projet
+    2. Terminal intégré : npm run dev
+    3. http://localhost:3000 s'ouvre automatiquement
+    4. Modifications sauvegardées = rechargement automatique
+    5. ESLint + Prettier formatent à la sauvegarde
+
+11. STRUCTURE COMPOSANTS PAGEFORGE
+
+    Chaque composant suit cette structure :
+    
+    src/components/ExampleComponent/
+    ├── index.ts                 # Export principal
+    ├── ExampleComponent.tsx     # Composant React
+    ├── ExampleComponent.types.ts # Types TypeScript
+    ├── ExampleComponent.styles.ts # Styles Tailwind
+    └── ExampleComponent.test.tsx  # Tests (optionnel)
+
+12. GESTION D'ÉTAT RECOMMANDÉE
+
+    - TanStack Query pour les données serveur
+    - useState/useReducer pour l'état local
+    - Context API pour l'état global partagé
+    - Zustand pour état complexe (optionnel)
+
+BONNES PRACTICES INTÉGRÉES :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+✅ Code formaté automatiquement (Prettier)
+✅ Lint en temps réel (ESLint)
+✅ Types stricts TypeScript
+✅ Imports organisés automatiquement
+✅ Git hooks pré-configurés
+✅ Build optimisé pour production
+✅ Hot reload préservé en développement
+✅ Debug intégré client + serveur
+
+DÉPANNAGE DÉVELOPPEMENT :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+❌ Extensions VS Code non installées
+→ Ctrl+Shift+P → "Extensions: Show Recommended Extensions"
+→ Installer toutes les extensions recommandées
+
+❌ TypeScript errors nombreuses
+→ Ctrl+Shift+P → "TypeScript: Restart TS Server"
+→ Vérifier tsconfig.json
+
+❌ Hot reload ne fonctionne pas
+→ Redémarrer npm run dev
+→ Vérifier port 3000 libre
+
+❌ ESLint/Prettier conflits
+→ Configuration déjà harmonisée
+→ Redémarrer VS Code si nécessaire
+
+❌ Debug ne démarre pas
+→ Vérifier Node.js installé
+→ npm install dans le terminal
+
+RESSOURCES DÉVELOPPEMENT :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+📚 Documentation TypeScript intégrée
+🎨 Storybook pour composants (à configurer)
+🧪 Jest + Testing Library (base incluse)  
+🔍 React DevTools + Redux DevTools compatibles
+📊 Bundle analyzer intégré (npm run analyze)
+
+PERFORMANCE OPTIMISÉE :
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+⚡ Vite pour build ultra-rapide
+⚡ Hot Module Replacement (HMR)
+⚡ Code splitting automatique
+⚡ Tree shaking optimisé
+⚡ TypeScript build incrémental
+⚡ Tailwind JIT (Just-In-Time)
+
+Pour questions spécifiques de développement, consultez README.md

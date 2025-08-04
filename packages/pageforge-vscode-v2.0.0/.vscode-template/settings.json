@@ -8,5 +8,15 @@
   "tailwindCSS.includeLanguages": {
     "typescript": "typescript",
     "typescriptreact": "typescriptreact"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/database.sqlite*": true
   }
 }
