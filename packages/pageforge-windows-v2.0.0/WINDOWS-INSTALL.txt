@@ -1,0 +1,31 @@
+INSTALLATION WINDOWS - PageForge v2.0.0
+==================================================
+
+INSTALLATION RAPIDE :
+
+1. DOUBLE-CLIC
+   - Exécuter start-installer.bat
+   - Le navigateur s'ouvrira automatiquement
+
+2. INTERFACE WEB
+   - Suivre l'assistant d'installation
+   - Configuration automatique Windows
+
+3. ALTERNATIVE MANUELLE
+   - Ouvrir terminal dans le dossier
+   - Taper: php -S localhost:8000
+   - Aller sur: http://localhost:8000/install.php
+
+PRÉREQUIS :
+- Windows 10/11
+- PHP 7.4+ (télécharger sur php.net)
+- Node.js 18+ (sera installé automatiquement)
+
+APRÈS INSTALLATION :
+- PageForge accessible sur http://localhost:5000
+- Créer vos premiers projets
+- Exporter en HTML/CSS/JS
+
+PROBLÈMES COURANTS :
+- Si PHP manque: installer depuis php.net
+- Si port occupé: modifier dans .env

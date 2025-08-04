@@ -1,0 +1,40 @@
+INSTALLATION LINUX - PageForge v2.0.0
+===============================================
+
+INSTALLATION RAPIDE :
+
+1. TERMINAL
+   ./start-installer.sh
+   
+2. NAVIGATEUR
+   - Ouvre automatiquement l'installateur
+   - Interface web interactive
+
+3. ALTERNATIVE MANUELLE
+   php -S localhost:8000
+   # Aller sur: http://localhost:8000/install.php
+
+PRÉREQUIS PAR DISTRIBUTION :
+
+Ubuntu/Debian:
+  sudo apt update
+  sudo apt install php php-zip php-curl nodejs npm
+
+CentOS/RHEL:
+  sudo yum install php php-zip php-curl nodejs npm
+
+Arch Linux:
+  sudo pacman -S php php-zip php-curl nodejs npm
+
+macOS (Homebrew):
+  brew install php node
+
+APRÈS INSTALLATION :
+- PageForge sur http://localhost:5000
+- Scripts disponibles dans le projet
+- Base de données configurée
+
+PERMISSIONS :
+Si erreur de permissions:
+  chmod +x start-installer.sh
+  chmod 755 dossier-installation/

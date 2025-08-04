@@ -1,0 +1,30 @@
+INSTALLATION CPANEL - PageForge v2.0.0
+================================================
+
+ÉTAPES D'INSTALLATION :
+
+1. UPLOAD DES FICHIERS
+   - Extraire le ZIP dans le dossier public_html
+   - Vérifier que install.php est à la racine
+
+2. LANCEMENT
+   - Aller sur : votre-domaine.com/install.php
+   - Suivre l'assistant 7 étapes
+
+3. CONFIGURATION
+   - Base de données MySQL automatique
+   - Domaine configuré automatiquement
+   - SSL détecté et configuré
+
+4. FINALISATION
+   - Supprimer install.php après installation
+   - PageForge accessible à la racine
+
+PRÉREQUIS :
+- PHP 7.4 ou supérieur
+- MySQL 5.7+ ou PostgreSQL
+- SSL/HTTPS recommandé
+- 100MB d'espace disque
+
+SUPPORT :
+Consulter README.md pour plus de détails.

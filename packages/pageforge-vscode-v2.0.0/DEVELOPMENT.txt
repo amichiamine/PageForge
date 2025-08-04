@@ -1,0 +1,47 @@
+CONFIGURATION VS CODE - PageForge v2.0.0
+===================================================
+
+DÉMARRAGE RAPIDE :
+
+1. EXTRACTION
+   - Extraire dans votre workspace
+   - cd pageforge-dev
+
+2. CONFIGURATION
+   - Lancer: php -S localhost:8080
+   - Aller sur: http://localhost:8080/setup.php
+   - Suivre l'assistant 7 étapes
+
+3. OUVERTURE VS CODE
+   - code .
+   - Accepter l'installation des extensions
+   - Configuration automatiquement appliquée
+
+FONCTIONNALITÉS CONFIGURÉES :
+
+✓ Debug client/serveur (F5)
+✓ Tasks automatisées (Ctrl+Shift+P > Tasks)
+✓ Extensions recommandées installées
+✓ Snippets PageForge personnalisés
+✓ Formatting automatique (Prettier + ESLint)
+✓ Support Tailwind CSS complet
+
+COMMANDES DE DÉVELOPPEMENT :
+
+npm run dev          # Client + Serveur
+npm run dev:client   # React + Vite
+npm run dev:server   # Express + TypeScript
+npm run build        # Build production
+npm run db:push      # Base de données
+
+DEBUGGING :
+- F5 : Debug serveur
+- Breakpoints supportés
+- Variables inspectables
+- Console intégrée
+
+PRÉREQUIS :
+- VS Code installé
+- Node.js 18+
+- Git (recommandé)
+- PostgreSQL (local)
