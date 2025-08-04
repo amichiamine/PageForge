@@ -5,7 +5,7 @@
 - **Prérequis**: PHP 7.4+, MySQL/PostgreSQL, Node.js Selector (optionnel)
 - **Installation**: Interface web interactive avec support Node.js
 - **Version**: 2.0.0
-- **Date**: 2025-08-04 20:55:11
+- **Date**: 2025-08-04 21:15:54
 
 ## Fonctionnalités
 - Installation sans ligne de commande

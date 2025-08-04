@@ -1,399 +1,471 @@
-# 🔧 Guide de Dépannage SiteJet
+# 🔧 Guide de Résolution de Problèmes PageForge
 
-## Résolution des Problèmes Courants
+Solutions aux problèmes les plus courants rencontrés avec PageForge.
 
-Ce guide vous aide à résoudre les problèmes les plus fréquents rencontrés avec SiteJet.
+## 📋 Table des Matières
+
+1. [Problèmes d'Installation](#problèmes-dinstallation)
+2. [Problèmes de Connexion](#problèmes-de-connexion)
+3. [Problèmes d'Interface](#problèmes-dinterface)
+4. [Problèmes d'Upload](#problèmes-dupload)
+5. [Problèmes d'Export](#problèmes-dexport)
+6. [Problèmes de Performance](#problèmes-de-performance)
+7. [Erreurs Serveur](#erreurs-serveur)
+8. [Obtenir de l'Aide](#obtenir-de-laide)
 
 ---
 
 ## 🚨 Problèmes d'Installation
 
-### ❌ "Node.js n'est pas reconnu"
+### "PHP n'est pas reconnu" (Windows)
 
 **Symptômes :**
-- Message "node n'est pas reconnu en tant que commande"
-- Impossible de lancer `npm install`
+- Message d'erreur au lancement de l'installateur
+- Fenêtre qui se ferme immédiatement
 
 **Solutions :**
 
-#### Windows
-1. **Redémarrer l'ordinateur** après installation de Node.js
-2. **Réinstaller Node.js** en tant qu'administrateur :
-   - Téléchargez depuis https://nodejs.org
-   - Clic droit sur l'installateur → "Exécuter en tant qu'administrateur"
-   - ✅ Cochez "Add to PATH" lors de l'installation
-3. **Vérifier les variables d'environnement** :
-   - Windows + R → `sysdm.cpl` → Avancé → Variables d'environnement
-   - Vérifiez que le PATH contient : `C:\Program Files\nodejs\`
+#### Solution A : Installer XAMPP (Recommandé)
+1. **Téléchargez** XAMPP : https://www.apachefriends.org/
+2. **Installez** avec tous les composants
+3. **Redémarrez** l'installateur PageForge
+4. **PHP** sera automatiquement disponible
 
-#### Linux
-```bash
-# Vérifier l'installation
-which node
-which npm
+#### Solution B : Installation PHP Direct
+1. **Téléchargez** PHP : https://windows.php.net/
+2. **Choisissez** "Thread Safe" version
+3. **Extrayez** dans `C:\php`
+4. **Ajoutez** `C:\php` au PATH Windows :
+   - `Windows + R` → tapez `sysdm.cpl`
+   - Onglet **"Avancé"** → **"Variables d'environnement"**
+   - **Double-cliquez** "Path" dans Variables système
+   - **Cliquez** "Nouveau" → Tapez `C:\php`
+   - **OK** partout et redémarrez
 
-# Réinstaller si nécessaire
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install nodejs -y
-```
+---
 
-### ❌ Erreur "Permission denied"
+### "Permission denied" (Linux/macOS)
 
 **Symptômes :**
-- `npm install` échoue avec des erreurs de permissions
-- Impossible de créer des fichiers
+- Script d'installation ne démarre pas
+- Erreur de permissions au lancement
 
 **Solutions :**
 
-#### Windows
-1. **Lancer en tant qu'administrateur** :
-   - Clic droit sur CMD ou PowerShell → "Exécuter en tant qu'administrateur"
-2. **Changer le dossier npm global** :
-   ```cmd
-   npm config set prefix %APPDATA%\npm
-   ```
-
-#### Linux/macOS
 ```bash
-# Corriger les permissions npm
-sudo chown -R $(whoami) ~/.npm
-sudo chown -R $(whoami) /usr/local/lib/node_modules
+# Donner les permissions d'exécution
+chmod +x start-installer.sh
+chmod +x *.sh
 
-# Alternative : utiliser nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-nvm install 20
-nvm use 20
-```
+# Si problème de propriétaire
+sudo chown -R $USER:$USER .
 
-### ❌ "npm ERR! network timeout"
-
-**Symptômes :**
-- Installation qui traine ou échoue
-- Messages de timeout réseau
-
-**Solutions :**
-```bash
-# Changer le registry npm
-npm config set registry https://registry.npmjs.org/
-
-# Augmenter le timeout
-npm config set timeout 60000
-
-# Vider le cache
-npm cache clean --force
-
-# Réessayer l'installation
-npm install
+# Relancer l'installation
+./start-installer.sh
 ```
 
 ---
 
-## 🌐 Problèmes de Serveur
-
-### ❌ "Port 3000 already in use"
+### "Database connection failed"
 
 **Symptômes :**
-- Erreur `EADDRINUSE: address already in use :::3000`
-- Impossible de démarrer SiteJet
+- Erreur lors de la configuration base de données
+- Installation bloquée à l'étape DB
 
 **Solutions :**
 
-#### Windows
-```cmd
-# Voir qui utilise le port
-netstat -ano | findstr :3000
+#### Vérifications cPanel
+1. **Retournez** dans cPanel → "MySQL Databases"
+2. **Vérifiez** que la base existe
+3. **Vérifiez** l'utilisateur est associé à la base
+4. **Testez** avec un script de connexion simple
 
-# Tuer le processus (remplacez PID par le numéro trouvé)
-taskkill /PID 1234 /F
+#### Paramètres courants
+- **Host** : `localhost` (99% des cas)
+- **Port** : `3306` pour MySQL, `5432` pour PostgreSQL
+- **Préfixe** : Certains hébergeurs ajoutent un préfixe au nom
 
-# OU changer le port dans .env
-echo PORT=8000 >> .env
+#### Script de test
+```php
+<?php
+try {
+    $pdo = new PDO("mysql:host=localhost;dbname=votre_base", "utilisateur", "mot_de_passe");
+    echo "✅ Connexion réussie !";
+} catch(PDOException $e) {
+    echo "❌ Erreur : " . $e->getMessage();
+}
+?>
 ```
 
-#### Linux/macOS
-```bash
-# Voir qui utilise le port
-lsof -i :3000
+---
 
-# Tuer le processus
-sudo kill -9 PID
+## 🔌 Problèmes de Connexion
 
-# OU changer le port
-echo "PORT=8000" >> .env
-```
-
-### ❌ "Cannot GET /"
+### "Impossible d'accéder à PageForge"
 
 **Symptômes :**
 - Page blanche ou erreur 404
-- Le serveur démarre mais rien ne s'affiche
+- "Site inaccessible"
 
 **Solutions :**
-1. **Vérifier l'URL** : http://localhost:3000 (pas https)
-2. **Vider le cache du navigateur** : Ctrl+F5
-3. **Vérifier les logs** dans la console où tourne `npm run dev`
-4. **Redémarrer le serveur** :
-   ```bash
-   # Arrêter (Ctrl+C) puis relancer
-   npm run dev
-   ```
 
-### ❌ "Database connection failed"
+#### Vérifications URL
+- **Hébergement cPanel** : `https://votre-domaine.com/`
+- **Local Windows** : `http://localhost:3000`
+- **Local Linux/Mac** : `http://localhost:3000`
 
-**Symptômes :**
-- Erreurs de base de données dans les logs
-- Fonctionnalités limitées
+#### Vérifications serveur
+```bash
+# Vérifier que le port n'est pas occupé
+netstat -tulpn | grep :3000
 
-**Solutions :**
-1. **Vérifier le fichier .env** :
-   ```env
-   DATABASE_URL=postgresql://username:password@localhost:5432/database
-   ```
-2. **Réinitialiser la base de données** :
-   ```bash
-   npm run db:push
-   ```
-3. **PostgreSQL non démarré** (Linux) :
-   ```bash
-   sudo systemctl start postgresql
-   sudo systemctl enable postgresql
-   ```
+# Redémarrer PageForge
+# Windows : relancer start-installer.bat
+# Linux/Mac : ./start-installer.sh
+```
 
 ---
 
-## 🎨 Problèmes d'Interface
-
-### ❌ Composants ne s'affichent pas
+### "ERR_CONNECTION_REFUSED"
 
 **Symptômes :**
-- Composants invisibles ou mal positionnés
-- Interface cassée
+- Navigateur refuse la connexion
+- Timeout de connexion
 
 **Solutions :**
-1. **Vider le cache du navigateur** :
-   - Chrome : Ctrl+Shift+Delete
-   - Firefox : Ctrl+Shift+Delete
-   - Safari : Développement → Vider les caches
-2. **Mode navigation privée** pour tester
-3. **Redémarrer le serveur** et rafraîchir la page
-4. **Vérifier la console navigateur** (F12) pour les erreurs JavaScript
 
-### ❌ Glisser-déposer ne fonctionne pas
-
-**Symptômes :**
-- Impossible de déplacer les composants
-- Drag & drop non réactif
-
-**Solutions :**
-1. **Navigateur compatible** :
-   - ✅ Chrome 90+
-   - ✅ Firefox 88+
-   - ✅ Safari 14+
-   - ❌ Internet Explorer (non supporté)
-2. **Désactiver les extensions** du navigateur temporairement
-3. **Vérifier JavaScript** : F12 → Console → Rechercher les erreurs
-
-### ❌ "Échec de la sauvegarde"
-
-**Symptômes :**
-- Message d'erreur lors de la sauvegarde
-- Travail non sauvegardé
-
-**Solutions :**
-1. **Vérifier l'espace disque** disponible
-2. **Permissions de fichier** :
+1. **Vérifiez** que le serveur PageForge tourne
+2. **Redémarrez** l'installateur
+3. **Testez** un autre port :
    ```bash
-   # Linux/macOS
-   chmod 755 -R .
-   
-   # Windows : Propriétés → Sécurité → Modifier
+   php -S localhost:8080
    ```
-3. **Sauvegarde manuelle** : Ctrl+S
-4. **Exporter le projet** en cas d'urgence
+4. **Désactivez** temporairement firewall/antivirus
 
 ---
 
-## 📱 Problèmes Mobile/Responsive
+## 🖼️ Problèmes d'Interface
 
-### ❌ Site non responsive
+### "Interface ne se charge pas"
 
 **Symptômes :**
-- Affichage incorrect sur mobile
-- Éléments qui dépassent
+- Écran blanc après connexion
+- Interface partiellement chargée
 
 **Solutions :**
-1. **Utiliser l'aperçu mobile** dans SiteJet
-2. **Vérifier les composants** : certains ont des tailles fixes
-3. **Tester sur différents appareils** :
-   - F12 → Mode responsive
-   - Tester sur vrais appareils
 
-### ❌ Boutons trop petits sur mobile
+#### Cache navigateur
+1. **Ouvrez** les outils développeur (F12)
+2. **Clic droit** sur le bouton actualiser
+3. **Sélectionnez** "Vider le cache et recharger"
 
-**Solutions :**
-- **Taille minimum** : 44px sur mobile
-- **Espacement** suffisant entre les éléments
-- **Zone de touch** adaptée au doigt
+#### JavaScript désactivé
+1. **Vérifiez** que JavaScript est activé
+2. **Autorisez** les pop-ups pour PageForge
+3. **Désactivez** les bloqueurs de pub temporairement
+
+#### Navigateur incompatible
+- **Chrome** 90+ ✅
+- **Firefox** 88+ ✅
+- **Safari** 14+ ✅
+- **Edge** 90+ ✅
 
 ---
 
-## 🚀 Problèmes de Performance
+### "Composants ne s'affichent pas"
 
-### ❌ SiteJet lent ou qui lag
+**Symptômes :**
+- Palette vide à gauche
+- Erreur de chargement composants
+
+**Solutions :**
+
+1. **Actualisez** la page (F5)
+2. **Vérifiez** la console développeur (F12)
+3. **Testez** un autre navigateur
+4. **Vérifiez** les fichiers JavaScript sont bien chargés
+
+---
+
+## 📤 Problèmes d'Upload
+
+### "Impossible d'uploader des images"
+
+**Symptômes :**
+- Erreur lors de l'upload
+- Images ne s'affichent pas
+
+**Solutions :**
+
+#### Taille de fichier
+- **Maximum** : 10MB par défaut
+- **Formats** : JPG, PNG, GIF, SVG
+- **Réduisez** la taille si nécessaire
+
+#### Configuration PHP (cPanel)
+```ini
+; Dans .htaccess ou php.ini
+upload_max_filesize = 20M
+post_max_size = 20M
+max_execution_time = 300
+memory_limit = 256M
+```
+
+#### Permissions dossier
+```bash
+# Linux/Mac : Permissions dossier uploads
+chmod 755 uploads/
+chown www-data:www-data uploads/
+```
+
+---
+
+### "Images cassées après upload"
+
+**Symptômes :**
+- Images uploaded mais ne s'affichent pas
+- Icône d'image cassée
+
+**Solutions :**
+
+1. **Vérifiez** le chemin des images dans le code
+2. **Testez** l'URL directe de l'image
+3. **Rechargez** l'image dans l'éditeur
+4. **Vérifiez** les permissions du serveur web
+
+---
+
+## 📥 Problèmes d'Export
+
+### "Export échoue ou fichier corrompu"
+
+**Symptômes :**
+- Fichier ZIP ne se télécharge pas
+- Archive corrompue
+- Export infini
+
+**Solutions :**
+
+#### Mémoire PHP insuffisante
+```php
+// Dans .htaccess
+php_value memory_limit 512M
+php_value max_execution_time 300
+```
+
+#### Projet trop volumineux
+1. **Réduisez** la taille des images
+2. **Supprimez** les composants non utilisés
+3. **Exportez** page par page si nécessaire
+
+#### Permissions serveur
+```bash
+# Vérifier les permissions d'écriture
+ls -la temp/
+chmod 755 temp/
+```
+
+---
+
+### "Site exporté ne fonctionne pas"
+
+**Symptômes :**
+- HTML généré ne s'affiche pas correctement
+- CSS/JS manquants
+
+**Solutions :**
+
+1. **Vérifiez** la structure des fichiers exportés :
+   ```
+   export/
+   ├── index.html
+   ├── css/
+   ├── js/
+   └── images/
+   ```
+
+2. **Testez** localement avant upload
+3. **Vérifiez** les chemins relatifs
+4. **Uploadez** tous les dossiers sur l'hébergeur
+
+---
+
+## ⚡ Problèmes de Performance
+
+### "PageForge très lent"
 
 **Symptômes :**
 - Interface qui rame
-- Réponse lente des actions
+- Sauvegarde lente
+- Aperçu qui se charge mal
 
 **Solutions :**
-1. **Fermer les autres applications** gourmandes
-2. **Redémarrer le navigateur**
-3. **Vérifier la RAM** disponible (minimum 4 Go)
-4. **Désactiver les extensions** du navigateur
-5. **Mode développement** plus lent que production
 
-### ❌ Export qui prend trop de temps
+#### Navigateur
+1. **Fermez** les autres onglets
+2. **Redémarrez** le navigateur
+3. **Videz** le cache et cookies
+4. **Testez** en mode incognito
 
-**Solutions :**
-1. **Réduire la taille des images** avant import
-2. **Limiter le nombre de composants** par page
-3. **Exporter par parties** si le projet est très gros
+#### Projet
+1. **Réduisez** le nombre d'images
+2. **Optimisez** les images (compression)
+3. **Supprimez** les composants inutiles
+4. **Sauvegardez** et rechargez le projet
+
+#### Serveur
+1. **Vérifiez** l'espace disque disponible
+2. **Augmentez** la mémoire PHP si possible
+3. **Contactez** votre hébergeur
 
 ---
 
-## 🌐 Problèmes de Déploiement
-
-### ❌ "502 Bad Gateway" après déploiement
+### "Sauvegarde très lente"
 
 **Symptômes :**
-- Site inaccessible après upload
-- Erreur serveur 502
+- Auto-sauvegarde qui prend du temps
+- Interface gelée pendant sauvegarde
 
 **Solutions :**
-1. **Vérifier Node.js** sur l'hébergement :
-   - Version compatible (18+)
-   - Service démarré
-2. **Logs du serveur** :
-   ```bash
-   pm2 logs
-   # ou
-   tail -f /var/log/nginx/error.log
-   ```
-3. **Port correct** dans la configuration Nginx
-4. **Redémarrer les services** :
-   ```bash
-   sudo systemctl restart nginx
-   pm2 restart all
-   ```
 
-### ❌ Base de données inaccessible en production
-
-**Solutions :**
-1. **Vérifier DATABASE_URL** en production
-2. **Firewall** : autoriser les connexions DB
-3. **Utilisateur DB** : permissions correctes
-4. **SSL requis** sur certains hébergeurs cloud
-
-### ❌ Assets (CSS/JS) non chargés
-
-**Solutions :**
-1. **Chemins absolus** vs relatifs dans l'export
-2. **HTTPS/HTTP mixte** : tout en HTTPS
-3. **CDN** : vérifier la disponibilité
-4. **Cache** : forcer le refresh avec version query
+1. **Réduisez** la fréquence d'auto-save
+2. **Sauvez manuellement** moins souvent
+3. **Vérifiez** la connexion internet
+4. **Optimisez** la base de données
 
 ---
 
-## 🔍 Outils de Diagnostic
+## 🔥 Erreurs Serveur
 
-### Vérification Système
-```bash
-# Versions installées
-node --version
-npm --version
+### "Error 500 - Internal Server Error"
 
-# Espace disque
-df -h
+**Symptômes :**
+- Page d'erreur 500
+- Site inaccessible
 
-# Mémoire disponible
-free -h
+**Solutions :**
 
-# Processus qui utilisent les ports
-netstat -tulpn | grep :3000
-```
+#### Logs d'erreur
+1. **Consultez** les logs dans cPanel → "Error Logs"
+2. **Identifiez** l'erreur PHP spécifique
+3. **Corrigez** le problème identifié
 
-### Logs Utiles
-```bash
-# Logs SiteJet
-npm run dev 2>&1 | tee sitejet.log
+#### Erreurs communes
+- **Mémoire PHP dépassée** → Augmentez memory_limit
+- **Fichier manquant** → Vérifiez installation complète
+- **Permissions** → chmod 755 sur dossiers
 
-# Logs système (Linux)
-journalctl -u nginx -f
-journalctl -u postgresql -f
+---
 
-# Logs navigateur
-# F12 → Console → Rechercher les erreurs rouges
-```
+### "Error 404 - Page Not Found"
 
-### Test de Connectivité
-```bash
-# Test de port local
-curl http://localhost:3000
+**Symptômes :**
+- Pages non trouvées
+- URLs cassées
 
-# Test base de données
-psql $DATABASE_URL -c "SELECT 1;"
-```
+**Solutions :**
+
+1. **Vérifiez** le fichier `.htaccess` :
+   ```apache
+   RewriteEngine On
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule ^(.*)$ index.html [L]
+   ```
+
+2. **Testez** l'URL directe des fichiers
+3. **Vérifiez** la structure des dossiers
 
 ---
 
 ## 📞 Obtenir de l'Aide
 
-### 🚀 Support Automatique
-1. **F12** → Console du navigateur → Copier les erreurs
-2. **Informations système** :
-   - OS et version
-   - Navigateur et version
-   - Version Node.js
-   - Message d'erreur exact
+### Informations à Fournir
 
-### 📧 Contacter le Support
-**Email :** support@sitejet.com
+Quand vous demandez de l'aide, incluez **toujours** :
 
-**Format de message efficace :**
+1. **Système d'exploitation** (Windows 10, Ubuntu 20.04, etc.)
+2. **Type d'installation** (cPanel, local, développement)
+3. **Navigateur et version** (Chrome 95, Firefox 92, etc.)
+4. **Message d'erreur complet** (copier-coller)
+5. **Étapes pour reproduire** le problème
+
+### Logs Utiles
+
+#### Logs navigateur (F12)
 ```
-Objet : [URGENT] Problème d'installation SiteJet
-
-Système :
-- OS : Windows 11 / Ubuntu 22.04 / macOS 13
-- Node.js : v20.10.0
-- Navigateur : Chrome 120.0.0
-
-Problème :
-[Description détaillée du problème]
-
-Erreur exacte :
-[Copier-coller du message d'erreur]
-
-Étapes pour reproduire :
-1. [Action 1]
-2. [Action 2] 
-3. [Erreur survient]
-
-Captures d'écran : [Si applicable]
+Console → Copier les erreurs JavaScript
+Network → Vérifier les requêtes échouées
 ```
 
-### 🌐 Ressources Communautaires
-- **Documentation** : docs/
-- **Forum** : forum.sitejet.com
-- **Discord** : discord.gg/sitejet
-- **GitHub Issues** : github.com/sitejet/issues
+#### Logs serveur (cPanel)
+```
+cPanel → Error Logs → Dernières entrées
+```
 
-### ⚡ Solutions Rapides
-- **Redémarrer** : 80% des problèmes résolus
-- **Vider le cache** : 60% des problèmes d'affichage
-- **Mode navigation privée** : Test isolé
-- **Mettre à jour** : Node.js, navigateur, SiteJet
+#### Logs PageForge
+```
+# Dans le dossier PageForge
+cat logs/error.log
+cat logs/access.log
+```
+
+### Outils de Diagnostic
+
+#### Test de Connectivité
+```bash
+# Tester PHP
+php --version
+php -m | grep -E 'pdo|curl|json'
+
+# Tester base de données
+mysql -h localhost -u utilisateur -p
+
+# Tester ports
+telnet localhost 3000
+```
+
+#### Test des Permissions
+```bash
+# Linux/Mac
+ls -la
+find . -type f -name "*.php" -exec ls -la {} \;
+```
+
+### Canaux de Support
+
+1. **GitHub Issues** : https://github.com/votre-repo/pageforge/issues
+   - Pour bugs et demandes de fonctionnalités
+   - Inclure les informations de debug
+
+2. **Discussions** : https://github.com/votre-repo/pageforge/discussions
+   - Pour questions générales
+   - Aide communautaire
+
+3. **Wiki** : https://github.com/votre-repo/pageforge/wiki
+   - Base de connaissances
+   - Tutorials communautaires
 
 ---
 
-**💡 Conseil :** Gardez ce guide à portée de main et n'hésitez pas à nous contacter pour toute question !
+## 🔄 Check-list de Dépannage
+
+Avant de demander de l'aide, vérifiez :
+
+- [ ] **Navigateur à jour** et compatible
+- [ ] **Cache vidé** et page rechargée (Ctrl+F5)
+- [ ] **JavaScript activé** dans le navigateur
+- [ ] **Bloqueurs de pub désactivés** pour PageForge
+- [ ] **Firewall/antivirus** ne bloque pas
+- [ ] **Permissions fichiers** correctes (755/644)
+- [ ] **Espace disque suffisant** (>100MB)
+- [ ] **PHP version** 7.4 ou supérieure
+- [ ] **Extensions PHP** requises installées
+- [ ] **Base de données** accessible
+- [ ] **Logs d'erreur** consultés
+
+---
+
+**Problème non résolu ?** Créez une issue GitHub avec tous les détails !
+
+**PageForge - Support Communautaire 🤝**
